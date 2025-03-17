@@ -105,17 +105,37 @@
     </footer>
 
     <script>
+        // Fonction pour basculer entre les modes
         function toggleTheme() {
             const body = document.body;
             const themeToggle = document.querySelector('.theme-toggle');
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light'); // Sauvegarder le mode clair
             } else {
                 body.classList.add('dark-mode');
                 themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark'); // Sauvegarder le mode sombre
             }
         }
+
+        // Charger le thème sauvegardé au chargement de la page
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                body.classList.remove('dark-mode');
+                themeToggle.textContent = '🌙';
+            }
+        }
+
+        // Appeler loadTheme au chargement de la page
+        window.onload = loadTheme;
     </script>
 
 </body>
