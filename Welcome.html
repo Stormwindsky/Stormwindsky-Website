@@ -10,6 +10,11 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            color: #333;
+        }
+        body.dark-mode {
+            background-color: #333;
+            color: #f4f4f4;
         }
         header {
             background-color: #333;
@@ -51,6 +56,12 @@
         footer a:hover {
             text-decoration: underline;
         }
+        .theme-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -71,10 +82,25 @@
         <p>Place Holder bc yeah, lol</p>
     </div>
 
+    <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
 
     <footer>
         <p>LOL!!!!! | <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View on GitHub</a></p>
     </footer>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                themeToggle.textContent = '🌙';
+            } else {
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            }
+        }
+    </script>
 
 </body>
 </html>
