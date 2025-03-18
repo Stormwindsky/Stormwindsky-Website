@@ -10,11 +10,6 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
-            color: #333;
-        }
-        body.dark-mode {
-            background-color: #333;
-            color: #f4f4f4;
         }
         header {
             background-color: #333;
@@ -62,12 +57,6 @@
         footer a:hover {
             text-decoration: underline;
         }
-        .theme-toggle {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -80,6 +69,7 @@
         <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">Home</a>
         <a href="https://stormwindsky.github.io/Stormwindsky-Website/About_Me.html" target="_blank">About Me</a>
         <a href="https://stormwindsky.github.io/Stormwindsky-Website/Origin.html" target="_blank">Origin of my Username</a>
+        <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools.html" target="_blank">My Web Tools</a>
     </nav>
 
     <div class="content">
@@ -98,45 +88,9 @@
         </p>
     </div>
 
-    <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
-
     <footer>
         <p>LOL!!!!! | <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View on GitHub</a></p>
     </footer>
-
-    <script>
-        // Fonction pour basculer entre les modes
-        function toggleTheme() {
-            const body = document.body;
-            const themeToggle = document.querySelector('.theme-toggle');
-            if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                themeToggle.textContent = '🌙';
-                localStorage.setItem('theme', 'light'); // Sauvegarder le mode clair
-            } else {
-                body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
-                localStorage.setItem('theme', 'dark'); // Sauvegarder le mode sombre
-            }
-        }
-
-        // Charger le thème sauvegardé au chargement de la page
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const body = document.body;
-            const themeToggle = document.querySelector('.theme-toggle');
-            if (savedTheme === 'dark') {
-                body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
-            } else {
-                body.classList.remove('dark-mode');
-                themeToggle.textContent = '🌙';
-            }
-        }
-
-        // Appeler loadTheme au chargement de la page
-        window.onload = loadTheme;
-    </script>
 
 </body>
 </html>
