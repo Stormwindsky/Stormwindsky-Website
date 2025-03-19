@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Editor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Web Editor</h1>
+    <div class="controls">
+        <button id="editButton">View</button>
+        <button id="saveButton">Save</button>
+        <button id="copyLinkButton">Copy the link</button>
+    </div>
+    <iframe id="preview"></iframe>
+    <div class="editor">
+        <textarea id="htmlEditor" placeholder="Put your HTML here..."></textarea>
+        <textarea id="cssEditor" placeholder="Put your CSS here..."></textarea>
+        <textarea id="jsEditor" placeholder="Put your JavaScript here..."></textarea>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
