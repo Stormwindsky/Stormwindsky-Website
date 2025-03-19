@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linktree-like</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>OpenLinker</h1>
+        <div id="links">
+            <!-- Links will be dynamically added here -->
+        </div>
+        <button id="editBtn">Edit Links</button>
+        <button id="shareBtn">Generate Shareable Link</button>
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Edit Links</h2>
+                <textarea id="linkInput" placeholder="Enter your links in JSON format"></textarea>
+                <button id="saveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
