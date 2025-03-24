@@ -1,0 +1,315 @@
+/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2c3e50;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+header .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Search container */
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+#source-select {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    outline: none;
+    background-color: #ecf0f1;
+    color: #333;
+    margin-right: 10px;
+}
+
+#search-input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    outline: none;
+    background-color: #ecf0f1;
+    color: #333;
+}
+
+#search-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+#search-button:hover {
+    background-color: #2980b9;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    height: 100vh;
+    position: fixed;
+    top: 60px;
+    left: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    color: #3498db;
+}
+
+/* Article container */
+#article-container {
+    max-width: 900px;
+    font-family: 'Georgia', serif;
+    line-height: 1.8;
+    background-color: #f5f5dc; /* Book-like background color */
+    padding: 40px;
+    border: 1px solid #ddd;
+    text-align: left; /* Justified layout */
+    margin: 20px auto;
+    margin-left: 270px;
+    margin-top: 80px;
+    overflow: hidden; /* Handle infobox floating */
+    opacity: 0; /* Start invisible */
+    filter: blur(5px); /* Initial blur */
+    transition: opacity 1s ease-in-out, filter 1s ease-in-out; /* Smooth transition */
+}
+
+/* Class to make content visible */
+#article-container.visible {
+    opacity: 1; /* Make content visible */
+    filter: blur(0); /* Remove blur */
+}
+
+#article-container h1 {
+    font-size: 36px;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+#article-container p {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #555;
+    text-indent: 2em; /* Indentation for book-like style */
+}
+
+#article-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer; /* Pointer cursor to indicate clickable image */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#article-container img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles for the infobox (positioned to the right) */
+.infobox {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Georgia', serif;
+    color: #333;
+    width: 300px; /* Fixed width for the infobox */
+    float: right; /* Position to the right */
+    margin-left: 20px; /* Spacing between infobox and text */
+    margin-bottom: 20px; /* Bottom spacing */
+}
+
+.infobox th {
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    text-align: left;
+    font-size: 18px;
+    border-radius: 5px 5px 0 0;
+}
+
+.infobox td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.infobox img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin: 10px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.infobox a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.infobox a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+/* Styles for TTS and translation controls */
+.controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background-color: #2c3e50;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.controls button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.controls button:hover {
+    background-color: #2980b9;
+}
+
+.controls select {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    outline: none;
+    background-color: #ecf0f1;
+    color: #333;
+}
+
+.controls input {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    outline: none;
+    background-color: #ecf0f1;
+    color: #333;
+}
+
+/* Styles for image inspection mode */
+.image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.image-overlay img.zoomed {
+    transform: scale(1.5);
+}
+
+/* Footer styles */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+}
+
+footer a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}

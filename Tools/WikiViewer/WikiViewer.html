@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Wiki Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">WikiViewer</div>
+        <div class="search-container">
+            <select id="source-select">
+                <option value="wikipedia">Wikipedia</option>
+                <option value="wikisource">Wikisource</option>
+                <option value="wikibooks">Wikibooks</option>
+                <option value="wiktionary">Wiktionary</option>
+                <option value="wikinews">Wikinews</option>
+            </select>
+            <select id="language-select">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+                <option value="it">Italiano</option>
+                <!-- Add more languages if needed -->
+            </select>
+            <input type="text" id="search-input" placeholder="Search...">
+            <button id="search-button">Search</button>
+        </div>
+    </header>
+    <div class="sidebar">
+        <ul>
+            <li><a href="#" id="home-link">Home</a></li>
+            <li><a href="#" id="random-link">Random Article</a></li>
+        </ul>
+    </div>
+    <div id="article-container"></div>
+
+    <!-- TTS, translation, and API key controls -->
+    <div class="controls">
+        <button id="tts-toggle">Enable TTS</button>
+        <select id="voice-select">
+            <!-- Voice options will be added dynamically -->
+        </select>
+        <select id="translate-select">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="it">Italiano</option>
+            <!-- Add more languages if needed -->
+        </select>
+        <button id="translate-button">Translate</button>
+        <input type="text" id="api-key-input" placeholder="Enter your LibreTranslate API key">
+    </div>
+
+    <!-- Credits and GitHub link -->
+    <footer>
+        <p>Not affiliated with <a href="https://wikimediafoundation.org/" target="_blank">Wikimedia Foundation but thx for your api</a></p>
+        <p>View the source code on <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
