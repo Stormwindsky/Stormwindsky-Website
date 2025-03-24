@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SB3 Archiver</title>
+    <style>
+        :root {
+            --primary: #4a6da7;
+            --secondary: #f8f8f8;
+            --accent: #ff7b26;
+            --text: #333;
+            --light-text: #666;
+            --warning: #fff3cd;
+            --warning-border: #ffc107;
+            --danger: #f8d7da;
+            --danger-border: #f5c6cb;
+            --info: #d1ecf1;
+            --info-border: #bee5eb;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--secondary);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 20px;
+        }
+        
+        .disclaimer {
+            background-color: var(--warning);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--warning-border);
+        }
+        
+        .special-notice {
+            background-color: var(--danger);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--danger-border);
+            display: none;
+        }
+        
+        .project-frame-container {
+            background-color: var(--info);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 5px solid var(--info-border);
+            display: none;
+        }
+        
+        .project-frame {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #3a5a8f;
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .thumbnail-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .thumbnail {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .archive-links {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .archive-link {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--secondary);
+            border-radius: 5px;
+            color: var(--primary);
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .archive-link:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .original-link {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: var(--light-text);
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SB3 Archiver</h1>
+        <p class="subtitle">Preserve Scratch project thumbnails for posterity</p>
+    </header>
+    
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This website is not affiliated with or endorsed by the Scratch Foundation. 
+        It serves as an independent tool to archive Scratch project thumbnails and help preserve their existence.
+    </div>
+    
+    <div class="special-notice" id="specialNotice">
+        <strong>Notice about this project:</strong> This is "Fax", a project created by the user "kaj", a controversial figure in the Scratch community. Kaj was known for threatening to hack Scratch if users didn't like his projects. This project has become somewhat of an urban legend in the Scratch community, similar to Herobrine in Minecraft. <a href="https://en.scratch-wiki.info/wiki/kaj" target="_blank">Learn more about kaj on the Scratch Wiki</a>.
+    </div>
+    
+    <div class="input-container">
+        <input type="number" id="projectId" placeholder="Enter Scratch Project ID" min="1">
+        <button id="archiveBtn">Archive Thumbnail</button>
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Archiving in progress...</p>
+    </div>
+    
+    <div class="result-container" id="resultContainer">
+        <div class="thumbnail-container">
+            <img id="thumbnailImg" class="thumbnail" src="" alt="Scratch Project Thumbnail">
+        </div>
+        
+        <div class="archive-links">
+            <h3>Archived Versions:</h3>
+            <div id="archiveLinks"></div>
+            <div class="original-link" id="originalLink"></div>
+        </div>
+    </div>
+    
+    <div class="project-frame-container" id="projectFrameContainer">
+        <p><strong>This project has been archived and is playable below via TurboWarp:</strong></p>
+        <iframe class="project-frame" id="projectFrame" allowfullscreen></iframe>
+    </div>
+    
+    <footer>
+        <p>SB3 Archiver | <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View on GitHub</a> | Preserving digital creativity</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const projectIdInput = document.getElementById('projectId');
+            const archiveBtn = document.getElementById('archiveBtn');
+            const loadingElement = document.getElementById('loading');
+            const resultContainer = document.getElementById('resultContainer');
+            const thumbnailImg = document.getElementById('thumbnailImg');
+            const archiveLinksContainer = document.getElementById('archiveLinks');
+            const originalLinkElement = document.getElementById('originalLink');
+            const specialNotice = document.getElementById('specialNotice');
+            const projectFrameContainer = document.getElementById('projectFrameContainer');
+            const projectFrame = document.getElementById('projectFrame');
+            
+            archiveBtn.addEventListener('click', function() {
+                const projectId = projectIdInput.value.trim();
+                
+                if (!projectId) {
+                    alert('Please enter a valid Scratch project ID');
+                    return;
+                }
+                
+                // Hide special notices initially
+                specialNotice.style.display = 'none';
+                projectFrameContainer.style.display = 'none';
+                
+                // Show loading indicator
+                loadingElement.style.display = 'block';
+                resultContainer.style.display = 'none';
+                
+                // Generate the thumbnail URL
+                const thumbnailUrl = `https://uploads.scratch.mit.edu/get_image/project/${projectId}_293x220.png`;
+                thumbnailImg.src = thumbnailUrl;
+                
+                // Check if the image exists
+                thumbnailImg.onload = function() {
+                    // Hide loading indicator
+                    loadingElement.style.display = 'none';
+                    
+                    // Show result container
+                    resultContainer.style.display = 'block';
+                    
+                    // Create archive links
+                    createArchiveLinks(projectId, thumbnailUrl);
+                    
+                    // Show special notice if this is kaj's Fax project
+                    if (projectId === '73996424') {
+                        specialNotice.style.display = 'block';
+                    }
+                    
+                    // Show TurboWarp embed for specific projects
+                    if (projectId === '1') {
+                        projectFrame.src = "https://turbowarp.org/485769232/embed";
+                        projectFrameContainer.style.display = 'block';
+                    }
+                    else if (projectId === '485789391') {
+                        projectFrame.src = "https://turbowarp.org/485789391/embed";
+                        projectFrameContainer.style.display = 'block';
+                    }
+                };
+                
+                thumbnailImg.onerror = function() {
+                    // Hide loading indicator
+                    loadingElement.style.display = 'none';
+                    
+                    alert('Thumbnail not found. Please check the project ID.');
+                };
+            });
+            
+            function createArchiveLinks(projectId, originalUrl) {
+                // Clear previous links
+                archiveLinksContainer.innerHTML = '';
+                
+                // Create archive URLs
+                const archiveOrgUrl = `https://web.archive.org/save/${originalUrl}`;
+                const archiveIsUrl = `https://archive.is/?run=1&url=${encodeURIComponent(originalUrl)}`;
+                
+                // Create links
+                const archiveOrgLink = document.createElement('a');
+                archiveOrgLink.href = archiveOrgUrl;
+                archiveOrgLink.className = 'archive-link';
+                archiveOrgLink.textContent = 'Archive on archive.org';
+                archiveOrgLink.target = '_blank';
+                
+                const archiveIsLink = document.createElement('a');
+                archiveIsLink.href = archiveIsUrl;
+                archiveIsLink.className = 'archive-link';
+                archiveIsLink.textContent = 'Archive on archive.is';
+                archiveIsLink.target = '_blank';
+                
+                // Add links to container
+                archiveLinksContainer.appendChild(archiveOrgLink);
+                archiveLinksContainer.appendChild(archiveIsLink);
+                
+                // Show original URL
+                originalLinkElement.innerHTML = `Original URL: <a href="${originalUrl}" target="_blank">${originalUrl}</a>`;
+                
+                // Check for existing archives
+                checkExistingArchives(originalUrl);
+            }
+            
+            function checkExistingArchives(url) {
+                // Check archive.org
+                fetch(`https://archive.org/wayback/available?url=${encodeURIComponent(url)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.archived_snapshots && data.archived_snapshots.closest) {
+                            const archiveOrgLink = document.createElement('a');
+                            archiveOrgLink.href = data.archived_snapshots.closest.url;
+                            archiveOrgLink.className = 'archive-link';
+                            archiveOrgLink.textContent = `View existing archive.org snapshot (${data.archived_snapshots.closest.timestamp})`;
+                            archiveOrgLink.target = '_blank';
+                            archiveLinksContainer.appendChild(archiveOrgLink);
+                        }
+                    })
+                    .catch(error => console.error('Error checking archive.org:', error));
+            }
+            
+            // Allow pressing Enter in the input field
+            projectIdInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    archiveBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
