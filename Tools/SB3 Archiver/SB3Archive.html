@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SB3 Archiver</title>
+    <title>Sb3 Archiver</title>
     <style>
         :root {
             --primary: #4a6da7;
@@ -17,6 +17,8 @@
             --danger-border: #f5c6cb;
             --info: #d1ecf1;
             --info-border: #bee5eb;
+            --mystery: #e2d4f0;
+            --mystery-border: #d6b3ff;
         }
         
         body {
@@ -65,6 +67,15 @@
             display: none;
         }
         
+        .mystery-notice {
+            background-color: var(--mystery);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--mystery-border);
+            display: none;
+        }
+        
         .project-frame-container {
             background-color: var(--info);
             padding: 15px;
@@ -76,10 +87,13 @@
         
         .project-frame {
             width: 100%;
-            height: 500px;
+            height: 412px;
             border: none;
             border-radius: 5px;
             margin-top: 10px;
+            allowtransparency: "true";
+            frameborder: "0";
+            scrolling: "no";
         }
         
         .input-container {
@@ -204,7 +218,7 @@
 </head>
 <body>
     <header>
-        <h1>SB3 Archiver</h1>
+        <h1>Sb3 Archiver</h1>
         <p class="subtitle">Preserve Scratch project thumbnails for posterity</p>
     </header>
     
@@ -215,6 +229,10 @@
     
     <div class="special-notice" id="specialNotice">
         <strong>Notice about this project:</strong> This is "Fax", a project created by the user "kaj", a controversial figure in the Scratch community. Kaj was known for threatening to hack Scratch if users didn't like his projects. This project has become somewhat of an urban legend in the Scratch community, similar to Herobrine in Minecraft. <a href="https://en.scratch-wiki.info/wiki/kaj" target="_blank">Learn more about kaj on the Scratch Wiki</a>.
+    </div>
+    
+    <div class="mystery-notice" id="mysteryNotice">
+        <strong>Mysterious Project #10000:</strong> This is the legendary 10,000th project on Scratch, but its original creator remains unknown. The project has been preserved through community efforts, but its origins are lost to time. This archived version represents what the community believes to be the original project.
     </div>
     
     <div class="input-container">
@@ -245,7 +263,7 @@
     </div>
     
     <footer>
-        <p>SB3 Archiver | <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View on GitHub</a> | Preserving digital creativity</p>
+        <p>Scratch Thumbnail Archiver | <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View on GitHub</a> | Preserving digital creativity</p>
     </footer>
 
     <script>
@@ -258,6 +276,7 @@
             const archiveLinksContainer = document.getElementById('archiveLinks');
             const originalLinkElement = document.getElementById('originalLink');
             const specialNotice = document.getElementById('specialNotice');
+            const mysteryNotice = document.getElementById('mysteryNotice');
             const projectFrameContainer = document.getElementById('projectFrameContainer');
             const projectFrame = document.getElementById('projectFrame');
             
@@ -269,8 +288,9 @@
                     return;
                 }
                 
-                // Hide special notices initially
+                // Hide all notices initially
                 specialNotice.style.display = 'none';
+                mysteryNotice.style.display = 'none';
                 projectFrameContainer.style.display = 'none';
                 
                 // Show loading indicator
@@ -296,14 +316,23 @@
                     if (projectId === '73996424') {
                         specialNotice.style.display = 'block';
                     }
+                    // Show mystery notice for project 10000
+                    else if (projectId === '10000') {
+                        mysteryNotice.style.display = 'block';
+                    }
                     
                     // Show TurboWarp embed for specific projects
                     if (projectId === '1') {
-                        projectFrame.src = "https://turbowarp.org/485769232/embed";
+                        projectFrame.src = "https://turbowarp.org/637702980/embed";
                         projectFrameContainer.style.display = 'block';
                     }
                     else if (projectId === '485789391') {
                         projectFrame.src = "https://turbowarp.org/485789391/embed";
+                        projectFrameContainer.style.display = 'block';
+                    }
+                    else if (projectId === '10000') {
+                        // For project 10000, we'll use a direct embed link since the original doesn't exist
+                        projectFrame.src = "https://turbowarp.org/10000/embed";
                         projectFrameContainer.style.display = 'block';
                     }
                 };
@@ -312,7 +341,16 @@
                     // Hide loading indicator
                     loadingElement.style.display = 'none';
                     
-                    alert('Thumbnail not found. Please check the project ID.');
+                    // Special case for project 10000 - show it even if thumbnail doesn't exist
+                    if (projectId === '10000') {
+                        resultContainer.style.display = 'block';
+                        mysteryNotice.style.display = 'block';
+                        projectFrame.src = "https://turbowarp.org/10000/embed";
+                        projectFrameContainer.style.display = 'block';
+                        createArchiveLinks(projectId, `https://uploads.scratch.mit.edu/get_image/project/${projectId}_293x220.png`);
+                    } else {
+                        alert('Thumbnail not found. Please check the project ID.');
+                    }
                 };
             });
             
