@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurable Timer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        
+        .timer-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .display {
+            font-size: 4rem;
+            margin: 20px 0;
+            color: #333;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #start {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        #start:hover {
+            background-color: #45a049;
+        }
+        
+        #pause {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        #pause:hover {
+            background-color: #e67e22;
+        }
+        
+        #reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        #reset:hover {
+            background-color: #c0392b;
+        }
+        
+        .config {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        label {
+            font-weight: bold;
+        }
+        
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .audio-controls {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #eaf7ea;
+            border-radius: 8px;
+        }
+        
+        .credits {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        #customAudio {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <h1>Configurable Timer</h1>
+        
+        <div class="display" id="display">00:00:00</div>
+        
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="pause">Pause</button>
+            <button id="reset">Reset</button>
+        </div>
+        
+        <div class="config">
+            <div class="input-group">
+                <label for="hours">Hours:</label>
+                <input type="number" id="hours" min="0" max="23" value="0">
+                
+                <label for="minutes">Minutes:</label>
+                <input type="number" id="minutes" min="0" max="59" value="10">
+                
+                <label for="seconds">Seconds:</label>
+                <input type="number" id="seconds" min="0" max="59" value="0">
+            </div>
+        </div>
+        
+        <div class="audio-controls">
+            <h3>Sound Notification</h3>
+            <button id="testSound">Test Sound</button>
+            <div>
+                <input type="file" id="customAudio" accept="audio/*">
+                <p>Leave empty to use default sound</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="credits">
+        Default sound: "23-RA2.mp3" by jordanielmills - <a href="https://freesound.org/s/117568/" target="_blank">https://freesound.org/s/117568/</a> - License: Creative Commons 0
+    </div>
+
+    <audio id="timerSound" src="117568__jordanielmills__23-ra2.mp3"></audio>
+
+    <script>
+        // DOM Elements
+        const display = document.getElementById('display');
+        const startBtn = document.getElementById('start');
+        const pauseBtn = document.getElementById('pause');
+        const resetBtn = document.getElementById('reset');
+        const testSoundBtn = document.getElementById('testSound');
+        const hoursInput = document.getElementById('hours');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const customAudioInput = document.getElementById('customAudio');
+        const timerSound = document.getElementById('timerSound');
+        
+        // Timer variables
+        let timer;
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let isRunning = false;
+        
+        // Initialize
+        updateDisplay();
+        
+        // Event Listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        testSoundBtn.addEventListener('click', testSound);
+        customAudioInput.addEventListener('change', handleAudioUpload);
+        
+        // Functions
+        function startTimer() {
+            if (!isRunning) {
+                // If timer was reset or just started, get values from inputs
+                if (remainingSeconds === 0) {
+                    const hours = parseInt(hoursInput.value) || 0;
+                    const minutes = parseInt(minutesInput.value) || 0;
+                    const seconds = parseInt(secondsInput.value) || 0;
+                    
+                    totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                    remainingSeconds = totalSeconds;
+                }
+                
+                if (remainingSeconds > 0) {
+                    isRunning = true;
+                    timer = setInterval(updateTimer, 1000);
+                }
+            }
+        }
+        
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+            }
+        }
+        
+        function resetTimer() {
+            pauseTimer();
+            remainingSeconds = 0;
+            updateDisplay();
+        }
+        
+        function updateTimer() {
+            remainingSeconds--;
+            updateDisplay();
+            
+            if (remainingSeconds <= 0) {
+                pauseTimer();
+                playSound();
+            }
+        }
+        
+        function updateDisplay() {
+            const hours = Math.floor(remainingSeconds / 3600);
+            const minutes = Math.floor((remainingSeconds % 3600) / 60);
+            const seconds = remainingSeconds % 60;
+            
+            display.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function playSound() {
+            timerSound.currentTime = 0; // Rewind to start
+            timerSound.play().catch(e => console.log("Audio play failed:", e));
+        }
+        
+        function testSound() {
+            playSound();
+        }
+        
+        function handleAudioUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const audioURL = URL.createObjectURL(file);
+                timerSound.src = audioURL;
+            } else {
+                // Revert to default sound
+                timerSound.src = '117568__jordanielmills__23-ra2.mp3';
+            }
+        }
+    </script>
+</body>
+</html>
