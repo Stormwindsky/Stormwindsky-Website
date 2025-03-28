@@ -44,9 +44,17 @@
             background-color: #007bff;
             color: #fff;
             border-radius: 5px;
+            margin-left: 10px;
         }
         button:hover {
             background-color: #0056b3;
+        }
+        select {
+            padding: 9px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -54,20 +62,67 @@
     <div class="notepad">
         <textarea id="editor" placeholder="Start typing here..."></textarea>
         <div class="controls">
-            <button onclick="saveText()">Save</button>
+            <select id="fileFormat">
+                <option value="txt">Text (.txt)</option>
+                <option value="html">HTML (.html)</option>
+                <option value="js">JavaScript (.js)</option>
+                <option value="css">CSS (.css)</option>
+            </select>
+            <button onclick="saveAsFile()">Save as File</button>
+            <button onclick="saveAsURL()">Save as URL</button>
         </div>
     </div>
 
     <script>
-        function saveText() {
+        // Function to save text as a file with selected format
+        function saveAsFile() {
             const text = document.getElementById('editor').value;
-            const blob = new Blob([text], { type: 'text/plain' });
+            const format = document.getElementById('fileFormat').value;
+            
+            // Determine MIME type based on format
+            let mimeType, extension;
+            switch(format) {
+                case 'html':
+                    mimeType = 'text/html';
+                    extension = '.html';
+                    break;
+                case 'js':
+                    mimeType = 'text/javascript';
+                    extension = '.js';
+                    break;
+                case 'css':
+                    mimeType = 'text/css';
+                    extension = '.css';
+                    break;
+                default:
+                    mimeType = 'text/plain';
+                    extension = '.txt';
+            }
+            
+            const blob = new Blob([text], { type: mimeType });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'note.txt';
+            link.download = 'note' + extension;
             link.click();
             URL.revokeObjectURL(link.href);
         }
+
+        // Function to save text in URL hash
+        function saveAsURL() {
+            const text = document.getElementById('editor').value;
+            const encodedText = encodeURIComponent(text);
+            window.location.hash = encodedText;
+            alert("Text saved in URL. You can now copy this URL to share your notes.");
+        }
+
+        // Load text from URL hash when page loads
+        window.onload = function() {
+            if (window.location.hash) {
+                const encodedText = window.location.hash.substring(1);
+                const text = decodeURIComponent(encodedText);
+                document.getElementById('editor').value = text;
+            }
+        };
     </script>
 </body>
 </html>
