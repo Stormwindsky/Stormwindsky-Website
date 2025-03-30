@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PVZ Tools</title>
+    <title>PVZ Mod Tool</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -188,7 +188,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>PVZ Tools</h1>
+        <h1>PVZ Complete Mod Tool</h1>
         
         <div class="drop-zone" id="dropZone">
             <p>Drag and drop PlantsVsZombies.exe here</p>
@@ -206,6 +206,7 @@
                 <div class="tab" data-tab="sunflowers">Sunflowers</div>
                 <div class="tab" data-tab="defensive">Defensive</div>
                 <div class="tab" data-tab="special">Special</div>
+                <div class="tab" data-tab="damages">Other Damages</div>
                 <div class="tab" data-tab="others">Others</div>
                 <div class="tab" data-tab="all">All Plants</div>
             </div>
@@ -581,6 +582,126 @@
                         <label for="cobCannonFiringRate">Firing Rate:</label>
                         <input type="range" min="0" max="9999" value="3500" class="slider" id="cobCannonFiringRate" data-offset="0x4CD5D2">
                         <span class="value-display" id="cobCannonFiringRateValue">3500</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other Damages -->
+            <div class="tab-content" id="damages">
+                <div class="plant-section" data-name="pea damage">
+                    <h3>Pea Damage</h3>
+                    <div class="attribute-control">
+                        <label for="peaDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="peaDamage" data-offset="0x4CCE32">
+                        <span class="value-display" id="peaDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="explosion damage">
+                    <h3>Explosion Damage</h3>
+                    <div class="attribute-control">
+                        <label for="explosionDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="1800" class="slider" id="explosionDamage" data-offset="0x1C7A97">
+                        <span class="value-display" id="explosionDamageValue">1800</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="snow pea damage">
+                    <h3>Snow Pea Damage</h3>
+                    <div class="attribute-control">
+                        <label for="snowPeaDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="snowPeaDamage" data-offset="0x4CCD46">
+                        <span class="value-display" id="snowPeaDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="spore damage">
+                    <h3>Spore Damage</h3>
+                    <div class="attribute-control">
+                        <label for="sporeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="sporeDamage" data-offset="0x4CCE62">
+                        <span class="value-display" id="sporeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fume shroom/spike weed damage">
+                    <h3>Fume Shroom/Spike Weed Damage</h3>
+                    <div class="attribute-control">
+                        <label for="fumeSpikeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="fumeSpikeDamage" data-offset="0xE90E">
+                        <span class="value-display" id="fumeSpikeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fireball damage">
+                    <h3>Fireball Damage</h3>
+                    <div class="attribute-control">
+                        <label for="fireballDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="fireballDamage" data-offset="0x4CBA36">
+                        <span class="value-display" id="fireballDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cactus/cattail spike damage">
+                    <h3>Cactus/Cattail Spike Damage</h3>
+                    <div class="attribute-control">
+                        <label for="cactusSpikeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="cactusSpikeDamage" data-offset="0x4CCE92">
+                        <span class="value-display" id="cactusSpikeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="star damage">
+                    <h3>Star Damage</h3>
+                    <div class="attribute-control">
+                        <label for="starDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="starDamage" data-offset="0x4CBC0E">
+                        <span class="value-display" id="starDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cabbage damage">
+                    <h3>Cabbage Damage</h3>
+                    <div class="attribute-control">
+                        <label for="cabbageDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="cabbageDamage" data-offset="0x4CCD96">
+                        <span class="value-display" id="cabbageDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="kernel damage">
+                    <h3>Kernel Damage</h3>
+                    <div class="attribute-control">
+                        <label for="kernelDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="kernelDamage" data-offset="0x4CCEAA">
+                        <span class="value-display" id="kernelDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="butter damage">
+                    <h3>Butter Damage</h3>
+                    <div class="attribute-control">
+                        <label for="butterDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="butterDamage" data-offset="0x4CCEC2">
+                        <span class="value-display" id="butterDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="melon damage">
+                    <h3>Melon Damage</h3>
+                    <div class="attribute-control">
+                        <label for="melonDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="80" class="slider" id="melonDamage" data-offset="0x4CCE56">
+                        <span class="value-display" id="melonDamageValue">80</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="winter melon damage">
+                    <h3>Winter Melon Damage</h3>
+                    <div class="attribute-control">
+                        <label for="winterMelonDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="80" class="slider" id="winterMelonDamage" data-offset="0x4CCE6E">
+                        <span class="value-display" id="winterMelonDamageValue">80</span>
                     </div>
                 </div>
             </div>
