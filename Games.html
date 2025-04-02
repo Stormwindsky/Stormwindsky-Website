@@ -3,32 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirection</title>
+    <title>Game Collection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #9370db;
+            --accent-color: #b19cd9;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --text-color: #34495e;
+        }
+        
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e5ec 0%, #c6d0e0 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .search-container {
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            margin: 20px 0 40px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+        }
+        
+        .search-bar button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .search-bar button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .game-card i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover i {
+            transform: scale(1.1);
+        }
+        
+        .game-card h3 {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            color: var(--dark-color);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
         }
-        a {
-            text-decoration: none;
-            color: #000;
-            font-size: 2em;
-            margin: 0 20px; /* Added margin between links */
+        
+        .game-card p {
+            color: #777;
+            font-size: 0.95rem;
+            margin-top: 10px;
         }
-        a:hover {
-            color: #007BFF;
+        
+        .game-card .play-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .game-card:hover .play-button {
+            background-color: var(--secondary-color);
+            transform: translateY(2px);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-card {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Tic%20Taco%20Toe/Tic%20Tac%20Toe.html">Tic Tac Toe</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Hangman%20Game/Hangman%20Game.html">Hangman Game</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/OpenQuiz/OpenQuiz.html?quiz=%5B%7B%22question%22%3A%22What%20is%20the%20capital%20of%20France%3F%22%2C%22answers%22%3A%5B%22Paris%22%2C%22London%22%2C%22Berlin%22%2C%22Madrid%22%5D%2C%22correctAnswer%22%3A0%7D%2C%7B%22question%22%3A%22Which%20planet%20is%20known%20as%20the%20Red%20Planet%3F%22%2C%22answers%22%3A%5B%22Earth%22%2C%22Mars%22%2C%22Jupiter%22%2C%22Saturn%22%5D%2C%22correctAnswer%22%3A1%7D%2C%7B%22question%22%3A%22What%20is%20the%20largest%20ocean%20on%20Earth%3F%22%2C%22answers%22%3A%5B%22Atlantic%20Ocean%22%2C%22Indian%20Ocean%22%2C%22Arctic%20Ocean%22%2C%22Pacific%20Ocean%22%5D%2C%22correctAnswer%22%3A3%7D%5D">OpenQuiz</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Snake/Snake.html">Snake Game</a>
+    <div class="container">
+        <header>
+            <h1>Game Collection</h1>
+            <p class="subtitle">Classic games for endless fun</p>
+        </header>
+        
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search games...">
+                <button type="button" id="searchButton"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <div class="games-grid">
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Tic%20Taco%20Toe/Tic%20Tac%20Toe.html" class="game-card">
+                <i class="fas fa-times"></i>
+                <h3>Tic Tac Toe</h3>
+                <p>The classic X and O strategy game</p>
+                <div class="play-button">Play Now</div>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Hangman%20Game/Hangman%20Game.html" class="game-card">
+                <i class="fas fa-user-astronaut"></i>
+                <h3>Hangman</h3>
+                <p>Guess the word before the man hangs!</p>
+                <div class="play-button">Play Now</div>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/OpenQuiz/OpenQuiz.html?quiz=%5B%7B%22question%22%3A%22What%20is%20the%20capital%20of%20France%3F%22%2C%22answers%22%3A%5B%22Paris%22%2C%22London%22%2C%22Berlin%22%2C%22Madrid%22%5D%2C%22correctAnswer%22%3A0%7D%2C%7B%22question%22%3A%22Which%20planet%20is%20known%20as%20the%20Red%20Planet%3F%22%2C%22answers%22%3A%5B%22Earth%22%2C%22Mars%22%2C%22Jupiter%22%2C%22Saturn%22%5D%2C%22correctAnswer%22%3A1%7D%2C%7B%22question%22%3A%22What%20is%20the%20largest%20ocean%20on%20Earth%3F%22%2C%22answers%22%3A%5B%22Atlantic%20Ocean%22%2C%22Indian%20Ocean%22%2C%22Arctic%20Ocean%22%2C%22Pacific%20Ocean%22%5D%2C%22correctAnswer%22%3A3%7D%5D" class="game-card">
+                <i class="fas fa-question-circle"></i>
+                <h3>OpenQuiz</h3>
+                <p>Test your knowledge with fun quizzes</p>
+                <div class="play-button">Play Now</div>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Snake/Snake.html" class="game-card">
+                <i class="fas fa-snake"></i>
+                <h3>Snake Game</h3>
+                <p>The classic mobile snake adventure</p>
+                <div class="play-button">Play Now</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('searchButton').addEventListener('click', searchGames);
+        document.getElementById('searchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchGames();
+            }
+        });
+        
+        function searchGames() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const gameCards = document.querySelectorAll('.game-card');
+            
+            gameCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>
