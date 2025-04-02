@@ -3,41 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirection</title>
+    <title>Toolbox - Modern Redirection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --text-color: #333;
+        }
+        
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .search-container {
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            margin: 20px 0 40px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 30px;
+            overflow: hidden;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .search-bar button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .search-bar button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tool-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tool-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .tool-card h3 {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            color: var(--dark-color);
         }
-        a {
-            text-decoration: none;
-            color: #000;
-            font-size: 2em;
-            margin: 0 20px; /* Added margin between links */
+        
+        .tool-card p {
+            color: #666;
+            font-size: 0.9rem;
         }
-        a:hover {
-            color: #007BFF;
+        
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Notepad/Notepad.html">Online Text Editor</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Pixel_Art_Maker/Pixel_Art_Maker.html">Pixel Art Creator</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html">OpenLinker</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenDraw/OpenDraw.html">Open Draw</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Dice/Dice.html" target="_blank">Dice</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/TTS/TTS.html" target="_blank">TTS</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/WikiViewer/WikiViewer.html" target="_blank">WikiViewer</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Video%20Thumbnail%20Generator/Video%20Thumbnail%20Downloader.html" target="_blank">Video Thumbnail Downloader</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/SB3%20Archiver/SB3Archive.html" target="_blank">SB3 Archiver</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Timer/Timer.html" target="_blank">Timer</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/PVZtools/PVZtools.html" target="_blank">PVZ Tools</a>
-    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Advanced%20Image%20Editor/Advanced%20Image%20Editor.html" target="_blank">Advanced Image Editor</a>
+    <div class="container">
+        <header>
+            <h1>Toolbox</h1>
+            <p>Your collection of useful online tools</p>
+        </header>
+        
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search for tools...">
+                <button type="button" id="searchButton"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <div class="tools-grid">
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Notepad/Notepad.html" class="tool-card">
+                <i class="fas fa-edit"></i>
+                <h3>Online Text Editor</h3>
+                <p>A simple text editor for your notes</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Pixel_Art_Maker/Pixel_Art_Maker.html" class="tool-card">
+                <i class="fas fa-th-large"></i>
+                <h3>Pixel Art Creator</h3>
+                <p>Create pixel art designs</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html" class="tool-card">
+                <i class="fas fa-link"></i>
+                <h3>OpenLinker</h3>
+                <p>Manage and organize your links</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenDraw/OpenDraw.html" class="tool-card">
+                <i class="fas fa-paint-brush"></i>
+                <h3>Open Draw</h3>
+                <p>A drawing tool for your creativity</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Dice/Dice.html" class="tool-card" target="_blank">
+                <i class="fas fa-dice"></i>
+                <h3>Dice</h3>
+                <p>Virtual dice for your games</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/TTS/TTS.html" class="tool-card" target="_blank">
+                <i class="fas fa-volume-up"></i>
+                <h3>TTS</h3>
+                <p>Text to speech converter</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/WikiViewer/WikiViewer.html" class="tool-card" target="_blank">
+                <i class="fas fa-book"></i>
+                <h3>WikiViewer</h3>
+                <p>Browse Wikipedia articles</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Video%20Thumbnail%20Generator/Video%20Thumbnail%20Downloader.html" class="tool-card" target="_blank">
+                <i class="fas fa-image"></i>
+                <h3>Video Thumbnail Downloader</h3>
+                <p>Get thumbnails from videos</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/SB3%20Archiver/SB3Archive.html" class="tool-card" target="_blank">
+                <i class="fas fa-archive"></i>
+                <h3>SB3 Archiver</h3>
+                <p>Manage SB3 files</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Timer/Timer.html" class="tool-card" target="_blank">
+                <i class="fas fa-clock"></i>
+                <h3>Timer</h3>
+                <p>Countdown and stopwatch</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/PVZtools/PVZtools.html" class="tool-card" target="_blank">
+                <i class="fas fa-gamepad"></i>
+                <h3>PVZ Tools</h3>
+                <p>Plants vs Zombies utilities</p>
+            </a>
+            
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Advanced%20Image%20Editor/Advanced%20Image%20Editor.html" class="tool-card" target="_blank">
+                <i class="fas fa-camera-retro"></i>
+                <h3>Advanced Image Editor</h3>
+                <p>Edit and enhance your images</p>
+            </a>
+        </div>
+    </div>
 
+    <script>
+        document.getElementById('searchButton').addEventListener('click', searchTools);
+        document.getElementById('searchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchTools();
+            }
+        });
+        
+        function searchTools() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const toolCards = document.querySelectorAll('.tool-card');
+            
+            toolCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>
