@@ -3,113 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stormwindsky</title>
+    <title>Stormwindsky | Creative Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-bg: #1a1a2e;
+            --light-bg: #f8f9fa;
+            --text-dark: #2b2d42;
+            --text-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --nav-bg: #3a0ca3;
+            --transition: all 0.3s ease;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
         body.dark-mode {
-            background-color: #333;
-            color: #f4f4f4;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
         }
+
+        body.dark-mode .card {
+            background-color: #16213e;
+            color: var(--text-light);
+        }
+
+        body.dark-mode nav {
+            background-color: #0f3460;
+        }
+
+        body.dark-mode header {
+            background-color: #0f3460;
+        }
+
+        body.dark-mode footer {
+            background-color: #0f3460;
+        }
+
         header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
+            background-color: var(--nav-bg);
+            color: var(--text-light);
+            padding: 2rem 0;
             text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        nav {
+
+        header h1 {
             margin: 0;
-            padding: 10px;
-            background-color: #444;
-            text-align: center;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #f72585, #7209b7, #3a0ca3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
         }
+
+        body.dark-mode header h1 {
+            background: linear-gradient(90deg, #f72585, #4cc9f0);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        nav {
+            background-color: var(--primary-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
         nav a {
-            color: #fff;
-            margin: 0 15px;
+            color: var(--text-light);
+            margin: 0 1rem;
             text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
         }
+
+        nav a i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+
         nav a:hover {
-            text-decoration: underline;
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
+
         .content {
-            padding: 20px;
+            padding: 2rem;
             text-align: center;
-        }
-        footer {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 10px 0;
-            position: fixed;
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
             width: 100%;
-            bottom: 0;
         }
-        footer a {
-            color: #fff;
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .card a {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50px;
             text-decoration: none;
+            transition: var(--transition);
         }
-        footer a:hover {
+
+        .card a:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+
+        .social-links {
+            margin: 1rem 0;
+        }
+
+        .social-links a {
+            color: var(--text-light);
+            margin: 0 0.5rem;
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: #4cc9f0;
+            transform: translateY(-3px);
+        }
+
+        .license-info {
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            opacity: 0.8;
+        }
+
+        .license-info a {
+            color: var(--text-light);
             text-decoration: underline;
         }
+
         .theme-toggle {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background-color: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav a {
+                margin: 0.5rem 0;
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-
     <header>
-        <h1>Welcome to my website</h1>
+        <h1>Stormwindsky</h1>
     </header>
 
     <nav>
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">Home</a>
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/About_Me.html" target="_blank">About me</a>
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/Origin.html" target="_blank">Origin of my Username</a>
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools.html" target="_blank">My Web Tools</a>
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/ArchiveList.html" target="_blank">My Archives List</a>
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games.html" target="_blank">Games</a>
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/Useless thing.html" target="_blank">Useless thing</a>
-
+        <div class="nav-container">
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/About_Me.html" target="_blank">
+                <i class="fas fa-user"></i> About Me
+            </a>
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Origin.html" target="_blank">
+                <i class="fas fa-signature"></i> Username Origin
+            </a>
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools.html" target="_blank">
+                <i class="fas fa-tools"></i> Web Tools
+            </a>
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/ArchiveList.html" target="_blank">
+                <i class="fas fa-archive"></i> Archives
+            </a>
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games.html" target="_blank">
+                <i class="fas fa-gamepad"></i> Games
+            </a>
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Useless thing.html" target="_blank">
+                <i class="fas fa-smile-wink"></i> Fun Stuff
+            </a>
+        </div>
     </nav>
 
     <div class="content">
-        <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=W3sidGV4dCI6Ik15IFlvdXR1YmUiLCJ1cmwiOiJodHRwczovL3d3dy55b3V0dWJlLmNvbS9AU3Rvcm13aW5kc2t5In0seyJ0ZXh0IjoiU2NyYXRjaCIsInVybCI6Imh0dHBzOi8vc2NyYXRjaC5taXQuZWR1L3VzZXJzL3N0b3Jtd2luZHNreS8ifSx7InRleHQiOiJHYW1lam9sdCIsInVybCI6Imh0dHBzOi8vZ2FtZWpvbHQuY29tL0BTdG9ybXdpbmRza3kifV0=" target="_blank">Where i am too?</a>
-        <p>This is a simple website i made lol</p>
-        <p>Place Holder bc yeah, lol</p>
+        <div class="card-container">
+            <div class="card">
+                <h2>Find Me Online</h2>
+                <p>Check out my presence across different platforms</p>
+                <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=W3sidGV4dCI6Ik15IFlvdVR1YmUiLCJ1cmwiOiJodHRwczovL3d3dy55b3V0dWJlLmNvbS9AU3Rvcm13aW5kc2t5In0seyJ0ZXh0IjoiU2NyYXRjaCIsInVybCI6Imh0dHBzOi8vc2NyYXRjaC5taXQuZWR1L3VzZXJzL3N0b3Jtd2luZHNreS8ifSx7InRleHQiOiJHYW1lSm9sdCIsInVybCI6Imh0dHBzOi8vZ2FtZWpvbHQuY29tL0BTdG9ybXdpbmRza3kifV0=" target="_blank">
+                    View All Links
+                </a>
+            </div>
+            
+            <div class="card">
+                <h2>About This Site</h2>
+                <p>A creative playground for coding experiments and projects</p>
+                <p>Simple but fun - just like me!</p>
+            </div>
+        </div>
     </div>
 
-    <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
-
     <footer>
-        <p>LOL!!!!! | <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View on GitHub</a></p>
+        <div class="social-links">
+            <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.youtube.com/@Stormwindsky" target="_blank" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+        <p>© <span id="currentYear"></span> Stormwindsky | All Rights Reserved</p>
+        <div class="license-info">
+            Licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License v3.0</a>
+        </div>
+        <p><a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View Source on GitHub</a></p>
     </footer>
 
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
     <script>
-        // Fonction pour basculer entre les modes
+        // Theme toggle function
         function toggleTheme() {
             const body = document.body;
             const themeToggle = document.querySelector('.theme-toggle');
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 themeToggle.textContent = '🌙';
-                localStorage.setItem('theme', 'light'); // Sauvegarder le mode clair
+                localStorage.setItem('theme', 'light');
             } else {
                 body.classList.add('dark-mode');
                 themeToggle.textContent = '☀️';
-                localStorage.setItem('theme', 'dark'); // Sauvegarder le mode sombre
+                localStorage.setItem('theme', 'dark');
             }
         }
 
-        // Charger le thème sauvegardé au chargement de la page
+        // Load saved theme
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
@@ -123,9 +344,21 @@
             }
         }
 
-        // Appeler loadTheme au chargement de la page
-        window.onload = loadTheme;
+        // Set current year in footer
+        function setCurrentYear() {
+            const yearElement = document.getElementById('currentYear');
+            const currentYear = new Date().getFullYear();
+            yearElement.textContent = currentYear;
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            setCurrentYear();
+        });
     </script>
+</body>
+</html>
 
 </body>
 </html>
