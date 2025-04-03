@@ -3,18 +3,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Art Maker</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Modern Pixel Art Maker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --dark-color: #2d3436;
+            --light-color: #f5f6fa;
+            --danger-color: #d63031;
+            --success-color: #00b894;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--dark-color);
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .controls-panel {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input, select, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: #5649c0;
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+        }
+
+        button.success {
+            background-color: var(--success-color);
+        }
+
+        .canvas-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+            margin-bottom: 30px;
+        }
+
+        #pixelCanvas {
+            display: grid;
+            gap: 1px;
+            justify-content: center;
+            margin: 0 auto;
+            background-color: #ddd;
+            border: 1px solid #ddd;
+        }
+
+        .cell {
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--dark-color);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .controls-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Pixel Art Maker</h1>
-    <div class="controls">
-        <label for="colorPicker">Choose a color:</label>
-        <input type="color" id="colorPicker" value="#000000">
-        <button id="resetButton">Reset Grid</button>
-        <button id="saveButton">Save</button>
+    <div class="container">
+        <header>
+            <h1>Modern Pixel Art Maker</h1>
+            <p class="subtitle">Create, customize, and export your pixel art masterpieces</p>
+        </header>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <label for="colorPicker">Color</label>
+                <input type="color" id="colorPicker" value="#000000">
+            </div>
+
+            <div class="control-group">
+                <label for="gridWidth">Grid Width</label>
+                <input type="number" id="gridWidth" min="8" max="64" value="16">
+            </div>
+
+            <div class="control-group">
+                <label for="gridHeight">Grid Height</label>
+                <input type="number" id="gridHeight" min="8" max="64" value="16">
+            </div>
+
+            <div class="control-group">
+                <label for="cellSize">Pixel Size</label>
+                <input type="number" id="cellSize" min="10" max="40" value="20">
+            </div>
+
+            <button id="applyButton">
+                <i class="fas fa-check"></i> Apply
+            </button>
+
+            <button id="resetButton" class="danger">
+                <i class="fas fa-trash"></i> Clear
+            </button>
+
+            <button id="saveButton" class="success">
+                <i class="fas fa-save"></i> Save URL
+            </button>
+
+            <button id="exportButton" class="secondary">
+                <i class="fas fa-download"></i> Export PNG
+            </button>
+        </div>
+
+        <div class="canvas-container">
+            <div id="pixelCanvas"></div>
+        </div>
+
+        <div class="footer">
+            <p>Your pixel art is automatically saved in the URL. Share the URL to collaborate!</p>
+        </div>
     </div>
-    <div id="pixelCanvas"></div>
-    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const canvas = document.getElementById('pixelCanvas');
+            const colorPicker = document.getElementById('colorPicker');
+            const gridWidthInput = document.getElementById('gridWidth');
+            const gridHeightInput = document.getElementById('gridHeight');
+            const cellSizeInput = document.getElementById('cellSize');
+            const applyButton = document.getElementById('applyButton');
+            const resetButton = document.getElementById('resetButton');
+            const saveButton = document.getElementById('saveButton');
+            const exportButton = document.getElementById('exportButton');
+            
+            let isDrawing = false;
+            let currentColor = colorPicker.value;
+            let gridWidth = parseInt(gridWidthInput.value);
+            let gridHeight = parseInt(gridHeightInput.value);
+            let cellSize = parseInt(cellSizeInput.value);
+
+            // Initialize the grid
+            function initGrid() {
+                createGrid(gridWidth, gridHeight, cellSize);
+                loadPixelArt();
+            }
+
+            // Create the grid with specified dimensions
+            function createGrid(width, height, size) {
+                // Clear existing grid
+                canvas.innerHTML = '';
+                
+                // Set grid template
+                canvas.style.gridTemplateColumns = `repeat(${width}, ${size}px)`;
+                canvas.style.gridTemplateRows = `repeat(${height}, ${size}px)`;
+                
+                // Create cells
+                for (let i = 0; i < width * height; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.style.width = `${size}px`;
+                    cell.style.height = `${size}px`;
+                    
+                    // Drawing events
+                    cell.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        isDrawing = true;
+                        cell.style.backgroundColor = currentColor;
+                    });
+                    
+                    cell.addEventListener('mouseover', function (e) {
+                        e.preventDefault();
+                        if (isDrawing) {
+                            cell.style.backgroundColor = currentColor;
+                        }
+                    });
+                    
+                    cell.addEventListener('mouseup', function () {
+                        isDrawing = false;
+                    });
+                    
+                    // For touch devices
+                    cell.addEventListener('touchstart', function (e) {
+                        e.preventDefault();
+                        isDrawing = true;
+                        cell.style.backgroundColor = currentColor;
+                    });
+                    
+                    cell.addEventListener('touchmove', function (e) {
+                        e.preventDefault();
+                        if (isDrawing) {
+                            const touch = e.touches[0];
+                            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                            if (element && element.classList.contains('cell')) {
+                                element.style.backgroundColor = currentColor;
+                            }
+                        }
+                    });
+                    
+                    cell.addEventListener('touchend', function () {
+                        isDrawing = false;
+                    });
+                    
+                    canvas.appendChild(cell);
+                }
+            }
+
+            // Reset the grid
+            function resetGrid() {
+                const cells = document.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    cell.style.backgroundColor = '';
+                });
+            }
+
+            // Save pixel art to the URL
+            function savePixelArt() {
+                const cells = document.querySelectorAll('.cell');
+                const colors = Array.from(cells).map(cell => {
+                    const color = cell.style.backgroundColor || 'rgba(255, 255, 255, 1)';
+                    return color;
+                });
+                
+                const artData = {
+                    width: gridWidth,
+                    height: gridHeight,
+                    cellSize: cellSize,
+                    colors: colors
+                };
+                
+                const data = JSON.stringify(artData);
+                const base64 = btoa(data);
+                const url = `${window.location.origin}${window.location.pathname}?art=${base64}`;
+                window.history.pushState({}, '', url);
+                
+                // Show notification
+                showNotification('Pixel art saved to URL! Copy this URL to share your drawing.');
+            }
+
+            // Load pixel art from the URL
+            function loadPixelArt() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const art = urlParams.get('art');
+                
+                if (art) {
+                    try {
+                        const data = atob(art);
+                        const artData = JSON.parse(data);
+                        
+                        // Update grid dimensions if they match
+                        if (artData.width === gridWidth && artData.height === gridHeight) {
+                            const cells = document.querySelectorAll('.cell');
+                            cells.forEach((cell, index) => {
+                                if (artData.colors[index]) {
+                                    cell.style.backgroundColor = artData.colors[index];
+                                }
+                            });
+                        } else {
+                            showNotification('Loaded art has different dimensions. Adjust grid size to match.');
+                        }
+                    } catch (e) {
+                        console.error('Error loading pixel art:', e);
+                    }
+                }
+            }
+
+            // Export canvas as PNG
+            function exportAsPNG() {
+                // Create a temporary canvas
+                const tempCanvas = document.createElement('canvas');
+                const ctx = tempCanvas.getContext('2d');
+                
+                // Set canvas dimensions (with optional scaling)
+                const scale = 4; // Makes the exported image larger for better quality
+                tempCanvas.width = gridWidth * cellSize * scale;
+                tempCanvas.height = gridHeight * cellSize * scale;
+                
+                // Get all cells and their colors
+                const cells = document.querySelectorAll('.cell');
+                
+                // Draw each cell
+                cells.forEach((cell, index) => {
+                    const x = (index % gridWidth) * cellSize * scale;
+                    const y = Math.floor(index / gridWidth) * cellSize * scale;
+                    const color = cell.style.backgroundColor || 'rgb(255, 255, 255)';
+                    
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, cellSize * scale, cellSize * scale);
+                });
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'pixel-art.png';
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            }
+
+            // Show notification
+            function showNotification(message) {
+                const notification = document.createElement('div');
+                notification.style.position = 'fixed';
+                notification.style.bottom = '20px';
+                notification.style.right = '20px';
+                notification.style.backgroundColor = 'var(--primary-color)';
+                notification.style.color = 'white';
+                notification.style.padding = '10px 20px';
+                notification.style.borderRadius = '5px';
+                notification.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+                notification.style.zIndex = '1000';
+                notification.style.animation = 'fadeIn 0.3s, fadeOut 0.3s 2.7s';
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            // Add CSS for notification animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: translateY(0); }
+                    to { opacity: 0; transform: translateY(20px); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Event listeners
+            colorPicker.addEventListener('input', function () {
+                currentColor = this.value;
+            });
+
+            applyButton.addEventListener('click', function () {
+                gridWidth = parseInt(gridWidthInput.value);
+                gridHeight = parseInt(gridHeightInput.value);
+                cellSize = parseInt(cellSizeInput.value);
+                
+                if (gridWidth < 8) gridWidth = 8;
+                if (gridWidth > 64) gridWidth = 64;
+                if (gridHeight < 8) gridHeight = 8;
+                if (gridHeight > 64) gridHeight = 64;
+                if (cellSize < 10) cellSize = 10;
+                if (cellSize > 40) cellSize = 40;
+                
+                gridWidthInput.value = gridWidth;
+                gridHeightInput.value = gridHeight;
+                cellSizeInput.value = cellSize;
+                
+                createGrid(gridWidth, gridHeight, cellSize);
+                showNotification(`Grid updated to ${gridWidth}x${gridHeight} with ${cellSize}px cells`);
+            });
+
+            resetButton.addEventListener('click', function () {
+                if (confirm('Are you sure you want to clear the canvas?')) {
+                    resetGrid();
+                    showNotification('Canvas cleared');
+                }
+            });
+
+            saveButton.addEventListener('click', savePixelArt);
+            exportButton.addEventListener('click', exportAsPNG);
+
+            // Prevent scrolling when drawing on touch devices
+            document.addEventListener('touchmove', function (e) {
+                if (isDrawing) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Initialize
+            initGrid();
+        });
+    </script>
 </body>
 </html>
