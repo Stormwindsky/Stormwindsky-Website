@@ -3,26 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Tac Toe</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Modern Tic Tac Toe</title>
+    <style>
+        :root {
+            --x-color: #4285f4;
+            --o-color: #ea4335;
+            --bg-color: #f8f9fa;
+            --cell-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --text-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-align: center;
+            color: var(--text-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            aspect-ratio: 1/1;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            background-color: var(--cell-color);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px var(--shadow-color);
+        }
+
+        .cell.x::before, .cell.x::after,
+        .cell.o::before {
+            content: '';
+            position: absolute;
+            background-color: var(--x-color);
+        }
+
+        .cell.o::before {
+            background-color: var(--o-color);
+        }
+
+        .cell.x::before, .cell.x::after {
+            width: 12px;
+            height: 80%;
+            border-radius: 6px;
+        }
+
+        .cell.x::before {
+            transform: rotate(45deg);
+        }
+
+        .cell.x::after {
+            transform: rotate(-45deg);
+        }
+
+        .cell.o::before {
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            border: 12px solid var(--o-color);
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background-color: var(--cell-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px var(--shadow-color);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .winning-cell {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(1000px) rotate(360deg); opacity: 0; }
+        }
+
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .board {
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Tic Tac Toe</h1>
-        <div id="board">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
+    <h1>Modern Tic Tac Toe</h1>
+    <div class="game-container">
+        <div class="status" id="status">Player X's turn</div>
+        <div class="board" id="board"></div>
+        <div class="controls">
+            <button id="reset">Reset Game</button>
         </div>
-        <button id="reset">Play Again</button>
-        <p id="status"></p>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const board = document.getElementById('board');
+            const status = document.getElementById('status');
+            const resetButton = document.getElementById('reset');
+            let currentPlayer = 'x';
+            let gameState = ['', '', '', '', '', '', '', '', ''];
+            let gameActive = true;
+
+            // Winning conditions
+            const winningConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6]             // diagonals
+            ];
+
+            // Create the board
+            function createBoard() {
+                board.innerHTML = '';
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.setAttribute('data-index', i);
+                    cell.addEventListener('click', handleCellClick);
+                    board.appendChild(cell);
+                }
+            }
+
+            // Handle cell click
+            function handleCellClick(e) {
+                const clickedCell = e.target;
+                const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+                // If cell already filled or game not active, ignore
+                if (gameState[clickedCellIndex] !== '' || !gameActive) return;
+
+                // Update game state and UI
+                gameState[clickedCellIndex] = currentPlayer;
+                clickedCell.classList.add(currentPlayer);
+
+                // Check for win or draw
+                checkResult();
+            }
+
+            // Check for win or draw
+            function checkResult() {
+                let roundWon = false;
+
+                // Check all winning conditions
+                for (let i = 0; i < winningConditions.length; i++) {
+                    const [a, b, c] = winningConditions[i];
+                    if (gameState[a] === '' || gameState[b] === '' || gameState[c] === '') continue;
+
+                    if (gameState[a] === gameState[b] && gameState[b] === gameState[c]) {
+                        roundWon = true;
+                        highlightWinningCells([a, b, c]);
+                        break;
+                    }
+                }
+
+                // If won
+                if (roundWon) {
+                    const winner = currentPlayer === 'x' ? 'X' : 'O';
+                    status.textContent = `Player ${winner} wins!`;
+                    gameActive = false;
+                    createConfetti();
+                    return;
+                }
+
+                // If draw
+                if (!gameState.includes('')) {
+                    status.textContent = "Game ended in a draw!";
+                    gameActive = false;
+                    return;
+                }
+
+                // Continue game
+                currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+                status.textContent = `Player ${currentPlayer.toUpperCase()}'s turn`;
+            }
+
+            // Highlight winning cells
+            function highlightWinningCells(cells) {
+                cells.forEach(index => {
+                    const cell = document.querySelector(`.cell[data-index="${index}"]`);
+                    cell.classList.add('winning-cell');
+                });
+            }
+
+            // Create confetti effect
+            function createConfetti() {
+                const colors = ['#4285f4', '#ea4335', '#fbbc05', '#34a853', '#ff6d00'];
+                const container = document.querySelector('.game-container');
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = `${Math.random() * 2 + 2}s`;
+                    confetti.style.width = `${Math.random() * 10 + 5}px`;
+                    confetti.style.height = `${Math.random() * 10 + 5}px`;
+                    container.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }
+            }
+
+            // Reset game
+            function resetGame() {
+                currentPlayer = 'x';
+                gameState = ['', '', '', '', '', '', '', '', ''];
+                gameActive = true;
+                status.textContent = "Player X's turn";
+                createBoard();
+            }
+
+            // Event listeners
+            resetButton.addEventListener('click', resetGame);
+
+            // Initialize game
+            createBoard();
+        });
+    </script>
 </body>
 </html>
