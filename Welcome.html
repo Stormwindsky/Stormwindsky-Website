@@ -105,6 +105,7 @@
             transition: var(--transition);
             display: flex;
             align-items: center;
+            cursor: pointer;
         }
 
         nav a i {
@@ -228,6 +229,58 @@
             background-color: var(--secondary-color);
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .modal-content p {
+            text-align: left;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        body.dark-mode .modal-content {
+            background-color: #16213e;
+            color: var(--text-light);
+        }
+
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
@@ -244,6 +297,10 @@
             header h1 {
                 font-size: 2rem;
             }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -257,10 +314,10 @@
             <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a href="https://stormwindsky.github.io/Stormwindsky-Website/About_Me.html" target="_blank">
+            <a id="aboutLink">
                 <i class="fas fa-user"></i> About Me
             </a>
-            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Origin.html" target="_blank">
+            <a id="originLink">
                 <i class="fas fa-signature"></i> Username Origin
             </a>
             <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools.html" target="_blank">
@@ -293,6 +350,30 @@
                 <p>A creative playground for coding experiments and projects</p>
                 <p>Simple but fun - just like me!</p>
             </div>
+        </div>
+    </div>
+
+    <!-- About Me Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>ABOUT</h2>
+            <p>Stormwindsky on the Internet, is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.</p>
+            
+            <p>In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.</p>
+            
+            <p>In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.</p>
+            
+            <p>With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.</p>
+        </div>
+    </div>
+
+    <!-- Username Origin Modal -->
+    <div id="originModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>ORIGIN OF MY USERNAME</h2>
+            <p>The name "Stormwindsky" is from my mom from Animal Jam and after on Roblox & later on Scratch & after everywhere 😊</p>
         </div>
     </div>
 
@@ -351,14 +432,54 @@
             yearElement.textContent = currentYear;
         }
 
+        // Modal functionality
+        function setupModals() {
+            // About Me Modal
+            const aboutModal = document.getElementById('aboutModal');
+            const aboutBtn = document.getElementById('aboutLink');
+            
+            // Origin Modal
+            const originModal = document.getElementById('originModal');
+            const originBtn = document.getElementById('originLink');
+            
+            // Close buttons
+            const closeButtons = document.querySelectorAll('.close-modal');
+
+            // Open About Me modal
+            aboutBtn.onclick = function() {
+                aboutModal.style.display = 'flex';
+            }
+
+            // Open Origin modal
+            originBtn.onclick = function() {
+                originModal.style.display = 'flex';
+            }
+
+            // Close modals
+            closeButtons.forEach(button => {
+                button.onclick = function() {
+                    aboutModal.style.display = 'none';
+                    originModal.style.display = 'none';
+                }
+            });
+
+            // Close when clicking outside modal
+            window.onclick = function(event) {
+                if (event.target == aboutModal) {
+                    aboutModal.style.display = 'none';
+                }
+                if (event.target == originModal) {
+                    originModal.style.display = 'none';
+                }
+            }
+        }
+
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
             loadTheme();
             setCurrentYear();
+            setupModals();
         });
     </script>
-</body>
-</html>
-
 </body>
 </html>
