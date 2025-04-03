@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change your Voice Online</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --danger: #d63031;
+            --warning: #fdcb6e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        select, button, input[type="file"] {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"] {
+            padding: 0.5rem;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        select {
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: #5649c5;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #00a884;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #f7b731;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        .visualizer {
+            width: 100%;
+            height: 120px;
+            background-color: #f1f2f6;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .recording-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--danger);
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .recording-indicator.active {
+            opacity: 1;
+        }
+
+        .pulse {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--danger);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(214, 48, 49, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(214, 48, 49, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(214, 48, 49, 0);
+            }
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(108, 92, 231, 0.05);
+        }
+
+        .upload-area.highlight {
+            border-color: var(--primary);
+            background-color: rgba(108, 92, 231, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: white;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Modern Voice Changer</h1>
+        <p class="subtitle">Transform your voice in real-time with various effects</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="voice-effect">Voice Effect</label>
+                    <select id="voice-effect">
+                        <option value="none">Normal Voice</option>
+                        <option value="robot">Robot</option>
+                        <option value="alien">Alien</option>
+                        <option value="helium">Helium (High Pitch)</option>
+                        <option value="dark">Dark (Low Pitch)</option>
+                        <option value="whisper">Whisper</option>
+                        <option value="echo">Echo</option>
+                        <option value="reverse">Reverse</option>
+                    </select>
+                </div>
+
+                <div id="upload-container" class="upload-area">
+                    <div class="upload-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                        </svg>
+                    </div>
+                    <h3>Upload Audio File</h3>
+                    <p>Drag & drop your audio file here or click to browse</p>
+                    <p><small>Supported formats: MP3, WAV, OGG</small></p>
+                    <input type="file" id="audio-upload" accept=".mp3,.wav,.ogg,audio/*" style="display: none;">
+                    <div id="file-info" class="file-info" style="display: none;"></div>
+                </div>
+
+                <div class="visualizer">
+                    <canvas id="audio-visualizer"></canvas>
+                    <div class="recording-indicator">
+                        <div class="pulse"></div>
+                        <span>Recording</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button id="start-btn" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                        </svg>
+                        Start Recording
+                    </button>
+                    <button id="stop-btn" class="btn btn-danger" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z"/>
+                        </svg>
+                        Stop Recording
+                    </button>
+                </div>
+
+                <div class="btn-group">
+                    <button id="play-btn" class="btn btn-warning" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                        </svg>
+                        Play with Effect
+                    </button>
+                    <button id="download-btn" class="btn btn-secondary" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+            </div>
+
+            <audio id="audio-player" class="audio-player" controls></audio>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2023 Modern Voice Changer Online | All rights reserved</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const startBtn = document.getElementById('start-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const playBtn = document.getElementById('play-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const voiceEffect = document.getElementById('voice-effect');
+            const audioPlayer = document.getElementById('audio-player');
+            const visualizer = document.getElementById('audio-visualizer');
+            const recordingIndicator = document.querySelector('.recording-indicator');
+            const uploadContainer = document.getElementById('upload-container');
+            const audioUpload = document.getElementById('audio-upload');
+            const fileInfo = document.getElementById('file-info');
+            
+            // Audio context and variables
+            let audioContext;
+            let mediaStream;
+            let mediaRecorder;
+            let audioChunks = [];
+            let audioAnalyser;
+            let canvasCtx = visualizer.getContext('2d');
+            let audioBuffer = null;
+            let processedAudio = null;
+            
+            // Initialize audio context on user interaction
+            function initAudioContext() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            
+            // Start recording
+            startBtn.addEventListener('click', async () => {
+                try {
+                    initAudioContext();
+                    
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(mediaStream);
+                    
+                    // Setup audio analyzer for visualization
+                    const source = audioContext.createMediaStreamSource(mediaStream);
+                    audioAnalyser = audioContext.createAnalyser();
+                    audioAnalyser.fftSize = 256;
+                    source.connect(audioAnalyser);
+                    
+                    // Start visualization
+                    visualize();
+                    
+                    // Start recording
+                    mediaRecorder.start();
+                    recordingIndicator.classList.add('active');
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    playBtn.disabled = true;
+                    downloadBtn.disabled = true;
+                    
+                    // Collect audio data
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        audioPlayer.src = audioUrl;
+                        
+                        // Store the original audio
+                        audioBuffer = await blobToAudioBuffer(audioBlob);
+                        processedAudio = null;
+                        
+                        playBtn.disabled = false;
+                        downloadBtn.disabled = false;
+                    };
+                    
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    alert('Could not access microphone. Please ensure you have granted microphone permissions.');
+                }
+            });
+            
+            // Stop recording
+            stopBtn.addEventListener('click', () => {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                    mediaStream.getTracks().forEach(track => track.stop());
+                    
+                    recordingIndicator.classList.remove('active');
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                }
+            });
+            
+            // Play with effect
+            playBtn.addEventListener('click', async () => {
+                if (!audioBuffer) return;
+                
+                try {
+                    initAudioContext();
+                    
+                    // Apply the selected effect
+                    processedAudio = await applyEffect(audioBuffer, voiceEffect.value);
+                    
+                    // Create a new AudioBufferSourceNode
+                    const source = audioContext.createBufferSource();
+                    source.buffer = processedAudio;
+                    source.connect(audioContext.destination);
+                    
+                    // Play the processed audio
+                    source.start();
+                    
+                } catch (error) {
+                    console.error('Error playing audio with effect:', error);
+                    alert('Could not apply effect to audio.');
+                }
+            });
+            
+            // Download processed audio
+            downloadBtn.addEventListener('click', async () => {
+                if (!processedAudio) {
+                    // If no effect has been applied, use the original audio
+                    processedAudio = await applyEffect(audioBuffer, 'none');
+                }
+                
+                try {
+                    // Convert AudioBuffer to WAV and download
+                    const wavBlob = await audioBufferToWav(processedAudio);
+                    const url = URL.createObjectURL(wavBlob);
+                    
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `voice-changer-${voiceEffect.value}-${new Date().toISOString().slice(0, 10)}.wav`;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Clean up
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }, 100);
+                    
+                } catch (error) {
+                    console.error('Error downloading audio:', error);
+                    alert('Could not download audio file.');
+                }
+            });
+            
+            // Audio visualization
+            function visualize() {
+                if (!audioAnalyser) return;
+                
+                const bufferLength = audioAnalyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                function draw() {
+                    requestAnimationFrame(draw);
+                    
+                    audioAnalyser.getByteFrequencyData(dataArray);
+                    
+                    canvasCtx.fillStyle = 'rgb(241, 242, 246)';
+                    canvasCtx.fillRect(0, 0, visualizer.width, visualizer.height);
+                    
+                    const barWidth = (visualizer.width / bufferLength) * 2.5;
+                    let x = 0;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        const barHeight = dataArray[i] / 2;
+                        
+                        const hue = i / bufferLength * 360;
+                        canvasCtx.fillStyle = `hsl(${hue}, 80%, 60%)`;
+                        canvasCtx.fillRect(x, visualizer.height - barHeight, barWidth, barHeight);
+                        
+                        x += barWidth + 1;
+                    }
+                }
+                
+                draw();
+            }
+            
+            // Apply voice effect to audio buffer
+            async function applyEffect(audioBuffer, effectType) {
+                initAudioContext();
+                
+                // Create offline audio context for processing
+                const offlineCtx = new OfflineAudioContext(
+                    audioBuffer.numberOfChannels,
+                    audioBuffer.length,
+                    audioBuffer.sampleRate
+                );
+                
+                // Create buffer source
+                const source = offlineCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                
+                // Create effects based on selection
+                let lastNode = source;
+                
+                switch (effectType) {
+                    case 'robot':
+                        // Robot effect - combination of bandpass and tremolo
+                        const bandpass = offlineCtx.createBiquadFilter();
+                        bandpass.type = 'bandpass';
+                        bandpass.frequency.value = 1000;
+                        bandpass.Q.value = 1;
+                        
+                        const tremolo = offlineCtx.createGain();
+                        const lfo = offlineCtx.createOscillator();
+                        lfo.frequency.value = 5;
+                        lfo.connect(tremolo.gain);
+                        tremolo.gain.value = 0.5;
+                        
+                        source.connect(bandpass);
+                        bandpass.connect(tremolo);
+                        lastNode = tremolo;
+                        lfo.start();
+                        break;
+                        
+                    case 'alien':
+                        // Alien effect - high pitch with resonance
+                        const pitchShift = offlineCtx.createDelay();
+                        pitchShift.delayTime.value = 0.01;
+                        
+                        const feedback = offlineCtx.createGain();
+                        feedback.gain.value = 0.7;
+                        
+                        source.connect(pitchShift);
+                        pitchShift.connect(feedback);
+                        feedback.connect(pitchShift);
+                        
+                        const merger = offlineCtx.createChannelMerger(2);
+                        source.connect(merger, 0, 0);
+                        pitchShift.connect(merger, 0, 1);
+                        
+                        lastNode = merger;
+                        break;
+                        
+                    case 'helium':
+                        // Helium (high pitch) - playback rate increase
+                        source.playbackRate.value = 1.5;
+                        break;
+                        
+                    case 'dark':
+                        // Dark (low pitch) - playback rate decrease
+                        source.playbackRate.value = 0.7;
+                        break;
+                        
+                    case 'whisper':
+                        // Whisper effect - noise gate and highpass
+                        const highpass = offlineCtx.createBiquadFilter();
+                        highpass.type = 'highpass';
+                        highpass.frequency.value = 500;
+                        
+                        source.connect(highpass);
+                        lastNode = highpass;
+                        break;
+                        
+                    case 'echo':
+                        // Echo effect
+                        const delay = offlineCtx.createDelay();
+                        delay.delayTime.value = 0.3;
+                        
+                        const feedbackEcho = offlineCtx.createGain();
+                        feedbackEcho.gain.value = 0.5;
+                        
+                        const mergerEcho = offlineCtx.createChannelMerger(2);
+                        source.connect(mergerEcho, 0, 0);
+                        source.connect(delay);
+                        delay.connect(feedbackEcho);
+                        feedbackEcho.connect(delay);
+                        delay.connect(mergerEcho, 0, 1);
+                        
+                        lastNode = mergerEcho;
+                        break;
+                        
+                    case 'reverse':
+                        // Reverse effect - we'll handle this after rendering
+                        // No real-time processing for reverse
+                        break;
+                        
+                    default:
+                        // No effect - direct connection
+                        break;
+                }
+                
+                lastNode.connect(offlineCtx.destination);
+                source.start();
+                
+                // Render the processed audio
+                const renderedBuffer = await offlineCtx.startRendering();
+                
+                // Handle reverse effect if selected
+                if (effectType === 'reverse') {
+                    const reversedBuffer = audioContext.createBuffer(
+                        renderedBuffer.numberOfChannels,
+                        renderedBuffer.length,
+                        renderedBuffer.sampleRate
+                    );
+                    
+                    for (let channel = 0; channel < reversedBuffer.numberOfChannels; channel++) {
+                        const originalData = renderedBuffer.getChannelData(channel);
+                        const reversedData = reversedBuffer.getChannelData(channel);
+                        
+                        for (let i = 0; i < reversedBuffer.length; i++) {
+                            reversedData[i] = originalData[renderedBuffer.length - 1 - i];
+                        }
+                    }
+                    
+                    return reversedBuffer;
+                }
+                
+                return renderedBuffer;
+            }
+            
+            // Convert Blob to AudioBuffer
+            async function blobToAudioBuffer(blob) {
+                const arrayBuffer = await blob.arrayBuffer();
+                return await audioContext.decodeAudioData(arrayBuffer);
+            }
+            
+            // Convert AudioBuffer to WAV Blob
+            function audioBufferToWav(buffer) {
+                const numChannels = buffer.numberOfChannels;
+                const length = buffer.length;
+                const sampleRate = buffer.sampleRate;
+                
+                const interleaved = new Float32Array(length * numChannels);
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const channelData = buffer.getChannelData(channel);
+                    for (let i = 0; i < length; i++) {
+                        interleaved[i * numChannels + channel] = channelData[i];
+                    }
+                }
+                
+                // WAV encoder
+                const wavBytes = getWavBytes(interleaved.buffer, {
+                    isFloat: true,
+                    numChannels,
+                    sampleRate,
+                });
+                
+                return new Blob([wavBytes], { type: 'audio/wav' });
+            }
+            
+            // Helper function for WAV encoding
+            function getWavBytes(buffer, options) {
+                const type = options.isFloat ? Float32Array : Uint16Array;
+                const numFrames = buffer.byteLength / type.BYTES_PER_ELEMENT;
+                
+                const headerBytes = getWavHeader(Object.assign({}, options, { numFrames }));
+                const wavBytes = new Uint8Array(headerBytes.length + buffer.byteLength);
+                
+                wavBytes.set(headerBytes, 0);
+                wavBytes.set(new Uint8Array(buffer), headerBytes.length);
+                
+                return wavBytes;
+            }
+            
+            // Helper function for WAV header
+            function getWavHeader(options) {
+                const numFrames = options.numFrames;
+                const numChannels = options.numChannels || 1;
+                const sampleRate = options.sampleRate || 44100;
+                const bytesPerSample = options.isFloat ? 4 : 2;
+                const format = options.isFloat ? 3 : 1;
+                
+                const blockAlign = numChannels * bytesPerSample;
+                const byteRate = sampleRate * blockAlign;
+                const dataSize = numFrames * blockAlign;
+                
+                const buffer = new ArrayBuffer(44);
+                const dv = new DataView(buffer);
+                
+                let p = 0;
+                
+                function writeString(s) {
+                    for (let i = 0; i < s.length; i++) {
+                        dv.setUint8(p + i, s.charCodeAt(i));
+                    }
+                    p += s.length;
+                }
+                
+                function writeUint32(d) {
+                    dv.setUint32(p, d, true);
+                    p += 4;
+                }
+                
+                function writeUint16(d) {
+                    dv.setUint16(p, d, true);
+                    p += 2;
+                }
+                
+                writeString('RIFF');              // ChunkID
+                writeUint32(dataSize + 36);       // ChunkSize
+                writeString('WAVE');             // Format
+                writeString('fmt ');             // Subchunk1ID
+                writeUint32(16);                 // Subchunk1Size
+                writeUint16(format);             // AudioFormat
+                writeUint16(numChannels);        // NumChannels
+                writeUint32(sampleRate);         // SampleRate
+                writeUint32(byteRate);           // ByteRate
+                writeUint16(blockAlign);         // BlockAlign
+                writeUint16(bytesPerSample * 8); // BitsPerSample
+                writeString('data');             // Subchunk2ID
+                writeUint32(dataSize);           // Subchunk2Size
+                
+                return buffer;
+            }
+            
+            // Upload file handling
+            uploadContainer.addEventListener('click', () => {
+                audioUpload.click();
+            });
+            
+            // Drag and drop handling
+            uploadContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadContainer.classList.add('highlight');
+            });
+            
+            uploadContainer.addEventListener('dragleave', () => {
+                uploadContainer.classList.remove('highlight');
+            });
+            
+            uploadContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadContainer.classList.remove('highlight');
+                
+                if (e.dataTransfer.files.length) {
+                    handleAudioFile(e.dataTransfer.files[0]);
+                }
+            });
+            
+            audioUpload.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleAudioFile(e.target.files[0]);
+                }
+            });
+            
+            async function handleAudioFile(file) {
+                // Check file type
+                const validTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-wav', 'audio/x-mpeg-3'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload a valid audio file (MP3, WAV, or OGG)');
+                    return;
+                }
+                
+                // Update file info display
+                fileInfo.style.display = 'block';
+                fileInfo.textContent = `File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                
+                try {
+                    initAudioContext();
+                    
+                    // Read the file as ArrayBuffer
+                    const arrayBuffer = await file.arrayBuffer();
+                    
+                    // Decode the audio data
+                    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    
+                    // Create a playable URL
+                    const audioUrl = URL.createObjectURL(file);
+                    audioPlayer.src = audioUrl;
+                    
+                    // Enable buttons
+                    playBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                    
+                    // Visualize the audio
+                    visualizeUploadedAudio(audioBuffer);
+                    
+                } catch (error) {
+                    console.error('Error processing audio file:', error);
+                    alert('Could not process the audio file. Please try another file.');
+                }
+            }
+            
+            // Visualize uploaded audio
+            function visualizeUploadedAudio(buffer) {
+                if (!audioContext) return;
+                
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                audioAnalyser = analyser;
+                visualize();
+            }
+            
+            // Responsive canvas sizing
+            function resizeCanvas() {
+                visualizer.width = visualizer.offsetWidth;
+                visualizer.height = visualizer.offsetHeight;
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+        });
+    </script>
+</body>
+</html>
