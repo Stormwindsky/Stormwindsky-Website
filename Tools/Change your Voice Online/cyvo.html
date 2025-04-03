@@ -304,6 +304,13 @@
                         <option value="whisper">Whisper</option>
                         <option value="echo">Echo</option>
                         <option value="reverse">Reverse</option>
+                        <option value="chipmunk">Chipmunk</option>
+                        <option value="zombie">Zombie</option>
+                        <option value="chiptune">Chiptune</option>
+                        <option value="radio">AM Radio</option>
+                        <option value="underwater">Underwater</option>
+                        <option value="megaphone">Megaphone</option>
+                        <option value="vibrato">Vibrato</option>
                     </select>
                 </div>
 
@@ -646,6 +653,142 @@
                         // No real-time processing for reverse
                         break;
                         
+                    case 'chipmunk':
+                        // Chipmunk effect - high pitch with formant preservation
+                        source.playbackRate.value = 1.8;
+                        
+                        // Add some resonance
+                        const resonator = offlineCtx.createBiquadFilter();
+                        resonator.type = 'peaking';
+                        resonator.frequency.value = 2000;
+                        resonator.Q.value = 2;
+                        resonator.gain.value = 10;
+                        
+                        source.connect(resonator);
+                        lastNode = resonator;
+                        break;
+                        
+                    case 'zombie':
+                        // Zombie effect - slow, low pitch with distortion
+                        source.playbackRate.value = 0.6;
+                        
+                        // Add distortion
+                        const distortion = offlineCtx.createWaveShaper();
+                        distortion.curve = makeDistortionCurve(400);
+                        distortion.oversample = '4x';
+                        
+                        // Add low-pass filter for muffled sound
+                        const lowpass = offlineCtx.createBiquadFilter();
+                        lowpass.type = 'lowpass';
+                        lowpass.frequency.value = 1000;
+                        lowpass.Q.value = 0.5;
+                        
+                        source.connect(distortion);
+                        distortion.connect(lowpass);
+                        lastNode = lowpass;
+                        break;
+                        
+                    case 'chiptune':
+                        // Chiptune effect - bitcrusher and square wave
+                        const bitcrusher = createBitCrusher(offlineCtx, {
+                            bits: 4,
+                            normfreq: 0.1
+                        });
+                        
+                        // Add square wave effect
+                        const waveShaper = offlineCtx.createWaveShaper();
+                        waveShaper.curve = makeSquareWaveCurve();
+                        
+                        source.connect(bitcrusher);
+                        bitcrusher.connect(waveShaper);
+                        lastNode = waveShaper;
+                        break;
+                        
+                    case 'radio':
+                        // AM Radio effect - bandpass and distortion
+                        const radioBandpass = offlineCtx.createBiquadFilter();
+                        radioBandpass.type = 'bandpass';
+                        radioBandpass.frequency.value = 1000;
+                        radioBandpass.Q.value = 1;
+                        
+                        const radioDistortion = offlineCtx.createWaveShaper();
+                        radioDistortion.curve = makeDistortionCurve(20);
+                        
+                        // Add some noise
+                        const noise = createNoise(offlineCtx, audioBuffer.length / audioBuffer.sampleRate);
+                        const noiseGain = offlineCtx.createGain();
+                        noiseGain.gain.value = 0.02;
+                        
+                        noise.connect(noiseGain);
+                        
+                        const radioMerger = offlineCtx.createChannelMerger(2);
+                        source.connect(radioBandpass);
+                        radioBandpass.connect(radioDistortion);
+                        radioDistortion.connect(radioMerger, 0, 0);
+                        noiseGain.connect(radioMerger, 0, 1);
+                        
+                        lastNode = radioMerger;
+                        break;
+                        
+                    case 'underwater':
+                        // Underwater effect - lowpass with delay and reverb
+                        const underwaterLowpass = offlineCtx.createBiquadFilter();
+                        underwaterLowpass.type = 'lowpass';
+                        underwaterLowpass.frequency.value = 800;
+                        underwaterLowpass.Q.value = 0.5;
+                        
+                        const underwaterDelay = offlineCtx.createDelay();
+                        underwaterDelay.delayTime.value = 0.15;
+                        
+                        const underwaterFeedback = offlineCtx.createGain();
+                        underwaterFeedback.gain.value = 0.3;
+                        
+                        source.connect(underwaterLowpass);
+                        underwaterLowpass.connect(underwaterDelay);
+                        underwaterDelay.connect(underwaterFeedback);
+                        underwaterFeedback.connect(underwaterDelay);
+                        
+                        const underwaterMerger = offlineCtx.createChannelMerger(2);
+                        underwaterLowpass.connect(underwaterMerger, 0, 0);
+                        underwaterDelay.connect(underwaterMerger, 0, 1);
+                        
+                        lastNode = underwaterMerger;
+                        break;
+                        
+                    case 'megaphone':
+                        // Megaphone effect - bandpass with distortion
+                        const megaphoneBandpass = offlineCtx.createBiquadFilter();
+                        megaphoneBandpass.type = 'bandpass';
+                        megaphoneBandpass.frequency.value = 1500;
+                        megaphoneBandpass.Q.value = 1;
+                        
+                        const megaphoneDistortion = offlineCtx.createWaveShaper();
+                        megaphoneDistortion.curve = makeDistortionCurve(100);
+                        
+                        source.connect(megaphoneBandpass);
+                        megaphoneBandpass.connect(megaphoneDistortion);
+                        lastNode = megaphoneDistortion;
+                        break;
+                        
+                    case 'vibrato':
+                        // Vibrato effect - pitch modulation
+                        const vibratoDelay = offlineCtx.createDelay();
+                        vibratoDelay.delayTime.value = 0.01;
+                        
+                        const vibratoLFO = offlineCtx.createOscillator();
+                        vibratoLFO.frequency.value = 5;
+                        
+                        const vibratoDepth = offlineCtx.createGain();
+                        vibratoDepth.gain.value = 0.005;
+                        
+                        vibratoLFO.connect(vibratoDepth);
+                        vibratoDepth.connect(vibratoDelay.delayTime);
+                        
+                        source.connect(vibratoDelay);
+                        lastNode = vibratoDelay;
+                        vibratoLFO.start();
+                        break;
+                        
                     default:
                         // No effect - direct connection
                         break;
@@ -678,6 +821,77 @@
                 }
                 
                 return renderedBuffer;
+            }
+            
+            // Helper function to create distortion curve
+            function makeDistortionCurve(amount) {
+                const k = typeof amount === 'number' ? amount : 50;
+                const n_samples = 44100;
+                const curve = new Float32Array(n_samples);
+                const deg = Math.PI / 180;
+                
+                for (let i = 0; i < n_samples; i++) {
+                    const x = (i * 2) / n_samples - 1;
+                    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+                }
+                return curve;
+            }
+            
+            // Helper function to create square wave curve
+            function makeSquareWaveCurve() {
+                const n_samples = 44100;
+                const curve = new Float32Array(n_samples);
+                
+                for (let i = 0; i < n_samples; i++) {
+                    const x = (i * 2) / n_samples - 1;
+                    curve[i] = Math.sign(x) * 0.2; // Square wave
+                }
+                return curve;
+            }
+            
+            // Create a bitcrusher effect
+            function createBitCrusher(context, settings) {
+                const bitcrusher = context.createScriptProcessor(4096, 1, 1);
+                let phase = 0;
+                let last = 0;
+                
+                const bits = settings.bits || 4;
+                const normfreq = settings.normfreq || 0.1;
+                
+                bitcrusher.onaudioprocess = function(e) {
+                    const input = e.inputBuffer.getChannelData(0);
+                    const output = e.outputBuffer.getChannelData(0);
+                    const step = Math.pow(1/2, bits);
+                    let phaser = 0;
+                    
+                    for (let i = 0; i < input.length; i++) {
+                        phase += normfreq;
+                        if (phase >= 1.0) {
+                            phase -= 1.0;
+                            last = step * Math.floor(input[i] / step + 0.5);
+                        }
+                        output[i] = last;
+                    }
+                };
+                
+                return bitcrusher;
+            }
+            
+            // Create noise generator
+            function createNoise(context, duration) {
+                const bufferSize = context.sampleRate * duration;
+                const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
+                const output = buffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                
+                const noise = context.createBufferSource();
+                noise.buffer = buffer;
+                noise.loop = true;
+                
+                return noise;
             }
             
             // Convert Blob to AudioBuffer
