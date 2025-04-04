@@ -209,137 +209,115 @@
         <header>
             <div class="logo">AppMarket</div>
             <div class="search-bar">
-                <input type="text" placeholder="Search for apps..." id="searchInput">
-                <button id="searchButton">Search</button>
+                <input type="text" placeholder="Search for apps...">
+                <button>Search</button>
             </div>
         </header>
 
         <div class="filter-section">
             <div class="format-filter">
                 <span>Filter by format:</span>
-                <div class="format-option active" data-format="all">All</div>
-                <div class="format-option" data-format=".exe">.exe</div>
-                <div class="format-option" data-format=".lim2">.lim2</div>
-                <div class="format-option" data-format=".deb">.deb</div>
-                <div class="format-option" data-format=".sb3">.sb3</div>
-                <div class="format-option" data-format=".py">.py</div>
+                <div class="format-option active">All</div>
+                <div class="format-option">.exe</div>
+                <div class="format-option">.lim2</div>
+                <div class="format-option">.deb</div>
+                <div class="format-option">.sb3</div>
+                <div class="format-option">.py</div>
             </div>
         </div>
 
-        <div class="apps-grid" id="appsGrid">
-            <!-- Apps will be dynamically inserted here -->
+        <div class="apps-grid">
+            <!-- FNAF 1 Custom Map Card -->
+            <div class="app-card">
+                <div class="app-image">
+                    <img src="https://m.gjcdn.net/game-thumbnail/1000/964789-tavicsmx-v4.webp" alt="FNAF 1 Custom Map for Among Us">
+                </div>
+                <div class="app-info">
+                    <div class="app-title">FNAF 1 Custom Map for Among Us</div>
+                    <div class="app-developer">By Among Us Modders</div>
+                    <div class="app-formats">
+                        <span class="format-badge">.lim2</span>
+                    </div>
+                    <a href="https://gamejolt.com/games/FNAF1CustomMapForAmongUs/964789" class="download-btn" target="_blank">Download on GameJolt</a>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // App data - you can add more apps here
-        const apps = [
-            {
-                id: 1,
-                title: "FNAF 1 Custom Map for Among Us",
-                developer: "By Among Us Modders",
-                image: "https://m.gjcdn.net/game-thumbnail/1000/964789-tavicsmx-v4.webp",
-                formats: [".lim2"],
-                download: "https://gamejolt.com/games/FNAF1CustomMapForAmongUs/964789"
-            },
-            // Add more apps here as needed:
-            // {
-            //     id: 2,
-            //     title: "Example App",
-            //     developer: "Developer Name",
-            //     image: "image-url.jpg",
-            //     formats: [".exe", ".deb"],
-            //     download: "download-link.com"
-            // }
-        ];
-
-        // DOM elements
-        const appsGrid = document.getElementById('appsGrid');
-        const searchInput = document.getElementById('searchInput');
-        const searchButton = document.getElementById('searchButton');
+        // Format filter functionality
         const formatOptions = document.querySelectorAll('.format-option');
-
-        // Render apps function
-        function renderApps(filteredApps = apps) {
-            appsGrid.innerHTML = '';
-            
-            if (filteredApps.length === 0) {
-                appsGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;">No apps found matching your criteria</p>';
-                return;
-            }
-            
-            filteredApps.forEach(app => {
-                const appCard = document.createElement('div');
-                appCard.className = 'app-card';
-                appCard.innerHTML = `
-                    <div class="app-image">
-                        <img src="${app.image}" alt="${app.title}">
-                    </div>
-                    <div class="app-info">
-                        <div class="app-title">${app.title}</div>
-                        <div class="app-developer">${app.developer}</div>
-                        <div class="app-formats">
-                            ${app.formats.map(format => `<span class="format-badge">${format}</span>`).join('')}
-                        </div>
-                        <a href="${app.download}" class="download-btn" target="_blank">Download on GameJolt</a>
-                    </div>
-                `;
-                appsGrid.appendChild(appCard);
-            });
-        }
-
-        // Filter apps by format
-        function filterByFormat(format) {
-            if (format === 'all') {
-                renderApps(apps);
-                return;
-            }
-            
-            const filteredApps = apps.filter(app => 
-                app.formats.includes(format)
-            );
-            renderApps(filteredApps);
-        }
-
-        // Search apps function
-        function searchApps() {
-            const searchTerm = searchInput.value.trim().toLowerCase();
-            
-            if (!searchTerm) {
-                const activeFormat = document.querySelector('.format-option.active').dataset.format;
-                filterByFormat(activeFormat);
-                return;
-            }
-            
-            const filteredApps = apps.filter(app => 
-                app.title.toLowerCase().includes(searchTerm) || 
-                app.developer.toLowerCase().includes(searchTerm)
-            );
-            renderApps(filteredApps);
-        }
-
-        // Initialize the page
-        function init() {
-            renderApps();
-            
-            // Add event listeners for format filters
-            formatOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    formatOptions.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                    filterByFormat(option.dataset.format);
+        
+        formatOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove active class from all options
+                formatOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to clicked option
+                option.classList.add('active');
+                
+                // Filter apps based on selected format
+                const selectedFormat = option.textContent.toLowerCase();
+                const appCards = document.querySelectorAll('.app-card');
+                
+                appCards.forEach(card => {
+                    if (selectedFormat === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        const formatBadges = card.querySelectorAll('.format-badge');
+                        let hasFormat = false;
+                        
+                        formatBadges.forEach(badge => {
+                            if (badge.textContent.toLowerCase() === selectedFormat) {
+                                hasFormat = true;
+                            }
+                        });
+                        
+                        card.style.display = hasFormat ? 'block' : 'none';
+                    }
                 });
             });
-            
-            // Add event listeners for search
-            searchButton.addEventListener('click', searchApps);
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') searchApps();
-            });
-        }
+        });
 
-        // Start the application
-        document.addEventListener('DOMContentLoaded', init);
+        // Search functionality
+        const searchInput = document.querySelector('.search-bar input');
+        const searchButton = document.querySelector('.search-bar button');
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            const appCards = document.querySelectorAll('.app-card');
+            
+            if (searchTerm) {
+                appCards.forEach(card => {
+                    const title = card.querySelector('.app-title').textContent.toLowerCase();
+                    const developer = card.querySelector('.app-developer').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || developer.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            } else {
+                // If search is empty, show all apps that match current format filter
+                const activeFormat = document.querySelector('.format-option.active').textContent.toLowerCase();
+                formatOptions.forEach(opt => {
+                    if (opt.classList.contains('active')) {
+                        opt.click(); // Trigger the filter again
+                    }
+                });
+            }
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Initialize the page with all apps showing
+        document.querySelector('.format-option.active').click();
     </script>
 </body>
 </html>
