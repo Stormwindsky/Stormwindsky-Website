@@ -30,6 +30,38 @@ window.gameList = [
         thumbnail: "https://m.gjcdn.net/game-thumbnail/500/965257-crop0_0_960_540-izesne4n-v4.webp",
         downloadLink: "https://gamejolt.com/games/Area51CMfAU/965257",
         formats: [".lim2"],
-        downloadText: "Download on Gamejolt"
+        downloadText: "Download on GameJolt"
+    },
+            {
+        title: "Melvore's School (Custom map for Among Us)",
+        developer: "By Stormwindsky",
+        thumbnail: "https://m.gjcdn.net/game-thumbnail/500/964742-xcri47nw-v4.webp",
+        downloadLink: "https://gamejolt.com/games/Melvores-School-Custom-Map-for-Among-Us/964742",
+        formats: [".lim2"],
+        downloadText: "Download on GameJolt"
+    },
+                {
+        title: "FNAF 1 but Budget cuts",
+        developer: "By Stormwindsky",
+        thumbnail: "https://m.gjcdn.net/game-thumbnail/500/917720-crop111_0_1250_641-jjmquhtc-v4.webp",
+        downloadLink: "https://gamejolt.com/games/FNAF1bBc/917720",
+        formats: [".html"],
+        downloadText: "Download on GameJolt"
+    },
+                    {
+        title: "Obby game create with BB+",
+        developer: "By Stormwindsky",
+        thumbnail: "https://m.gjcdn.net/game-thumbnail/500/893079-crop0_0_588_331-zhndvsad-v4.webp",
+        downloadLink: "https://gamejolt.com/games/ObbyBBplus/893079",
+        formats: [".bld"],
+        downloadText: "Download on GameJolt"
+    },
+                        {
+        title: "Custom Roblox avatar editor in Baldi's Basics main office",
+        developer: "By Stormwindsky",
+        thumbnail: "https://m.gjcdn.net/game-thumbnail/500/916712-crop248_89_1919_1029-ffwtxssz-v4.webp",
+        downloadLink: "https://gamejolt.com/games/CRaeiBBmo/916712",
+        formats: [".rbxl"],
+        downloadText: "Download on GameJolt"
     }
 ];
