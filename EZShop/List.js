@@ -23,6 +23,13 @@ window.gameList = [
         downloadLink: "https://github.com/Stormwindsky/Among-Mods",
         formats: [".py"],
         downloadText: "Download on Github"
+    },
+        {
+        title: "Area 51 Custom Map for Among Us",
+        developer: "By Stormwindsky",
+        thumbnail: "https://m.gjcdn.net/game-thumbnail/500/965257-crop0_0_960_540-izesne4n-v4.webp",
+        downloadLink: "https://gamejolt.com/games/Area51CMfAU/965257",
+        formats: [".lim2"],
+        downloadText: "Download on Gamejolt"
     }
-    // Add more games as needed
 ];
