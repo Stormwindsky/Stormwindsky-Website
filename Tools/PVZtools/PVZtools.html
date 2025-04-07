@@ -202,19 +202,14 @@
             </div>
             
             <div class="tabs">
-                <div class="tab active" data-tab="peashooter">Peashooter</div>
-                <div class="tab" data-tab="sunflowers">Sunflowers</div>
-                <div class="tab" data-tab="defensive">Defensive</div>
-                <div class="tab" data-tab="special">Special</div>
+                <div class="tab active" data-tab="plants">Plants</div>
                 <div class="tab" data-tab="damages">Other Damages</div>
-                <div class="tab" data-tab="others">Others</div>
                 <div class="tab" data-tab="currency">Currency & Shop</div>
-                <div class="tab" data-tab="actions">Plant Actions</div>
-                <div class="tab" data-tab="all">All Plants</div>
+                <div class="tab" data-tab="zombies">Zombies</div>
             </div>
             
-            <!-- Peashooter Family -->
-            <div class="tab-content active" id="peashooter">
+            <!-- Plants Tab -->
+            <div class="tab-content active" id="plants">
                 <div class="plant-section" data-name="peashooter">
                     <h3>Peashooter</h3>
                     <div class="attribute-control">
@@ -328,10 +323,7 @@
                         <span class="value-display" id="gatlingPeaFiringRateValue">1000</span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Sunflower Family -->
-            <div class="tab-content" id="sunflowers">
+                
                 <div class="plant-section" data-name="sunflower">
                     <h3>Sunflower</h3>
                     <div class="attribute-control">
@@ -407,10 +399,7 @@
                         <span class="value-display" id="marigoldProductionRateValue">30000</span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Defensive Plants -->
-            <div class="tab-content" id="defensive">
+                
                 <div class="plant-section" data-name="wallnut">
                     <h3>Wall-nut</h3>
                     <div class="attribute-control">
@@ -480,10 +469,7 @@
                         <span class="value-display" id="lilypadRechargeValue">750</span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Special Plants -->
-            <div class="tab-content" id="special">
+                
                 <div class="plant-section" data-name="cherry bomb">
                     <h3>Cherry Bomb</h3>
                     <div class="attribute-control">
@@ -586,130 +572,7 @@
                         <span class="value-display" id="cobCannonFiringRateValue">3500</span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Other Damages -->
-            <div class="tab-content" id="damages">
-                <div class="plant-section" data-name="pea damage">
-                    <h3>Pea Damage</h3>
-                    <div class="attribute-control">
-                        <label for="peaDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="20" class="slider" id="peaDamage" data-offset="0x4CCE32">
-                        <span class="value-display" id="peaDamageValue">20</span>
-                    </div>
-                </div>
                 
-                <div class="plant-section" data-name="explosion damage">
-                    <h3>Explosion Damage</h3>
-                    <div class="attribute-control">
-                        <label for="explosionDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="1800" class="slider" id="explosionDamage" data-offset="0x1C7A97">
-                        <span class="value-display" id="explosionDamageValue">1800</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="snow pea damage">
-                    <h3>Snow Pea Damage</h3>
-                    <div class="attribute-control">
-                        <label for="snowPeaDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="20" class="slider" id="snowPeaDamage" data-offset="0x4CCD46">
-                        <span class="value-display" id="snowPeaDamageValue">20</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="spore damage">
-                    <h3>Spore Damage</h3>
-                    <div class="attribute-control">
-                        <label for="sporeDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="20" class="slider" id="sporeDamage" data-offset="0x4CCE62">
-                        <span class="value-display" id="sporeDamageValue">20</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="fume shroom/spike weed damage">
-                    <h3>Fume Shroom/Spike Weed Damage</h3>
-                    <div class="attribute-control">
-                        <label for="fumeSpikeDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="20" class="slider" id="fumeSpikeDamage" data-offset="0xE90E">
-                        <span class="value-display" id="fumeSpikeDamageValue">20</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="fireball damage">
-                    <h3>Fireball Damage</h3>
-                    <div class="attribute-control">
-                        <label for="fireballDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="40" class="slider" id="fireballDamage" data-offset="0x4CBA36">
-                        <span class="value-display" id="fireballDamageValue">40</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="cactus/cattail spike damage">
-                    <h3>Cactus/Cattail Spike Damage</h3>
-                    <div class="attribute-control">
-                        <label for="cactusSpikeDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="20" class="slider" id="cactusSpikeDamage" data-offset="0x4CCE92">
-                        <span class="value-display" id="cactusSpikeDamageValue">20</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="star damage">
-                    <h3>Star Damage</h3>
-                    <div class="attribute-control">
-                        <label for="starDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="20" class="slider" id="starDamage" data-offset="0x4CBC0E">
-                        <span class="value-display" id="starDamageValue">20</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="cabbage damage">
-                    <h3>Cabbage Damage</h3>
-                    <div class="attribute-control">
-                        <label for="cabbageDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="40" class="slider" id="cabbageDamage" data-offset="0x4CCD96">
-                        <span class="value-display" id="cabbageDamageValue">40</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="kernel damage">
-                    <h3>Kernel Damage</h3>
-                    <div class="attribute-control">
-                        <label for="kernelDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="20" class="slider" id="kernelDamage" data-offset="0x4CCEAA">
-                        <span class="value-display" id="kernelDamageValue">20</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="butter damage">
-                    <h3>Butter Damage</h3>
-                    <div class="attribute-control">
-                        <label for="butterDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="40" class="slider" id="butterDamage" data-offset="0x4CCEC2">
-                        <span class="value-display" id="butterDamageValue">40</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="melon damage">
-                    <h3>Melon Damage</h3>
-                    <div class="attribute-control">
-                        <label for="melonDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="80" class="slider" id="melonDamage" data-offset="0x4CCE56">
-                        <span class="value-display" id="melonDamageValue">80</span>
-                    </div>
-                </div>
-                
-                <div class="plant-section" data-name="winter melon damage">
-                    <h3>Winter Melon Damage</h3>
-                    <div class="attribute-control">
-                        <label for="winterMelonDamage">Damage:</label>
-                        <input type="range" min="0" max="9999" value="80" class="slider" id="winterMelonDamage" data-offset="0x4CCE6E">
-                        <span class="value-display" id="winterMelonDamageValue">80</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Other Plants -->
-            <div class="tab-content" id="others">
                 <div class="plant-section" data-name="puffshroom">
                     <h3>Puff-shroom</h3>
                     <div class="attribute-control">
@@ -1133,6 +996,254 @@
                         <span class="value-display" id="spikerockRechargeValue">750</span>
                     </div>
                 </div>
+
+                <!-- Plant HP Values -->
+                <div class="plant-section" data-name="basic plant hp">
+                    <h3>Basic Plant HP</h3>
+                    <div class="attribute-control">
+                        <label for="basicPlantHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="300" class="slider" id="basicPlantHP" data-offset="0x20E5B">
+                        <span class="value-display" id="basicPlantHPValue">300</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="wallnut hp">
+                    <h3>Wallnut HP</h3>
+                    <div class="attribute-control">
+                        <label for="wallnutHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="4000" class="slider" id="wallnutHP" data-offset="0x1E5B25">
+                        <span class="value-display" id="wallnutHPValue">4000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="tallnut hp">
+                    <h3>Tallnut HP</h3>
+                    <div class="attribute-control">
+                        <label for="tallnutHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="8000" class="slider" id="tallnutHP" data-offset="0x20AAD0">
+                        <span class="value-display" id="tallnutHPValue">8000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="pumpkin hp">
+                    <h3>Pumpkin HP</h3>
+                    <div class="attribute-control">
+                        <label for="pumpkinHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="4000" class="slider" id="pumpkinHP" data-offset="0x20ACF5">
+                        <span class="value-display" id="pumpkinHPValue">4000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="garlic hp">
+                    <h3>Garlic HP</h3>
+                    <div class="attribute-control">
+                        <label for="garlicHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="300" class="slider" id="garlicHP" data-offset="0x2026">
+                        <span class="value-display" id="garlicHPValue">300</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="spikerock hp">
+                    <h3>Spikerock HP</h3>
+                    <div class="attribute-control">
+                        <label for="spikerockHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="300" class="slider" id="spikerockHP" data-offset="0x20AE73">
+                        <span class="value-display" id="spikerockHPValue">300</span>
+                    </div>
+                </div>
+
+                <!-- Plant Actions -->
+                <div class="plant-section" data-name="potato mine arm timer">
+                    <h3>Potato Mine Arm Timer</h3>
+                    <div class="attribute-control">
+                        <label for="potatoMineArmTimer">Timer (ms):</label>
+                        <input type="range" min="0" max="9999" value="15000" class="slider" id="potatoMineArmTimer" data-offset="0x20ABFE">
+                        <span class="value-display" id="potatoMineArmTimerValue">15000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="chomper chew timer">
+                    <h3>Chomper Chew Timer</h3>
+                    <div class="attribute-control">
+                        <label for="chomperChewTimer">Timer (ms):</label>
+                        <input type="range" min="0" max="9999" value="4200" class="slider" id="chomperChewTimer" data-offset="0x20DE93">
+                        <span class="value-display" id="chomperChewTimerValue">4200</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="chomper bite speed">
+                    <h3>Chomper Bite Speed</h3>
+                    <div class="attribute-control">
+                        <label for="chomperBiteSpeed">Speed (ms):</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="chomperBiteSpeed" data-offset="0x20DCFC">
+                        <span class="value-display" id="chomperBiteSpeedValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="sunshroom growth timer">
+                    <h3>Sunshroom Growth Timer</h3>
+                    <div class="attribute-control">
+                        <label for="sunshroomGrowthTimer">Timer (ms):</label>
+                        <input type="range" min="0" max="9999" value="24000" class="slider" id="sunshroomGrowthTimer" data-offset="0x20ACA1">
+                        <span class="value-display" id="sunshroomGrowthTimerValue">24000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="doom shroom crater timer">
+                    <h3>Doom Shroom Crater Timer</h3>
+                    <div class="attribute-control">
+                        <label for="doomShroomCraterTimer">Timer (ms):</label>
+                        <input type="range" min="0" max="9999" value="18000" class="slider" id="doomShroomCraterTimer" data-offset="0x21329D">
+                        <span class="value-display" id="doomShroomCraterTimerValue">18000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="magnet shroom cooldown">
+                    <h3>Magnet Shroom Cooldown</h3>
+                    <div class="attribute-control">
+                        <label for="magnetShroomCooldown">Cooldown (ms):</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="magnetShroomCooldown" data-offset="0x1E6F7C">
+                        <span class="value-display" id="magnetShroomCooldownValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="chomper range">
+                    <h3>Chomper Range</h3>
+                    <div class="attribute-control">
+                        <label for="chomperRange">Range:</label>
+                        <input type="range" min="0" max="9999" value="70" class="slider" id="chomperRange" data-offset="0x214B70">
+                        <span class="value-display" id="chomperRangeValue">70</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fume shroom range">
+                    <h3>Fume Shroom Range</h3>
+                    <div class="attribute-control">
+                        <label for="fumeShroomRange">Range:</label>
+                        <input type="range" min="0" max="9999" value="120" class="slider" id="fumeShroomRange" data-offset="0x18196">
+                        <span class="value-display" id="fumeShroomRangeValue">120</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other Damages Tab -->
+            <div class="tab-content" id="damages">
+                <div class="plant-section" data-name="pea damage">
+                    <h3>Pea Damage</h3>
+                    <div class="attribute-control">
+                        <label for="peaDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="peaDamage" data-offset="0x4CCE32">
+                        <span class="value-display" id="peaDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="explosion damage">
+                    <h3>Explosion Damage</h3>
+                    <div class="attribute-control">
+                        <label for="explosionDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="1800" class="slider" id="explosionDamage" data-offset="0x1C7A97">
+                        <span class="value-display" id="explosionDamageValue">1800</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="snow pea damage">
+                    <h3>Snow Pea Damage</h3>
+                    <div class="attribute-control">
+                        <label for="snowPeaDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="snowPeaDamage" data-offset="0x4CCD46">
+                        <span class="value-display" id="snowPeaDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="spore damage">
+                    <h3>Spore Damage</h3>
+                    <div class="attribute-control">
+                        <label for="sporeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="sporeDamage" data-offset="0x4CCE62">
+                        <span class="value-display" id="sporeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fume shroom/spike weed damage">
+                    <h3>Fume Shroom/Spike Weed Damage</h3>
+                    <div class="attribute-control">
+                        <label for="fumeSpikeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="fumeSpikeDamage" data-offset="0xE90E">
+                        <span class="value-display" id="fumeSpikeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fireball damage">
+                    <h3>Fireball Damage</h3>
+                    <div class="attribute-control">
+                        <label for="fireballDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="fireballDamage" data-offset="0x4CBA36">
+                        <span class="value-display" id="fireballDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cactus/cattail spike damage">
+                    <h3>Cactus/Cattail Spike Damage</h3>
+                    <div class="attribute-control">
+                        <label for="cactusSpikeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="cactusSpikeDamage" data-offset="0x4CCE92">
+                        <span class="value-display" id="cactusSpikeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="star damage">
+                    <h3>Star Damage</h3>
+                    <div class="attribute-control">
+                        <label for="starDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="starDamage" data-offset="0x4CBC0E">
+                        <span class="value-display" id="starDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cabbage damage">
+                    <h3>Cabbage Damage</h3>
+                    <div class="attribute-control">
+                        <label for="cabbageDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="cabbageDamage" data-offset="0x4CCD96">
+                        <span class="value-display" id="cabbageDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="kernel damage">
+                    <h3>Kernel Damage</h3>
+                    <div class="attribute-control">
+                        <label for="kernelDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="kernelDamage" data-offset="0x4CCEAA">
+                        <span class="value-display" id="kernelDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="butter damage">
+                    <h3>Butter Damage</h3>
+                    <div class="attribute-control">
+                        <label for="butterDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="butterDamage" data-offset="0x4CCEC2">
+                        <span class="value-display" id="butterDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="melon damage">
+                    <h3>Melon Damage</h3>
+                    <div class="attribute-control">
+                        <label for="melonDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="80" class="slider" id="melonDamage" data-offset="0x4CCE56">
+                        <span class="value-display" id="melonDamageValue">80</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="winter melon damage">
+                    <h3>Winter Melon Damage</h3>
+                    <div class="attribute-control">
+                        <label for="winterMelonDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="80" class="slider" id="winterMelonDamage" data-offset="0x4CCE6E">
+                        <span class="value-display" id="winterMelonDamageValue">80</span>
+                    </div>
+                </div>
             </div>
             
             <!-- Currency & Shop Tab -->
@@ -1219,84 +1330,250 @@
                 </div>
             </div>
             
-            <!-- Plant Specific Actions Tab -->
-            <div class="tab-content" id="actions">
-                <div class="plant-section" data-name="potato mine arm timer">
-                    <h3>Potato Mine Arm Timer</h3>
+            <!-- Zombies Tab -->
+            <div class="tab-content" id="zombies">
+                <div class="plant-section" data-name="basic zombie hp">
+                    <h3>Basic Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="potatoMineArmTimer">Timer (ms):</label>
-                        <input type="range" min="0" max="9999" value="15000" class="slider" id="potatoMineArmTimer" data-offset="0x20ABFE">
-                        <span class="value-display" id="potatoMineArmTimerValue">15000</span>
+                        <label for="basicZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="270" class="slider" id="basicZombieHP" data-offset="0x2DD35E">
+                        <span class="value-display" id="basicZombieHPValue">270</span>
                     </div>
                 </div>
                 
-                <div class="plant-section" data-name="chomper chew timer">
-                    <h3>Chomper Chew Timer</h3>
+                <div class="plant-section" data-name="cone zombie hp">
+                    <h3>Cone Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="chomperChewTimer">Timer (ms):</label>
-                        <input type="range" min="0" max="9999" value="4200" class="slider" id="chomperChewTimer" data-offset="0x20DE93">
-                        <span class="value-display" id="chomperChewTimerValue">4200</span>
+                        <label for="coneZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="640" class="slider" id="coneZombieHP" data-offset="0x2DD43D">
+                        <span class="value-display" id="coneZombieHPValue">640</span>
                     </div>
                 </div>
                 
-                <div class="plant-section" data-name="chomper bite speed">
-                    <h3>Chomper Bite Speed</h3>
+                <div class="plant-section" data-name="pole zombie hp">
+                    <h3>Pole Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="chomperBiteSpeed">Speed (ms):</label>
-                        <input type="range" min="0" max="9999" value="3000" class="slider" id="chomperBiteSpeed" data-offset="0x20DCFC">
-                        <span class="value-display" id="chomperBiteSpeedValue">3000</span>
+                        <label for="poleZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="poleZombieHP" data-offset="0x2DD81C">
+                        <span class="value-display" id="poleZombieHPValue">500</span>
                     </div>
                 </div>
                 
-                <div class="plant-section" data-name="sunshroom growth timer">
-                    <h3>Sunshroom Growth Timer</h3>
+                <div class="plant-section" data-name="bucket zombie hp">
+                    <h3>Bucket Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="sunshroomGrowthTimer">Timer (ms):</label>
-                        <input type="range" min="0" max="9999" value="24000" class="slider" id="sunshroomGrowthTimer" data-offset="0x20ACA1">
-                        <span class="value-display" id="sunshroomGrowthTimerValue">24000</span>
+                        <label for="bucketZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="1100" class="slider" id="bucketZombieHP" data-offset="0x2DD47B">
+                        <span class="value-display" id="bucketZombieHPValue">1100</span>
                     </div>
                 </div>
                 
-                <div class="plant-section" data-name="doom shroom crater timer">
-                    <h3>Doom Shroom Crater Timer</h3>
+                <div class="plant-section" data-name="newspaper zombie hp">
+                    <h3>Newspaper Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="doomShroomCraterTimer">Timer (ms):</label>
-                        <input type="range" min="0" max="9999" value="18000" class="slider" id="doomShroomCraterTimer" data-offset="0x21329D">
-                        <span class="value-display" id="doomShroomCraterTimerValue">18000</span>
+                        <label for="newspaperZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="420" class="slider" id="newspaperZombieHP" data-offset="0x242115">
+                        <span class="value-display" id="newspaperZombieHPValue">420</span>
                     </div>
                 </div>
                 
-                <div class="plant-section" data-name="magnet shroom cooldown">
-                    <h3>Magnet Shroom Cooldown</h3>
+                <div class="plant-section" data-name="screendoor zombie hp">
+                    <h3>Screendoor Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="magnetShroomCooldown">Cooldown (ms):</label>
-                        <input type="range" min="0" max="9999" value="3000" class="slider" id="magnetShroomCooldown" data-offset="0x1E6F7C">
-                        <span class="value-display" id="magnetShroomCooldownValue">3000</span>
+                        <label for="screendoorZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="1100" class="slider" id="screendoorZombieHP" data-offset="0x27D06">
+                        <span class="value-display" id="screendoorZombieHPValue">1100</span>
                     </div>
                 </div>
                 
-                <div class="plant-section" data-name="chomper range">
-                    <h3>Chomper Range</h3>
+                <div class="plant-section" data-name="football zombie hp">
+                    <h3>Football Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="chomperRange">Range:</label>
-                        <input type="range" min="0" max="9999" value="70" class="slider" id="chomperRange" data-offset="0x214B70">
-                        <span class="value-display" id="chomperRangeValue">70</span>
+                        <label for="footballZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="1400" class="slider" id="footballZombieHP" data-offset="0x2DD711">
+                        <span class="value-display" id="footballZombieHPValue">1400</span>
                     </div>
                 </div>
                 
-                <div class="plant-section" data-name="fume shroom range">
-                    <h3>Fume Shroom Range</h3>
+                <div class="plant-section" data-name="dancer zombie hp">
+                    <h3>Dancer Zombie HP</h3>
                     <div class="attribute-control">
-                        <label for="fumeShroomRange">Range:</label>
-                        <input type="range" min="0" max="9999" value="120" class="slider" id="fumeShroomRange" data-offset="0x18196">
-                        <span class="value-display" id="fumeShroomRangeValue">120</span>
+                        <label for="dancerZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="dancerZombieHP" data-offset="0x2DDCBD">
+                        <span class="value-display" id="dancerZombieHPValue">500</span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- All Plants Tab -->
-            <div class="tab-content" id="all">
-                <!-- This tab will be populated dynamically with all plants -->
+                
+                <div class="plant-section" data-name="zomboni hp">
+                    <h3>Zomboni HP</h3>
+                    <div class="attribute-control">
+                        <label for="zomboniHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="1350" class="slider" id="zomboniHP" data-offset="0x2DD93A">
+                        <span class="value-display" id="zomboniHPValue">1350</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="dolphin zombie hp">
+                    <h3>Dolphin Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="dolphinZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="dolphinZombieHP" data-offset="0x2DD81C">
+                        <span class="value-display" id="dolphinZombieHPValue">500</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="jack zombie hp">
+                    <h3>Jack-in-the-Box Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="jackZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="jackZombieHP" data-offset="0x2DD81C">
+                        <span class="value-display" id="jackZombieHPValue">500</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="balloon zombie hp">
+                    <h3>Balloon Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="balloonZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="balloonZombieHP" data-offset="0x2DE21E">
+                        <span class="value-display" id="balloonZombieHPValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="digger zombie hp">
+                    <h3>Digger Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="diggerZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="diggerZombieHP" data-offset="0x2DD750">
+                        <span class="value-display" id="diggerZombieHPValue">500</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="pogo zombie hp">
+                    <h3>Pogo Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="pogoZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="pogoZombieHP" data-offset="0x2DE05B">
+                        <span class="value-display" id="pogoZombieHPValue">500</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="yeti zombie hp">
+                    <h3>Yeti Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="yetiZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="2700" class="slider" id="yetiZombieHP" data-offset="0x2DD4BE">
+                        <span class="value-display" id="yetiZombieHPValue">2700</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="bungee zombie hp">
+                    <h3>Bungee Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="bungeeZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="450" class="slider" id="bungeeZombieHP" data-offset="0x7437B">
+                        <span class="value-display" id="bungeeZombieHPValue">450</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="ladder zombie hp">
+                    <h3>Ladder Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="ladderZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="ladderZombieHP" data-offset="0x2DD4EF">
+                        <span class="value-display" id="ladderZombieHPValue">500</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="catapult zombie hp">
+                    <h3>Catapult Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="catapultZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="850" class="slider" id="catapultZombieHP" data-offset="0x2DD9E9">
+                        <span class="value-display" id="catapultZombieHPValue">850</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="gargantuar hp">
+                    <h3>Gargantuar HP</h3>
+                    <div class="attribute-control">
+                        <label for="gargantuarHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="gargantuarHP" data-offset="0x2DECA7">
+                        <span class="value-display" id="gargantuarHPValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="i zombie imp hp">
+                    <h3>I, Zombie Imp HP</h3>
+                    <div class="attribute-control">
+                        <label for="iZombieImpHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="300" class="slider" id="iZombieImpHP" data-offset="0x2DE338">
+                        <span class="value-display" id="iZombieImpHPValue">300</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="zomboss hp">
+                    <h3>Zomboss HP</h3>
+                    <div class="attribute-control">
+                        <label for="zombossHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="10000" class="slider" id="zombossHP" data-offset="0x2DE3B0">
+                        <span class="value-display" id="zombossHPValue">10000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="zomboss revenge hp">
+                    <h3>Zomboss's Revenge Extra HP</h3>
+                    <div class="attribute-control">
+                        <label for="zombossRevengeHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="zombossRevengeHP" data-offset="0x2DE3BA">
+                        <span class="value-display" id="zombossRevengeHPValue">5000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="wallnut zombie hp">
+                    <h3>Wallnut Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="wallnutZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="1100" class="slider" id="wallnutZombieHP" data-offset="0x27D06">
+                        <span class="value-display" id="wallnutZombieHPValue">1100</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="jalapeno zombie hp">
+                    <h3>Jalapeno Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="jalapenoZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="300" class="slider" id="jalapenoZombieHP" data-offset="0x24910">
+                        <span class="value-display" id="jalapenoZombieHPValue">300</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="tallnut zombie hp">
+                    <h3>Tallnut Zombie HP</h3>
+                    <div class="attribute-control">
+                        <label for="tallnutZombieHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="8000" class="slider" id="tallnutZombieHP" data-offset="0x1E59BC">
+                        <span class="value-display" id="tallnutZombieHPValue">8000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="giga garg hp">
+                    <h3>Giga Gargantuar HP</h3>
+                    <div class="attribute-control">
+                        <label for="gigaGargHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="6000" class="slider" id="gigaGargHP" data-offset="0x17C361">
+                        <span class="value-display" id="gigaGargHPValue">6000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="i zombie brain hp">
+                    <h3>I, Zombie Brain HP</h3>
+                    <div class="attribute-control">
+                        <label for="iZombieBrainHP">HP:</label>
+                        <input type="range" min="0" max="9999" value="300" class="slider" id="iZombieBrainHP" data-offset="0x1D4A81">
+                        <span class="value-display" id="iZombieBrainHPValue">300</span>
+                    </div>
+                </div>
             </div>
             
             <div class="url-container" id="urlContainer">
