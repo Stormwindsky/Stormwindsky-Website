@@ -215,32 +215,924 @@
             
             <!-- Peashooter Family -->
             <div class="tab-content active" id="peashooter">
-                <!-- ... (previous peashooter content remains the same) ... -->
+                <div class="plant-section" data-name="peashooter">
+                    <h3>Peashooter</h3>
+                    <div class="attribute-control">
+                        <label for="peaCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="100" class="slider" id="peaCost" data-offset="0x4CCF2A">
+                        <span class="value-display" id="peaCostValue">100</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="peaRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="peaRecharge" data-offset="0x4CCF2E">
+                        <span class="value-display" id="peaRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="peaFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="peaFiringRate" data-offset="0x4CCF36">
+                        <span class="value-display" id="peaFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="snow pea">
+                    <h3>Snow Pea</h3>
+                    <div class="attribute-control">
+                        <label for="snowPeaCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="175" class="slider" id="snowPeaCost" data-offset="0x4CCFDE">
+                        <span class="value-display" id="snowPeaCostValue">175</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="snowPeaRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="snowPeaRecharge" data-offset="0x4CCFE2">
+                        <span class="value-display" id="snowPeaRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="snowPeaFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="snowPeaFiringRate" data-offset="0x4CCFEA">
+                        <span class="value-display" id="snowPeaFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="repeater">
+                    <h3>Repeater</h3>
+                    <div class="attribute-control">
+                        <label for="repeaterCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="200" class="slider" id="repeaterCost" data-offset="0x4CD026">
+                        <span class="value-display" id="repeaterCostValue">200</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="repeaterRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="repeaterRecharge" data-offset="0x4CD02A">
+                        <span class="value-display" id="repeaterRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="repeaterFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="repeaterFiringRate" data-offset="0x4CD032">
+                        <span class="value-display" id="repeaterFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="threepeater">
+                    <h3>Threepeater</h3>
+                    <div class="attribute-control">
+                        <label for="threepeaterCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="325" class="slider" id="threepeaterCost" data-offset="0x4CD1B2">
+                        <span class="value-display" id="threepeaterCostValue">325</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="threepeaterRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="threepeaterRecharge" data-offset="0x4CD1B6">
+                        <span class="value-display" id="threepeaterRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="threepeaterFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="threepeaterFiringRate" data-offset="0x4CD1BE">
+                        <span class="value-display" id="threepeaterFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="split pea">
+                    <h3>Split Pea</h3>
+                    <div class="attribute-control">
+                        <label for="splitPeaCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="splitPeaCost" data-offset="0x4CD31A">
+                        <span class="value-display" id="splitPeaCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="splitPeaRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="splitPeaRecharge" data-offset="0x4CD31E">
+                        <span class="value-display" id="splitPeaRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="splitPeaFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="splitPeaFiringRate" data-offset="0x4CD326">
+                        <span class="value-display" id="splitPeaFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="gatling pea">
+                    <h3>Gatling Pea</h3>
+                    <div class="attribute-control">
+                        <label for="gatlingPeaCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="250" class="slider" id="gatlingPeaCost" data-offset="0x4CD4CA">
+                        <span class="value-display" id="gatlingPeaCostValue">250</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="gatlingPeaRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="gatlingPeaRecharge" data-offset="0x4CD4CE">
+                        <span class="value-display" id="gatlingPeaRechargeValue">5000</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="gatlingPeaFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1000" class="slider" id="gatlingPeaFiringRate" data-offset="0x4CD4D6">
+                        <span class="value-display" id="gatlingPeaFiringRateValue">1000</span>
+                    </div>
+                </div>
             </div>
             
             <!-- Sunflower Family -->
             <div class="tab-content" id="sunflowers">
-                <!-- ... (previous sunflower content remains the same) ... -->
+                <div class="plant-section" data-name="sunflower">
+                    <h3>Sunflower</h3>
+                    <div class="attribute-control">
+                        <label for="sunflowerCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="50" class="slider" id="sunflowerCost" data-offset="0x4CCF4E">
+                        <span class="value-display" id="sunflowerCostValue">50</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="sunflowerRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="2400" class="slider" id="sunflowerRecharge" data-offset="0x4CCF52">
+                        <span class="value-display" id="sunflowerRechargeValue">2400</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="sunflowerProductionRate">Production Rate:</label>
+                        <input type="range" min="0" max="9999" value="24000" class="slider" id="sunflowerProductionRate" data-offset="0x4CCF5A">
+                        <span class="value-display" id="sunflowerProductionRateValue">24000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="sunshroom">
+                    <h3>Sunshroom</h3>
+                    <div class="attribute-control">
+                        <label for="sunshroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="25" class="slider" id="sunshroomCost" data-offset="0x4CD06E">
+                        <span class="value-display" id="sunshroomCostValue">25</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="sunshroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="2400" class="slider" id="sunshroomRecharge" data-offset="0x4CD072">
+                        <span class="value-display" id="sunshroomRechargeValue">2400</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="sunshroomProductionRate">Production Rate:</label>
+                        <input type="range" min="0" max="9999" value="24000" class="slider" id="sunshroomProductionRate" data-offset="0x4CD07A">
+                        <span class="value-display" id="sunshroomProductionRateValue">24000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="twin sunflower">
+                    <h3>Twin Sunflower</h3>
+                    <div class="attribute-control">
+                        <label for="twinSunflowerCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="150" class="slider" id="twinSunflowerCost" data-offset="0x4CD4EE">
+                        <span class="value-display" id="twinSunflowerCostValue">150</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="twinSunflowerRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="2400" class="slider" id="twinSunflowerRecharge" data-offset="0x4CD4F2">
+                        <span class="value-display" id="twinSunflowerRechargeValue">2400</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="twinSunflowerProductionRate">Production Rate:</label>
+                        <input type="range" min="0" max="9999" value="24000" class="slider" id="twinSunflowerProductionRate" data-offset="0x4CD4FA">
+                        <span class="value-display" id="twinSunflowerProductionRateValue">24000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="marigold">
+                    <h3>Marigold</h3>
+                    <div class="attribute-control">
+                        <label for="marigoldCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="50" class="slider" id="marigoldCost" data-offset="0x4CD482">
+                        <span class="value-display" id="marigoldCostValue">50</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="marigoldRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="marigoldRecharge" data-offset="0x4CD486">
+                        <span class="value-display" id="marigoldRechargeValue">3000</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="marigoldProductionRate">Production Rate:</label>
+                        <input type="range" min="0" max="9999" value="30000" class="slider" id="marigoldProductionRate" data-offset="0x4CD48E">
+                        <span class="value-display" id="marigoldProductionRateValue">30000</span>
+                    </div>
+                </div>
             </div>
             
             <!-- Defensive Plants -->
             <div class="tab-content" id="defensive">
-                <!-- ... (previous defensive content remains the same) ... -->
+                <div class="plant-section" data-name="wallnut">
+                    <h3>Wall-nut</h3>
+                    <div class="attribute-control">
+                        <label for="wallnutCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="50" class="slider" id="wallnutCost" data-offset="0x4CCF96">
+                        <span class="value-display" id="wallnutCostValue">50</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="wallnutRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="wallnutRecharge" data-offset="0x4CCF9A">
+                        <span class="value-display" id="wallnutRechargeValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="tallnut">
+                    <h3>Tall-nut</h3>
+                    <div class="attribute-control">
+                        <label for="tallnutCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="tallnutCost" data-offset="0x4CD266">
+                        <span class="value-display" id="tallnutCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="tallnutRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="tallnutRecharge" data-offset="0x4CD26A">
+                        <span class="value-display" id="tallnutRechargeValue">5000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="pumpkin">
+                    <h3>Pumpkin</h3>
+                    <div class="attribute-control">
+                        <label for="pumpkinCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="pumpkinCost" data-offset="0x4CD362">
+                        <span class="value-display" id="pumpkinCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="pumpkinRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="pumpkinRecharge" data-offset="0x4CD366">
+                        <span class="value-display" id="pumpkinRechargeValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="flower pot">
+                    <h3>Flower Pot</h3>
+                    <div class="attribute-control">
+                        <label for="flowerPotCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="25" class="slider" id="flowerPotCost" data-offset="0x4CD3CE">
+                        <span class="value-display" id="flowerPotCostValue">25</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="flowerPotRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="flowerPotRecharge" data-offset="0x4CD3D2">
+                        <span class="value-display" id="flowerPotRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="lily pad">
+                    <h3>Lily Pad</h3>
+                    <div class="attribute-control">
+                        <label for="lilypadCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="25" class="slider" id="lilypadCost" data-offset="0x4CD16A">
+                        <span class="value-display" id="lilypadCostValue">25</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="lilypadRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="lilypadRecharge" data-offset="0x4CD16E">
+                        <span class="value-display" id="lilypadRechargeValue">750</span>
+                    </div>
+                </div>
             </div>
             
             <!-- Special Plants -->
             <div class="tab-content" id="special">
-                <!-- ... (previous special content remains the same) ... -->
+                <div class="plant-section" data-name="cherry bomb">
+                    <h3>Cherry Bomb</h3>
+                    <div class="attribute-control">
+                        <label for="cherrybombCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="150" class="slider" id="cherrybombCost" data-offset="0x4CCF72">
+                        <span class="value-display" id="cherrybombCostValue">150</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cherrybombRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="cherrybombRecharge" data-offset="0x4CCF76">
+                        <span class="value-display" id="cherrybombRechargeValue">5000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="potato mine">
+                    <h3>Potato Mine</h3>
+                    <div class="attribute-control">
+                        <label for="potatoMineCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="25" class="slider" id="potatoMineCost" data-offset="0x4CCFBA">
+                        <span class="value-display" id="potatoMineCostValue">25</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="potatoMineRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="potatoMineRecharge" data-offset="0x4CCFBE">
+                        <span class="value-display" id="potatoMineRechargeValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="chomper">
+                    <h3>Chomper</h3>
+                    <div class="attribute-control">
+                        <label for="chomperCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="150" class="slider" id="chomperCost" data-offset="0x4CD002">
+                        <span class="value-display" id="chomperCostValue">150</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="chomperRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="7500" class="slider" id="chomperRecharge" data-offset="0x4CD006">
+                        <span class="value-display" id="chomperRechargeValue">7500</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="grave buster">
+                    <h3>Grave Buster</h3>
+                    <div class="attribute-control">
+                        <label for="graveBusterCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="75" class="slider" id="graveBusterCost" data-offset="0x4CD0B6">
+                        <span class="value-display" id="graveBusterCostValue">75</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="graveBusterRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="graveBusterRecharge" data-offset="0x4CD0BA">
+                        <span class="value-display" id="graveBusterRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="squash">
+                    <h3>Squash</h3>
+                    <div class="attribute-control">
+                        <label for="squashCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="50" class="slider" id="squashCost" data-offset="0x4CD18E">
+                        <span class="value-display" id="squashCostValue">50</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="squashRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="squashRecharge" data-offset="0x4CD192">
+                        <span class="value-display" id="squashRechargeValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="jalapeno">
+                    <h3>Jalapeno</h3>
+                    <div class="attribute-control">
+                        <label for="jalapenoCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="jalapenoCost" data-offset="0x4CD1FA">
+                        <span class="value-display" id="jalapenoCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="jalapenoRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="jalapenoRecharge" data-offset="0x4CD1FE">
+                        <span class="value-display" id="jalapenoRechargeValue">5000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cob cannon">
+                    <h3>Cob Cannon</h3>
+                    <div class="attribute-control">
+                        <label for="cobCannonCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="500" class="slider" id="cobCannonCost" data-offset="0x4CD5C6">
+                        <span class="value-display" id="cobCannonCostValue">500</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cobCannonRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="cobCannonRecharge" data-offset="0x4CD5CA">
+                        <span class="value-display" id="cobCannonRechargeValue">5000</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cobCannonFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="3500" class="slider" id="cobCannonFiringRate" data-offset="0x4CD5D2">
+                        <span class="value-display" id="cobCannonFiringRateValue">3500</span>
+                    </div>
+                </div>
             </div>
             
             <!-- Other Damages -->
             <div class="tab-content" id="damages">
-                <!-- ... (previous damages content remains the same) ... -->
+                <div class="plant-section" data-name="pea damage">
+                    <h3>Pea Damage</h3>
+                    <div class="attribute-control">
+                        <label for="peaDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="peaDamage" data-offset="0x4CCE32">
+                        <span class="value-display" id="peaDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="explosion damage">
+                    <h3>Explosion Damage</h3>
+                    <div class="attribute-control">
+                        <label for="explosionDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="1800" class="slider" id="explosionDamage" data-offset="0x1C7A97">
+                        <span class="value-display" id="explosionDamageValue">1800</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="snow pea damage">
+                    <h3>Snow Pea Damage</h3>
+                    <div class="attribute-control">
+                        <label for="snowPeaDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="snowPeaDamage" data-offset="0x4CCD46">
+                        <span class="value-display" id="snowPeaDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="spore damage">
+                    <h3>Spore Damage</h3>
+                    <div class="attribute-control">
+                        <label for="sporeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="sporeDamage" data-offset="0x4CCE62">
+                        <span class="value-display" id="sporeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fume shroom/spike weed damage">
+                    <h3>Fume Shroom/Spike Weed Damage</h3>
+                    <div class="attribute-control">
+                        <label for="fumeSpikeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="fumeSpikeDamage" data-offset="0xE90E">
+                        <span class="value-display" id="fumeSpikeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fireball damage">
+                    <h3>Fireball Damage</h3>
+                    <div class="attribute-control">
+                        <label for="fireballDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="fireballDamage" data-offset="0x4CBA36">
+                        <span class="value-display" id="fireballDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cactus/cattail spike damage">
+                    <h3>Cactus/Cattail Spike Damage</h3>
+                    <div class="attribute-control">
+                        <label for="cactusSpikeDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="cactusSpikeDamage" data-offset="0x4CCE92">
+                        <span class="value-display" id="cactusSpikeDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="star damage">
+                    <h3>Star Damage</h3>
+                    <div class="attribute-control">
+                        <label for="starDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="starDamage" data-offset="0x4CBC0E">
+                        <span class="value-display" id="starDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cabbage damage">
+                    <h3>Cabbage Damage</h3>
+                    <div class="attribute-control">
+                        <label for="cabbageDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="cabbageDamage" data-offset="0x4CCD96">
+                        <span class="value-display" id="cabbageDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="kernel damage">
+                    <h3>Kernel Damage</h3>
+                    <div class="attribute-control">
+                        <label for="kernelDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="20" class="slider" id="kernelDamage" data-offset="0x4CCEAA">
+                        <span class="value-display" id="kernelDamageValue">20</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="butter damage">
+                    <h3>Butter Damage</h3>
+                    <div class="attribute-control">
+                        <label for="butterDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="40" class="slider" id="butterDamage" data-offset="0x4CCEC2">
+                        <span class="value-display" id="butterDamageValue">40</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="melon damage">
+                    <h3>Melon Damage</h3>
+                    <div class="attribute-control">
+                        <label for="melonDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="80" class="slider" id="melonDamage" data-offset="0x4CCE56">
+                        <span class="value-display" id="melonDamageValue">80</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="winter melon damage">
+                    <h3>Winter Melon Damage</h3>
+                    <div class="attribute-control">
+                        <label for="winterMelonDamage">Damage:</label>
+                        <input type="range" min="0" max="9999" value="80" class="slider" id="winterMelonDamage" data-offset="0x4CCE6E">
+                        <span class="value-display" id="winterMelonDamageValue">80</span>
+                    </div>
+                </div>
             </div>
             
             <!-- Other Plants -->
             <div class="tab-content" id="others">
-                <!-- ... (previous others content remains the same) ... -->
+                <div class="plant-section" data-name="puffshroom">
+                    <h3>Puff-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="puffshroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="0" class="slider" id="puffshroomCost" data-offset="0x4CD04A">
+                        <span class="value-display" id="puffshroomCostValue">0</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="puffshroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="puffshroomRecharge" data-offset="0x4CD04E">
+                        <span class="value-display" id="puffshroomRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="puffshroomFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="puffshroomFiringRate" data-offset="0x4CD056">
+                        <span class="value-display" id="puffshroomFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="fume shroom">
+                    <h3>Fume-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="fumeShroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="75" class="slider" id="fumeShroomCost" data-offset="0x4CD092">
+                        <span class="value-display" id="fumeShroomCostValue">75</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="fumeShroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="fumeShroomRecharge" data-offset="0x4CD096">
+                        <span class="value-display" id="fumeShroomRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="fumeShroomFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="fumeShroomFiringRate" data-offset="0x4CD09E">
+                        <span class="value-display" id="fumeShroomFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="scaredy shroom">
+                    <h3>Scaredy-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="scardeyShroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="25" class="slider" id="scardeyShroomCost" data-offset="0x4CD0FE">
+                        <span class="value-display" id="scardeyShroomCostValue">25</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="scardeyShroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="scardeyShroomRecharge" data-offset="0x4CD10E">
+                        <span class="value-display" id="scardeyShroomRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="scardeyShroomFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="scardeyShroomFiringRate" data-offset="0x4CD10A">
+                        <span class="value-display" id="scardeyShroomFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="ice shroom">
+                    <h3>Ice-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="iceShroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="75" class="slider" id="iceShroomCost" data-offset="0x4CD122">
+                        <span class="value-display" id="iceShroomCostValue">75</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="iceShroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="iceShroomRecharge" data-offset="0x4CD126">
+                        <span class="value-display" id="iceShroomRechargeValue">5000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="doom shroom">
+                    <h3>Doom-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="doomShroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="doomShroomCost" data-offset="0x4CD146">
+                        <span class="value-display" id="doomShroomCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="doomShroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="doomShroomRecharge" data-offset="0x4CD14A">
+                        <span class="value-display" id="doomShroomRechargeValue">5000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="hypno shroom">
+                    <h3>Hypno-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="hypnoShroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="75" class="slider" id="hypnoShroomCost" data-offset="0x4CD0DA">
+                        <span class="value-display" id="hypnoShroomCostValue">75</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="hypnoShroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="hypnoShroomRecharge" data-offset="0x4CD0DE">
+                        <span class="value-display" id="hypnoShroomRechargeValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="tangle kelp">
+                    <h3>Tangle Kelp</h3>
+                    <div class="attribute-control">
+                        <label for="tangleKelpCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="25" class="slider" id="tangleKelpCost" data-offset="0x4CD1D6">
+                        <span class="value-display" id="tangleKelpCostValue">25</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="tangleKelpRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="tangleKelpRecharge" data-offset="0x4CD1DA">
+                        <span class="value-display" id="tangleKelpRechargeValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="spikeweed">
+                    <h3>Spikeweed</h3>
+                    <div class="attribute-control">
+                        <label for="spikeweedCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="100" class="slider" id="spikeweedCost" data-offset="0x4CD21E">
+                        <span class="value-display" id="spikeweedCostValue">100</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="spikeweedRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="spikeweedRecharge" data-offset="0x4CD222">
+                        <span class="value-display" id="spikeweedRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="torchwood">
+                    <h3>Torchwood</h3>
+                    <div class="attribute-control">
+                        <label for="torchwoodCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="175" class="slider" id="torchwoodCost" data-offset="0x4CD242">
+                        <span class="value-display" id="torchwoodCostValue">175</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="torchwoodRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="torchwoodRecharge" data-offset="0x4CD246">
+                        <span class="value-display" id="torchwoodRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="seashroom">
+                    <h3>Sea-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="seashroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="0" class="slider" id="seashroomCost" data-offset="0x4CD28A">
+                        <span class="value-display" id="seashroomCostValue">0</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="seashroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="seashroomRecharge" data-offset="0x4CD28E">
+                        <span class="value-display" id="seashroomRechargeValue">3000</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="seashroomFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="seashroomFiringRate" data-offset="0x4CD296">
+                        <span class="value-display" id="seashroomFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="plantern">
+                    <h3>Plantern</h3>
+                    <div class="attribute-control">
+                        <label for="planternCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="25" class="slider" id="planternCost" data-offset="0x4CD2AE">
+                        <span class="value-display" id="planternCostValue">25</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="planternRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="planternRecharge" data-offset="0x4CD2B2">
+                        <span class="value-display" id="planternRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cactus">
+                    <h3>Cactus</h3>
+                    <div class="attribute-control">
+                        <label for="cactusCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="cactusCost" data-offset="0x4CD2D2">
+                        <span class="value-display" id="cactusCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cactusRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="cactusRecharge" data-offset="0x4CD2D6">
+                        <span class="value-display" id="cactusRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cactusFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="cactusFiringRate" data-offset="0x4CD2DE">
+                        <span class="value-display" id="cactusFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="blover">
+                    <h3>Blover</h3>
+                    <div class="attribute-control">
+                        <label for="bloverCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="100" class="slider" id="bloverCost" data-offset="0x4CD2F6">
+                        <span class="value-display" id="bloverCostValue">100</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="bloverRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="bloverRecharge" data-offset="0x4CD2FA">
+                        <span class="value-display" id="bloverRechargeValue">5000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="star fruit">
+                    <h3>Star Fruit</h3>
+                    <div class="attribute-control">
+                        <label for="starFruitCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="starFruitCost" data-offset="0x4CD33E">
+                        <span class="value-display" id="starFruitCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="starFruitRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="starFruitRecharge" data-offset="0x4CD342">
+                        <span class="value-display" id="starFruitRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="starFruitFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="starFruitFiringRate" data-offset="0x4CD34A">
+                        <span class="value-display" id="starFruitFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="magnet">
+                    <h3>Magnet-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="magnetCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="100" class="slider" id="magnetCost" data-offset="0x4CD386">
+                        <span class="value-display" id="magnetCostValue">100</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="magnetRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="magnetRecharge" data-offset="0x4CD38A">
+                        <span class="value-display" id="magnetRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cabbage pult">
+                    <h3>Cabbage-pult</h3>
+                    <div class="attribute-control">
+                        <label for="cabbagePultCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="100" class="slider" id="cabbagePultCost" data-offset="0x4CD3AA">
+                        <span class="value-display" id="cabbagePultCostValue">100</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cabbagePultRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="cabbagePultRecharge" data-offset="0x4CD3AE">
+                        <span class="value-display" id="cabbagePultRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cabbagePultFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="cabbagePultFiringRate" data-offset="0x4CD3B6">
+                        <span class="value-display" id="cabbagePultFiringRateValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="kernel pult">
+                    <h3>Kernel-pult</h3>
+                    <div class="attribute-control">
+                        <label for="kernelPultCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="100" class="slider" id="kernelPultCost" data-offset="0x4CD3F2">
+                        <span class="value-display" id="kernelPultCostValue">100</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="kernelPultRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="kernelPultRecharge" data-offset="0x4CD3F6">
+                        <span class="value-display" id="kernelPultRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="kernelPultFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="kernelPultFiringRate" data-offset="0x4CD3FE">
+                        <span class="value-display" id="kernelPultFiringRateValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="coffee bean">
+                    <h3>Coffee Bean</h3>
+                    <div class="attribute-control">
+                        <label for="coffeeBeanCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="75" class="slider" id="coffeeBeanCost" data-offset="0x4CD416">
+                        <span class="value-display" id="coffeeBeanCostValue">75</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="coffeeBeanRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="coffeeBeanRecharge" data-offset="0x4CD41A">
+                        <span class="value-display" id="coffeeBeanRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="garlic">
+                    <h3>Garlic</h3>
+                    <div class="attribute-control">
+                        <label for="garlicCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="50" class="slider" id="garlicCost" data-offset="0x4CD43A">
+                        <span class="value-display" id="garlicCostValue">50</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="garlicRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="garlicRecharge" data-offset="0x4CD43E">
+                        <span class="value-display" id="garlicRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="umbrella leaf">
+                    <h3>Umbrella Leaf</h3>
+                    <div class="attribute-control">
+                        <label for="umbrellaLeafCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="100" class="slider" id="umbrellaLeafCost" data-offset="0x4CD45E">
+                        <span class="value-display" id="umbrellaLeafCostValue">100</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="umbrellaLeafRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="umbrellaLeafRecharge" data-offset="0x4CD462">
+                        <span class="value-display" id="umbrellaLeafRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="melon pult">
+                    <h3>Melon-pult</h3>
+                    <div class="attribute-control">
+                        <label for="melonPultCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="300" class="slider" id="melonPultCost" data-offset="0x4CD4A6">
+                        <span class="value-display" id="melonPultCostValue">300</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="melonPultRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="melonPultRecharge" data-offset="0x4CD4AA">
+                        <span class="value-display" id="melonPultRechargeValue">5000</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="melonPultFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="melonPultFiringRate" data-offset="0x4CD4B2">
+                        <span class="value-display" id="melonPultFiringRateValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="winter melon">
+                    <h3>Winter Melon</h3>
+                    <div class="attribute-control">
+                        <label for="winterMelonCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="200" class="slider" id="winterMelonCost" data-offset="0x4CD55A">
+                        <span class="value-display" id="winterMelonCostValue">200</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="winterMelonRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="5000" class="slider" id="winterMelonRecharge" data-offset="0x4CD55E">
+                        <span class="value-display" id="winterMelonRechargeValue">5000</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="winterMelonFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="winterMelonFiringRate" data-offset="0x4CD566">
+                        <span class="value-display" id="winterMelonFiringRateValue">3000</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="gloom shroom">
+                    <h3>Gloom-shroom</h3>
+                    <div class="attribute-control">
+                        <label for="gloomShroomCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="150" class="slider" id="gloomShroomCost" data-offset="0x4CD512">
+                        <span class="value-display" id="gloomShroomCostValue">150</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="gloomShroomRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="gloomShroomRecharge" data-offset="0x4CD516">
+                        <span class="value-display" id="gloomShroomRechargeValue">750</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="gloomShroomFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="gloomShroomFiringRate" data-offset="0x4CD51E">
+                        <span class="value-display" id="gloomShroomFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="cattail">
+                    <h3>Cattail</h3>
+                    <div class="attribute-control">
+                        <label for="cattailCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="225" class="slider" id="cattailCost" data-offset="0x4CD536">
+                        <span class="value-display" id="cattailCostValue">225</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cattailRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="3000" class="slider" id="cattailRecharge" data-offset="0x4CD53A">
+                        <span class="value-display" id="cattailRechargeValue">3000</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="cattailFiringRate">Firing Rate:</label>
+                        <input type="range" min="0" max="9999" value="1425" class="slider" id="cattailFiringRate" data-offset="0x4CD542">
+                        <span class="value-display" id="cattailFiringRateValue">1425</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="gold magnet">
+                    <h3>Gold Magnet</h3>
+                    <div class="attribute-control">
+                        <label for="goldMagnetCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="50" class="slider" id="goldMagnetCost" data-offset="0x4CD57E">
+                        <span class="value-display" id="goldMagnetCostValue">50</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="goldMagnetRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="goldMagnetRecharge" data-offset="0x4CD582">
+                        <span class="value-display" id="goldMagnetRechargeValue">750</span>
+                    </div>
+                </div>
+                
+                <div class="plant-section" data-name="spikerock">
+                    <h3>Spikerock</h3>
+                    <div class="attribute-control">
+                        <label for="spikerockCost">Cost:</label>
+                        <input type="range" min="0" max="9999" value="125" class="slider" id="spikerockCost" data-offset="0x4CD5A2">
+                        <span class="value-display" id="spikerockCostValue">125</span>
+                    </div>
+                    <div class="attribute-control">
+                        <label for="spikerockRecharge">Recharge:</label>
+                        <input type="range" min="0" max="9999" value="750" class="slider" id="spikerockRecharge" data-offset="0x4CD5A6">
+                        <span class="value-display" id="spikerockRechargeValue">750</span>
+                    </div>
+                </div>
             </div>
             
             <!-- Currency & Shop Tab -->
