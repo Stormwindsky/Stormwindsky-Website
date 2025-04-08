@@ -13,7 +13,7 @@ window.gameList = [
         developer: "By Stormwindsky",
         thumbnail: "https://web.archive.org/web/20250404111034if_/https://m.gjcdn.net/game-thumbnail/900/962820-crop0_179_960_719-nj6jtrfw-v4.webp",
         downloadLink: "https://gamejolt.com/games/TJccbtFG/962820",
-        formats: [".exe", ".deb"],
+        formats: [".exe", ".deb", ".sb3"],
         downloadText: "Download on GameJolt"
     },
     {
