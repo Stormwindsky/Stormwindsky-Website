@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Asset Link Configurator</title>
+    <style>
+        :root {
+            --primary-color: #00a2ff;
+            --secondary-color: #1a1a1a;
+            --accent-color: #ff4757;
+            --text-color: #f0f0f0;
+            --bg-color: #2d2d2d;
+            --card-bg: #3a3a3a;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: var(--border-radius);
+            background-color: #444;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #0088cc;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #2a2a2a;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .result-container {
+            margin-top: 30px;
+        }
+
+        .result-link {
+            word-break: break-all;
+            background-color: #444;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+        }
+
+        .note {
+            background-color: rgba(255, 71, 87, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .note h3 {
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .copied-message {
+            color: #4CAF50;
+            font-weight: 600;
+            margin-left: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .visible {
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Roblox Asset Link Configurator</h1>
+        
+        <div class="note">
+            <h3>Important Notice</h3>
+            <p>This service only works with Roblox Open Source (Uncopylocked) games. For protected games, asset delivery links cannot be generated through this method.</p>
+        </div>
+        
+        <div class="card">
+            <div class="form-group">
+                <label for="gameId">Game ID:</label>
+                <input type="text" id="gameId" placeholder="Enter the Roblox Game ID">
+            </div>
+            
+            <div class="form-group">
+                <label for="versionNumber">Version Number (optional):</label>
+                <input type="number" id="versionNumber" placeholder="Enter version number if needed">
+            </div>
+            
+            <div class="btn-group">
+                <button id="generateBtn" class="btn">Generate Link</button>
+                <button id="presetBtn" class="btn btn-secondary">Use Default Configuration</button>
+            </div>
+        </div>
+        
+        <div id="resultContainer" class="result-container hidden">
+            <div class="card">
+                <h2>Your Asset Delivery Link</h2>
+                <div class="result-link" id="generatedLink"></div>
+                <button id="copyBtn" class="btn">Copy Link</button>
+                <span id="copiedMessage" class="copied-message">Copied!</span>
+                
+                <div class="btn-group" style="margin-top: 15px;">
+                    <button id="testBtn" class="btn btn-secondary">Test Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameIdInput = document.getElementById('gameId');
+            const versionNumberInput = document.getElementById('versionNumber');
+            const generateBtn = document.getElementById('generateBtn');
+            const presetBtn = document.getElementById('presetBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            const generatedLink = document.getElementById('generatedLink');
+            const copyBtn = document.getElementById('copyBtn');
+            const copiedMessage = document.getElementById('copiedMessage');
+            const testBtn = document.getElementById('testBtn');
+            
+            // Base URL template
+            const baseUrl = 'https://assetdelivery.roblox.com/v1/asset/?id=';
+            
+            // Generate link when button is clicked
+            generateBtn.addEventListener('click', function() {
+                const gameId = gameIdInput.value.trim();
+                
+                if (!gameId) {
+                    alert('Please enter a valid Game ID');
+                    return;
+                }
+                
+                let url = baseUrl + gameId;
+                
+                const versionNumber = versionNumberInput.value.trim();
+                if (versionNumber) {
+                    url += `&version=${versionNumber}`;
+                }
+                
+                generatedLink.textContent = url;
+                resultContainer.classList.remove('hidden');
+            });
+            
+            // Use default configuration
+            presetBtn.addEventListener('click', function() {
+                gameIdInput.value = '';
+                versionNumberInput.value = '';
+                generatedLink.textContent = baseUrl;
+                resultContainer.classList.remove('hidden');
+            });
+            
+            // Copy link to clipboard
+            copyBtn.addEventListener('click', function() {
+                const textToCopy = generatedLink.textContent;
+                navigator.clipboard.writeText(textToCopy).then(function() {
+                    copiedMessage.classList.add('visible');
+                    setTimeout(function() {
+                        copiedMessage.classList.remove('visible');
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            });
+            
+            // Test link in new tab
+            testBtn.addEventListener('click', function() {
+                const url = generatedLink.textContent;
+                if (url && url !== baseUrl) {
+                    window.open(url, '_blank');
+                } else {
+                    alert('Please generate a valid link first');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
