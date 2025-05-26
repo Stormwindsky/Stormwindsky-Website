@@ -4,113 +4,316 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenLinker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --text: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #adb5bd;
+            --dark-gray: #495057;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            color: var(--text);
         }
 
         .container {
             text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 500px;
+            transition: var(--transition);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .title-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .title-container:hover .edit-title-btn {
+            opacity: 1;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+            padding: 0 10px;
+            border-radius: 5px;
+        }
+
+        h1:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .edit-title-btn {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .edit-title-btn:hover {
+            color: var(--primary);
+        }
+
+        #links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
         }
 
         #links a {
             display: block;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #0073e6;
+            padding: 12px 15px;
+            background-color: var(--primary);
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            font-weight: 500;
         }
 
         #links a:hover {
-            background-color: #005bb5;
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            box-shadow: var(--shadow);
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        button.secondary:hover {
+            background-color: rgba(67, 97, 238, 0.1);
         }
 
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 100;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
         }
 
         .modal-content {
             background-color: #fff;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
             max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
         }
 
         .close {
-            float: right;
+            color: var(--gray);
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            transition: var(--transition);
         }
 
         .close:hover {
-            color: #000;
+            color: var(--text);
         }
 
         textarea {
             width: 100%;
-            height: 150px;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            height: 200px;
+            margin-bottom: 1rem;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+            font-family: 'Poppins', sans-serif;
+            resize: vertical;
+            transition: var(--transition);
         }
 
-        button {
-            padding: 10px 20px;
-            background-color: #0073e6;
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .title-input {
+            display: none;
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--gray);
+            border-radius: 5px;
+            font-size: 2.2rem;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1rem;
+        }
+
+        .title-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary);
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        button:hover {
-            background-color: #005bb5;
+        .toast.show {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>OpenLinker</h1>
+        <div class="title-container">
+            <h1 id="mainTitle">OpenLinker</h1>
+            <button class="edit-title-btn" id="editTitleBtn">✏️</button>
+            <input type="text" class="title-input" id="titleInput" maxlength="20">
+        </div>
         <div id="links">
             <!-- Links will be dynamically added here -->
         </div>
-        <button id="editBtn">Edit Links</button>
-        <button id="shareBtn">Generate Shareable Link</button>
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
+        <div class="buttons">
+            <button id="editBtn">Edit Links</button>
+            <button id="shareBtn" class="secondary">Share</button>
+        </div>
+    </div>
+
+    <!-- Edit Links Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h2>Edit Links</h2>
-                <textarea id="linkInput" placeholder="Enter your links in JSON format"></textarea>
+                <span class="close">&times;</span>
+            </div>
+            <textarea id="linkInput" placeholder='[
+  {
+    "text": "Google",
+    "url": "https://google.com"
+  },
+  {
+    "text": "GitHub",
+    "url": "https://github.com"
+  }
+]'></textarea>
+            <div class="modal-footer">
+                <button id="cancelBtn" class="secondary">Cancel</button>
                 <button id="saveBtn">Save</button>
             </div>
         </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const linksContainer = document.getElementById('links');
@@ -118,32 +321,98 @@
             const shareBtn = document.getElementById('shareBtn');
             const modal = document.getElementById('editModal');
             const closeBtn = document.querySelector('.close');
+            const cancelBtn = document.getElementById('cancelBtn');
             const saveBtn = document.getElementById('saveBtn');
             const linkInput = document.getElementById('linkInput');
+            const mainTitle = document.getElementById('mainTitle');
+            const titleInput = document.getElementById('titleInput');
+            const editTitleBtn = document.getElementById('editTitleBtn');
+            const toast = document.getElementById('toast');
 
             let links = [];
+            let title = "OpenLinker";
 
-            // Load links from localStorage or URL
-            function loadLinks() {
+            // Load data from localStorage or URL
+            function loadData() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const savedLinks = urlParams.get('links');
+                const savedTitle = urlParams.get('title');
+                
+                // Load from URL first
                 if (savedLinks) {
-                    links = JSON.parse(atob(savedLinks));
-                } else if (localStorage.getItem('links')) {
-                    links = JSON.parse(localStorage.getItem('links'));
+                    try {
+                        links = JSON.parse(atob(savedLinks));
+                    } catch (e) {
+                        console.error("Error parsing URL links", e);
+                    }
                 }
-                renderLinks();
+                
+                if (savedTitle) {
+                    title = savedTitle;
+                }
+                
+                // Fallback to localStorage
+                if (localStorage.getItem('links')) {
+                    try {
+                        links = JSON.parse(localStorage.getItem('links'));
+                    } catch (e) {
+                        console.error("Error parsing localStorage links", e);
+                    }
+                }
+                
+                if (localStorage.getItem('title')) {
+                    title = localStorage.getItem('title');
+                }
+                
+                renderData();
             }
 
-            // Render links
-            function renderLinks() {
+            // Render links and title
+            function renderData() {
+                // Render title
+                mainTitle.textContent = title;
+                document.title = title + " - Link Manager";
+                
+                // Render links
                 linksContainer.innerHTML = '';
                 links.forEach(link => {
                     const a = document.createElement('a');
                     a.href = link.url;
                     a.textContent = link.text;
+                    a.target = "_blank";
                     linksContainer.appendChild(a);
                 });
+            }
+
+            // Show toast notification
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Toggle title editing
+            function toggleTitleEdit() {
+                if (titleInput.style.display === 'block') {
+                    // Save the title
+                    const newTitle = titleInput.value.trim();
+                    if (newTitle) {
+                        title = newTitle;
+                        localStorage.setItem('title', title);
+                        renderData();
+                        showToast("Title saved!");
+                    }
+                    titleInput.style.display = 'none';
+                    mainTitle.style.display = 'block';
+                } else {
+                    // Start editing
+                    titleInput.value = title;
+                    titleInput.style.display = 'block';
+                    mainTitle.style.display = 'none';
+                    titleInput.focus();
+                }
             }
 
             // Open modal
@@ -153,8 +422,18 @@
             });
 
             // Close modal
-            closeBtn.addEventListener('click', () => {
+            function closeModal() {
                 modal.style.display = 'none';
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+
+            // Click outside modal to close
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
             });
 
             // Save links
@@ -162,22 +441,46 @@
                 try {
                     links = JSON.parse(linkInput.value);
                     localStorage.setItem('links', JSON.stringify(links));
-                    renderLinks();
-                    modal.style.display = 'none';
+                    renderData();
+                    closeModal();
+                    showToast("Links saved successfully!");
                 } catch (e) {
-                    alert('Invalid JSON format');
+                    showToast("Error: Invalid JSON format");
+                    console.error(e);
                 }
             });
 
             // Generate shareable link
             shareBtn.addEventListener('click', () => {
                 const data = btoa(JSON.stringify(links));
-                const url = `${window.location.origin}${window.location.pathname}?links=${data}`;
-                alert(`Shareable link: ${url}`);
+                const url = new URL(window.location.href);
+                url.searchParams.set('links', data);
+                url.searchParams.set('title', title);
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(url.toString()).then(() => {
+                    showToast("Shareable link copied to clipboard!");
+                }).catch(err => {
+                    // Fallback if clipboard API fails
+                    prompt("Copy this shareable link:", url.toString());
+                });
+            });
+
+            // Edit title
+            editTitleBtn.addEventListener('click', toggleTitleEdit);
+            
+            // Also allow clicking the title to edit
+            mainTitle.addEventListener('click', toggleTitleEdit);
+            
+            // Handle Enter key in title input
+            titleInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    toggleTitleEdit();
+                }
             });
 
             // Initialize
-            loadLinks();
+            loadData();
         });
     </script>
 </body>
