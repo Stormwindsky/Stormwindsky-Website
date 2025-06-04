@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Modpack Creator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #8BC34A;
+            --dark: #2E7D32;
+            --light: #C8E6C9;
+            --darker: #1B5E20;
+            --background: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #e0e0e0;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--darker), var(--dark));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border-bottom: 5px solid var(--primary);
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .header-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .panel h2 {
+            color: var(--dark);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+        }
+        
+        .panel h2 i {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        input[type="text"], 
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+        
+        input[type="text"]:focus, 
+        input[type="url"]:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+            background: white;
+        }
+        
+        .url-item {
+            background: var(--light);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            position: relative;
+            animation: fadeIn 0.4s ease;
+            border-left: 4px solid var(--primary);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .remove-url {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-url:hover {
+            background: #d32f2f;
+            transform: rotate(90deg);
+        }
+        
+        .btn {
+            background: linear-gradient(to right, var(--dark), var(--primary));
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background: linear-gradient(to right, var(--darker), var(--dark));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #e65c00, var(--warning));
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(to right, #cc5200, #e68a00);
+        }
+        
+        .btn:disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .json-editor {
+            min-height: 320px;
+            font-family: monospace;
+            resize: vertical;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+        
+        .progress-container {
+            margin-top: 30px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            height: 35px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .logs {
+            margin-top: 25px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 18px;
+            border-radius: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            display: none;
+            border: 1px solid #3d566e;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-left: 3px solid var(--primary);
+            background: rgba(255,255,255,0.05);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .log-error {
+            border-left-color: var(--danger);
+            color: #ff8a8a;
+        }
+        
+        .log-success {
+            border-left-color: #66bb6a;
+            color: #a1de93;
+        }
+        
+        .mod-counter {
+            background: var(--dark);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 16px;
+            margin-left: 12px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: var(--darker);
+            color: white;
+            font-size: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .footer a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 25px 0;
+            font-size: 16px;
+        }
+        
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 25px;
+        }
+        
+        .instructions li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        .url-import {
+            background: #e8f5e9;
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .url-import h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .url-import p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .url-import .example {
+            background: rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+            font-size: 15px;
+            word-break: break-all;
+        }
+        
+        .url-import .btn {
+            margin-top: 10px;
+        }
+        
+        .minecraft-icon {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%234CAF50" d="M4,2H20A2,2 0 0,1 22,4V20A2,2 0 0,1 20,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2M6,6V10H10V12H8V18H10V16H14V18H16V12H14V10H18V6H14V10H10V6H6Z"/></svg>');
+            background-size: contain;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="minecraft-icon"></span> Minecraft Modpack Creator</h1>
+            <p>Create custom modpacks by downloading mods from URLs and packaging them into a ZIP file</p>
+            <div class="header-icon">⚒️</div>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2>Modpack Configuration <span id="mod-count" class="mod-counter">0 mods</span></h2>
+                
+                <div class="form-group">
+                    <label for="pack-name">Modpack Name</label>
+                    <input type="text" id="pack-name" placeholder="My Awesome Modpack" value="MyModpack">
+                </div>
+                
+                <div class="form-group">
+                    <label for="zip-name">ZIP File Name</label>
+                    <input type="text" id="zip-name" placeholder="modpack" value="modpack">
+                </div>
+                
+                <div class="instructions">
+                    <h3><span>ℹ️</span> How to use:</h3>
+                    <ul>
+                        <li>Add mod URLs to include in your modpack</li>
+                        <li>Customize the modpack name and ZIP filename</li>
+                        <li>Generate JSON to save your configuration</li>
+                        <li>Download your modpack as a ZIP file</li>
+                        <li><strong>NEW:</strong> Share modpacks using URL parameters</li>
+                    </ul>
+                </div>
+                
+                <div class="url-import">
+                    <h3><span>🔗</span> Import Mods from URL</h3>
+                    <p>Share modpacks by adding mod URLs to the address bar:</p>
+                    <div class="example">https://yourdomain.com?files=https://example.com/mod1.jar,https://example.com/mod2.jar,https://example.com/mod3.jar</div>
+                    <p>You can also generate a shareable link from your current configuration:</p>
+                    <button id="generate-link" class="btn">
+                        <span>🔗</span> Generate Shareable Link
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Mods to Include</label>
+                    <div id="urls-container">
+                        <!-- URL fields will be added here dynamically -->
+                    </div>
+                    <button id="add-url" class="btn btn-secondary" style="margin-top: 15px;">
+                        <span>+</span> Add a Mod
+                    </button>
+                </div>
+                
+                <div class="actions">
+                    <button id="generate-json" class="btn btn-secondary">
+                        <span>📋</span> Generate JSON
+                    </button>
+                    <button id="load-json" class="btn btn-secondary">
+                        <span>📂</span> Load JSON
+                    </button>
+                    <button id="download-zip" class="btn">
+                        <span>📥</span> Download ZIP
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2><span>🛠️</span> JSON Editor</h2>
+                <div class="form-group">
+                    <label for="json-editor">Modpack Configuration (JSON)</label>
+                    <textarea id="json-editor" class="json-editor" placeholder='{
+  "packName": "MyModpack",
+  "fileName": "modpack",
+  "mods": [
+    "https://example.com/mod1.jar",
+    "https://example.com/mod2.jar"
+  ]
+}'></textarea>
+                </div>
+                
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar">0%</div>
+                </div>
+                
+                <div class="logs" id="logs">
+                    <div class="log-entry">Ready to create your modpack...</div>
+                </div>
+                
+                <div class="actions">
+                    <button id="generate-from-json" class="btn">
+                        <span>⚡</span> Create from JSON
+                    </button>
+                    <button id="clear-logs" class="btn btn-secondary">
+                        <span>🗑️</span> Clear Logs
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Minecraft Modpack Creator &copy; 2023 | All downloaded mods must respect their authors' licenses</p>
+            <p>Created with ❤️ for the Minecraft community</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const urlsContainer = document.getElementById('urls-container');
+            const addUrlBtn = document.getElementById('add-url');
+            const packNameInput = document.getElementById('pack-name');
+            const zipNameInput = document.getElementById('zip-name');
+            const generateJsonBtn = document.getElementById('generate-json');
+            const loadJsonBtn = document.getElementById('load-json');
+            const downloadZipBtn = document.getElementById('download-zip');
+            const jsonEditor = document.getElementById('json-editor');
+            const generateFromJsonBtn = document.getElementById('generate-from-json');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const logsContainer = document.getElementById('logs');
+            const modCount = document.getElementById('mod-count');
+            const generateLinkBtn = document.getElementById('generate-link');
+            const clearLogsBtn = document.getElementById('clear-logs');
+            
+            // Add URL field
+            function addUrlField(url = '') {
+                const urlId = Date.now();
+                const urlItem = document.createElement('div');
+                urlItem.className = 'url-item';
+                urlItem.innerHTML = `
+                    <label for="url-${urlId}">Mod URL</label>
+                    <input type="url" id="url-${urlId}" value="${url}" placeholder="https://example.com/mod.jar" class="mod-url">
+                    <button class="remove-url">×</button>
+                `;
+                urlsContainer.appendChild(urlItem);
+                
+                // Add removal event
+                urlItem.querySelector('.remove-url').addEventListener('click', function() {
+                    urlItem.remove();
+                    updateModCount();
+                });
+                
+                // Add input event
+                urlItem.querySelector('input').addEventListener('input', updateModCount);
+                
+                updateModCount();
+                return urlItem;
+            }
+            
+            // Update mod counter
+            function updateModCount() {
+                const mods = document.querySelectorAll('.mod-url');
+                modCount.textContent = `${mods.length} mod${mods.length !== 1 ? 's' : ''}`;
+            }
+            
+            // Add initial URL field
+            addUrlField();
+            
+            // Add new URL field
+            addUrlBtn.addEventListener('click', function() {
+                addUrlField();
+            });
+            
+            // Generate JSON
+            generateJsonBtn.addEventListener('click', function() {
+                const modUrls = Array.from(document.querySelectorAll('.mod-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
+                
+                const config = {
+                    packName: packNameInput.value.trim() || 'MyModpack',
+                    fileName: zipNameInput.value.trim() || 'modpack',
+                    mods: modUrls
+                };
+                
+                jsonEditor.value = JSON.stringify(config, null, 2);
+                addLog('JSON configuration generated successfully!', 'success');
+            });
+            
+            // Load JSON
+            loadJsonBtn.addEventListener('click', function() {
+                try {
+                    const config = JSON.parse(jsonEditor.value);
+                    
+                    // Apply configuration
+                    packNameInput.value = config.packName || 'MyModpack';
+                    zipNameInput.value = config.fileName || 'modpack';
+                    
+                    // Clear existing URLs
+                    urlsContainer.innerHTML = '';
+                    
+                    // Add URLs
+                    if (Array.isArray(config.mods)) {
+                        config.mods.forEach(url => {
+                            if (typeof url === 'string' && url.trim() !== '') {
+                                addUrlField(url);
+                            }
+                        });
+                    }
+                    
+                    // Ensure at least one field
+                    if (document.querySelectorAll('.mod-url').length === 0) {
+                        addUrlField();
+                    }
+                    
+                    addLog('JSON configuration loaded successfully!', 'success');
+                } catch (error) {
+                    addLog('Error: Invalid JSON - ' + error.message, 'error');
+                }
+            });
+            
+            // Download ZIP
+            downloadZipBtn.addEventListener('click', async function() {
+                const modUrls = Array.from(document.querySelectorAll('.mod-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
+                
+                if (modUrls.length === 0) {
+                    addLog('Error: Please add at least one mod URL', 'error');
+                    return;
+                }
+                
+                const packName = packNameInput.value.trim() || 'MyModpack';
+                const fileName = zipNameInput.value.trim() || 'modpack';
+                
+                // Show progress elements
+                progressContainer.style.display = 'block';
+                logsContainer.style.display = 'block';
+                logsContainer.innerHTML = '<div class="log-entry">Starting download process...</div>';
+                
+                try {
+                    const zip = new JSZip();
+                    let completed = 0;
+                    
+                    // Download each mod
+                    for (const url of modUrls) {
+                        try {
+                            addLog(`Downloading: ${url}`);
+                            
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error: ${response.status}`);
+                            }
+                            
+                            const blob = await response.blob();
+                            const filename = url.substring(url.lastIndexOf('/') + 1);
+                            
+                            zip.file(filename, blob);
+                            addLog(`✓ Downloaded: ${filename}`, 'success');
+                            
+                            // Update progress
+                            completed++;
+                            const progress = Math.round((completed / modUrls.length) * 100);
+                            progressBar.style.width = `${progress}%`;
+                            progressBar.textContent = `${progress}%`;
+                        } catch (error) {
+                            addLog(`✗ Error with ${url}: ${error.message}`, 'error');
+                        }
+                    }
+                    
+                    // Generate ZIP
+                    addLog('Creating ZIP archive...');
+                    const content = await zip.generateAsync({type: 'blob'});
+                    
+                    // Download file
+                    const finalFilename = `${fileName}.zip`;
+                    saveAs(content, finalFilename);
+                    
+                    addLog(`Modpack "${packName}" created successfully! Downloading ${finalFilename}`, 'success');
+                } catch (error) {
+                    addLog(`Error creating modpack: ${error.message}`, 'error');
+                }
+            });
+            
+            // Create from JSON
+            generateFromJsonBtn.addEventListener('click', function() {
+                try {
+                    const config = JSON.parse(jsonEditor.value);
+                    const fileName = config.fileName || 'modpack';
+                    const modUrls = config.mods || [];
+                    
+                    if (modUrls.length === 0) {
+                        addLog('Error: No mods specified in JSON', 'error');
+                        return;
+                    }
+                    
+                    addLog(`Modpack "${fileName}" ready to be created with ${modUrls.length} mods!`, 'success');
+                    addLog('Click "Download ZIP" to finalize.', 'success');
+                    
+                    // Update UI with JSON configuration
+                    packNameInput.value = config.packName || 'MyModpack';
+                    zipNameInput.value = fileName;
+                    
+                    // Clear and add URLs
+                    urlsContainer.innerHTML = '';
+                    modUrls.forEach(url => addUrlField(url));
+                    
+                } catch (error) {
+                    addLog('Error: Invalid JSON - ' + error.message, 'error');
+                }
+            });
+            
+            // Add log message
+            function addLog(message, type = 'info') {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type === 'error' ? 'log-error' : ''} ${type === 'success' ? 'log-success' : ''}`;
+                logEntry.textContent = message;
+                logsContainer.appendChild(logEntry);
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+            
+            // Clear logs
+            clearLogsBtn.addEventListener('click', function() {
+                logsContainer.innerHTML = '<div class="log-entry">Logs cleared</div>';
+            });
+            
+            // Generate shareable link
+            generateLinkBtn.addEventListener('click', function() {
+                const modUrls = Array.from(document.querySelectorAll('.mod-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
+                
+                if (modUrls.length === 0) {
+                    addLog('Error: Please add at least one mod URL', 'error');
+                    return;
+                }
+                
+                // Encode URLs for query parameter
+                const encodedUrls = encodeURIComponent(modUrls.join(','));
+                
+                // Create URL with files parameter
+                const currentUrl = window.location.href.split('?')[0];
+                const shareUrl = `${currentUrl}?files=${encodedUrls}`;
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    addLog('Shareable link copied to clipboard!', 'success');
+                    alert(`Shareable link copied to clipboard:\n\n${shareUrl}`);
+                }).catch(err => {
+                    addLog('Error copying to clipboard: ' + err, 'error');
+                });
+            });
+            
+            // Load mods from URL parameter
+            function loadModsFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const filesParam = urlParams.get('files');
+                
+                if (filesParam) {
+                    try {
+                        // Decode and split URLs
+                        const urls = decodeURIComponent(filesParam).split(',');
+                        
+                        // Clear existing URLs
+                        urlsContainer.innerHTML = '';
+                        
+                        // Add each URL
+                        urls.forEach(url => {
+                            if (url.trim() !== '') {
+                                addUrlField(url.trim());
+                            }
+                        });
+                        
+                        // Ensure at least one field
+                        if (document.querySelectorAll('.mod-url').length === 0) {
+                            addUrlField();
+                        }
+                        
+                        addLog(`Loaded ${urls.length} mods from URL parameter`, 'success');
+                    } catch (error) {
+                        addLog('Error loading mods from URL: ' + error.message, 'error');
+                    }
+                }
+            }
+            
+            // Initialize JSON editor with example
+            jsonEditor.value = JSON.stringify({
+                packName: "MyModpack",
+                fileName: "modpack",
+                mods: [
+                    "https://example.com/optimization-mod.jar",
+                    "https://example.com/texture-pack.zip",
+                    "https://example.com/utility-mod.jar"
+                ]
+            }, null, 2);
+            
+            // Load mods from URL on page load
+            loadModsFromUrl();
+        });
+    </script>
+</body>
+</html>
