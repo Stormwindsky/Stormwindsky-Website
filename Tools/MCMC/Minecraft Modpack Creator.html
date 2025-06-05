@@ -21,6 +21,8 @@
             --danger: #f44336;
             --info: #2196F3;
             --config: #2196F3;
+            --resource: #9C27B0;
+            --shader: #FF9800;
         }
         
         * {
@@ -182,12 +184,35 @@
             border-left: 4px solid var(--info);
         }
         
+        .resource-item {
+            background: #f3e5f5;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            position: relative;
+            animation: fadeIn 0.4s ease;
+            border-left: 4px solid var(--resource);
+        }
+        
+        .shader-item {
+            background: #fff3e0;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            position: relative;
+            animation: fadeIn 0.4s ease;
+            border-left: 4px solid var(--shader);
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .remove-url, .remove-config {
+        .remove-url, 
+        .remove-config,
+        .remove-resource,
+        .remove-shader {
             position: absolute;
             top: 12px;
             right: 12px;
@@ -206,7 +231,10 @@
             justify-content: center;
         }
         
-        .remove-url:hover, .remove-config:hover {
+        .remove-url:hover, 
+        .remove-config:hover,
+        .remove-resource:hover,
+        .remove-shader:hover {
             background: #d32f2f;
             transform: rotate(90deg);
         }
@@ -242,12 +270,28 @@
             background: linear-gradient(to right, #1e88e5, var(--info));
         }
         
+        .btn-resource {
+            background: linear-gradient(to right, #8e24aa, var(--resource));
+        }
+        
+        .btn-shader {
+            background: linear-gradient(to right, #f57c00, var(--shader));
+        }
+        
         .btn-secondary:hover {
             background: linear-gradient(to right, #cc5200, #e68a00);
         }
         
         .btn-info:hover {
             background: linear-gradient(to right, #0d47a1, #1565c0);
+        }
+        
+        .btn-resource:hover {
+            background: linear-gradient(to right, #6a1b9a, #8e24aa);
+        }
+        
+        .btn-shader:hover {
+            background: linear-gradient(to right, #e65100, #f57c00);
         }
         
         .btn:disabled {
@@ -332,6 +376,16 @@
             color: #90caf9;
         }
         
+        .log-resource {
+            border-left-color: var(--resource);
+            color: #e1bee7;
+        }
+        
+        .log-shader {
+            border-left-color: var(--shader);
+            color: #ffe0b2;
+        }
+        
         .mod-counter {
             background: var(--dark);
             color: white;
@@ -343,6 +397,24 @@
         
         .config-counter {
             background: var(--info);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 16px;
+            margin-left: 12px;
+        }
+        
+        .resource-counter {
+            background: var(--resource);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 16px;
+            margin-left: 12px;
+        }
+        
+        .shader-counter {
+            background: var(--shader);
             color: white;
             border-radius: 20px;
             padding: 5px 14px;
@@ -459,6 +531,24 @@
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%232196F3" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>');
         }
         
+        .resource-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%239C27B0" d="M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z"/></svg>');
+        }
+        
+        .shader-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23FF9800" d="M8,2C6.89,2 6,2.89 6,4V16C6,17.11 6.89,18 8,18H9V21C9,21.55 9.45,22 10,22H14C14.55,22 15,21.55 15,21V18H16C17.11,18 18,17.11 18,16V4C18,2.89 17.11,2 16,2H8M8,4H16V16H14V20H10V16H8V4M10,6V8H14V6H10M10,10V12H14V10H10Z"/></svg>');
+        }
+        
         .section-title {
             display: flex;
             align-items: center;
@@ -471,25 +561,61 @@
             color: var(--info);
         }
         
-        .tab-container {
+        .section-title.resource {
+            color: var(--resource);
+        }
+        
+        .section-title.shader {
+            color: var(--shader);
+        }
+        
+        .folder-controls {
             display: flex;
+            gap: 10px;
             margin-bottom: 15px;
-            border-bottom: 2px solid var(--light);
         }
         
-        .tab {
-            padding: 10px 20px;
+        .folder-name-input {
+            flex: 1;
+        }
+        
+        .folder-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .folder-tab {
+            padding: 8px 16px;
+            background: #e0e0e0;
+            border-radius: 20px;
             cursor: pointer;
-            background: #f0f0f0;
-            border-radius: 5px 5px 0 0;
-            margin-right: 5px;
-            font-weight: 600;
             transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .tab.active {
-            background: var(--primary);
+        .folder-tab.active {
+            background: var(--info);
             color: white;
+        }
+        
+        .folder-tab .remove-folder {
+            background: rgba(255,255,255,0.3);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .folder-tab .remove-folder:hover {
+            background: rgba(255,255,255,0.5);
         }
     </style>
 </head>
@@ -497,7 +623,7 @@
     <div class="container">
         <header>
             <h1><span class="minecraft-icon"></span> Minecraft Modpack Creator</h1>
-            <p>Create custom modpacks with organized mods and config folders</p>
+            <p>Create custom modpacks with mods, configs, resource packs, and shaders</p>
             <div class="header-icon">⚒️</div>
         </header>
         
@@ -519,22 +645,11 @@
                     <h3><span>ℹ️</span> How to use:</h3>
                     <ul>
                         <li>Add mod URLs to include in your modpack</li>
-                        <li>Create custom config files for your modpack</li>
-                        <li>Mods will be placed in a "mods" folder</li>
-                        <li>Config files will be placed in a "config" folder</li>
+                        <li>Create custom config folders with custom names</li>
+                        <li>Add resource packs and shaders</li>
                         <li>Generate JSON to save your configuration</li>
                         <li>Download your modpack as a ZIP file</li>
                     </ul>
-                </div>
-                
-                <div class="url-import">
-                    <h3><span>🔗</span> Import Mods from URL</h3>
-                    <p>Share modpacks by adding mod URLs to the address bar:</p>
-                    <div class="example">https://stormwindsky.github.io/Stormwindsky-Website/Tools/MCMC/Minecraft%20Modpack%20Creator.html?files=https://cdn.modrinth.com/data/qQyHxfxd/versions/uks6FgIW/NoChatReports-NEOFORGE-1.21.5-v2.12.0.jar,https://cdn.modrinth.com/data/9eGKb6K1/versions/VB262IPl/voicechat-neoforge-1.21.5-2.5.30.jar,https://cdn.modrinth.com/data/qyVF9oeo/versions/2oFYMLKZ/sound-physics-remastered-neoforge-1.21.5-1.4.10.jar</div>
-                    <p>You can also generate a shareable link from your current configuration:</p>
-                    <button id="generate-link" class="btn">
-                        <span>🔗</span> Generate Shareable Link
-                    </button>
                 </div>
                 
                 <div class="section-title">
@@ -554,16 +669,51 @@
                 
                 <div class="section-title config">
                     <span class="config-icon"></span>
-                    <span>Config Folder <span id="config-count" class="config-counter">0 files</span></span>
+                    <span>Custom Config Folders <span id="config-count" class="config-counter">0 folders</span></span>
+                </div>
+                
+                <div class="folder-controls">
+                    <input type="text" id="new-folder-name" class="folder-name-input" placeholder="New folder name">
+                    <button id="add-folder" class="btn btn-info">
+                        <span>+</span> Add Folder
+                    </button>
+                </div>
+                
+                <div class="folder-tabs" id="folder-tabs">
+                    <!-- Folder tabs will be added here dynamically -->
+                </div>
+                
+                <div id="folders-container">
+                    <!-- Config folders will be added here dynamically -->
+                </div>
+                
+                <div class="section-title resource">
+                    <span class="resource-icon"></span>
+                    <span>Resource Packs <span id="resource-count" class="resource-counter">0 packs</span></span>
                 </div>
                 
                 <div class="form-group">
-                    <label>Config Files</label>
-                    <div id="configs-container">
-                        <!-- Config fields will be added here dynamically -->
+                    <label>Resource Packs to Include</label>
+                    <div id="resources-container">
+                        <!-- Resource pack fields will be added here dynamically -->
                     </div>
-                    <button id="add-config" class="btn btn-info" style="margin-top: 15px;">
-                        <span>+</span> Add Config File
+                    <button id="add-resource" class="btn btn-resource" style="margin-top: 15px;">
+                        <span>+</span> Add Resource Pack
+                    </button>
+                </div>
+                
+                <div class="section-title shader">
+                    <span class="shader-icon"></span>
+                    <span>Shaders <span id="shader-count" class="shader-counter">0 shaders</span></span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Shaders to Include</label>
+                    <div id="shaders-container">
+                        <!-- Shader fields will be added here dynamically -->
+                    </div>
+                    <button id="add-shader" class="btn btn-shader" style="margin-top: 15px;">
+                        <span>+</span> Add Shader
                     </button>
                 </div>
                 
@@ -591,11 +741,22 @@
     "https://example.com/mod1.jar",
     "https://example.com/mod2.jar"
   ],
-  "configs": [
+  "configFolders": [
     {
-      "path": "examplemod/config.json",
-      "content": "{\n  \"setting\": \"value\"\n}"
+      "name": "config",
+      "files": [
+        {
+          "path": "examplemod/config.json",
+          "content": "{\n  \"setting\": \"value\"\n}"
+        }
+      ]
     }
+  ],
+  "resourcePacks": [
+    "https://example.com/resourcepack.zip"
+  ],
+  "shaders": [
+    "https://example.com/shaderpack.zip"
   ]
 }'></textarea>
                 </div>
@@ -629,9 +790,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const urlsContainer = document.getElementById('urls-container');
-            const configsContainer = document.getElementById('configs-container');
+            const foldersContainer = document.getElementById('folders-container');
+            const folderTabsContainer = document.getElementById('folder-tabs');
+            const resourcesContainer = document.getElementById('resources-container');
+            const shadersContainer = document.getElementById('shaders-container');
             const addUrlBtn = document.getElementById('add-url');
-            const addConfigBtn = document.getElementById('add-config');
+            const addFolderBtn = document.getElementById('add-folder');
+            const newFolderNameInput = document.getElementById('new-folder-name');
+            const addResourceBtn = document.getElementById('add-resource');
+            const addShaderBtn = document.getElementById('add-shader');
             const packNameInput = document.getElementById('pack-name');
             const zipNameInput = document.getElementById('zip-name');
             const generateJsonBtn = document.getElementById('generate-json');
@@ -644,8 +811,12 @@
             const logsContainer = document.getElementById('logs');
             const modCount = document.getElementById('mod-count');
             const configCount = document.getElementById('config-count');
-            const generateLinkBtn = document.getElementById('generate-link');
+            const resourceCount = document.getElementById('resource-count');
+            const shaderCount = document.getElementById('shader-count');
             const clearLogsBtn = document.getElementById('clear-logs');
+            
+            let folders = [];
+            let activeFolderId = null;
             
             // Add URL field
             function addUrlField(url = '') {
@@ -672,9 +843,151 @@
                 return urlItem;
             }
             
-            // Add Config field
-            function addConfigField(path = '', content = '') {
+            // Add Resource Pack field
+            function addResourceField(url = '') {
+                const resourceId = Date.now();
+                const resourceItem = document.createElement('div');
+                resourceItem.className = 'resource-item';
+                resourceItem.innerHTML = `
+                    <label for="resource-${resourceId}">Resource Pack URL</label>
+                    <input type="url" id="resource-${resourceId}" value="${url}" placeholder="https://example.com/resourcepack.zip" class="resource-url">
+                    <button class="remove-resource">×</button>
+                `;
+                resourcesContainer.appendChild(resourceItem);
+                
+                // Add removal event
+                resourceItem.querySelector('.remove-resource').addEventListener('click', function() {
+                    resourceItem.remove();
+                    updateResourceCount();
+                });
+                
+                // Add input event
+                resourceItem.querySelector('input').addEventListener('input', updateResourceCount);
+                
+                updateResourceCount();
+                return resourceItem;
+            }
+            
+            // Add Shader field
+            function addShaderField(url = '') {
+                const shaderId = Date.now();
+                const shaderItem = document.createElement('div');
+                shaderItem.className = 'shader-item';
+                shaderItem.innerHTML = `
+                    <label for="shader-${shaderId}">Shader URL</label>
+                    <input type="url" id="shader-${shaderId}" value="${url}" placeholder="https://example.com/shaderpack.zip" class="shader-url">
+                    <button class="remove-shader">×</button>
+                `;
+                shadersContainer.appendChild(shaderItem);
+                
+                // Add removal event
+                shaderItem.querySelector('.remove-shader').addEventListener('click', function() {
+                    shaderItem.remove();
+                    updateShaderCount();
+                });
+                
+                // Add input event
+                shaderItem.querySelector('input').addEventListener('input', updateShaderCount);
+                
+                updateShaderCount();
+                return shaderItem;
+            }
+            
+            // Add Config folder
+            function addConfigFolder(folderName = 'New Folder', files = []) {
+                const folderId = Date.now();
+                const folder = {
+                    id: folderId,
+                    name: folderName,
+                    files: files
+                };
+                
+                folders.push(folder);
+                
+                // Create folder tab
+                const folderTab = document.createElement('div');
+                folderTab.className = 'folder-tab';
+                folderTab.dataset.folderId = folderId;
+                folderTab.innerHTML = `
+                    <span>${folderName}</span>
+                    <div class="remove-folder">×</div>
+                `;
+                folderTabsContainer.appendChild(folderTab);
+                
+                // Set active folder
+                setActiveFolder(folderId);
+                
+                // Add tab click event
+                folderTab.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('remove-folder')) {
+                        setActiveFolder(folderId);
+                    }
+                });
+                
+                // Add remove folder event
+                folderTab.querySelector('.remove-folder').addEventListener('click', function() {
+                    removeFolder(folderId);
+                });
+                
+                // Create folder content
+                createFolderContent(folderId, folderName, files);
+                
+                updateConfigCount();
+                return folder;
+            }
+            
+            // Create folder content
+            function createFolderContent(folderId, folderName, files = []) {
+                const folderContent = document.createElement('div');
+                folderContent.className = 'folder-content';
+                folderContent.dataset.folderId = folderId;
+                folderContent.style.display = 'none';
+                
+                const folderHeader = document.createElement('div');
+                folderHeader.className = 'section-title';
+                folderHeader.innerHTML = `
+                    <span>📁</span>
+                    <span>${folderName} Folder</span>
+                `;
+                
+                const configFilesContainer = document.createElement('div');
+                configFilesContainer.className = 'config-files';
+                configFilesContainer.dataset.folderId = folderId;
+                
+                const addFileBtn = document.createElement('button');
+                addFileBtn.className = 'btn btn-info';
+                addFileBtn.style.marginTop = '15px';
+                addFileBtn.innerHTML = '<span>+</span> Add Config File';
+                addFileBtn.addEventListener('click', function() {
+                    addConfigFile(folderId);
+                });
+                
+                folderContent.appendChild(folderHeader);
+                folderContent.appendChild(configFilesContainer);
+                folderContent.appendChild(addFileBtn);
+                
+                foldersContainer.appendChild(folderContent);
+                
+                // Add initial files
+                if (files.length === 0) {
+                    addConfigFile(folderId);
+                } else {
+                    files.forEach(file => {
+                        addConfigFile(folderId, file.path, file.content);
+                    });
+                }
+                
+                return folderContent;
+            }
+            
+            // Add Config File
+            function addConfigFile(folderId, path = '', content = '') {
                 const configId = Date.now();
+                const folder = folders.find(f => f.id === folderId);
+                if (!folder) return;
+                
+                const configFilesContainer = document.querySelector(`.config-files[data-folder-id="${folderId}"]`);
+                
                 const configItem = document.createElement('div');
                 configItem.className = 'config-item';
                 configItem.innerHTML = `
@@ -684,7 +997,7 @@
                     <textarea id="config-content-${configId}" class="config-content" placeholder="File content here...">${content}</textarea>
                     <button class="remove-config">×</button>
                 `;
-                configsContainer.appendChild(configItem);
+                configFilesContainer.appendChild(configItem);
                 
                 // Add removal event
                 configItem.querySelector('.remove-config').addEventListener('click', function() {
@@ -692,12 +1005,41 @@
                     updateConfigCount();
                 });
                 
-                // Add input event
-                configItem.querySelector('input').addEventListener('input', updateConfigCount);
-                configItem.querySelector('textarea').addEventListener('input', updateConfigCount);
-                
                 updateConfigCount();
                 return configItem;
+            }
+            
+            // Set active folder
+            function setActiveFolder(folderId) {
+                activeFolderId = folderId;
+                
+                // Update tabs
+                document.querySelectorAll('.folder-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.folderId === folderId.toString());
+                });
+                
+                // Update content visibility
+                document.querySelectorAll('.folder-content').forEach(content => {
+                    content.style.display = content.dataset.folderId === folderId.toString() ? 'block' : 'none';
+                });
+            }
+            
+            // Remove folder
+            function removeFolder(folderId) {
+                folders = folders.filter(f => f.id !== folderId);
+                
+                // Remove tab
+                document.querySelector(`.folder-tab[data-folder-id="${folderId}"]`).remove();
+                
+                // Remove content
+                document.querySelector(`.folder-content[data-folder-id="${folderId}"]`).remove();
+                
+                // Set new active folder if needed
+                if (folders.length > 0 && activeFolderId === folderId) {
+                    setActiveFolder(folders[0].id);
+                }
+                
+                updateConfigCount();
             }
             
             // Update mod counter
@@ -708,24 +1050,47 @@
             
             // Update config counter
             function updateConfigCount() {
-                const configs = document.querySelectorAll('.config-item');
-                configCount.textContent = `${configs.length} file${configs.length !== 1 ? 's' : ''}`;
+                configCount.textContent = `${folders.length} folder${folders.length !== 1 ? 's' : ''}`;
             }
             
-            // Add initial URL field
-            addUrlField();
+            // Update resource counter
+            function updateResourceCount() {
+                const resources = document.querySelectorAll('.resource-url');
+                resourceCount.textContent = `${resources.length} pack${resources.length !== 1 ? 's' : ''}`;
+            }
             
-            // Add initial Config field
-            addConfigField();
+            // Update shader counter
+            function updateShaderCount() {
+                const shaders = document.querySelectorAll('.shader-url');
+                shaderCount.textContent = `${shaders.length} shader${shaders.length !== 1 ? 's' : ''}`;
+            }
+            
+            // Add initial items
+            addUrlField();
+            addConfigFolder('config');
+            addResourceField();
+            addShaderField();
             
             // Add new URL field
             addUrlBtn.addEventListener('click', function() {
                 addUrlField();
             });
             
-            // Add new Config field
-            addConfigBtn.addEventListener('click', function() {
-                addConfigField();
+            // Add new Resource field
+            addResourceBtn.addEventListener('click', function() {
+                addResourceField();
+            });
+            
+            // Add new Shader field
+            addShaderBtn.addEventListener('click', function() {
+                addShaderField();
+            });
+            
+            // Add new folder
+            addFolderBtn.addEventListener('click', function() {
+                const folderName = newFolderNameInput.value.trim() || 'New Folder';
+                addConfigFolder(folderName);
+                newFolderNameInput.value = '';
             });
             
             // Generate JSON
@@ -734,17 +1099,35 @@
                     .map(input => input.value.trim())
                     .filter(url => url !== '');
                 
-                const configFiles = Array.from(document.querySelectorAll('.config-item')).map(item => {
-                    const path = item.querySelector('.config-path').value.trim();
-                    const content = item.querySelector('.config-content').value.trim();
-                    return { path, content };
-                }).filter(config => config.path !== '' && config.content !== '');
+                const resourceUrls = Array.from(document.querySelectorAll('.resource-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
+                
+                const shaderUrls = Array.from(document.querySelectorAll('.shader-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
+                
+                const configFolders = folders.map(folder => {
+                    const configFilesContainer = document.querySelector(`.config-files[data-folder-id="${folder.id}"]`);
+                    const files = Array.from(configFilesContainer.querySelectorAll('.config-item')).map(item => {
+                        const path = item.querySelector('.config-path').value.trim();
+                        const content = item.querySelector('.config-content').value.trim();
+                        return { path, content };
+                    }).filter(file => file.path !== '');
+                    
+                    return {
+                        name: folder.name,
+                        files: files
+                    };
+                }).filter(folder => folder.files.length > 0);
                 
                 const config = {
                     packName: packNameInput.value.trim() || 'MyModpack',
                     fileName: zipNameInput.value.trim() || 'modpack',
                     mods: modUrls,
-                    configs: configFiles
+                    resourcePacks: resourceUrls,
+                    shaders: shaderUrls,
+                    configFolders: configFolders
                 };
                 
                 jsonEditor.value = JSON.stringify(config, null, 2);
@@ -760,11 +1143,15 @@
                     packNameInput.value = config.packName || 'MyModpack';
                     zipNameInput.value = config.fileName || 'modpack';
                     
-                    // Clear existing URLs and configs
+                    // Clear existing items
                     urlsContainer.innerHTML = '';
-                    configsContainer.innerHTML = '';
+                    foldersContainer.innerHTML = '';
+                    folderTabsContainer.innerHTML = '';
+                    resourcesContainer.innerHTML = '';
+                    shadersContainer.innerHTML = '';
+                    folders = [];
                     
-                    // Add URLs
+                    // Add mods
                     if (Array.isArray(config.mods)) {
                         config.mods.forEach(url => {
                             if (typeof url === 'string' && url.trim() !== '') {
@@ -773,21 +1160,45 @@
                         });
                     }
                     
-                    // Add configs
-                    if (Array.isArray(config.configs)) {
-                        config.configs.forEach(cfg => {
-                            if (cfg.path && cfg.content) {
-                                addConfigField(cfg.path, cfg.content);
+                    // Add resource packs
+                    if (Array.isArray(config.resourcePacks)) {
+                        config.resourcePacks.forEach(url => {
+                            if (typeof url === 'string' && url.trim() !== '') {
+                                addResourceField(url);
                             }
                         });
                     }
                     
-                    // Ensure at least one field
+                    // Add shaders
+                    if (Array.isArray(config.shaders)) {
+                        config.shaders.forEach(url => {
+                            if (typeof url === 'string' && url.trim() !== '') {
+                                addShaderField(url);
+                            }
+                        });
+                    }
+                    
+                    // Add config folders
+                    if (Array.isArray(config.configFolders)) {
+                        config.configFolders.forEach(folder => {
+                            if (folder.name && Array.isArray(folder.files)) {
+                                addConfigFolder(folder.name, folder.files);
+                            }
+                        });
+                    }
+                    
+                    // Ensure at least one item
                     if (document.querySelectorAll('.mod-url').length === 0) {
                         addUrlField();
                     }
-                    if (document.querySelectorAll('.config-item').length === 0) {
-                        addConfigField();
+                    if (document.querySelectorAll('.resource-url').length === 0) {
+                        addResourceField();
+                    }
+                    if (document.querySelectorAll('.shader-url').length === 0) {
+                        addShaderField();
+                    }
+                    if (folders.length === 0) {
+                        addConfigFolder('config');
                     }
                     
                     addLog('JSON configuration loaded successfully!', 'success');
@@ -802,14 +1213,31 @@
                     .map(input => input.value.trim())
                     .filter(url => url !== '');
                 
-                const configFiles = Array.from(document.querySelectorAll('.config-item')).map(item => {
-                    const path = item.querySelector('.config-path').value.trim();
-                    const content = item.querySelector('.config-content').value.trim();
-                    return { path, content };
-                }).filter(config => config.path !== '');
+                const resourceUrls = Array.from(document.querySelectorAll('.resource-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
                 
-                if (modUrls.length === 0 && configFiles.length === 0) {
-                    addLog('Error: Please add at least one mod or config file', 'error');
+                const shaderUrls = Array.from(document.querySelectorAll('.shader-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
+                
+                const configFolders = folders.map(folder => {
+                    const configFilesContainer = document.querySelector(`.config-files[data-folder-id="${folder.id}"]`);
+                    const files = Array.from(configFilesContainer.querySelectorAll('.config-item')).map(item => {
+                        const path = item.querySelector('.config-path').value.trim();
+                        const content = item.querySelector('.config-content').value.trim();
+                        return { path, content };
+                    }).filter(file => file.path !== '');
+                    
+                    return {
+                        name: folder.name,
+                        files: files
+                    };
+                }).filter(folder => folder.files.length > 0);
+                
+                if (modUrls.length === 0 && resourceUrls.length === 0 && 
+                    shaderUrls.length === 0 && configFolders.length === 0) {
+                    addLog('Error: Please add at least one mod, resource pack, shader, or config file', 'error');
                     return;
                 }
                 
@@ -823,11 +1251,10 @@
                 
                 try {
                     const zip = new JSZip();
-                    
-                    // Create mods folder
-                    const modsFolder = zip.folder("mods");
                     let completed = 0;
-                    const totalItems = modUrls.length + configFiles.length;
+                    const totalItems = modUrls.length + resourceUrls.length + 
+                                     shaderUrls.length + configFolders.reduce((acc, folder) => 
+                                     acc + folder.files.length, 0);
                     
                     // Download each mod
                     for (const url of modUrls) {
@@ -842,6 +1269,7 @@
                             const blob = await response.blob();
                             const filename = url.substring(url.lastIndexOf('/') + 1);
                             
+                            const modsFolder = zip.folder("mods");
                             modsFolder.file(filename, blob);
                             addLog(`✓ Downloaded mod: ${filename}`, 'success');
                             
@@ -851,19 +1279,73 @@
                             progressBar.style.width = `${progress}%`;
                             progressBar.textContent = `${progress}%`;
                         } catch (error) {
-                            addLog(`✗ Error downloading ${url}: ${error.message}`, 'error');
+                            addLog(`✗ Error downloading mod ${url}: ${error.message}`, 'error');
                         }
                     }
                     
-                    // Create config folder and add config files
-                    if (configFiles.length > 0) {
-                        const configFolder = zip.folder("config");
+                    // Download each resource pack
+                    for (const url of resourceUrls) {
+                        try {
+                            addLog(`Downloading resource pack: ${url}`, 'resource');
+                            
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error: ${response.status}`);
+                            }
+                            
+                            const blob = await response.blob();
+                            const filename = url.substring(url.lastIndexOf('/') + 1);
+                            
+                            const resourceFolder = zip.folder("resourcepacks");
+                            resourceFolder.file(filename, blob);
+                            addLog(`✓ Downloaded resource pack: ${filename}`, 'success');
+                            
+                            // Update progress
+                            completed++;
+                            const progress = Math.round((completed / totalItems) * 100);
+                            progressBar.style.width = `${progress}%`;
+                            progressBar.textContent = `${progress}%`;
+                        } catch (error) {
+                            addLog(`✗ Error downloading resource pack ${url}: ${error.message}`, 'error');
+                        }
+                    }
+                    
+                    // Download each shader
+                    for (const url of shaderUrls) {
+                        try {
+                            addLog(`Downloading shader: ${url}`, 'shader');
+                            
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error: ${response.status}`);
+                            }
+                            
+                            const blob = await response.blob();
+                            const filename = url.substring(url.lastIndexOf('/') + 1);
+                            
+                            const shaderFolder = zip.folder("shaderpacks");
+                            shaderFolder.file(filename, blob);
+                            addLog(`✓ Downloaded shader: ${filename}`, 'success');
+                            
+                            // Update progress
+                            completed++;
+                            const progress = Math.round((completed / totalItems) * 100);
+                            progressBar.style.width = `${progress}%`;
+                            progressBar.textContent = `${progress}%`;
+                        } catch (error) {
+                            addLog(`✗ Error downloading shader ${url}: ${error.message}`, 'error');
+                        }
+                    }
+                    
+                    // Create config folders and files
+                    for (const folder of configFolders) {
+                        const configFolder = zip.folder(folder.name);
                         
-                        for (const config of configFiles) {
+                        for (const file of folder.files) {
                             try {
-                                addLog(`Creating config: ${config.path}`, 'info');
-                                configFolder.file(config.path, config.content);
-                                addLog(`✓ Created config: ${config.path}`, 'success');
+                                addLog(`Creating config: ${folder.name}/${file.path}`, 'info');
+                                configFolder.file(file.path, file.content);
+                                addLog(`✓ Created config: ${folder.name}/${file.path}`, 'success');
                                 
                                 // Update progress
                                 completed++;
@@ -871,7 +1353,7 @@
                                 progressBar.style.width = `${progress}%`;
                                 progressBar.textContent = `${progress}%`;
                             } catch (error) {
-                                addLog(`✗ Error creating config ${config.path}: ${error.message}`, 'error');
+                                addLog(`✗ Error creating config ${folder.name}/${file.path}: ${error.message}`, 'error');
                             }
                         }
                     }
@@ -879,7 +1361,7 @@
                     // Generate ZIP
                     addLog('Creating ZIP archive...', 'info');
                     const content = await zip.generateAsync({type: 'blob'}, metadata => {
-                        const progress = Math.round((metadata.percent) * 100);
+                        const progress = Math.round(metadata.percent);
                         progressBar.style.width = `${progress}%`;
                         progressBar.textContent = `${progress}%`;
                     });
@@ -899,27 +1381,57 @@
                 try {
                     const config = JSON.parse(jsonEditor.value);
                     const fileName = config.fileName || 'modpack';
-                    const modUrls = config.mods || [];
-                    const configFiles = config.configs || [];
                     
-                    if (modUrls.length === 0 && configFiles.length === 0) {
-                        addLog('Error: No mods or configs specified in JSON', 'error');
-                        return;
-                    }
-                    
-                    addLog(`Modpack "${fileName}" ready to be created with ${modUrls.length} mods and ${configFiles.length} config files!`, 'success');
+                    addLog(`Modpack "${fileName}" ready to be created!`, 'success');
                     addLog('Click "Download ZIP" to finalize.', 'success');
                     
                     // Update UI with JSON configuration
                     packNameInput.value = config.packName || 'MyModpack';
                     zipNameInput.value = fileName;
                     
-                    // Clear and add URLs and configs
+                    // Clear existing items
                     urlsContainer.innerHTML = '';
-                    configsContainer.innerHTML = '';
+                    foldersContainer.innerHTML = '';
+                    folderTabsContainer.innerHTML = '';
+                    resourcesContainer.innerHTML = '';
+                    shadersContainer.innerHTML = '';
+                    folders = [];
                     
-                    modUrls.forEach(url => addUrlField(url));
-                    configFiles.forEach(cfg => addConfigField(cfg.path, cfg.content));
+                    // Add mods
+                    if (Array.isArray(config.mods)) {
+                        config.mods.forEach(url => addUrlField(url));
+                    }
+                    
+                    // Add resource packs
+                    if (Array.isArray(config.resourcePacks)) {
+                        config.resourcePacks.forEach(url => addResourceField(url));
+                    }
+                    
+                    // Add shaders
+                    if (Array.isArray(config.shaders)) {
+                        config.shaders.forEach(url => addShaderField(url));
+                    }
+                    
+                    // Add config folders
+                    if (Array.isArray(config.configFolders)) {
+                        config.configFolders.forEach(folder => {
+                            addConfigFolder(folder.name, folder.files);
+                        });
+                    }
+                    
+                    // Ensure at least one item
+                    if (document.querySelectorAll('.mod-url').length === 0) {
+                        addUrlField();
+                    }
+                    if (document.querySelectorAll('.resource-url').length === 0) {
+                        addResourceField();
+                    }
+                    if (document.querySelectorAll('.shader-url').length === 0) {
+                        addShaderField();
+                    }
+                    if (folders.length === 0) {
+                        addConfigFolder('config');
+                    }
                     
                 } catch (error) {
                     addLog('Error: Invalid JSON - ' + error.message, 'error');
@@ -929,7 +1441,7 @@
             // Add log message
             function addLog(message, type = 'info') {
                 const logEntry = document.createElement('div');
-                logEntry.className = `log-entry ${type === 'error' ? 'log-error' : ''} ${type === 'success' ? 'log-success' : ''} ${type === 'info' ? 'log-info' : ''}`;
+                logEntry.className = `log-entry ${type === 'error' ? 'log-error' : ''} ${type === 'success' ? 'log-success' : ''} ${type === 'info' ? 'log-info' : ''} ${type === 'resource' ? 'log-resource' : ''} ${type === 'shader' ? 'log-shader' : ''}`;
                 logEntry.textContent = message;
                 logsContainer.appendChild(logEntry);
                 logsContainer.scrollTop = logsContainer.scrollHeight;
@@ -940,65 +1452,6 @@
                 logsContainer.innerHTML = '<div class="log-entry">Logs cleared</div>';
             });
             
-            // Generate shareable link
-            generateLinkBtn.addEventListener('click', function() {
-                const modUrls = Array.from(document.querySelectorAll('.mod-url'))
-                    .map(input => input.value.trim())
-                    .filter(url => url !== '');
-                
-                if (modUrls.length === 0) {
-                    addLog('Error: Please add at least one mod URL', 'error');
-                    return;
-                }
-                
-                // Encode URLs for query parameter
-                const encodedUrls = encodeURIComponent(modUrls.join(','));
-                
-                // Create URL with files parameter
-                const currentUrl = window.location.href.split('?')[0];
-                const shareUrl = `${currentUrl}?files=${encodedUrls}`;
-                
-                // Copy to clipboard
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    addLog('Shareable link copied to clipboard!', 'success');
-                    alert(`Shareable link copied to clipboard:\n\n${shareUrl}`);
-                }).catch(err => {
-                    addLog('Error copying to clipboard: ' + err, 'error');
-                });
-            });
-            
-            // Load mods from URL parameter
-            function loadModsFromUrl() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const filesParam = urlParams.get('files');
-                
-                if (filesParam) {
-                    try {
-                        // Decode and split URLs
-                        const urls = decodeURIComponent(filesParam).split(',');
-                        
-                        // Clear existing URLs
-                        urlsContainer.innerHTML = '';
-                        
-                        // Add each URL
-                        urls.forEach(url => {
-                            if (url.trim() !== '') {
-                                addUrlField(url.trim());
-                            }
-                        });
-                        
-                        // Ensure at least one field
-                        if (document.querySelectorAll('.mod-url').length === 0) {
-                            addUrlField();
-                        }
-                        
-                        addLog(`Loaded ${urls.length} mods from URL parameter`, 'success');
-                    } catch (error) {
-                        addLog('Error loading mods from URL: ' + error.message, 'error');
-                    }
-                }
-            }
-            
             // Initialize JSON editor with example
             jsonEditor.value = JSON.stringify({
                 packName: "MyModpack",
@@ -1008,20 +1461,33 @@
                     "https://cdn.modrinth.com/data/AANobbMI/versions/dfyNHRhw/sodium-neoforge-0.6.13%2Bmc1.21.5.jar",
                     "https://cdn.modrinth.com/data/qQyHxfxd/versions/uks6FgIW/NoChatReports-NEOFORGE-1.21.5-v2.12.0.jar"
                 ],
-                configs: [
+                resourcePacks: [
+                    "https://cdn.modrinth.com/data/ZmKxQdX7/versions/4v8oQhNc/ComplementaryReimagined_r1.4.1.zip"
+                ],
+                shaders: [
+                    "https://cdn.modrinth.com/data/DfMDWcFd/versions/1.5.1/Sildurs-Vibrant-Shaders-v1.5.1-High.zip"
+                ],
+                configFolders: [
                     {
-                        "path": "soundphysics/soundphysics.json",
-                        "content": "{\n  \"soundDistance\": 64,\n  \"enableReverb\": true\n}"
+                        name: "config",
+                        files: [
+                            {
+                                "path": "soundphysics/soundphysics.json",
+                                "content": "{\n  \"soundDistance\": 64,\n  \"enableReverb\": true\n}"
+                            }
+                        ]
                     },
                     {
-                        "path": "voicechat/voicechat-server.properties",
-                        "content": "port=24454\nudp_port=24455\n"
+                        name: "custom_config",
+                        files: [
+                            {
+                                "path": "my_mod/settings.cfg",
+                                "content": "render-distance=12\nfancy-graphics=true\n"
+                            }
+                        ]
                     }
                 ]
             }, null, 2);
-            
-            // Load mods from URL on page load
-            loadModsFromUrl();
         });
     </script>
 </body>
