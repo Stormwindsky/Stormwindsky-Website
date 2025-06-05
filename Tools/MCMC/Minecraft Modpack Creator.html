@@ -19,6 +19,8 @@
             --border: #e0e0e0;
             --warning: #ff9800;
             --danger: #f44336;
+            --info: #2196F3;
+            --config: #2196F3;
         }
         
         * {
@@ -170,12 +172,22 @@
             border-left: 4px solid var(--primary);
         }
         
+        .config-item {
+            background: #e3f2fd;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            position: relative;
+            animation: fadeIn 0.4s ease;
+            border-left: 4px solid var(--info);
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .remove-url {
+        .remove-url, .remove-config {
             position: absolute;
             top: 12px;
             right: 12px;
@@ -194,7 +206,7 @@
             justify-content: center;
         }
         
-        .remove-url:hover {
+        .remove-url:hover, .remove-config:hover {
             background: #d32f2f;
             transform: rotate(90deg);
         }
@@ -226,8 +238,16 @@
             background: linear-gradient(to right, #e65c00, var(--warning));
         }
         
+        .btn-info {
+            background: linear-gradient(to right, #1e88e5, var(--info));
+        }
+        
         .btn-secondary:hover {
             background: linear-gradient(to right, #cc5200, #e68a00);
+        }
+        
+        .btn-info:hover {
+            background: linear-gradient(to right, #0d47a1, #1565c0);
         }
         
         .btn:disabled {
@@ -307,8 +327,22 @@
             color: #a1de93;
         }
         
+        .log-info {
+            border-left-color: var(--info);
+            color: #90caf9;
+        }
+        
         .mod-counter {
             background: var(--dark);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 16px;
+            margin-left: 12px;
+        }
+        
+        .config-counter {
+            background: var(--info);
             color: white;
             border-radius: 20px;
             padding: 5px 14px;
@@ -406,19 +440,70 @@
             margin-right: 10px;
             vertical-align: middle;
         }
+        
+        .folder-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%234CAF50" d="M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z"/></svg>');
+        }
+        
+        .config-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%232196F3" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>');
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin: 20px 0 15px;
+            color: var(--dark);
+            font-size: 1.3rem;
+        }
+        
+        .section-title.config {
+            color: var(--info);
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f0f0f0;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1><span class="minecraft-icon"></span> Minecraft Modpack Creator</h1>
-            <p>Create custom modpacks by downloading mods from URLs and packaging them into a ZIP file</p>
+            <p>Create custom modpacks with organized mods and config folders</p>
             <div class="header-icon">⚒️</div>
         </header>
         
         <div class="main-content">
             <div class="panel">
-                <h2>Modpack Configuration <span id="mod-count" class="mod-counter">0 mods</span></h2>
+                <h2>Modpack Configuration</h2>
                 
                 <div class="form-group">
                     <label for="pack-name">Modpack Name</label>
@@ -434,10 +519,11 @@
                     <h3><span>ℹ️</span> How to use:</h3>
                     <ul>
                         <li>Add mod URLs to include in your modpack</li>
-                        <li>Customize the modpack name and ZIP filename</li>
+                        <li>Create custom config files for your modpack</li>
+                        <li>Mods will be placed in a "mods" folder</li>
+                        <li>Config files will be placed in a "config" folder</li>
                         <li>Generate JSON to save your configuration</li>
                         <li>Download your modpack as a ZIP file</li>
-                        <li><strong>NEW:</strong> Share modpacks using URL parameters</li>
                     </ul>
                 </div>
                 
@@ -451,6 +537,11 @@
                     </button>
                 </div>
                 
+                <div class="section-title">
+                    <span class="folder-icon"></span>
+                    <span>Mods Folder <span id="mod-count" class="mod-counter">0 mods</span></span>
+                </div>
+                
                 <div class="form-group">
                     <label>Mods to Include</label>
                     <div id="urls-container">
@@ -458,6 +549,21 @@
                     </div>
                     <button id="add-url" class="btn btn-secondary" style="margin-top: 15px;">
                         <span>+</span> Add a Mod
+                    </button>
+                </div>
+                
+                <div class="section-title config">
+                    <span class="config-icon"></span>
+                    <span>Config Folder <span id="config-count" class="config-counter">0 files</span></span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Config Files</label>
+                    <div id="configs-container">
+                        <!-- Config fields will be added here dynamically -->
+                    </div>
+                    <button id="add-config" class="btn btn-info" style="margin-top: 15px;">
+                        <span>+</span> Add Config File
                     </button>
                 </div>
                 
@@ -484,6 +590,12 @@
   "mods": [
     "https://example.com/mod1.jar",
     "https://example.com/mod2.jar"
+  ],
+  "configs": [
+    {
+      "path": "examplemod/config.json",
+      "content": "{\n  \"setting\": \"value\"\n}"
+    }
   ]
 }'></textarea>
                 </div>
@@ -517,7 +629,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const urlsContainer = document.getElementById('urls-container');
+            const configsContainer = document.getElementById('configs-container');
             const addUrlBtn = document.getElementById('add-url');
+            const addConfigBtn = document.getElementById('add-config');
             const packNameInput = document.getElementById('pack-name');
             const zipNameInput = document.getElementById('zip-name');
             const generateJsonBtn = document.getElementById('generate-json');
@@ -529,6 +643,7 @@
             const progressBar = document.getElementById('progress-bar');
             const logsContainer = document.getElementById('logs');
             const modCount = document.getElementById('mod-count');
+            const configCount = document.getElementById('config-count');
             const generateLinkBtn = document.getElementById('generate-link');
             const clearLogsBtn = document.getElementById('clear-logs');
             
@@ -557,18 +672,60 @@
                 return urlItem;
             }
             
+            // Add Config field
+            function addConfigField(path = '', content = '') {
+                const configId = Date.now();
+                const configItem = document.createElement('div');
+                configItem.className = 'config-item';
+                configItem.innerHTML = `
+                    <label for="config-path-${configId}">File Path (e.g., "modname/config.json")</label>
+                    <input type="text" id="config-path-${configId}" value="${path}" placeholder="config/file/path.json" class="config-path">
+                    <label for="config-content-${configId}" style="margin-top: 10px;">File Content</label>
+                    <textarea id="config-content-${configId}" class="config-content" placeholder="File content here...">${content}</textarea>
+                    <button class="remove-config">×</button>
+                `;
+                configsContainer.appendChild(configItem);
+                
+                // Add removal event
+                configItem.querySelector('.remove-config').addEventListener('click', function() {
+                    configItem.remove();
+                    updateConfigCount();
+                });
+                
+                // Add input event
+                configItem.querySelector('input').addEventListener('input', updateConfigCount);
+                configItem.querySelector('textarea').addEventListener('input', updateConfigCount);
+                
+                updateConfigCount();
+                return configItem;
+            }
+            
             // Update mod counter
             function updateModCount() {
                 const mods = document.querySelectorAll('.mod-url');
                 modCount.textContent = `${mods.length} mod${mods.length !== 1 ? 's' : ''}`;
             }
             
+            // Update config counter
+            function updateConfigCount() {
+                const configs = document.querySelectorAll('.config-item');
+                configCount.textContent = `${configs.length} file${configs.length !== 1 ? 's' : ''}`;
+            }
+            
             // Add initial URL field
             addUrlField();
+            
+            // Add initial Config field
+            addConfigField();
             
             // Add new URL field
             addUrlBtn.addEventListener('click', function() {
                 addUrlField();
+            });
+            
+            // Add new Config field
+            addConfigBtn.addEventListener('click', function() {
+                addConfigField();
             });
             
             // Generate JSON
@@ -577,10 +734,17 @@
                     .map(input => input.value.trim())
                     .filter(url => url !== '');
                 
+                const configFiles = Array.from(document.querySelectorAll('.config-item')).map(item => {
+                    const path = item.querySelector('.config-path').value.trim();
+                    const content = item.querySelector('.config-content').value.trim();
+                    return { path, content };
+                }).filter(config => config.path !== '' && config.content !== '');
+                
                 const config = {
                     packName: packNameInput.value.trim() || 'MyModpack',
                     fileName: zipNameInput.value.trim() || 'modpack',
-                    mods: modUrls
+                    mods: modUrls,
+                    configs: configFiles
                 };
                 
                 jsonEditor.value = JSON.stringify(config, null, 2);
@@ -596,8 +760,9 @@
                     packNameInput.value = config.packName || 'MyModpack';
                     zipNameInput.value = config.fileName || 'modpack';
                     
-                    // Clear existing URLs
+                    // Clear existing URLs and configs
                     urlsContainer.innerHTML = '';
+                    configsContainer.innerHTML = '';
                     
                     // Add URLs
                     if (Array.isArray(config.mods)) {
@@ -608,9 +773,21 @@
                         });
                     }
                     
+                    // Add configs
+                    if (Array.isArray(config.configs)) {
+                        config.configs.forEach(cfg => {
+                            if (cfg.path && cfg.content) {
+                                addConfigField(cfg.path, cfg.content);
+                            }
+                        });
+                    }
+                    
                     // Ensure at least one field
                     if (document.querySelectorAll('.mod-url').length === 0) {
                         addUrlField();
+                    }
+                    if (document.querySelectorAll('.config-item').length === 0) {
+                        addConfigField();
                     }
                     
                     addLog('JSON configuration loaded successfully!', 'success');
@@ -625,8 +802,14 @@
                     .map(input => input.value.trim())
                     .filter(url => url !== '');
                 
-                if (modUrls.length === 0) {
-                    addLog('Error: Please add at least one mod URL', 'error');
+                const configFiles = Array.from(document.querySelectorAll('.config-item')).map(item => {
+                    const path = item.querySelector('.config-path').value.trim();
+                    const content = item.querySelector('.config-content').value.trim();
+                    return { path, content };
+                }).filter(config => config.path !== '');
+                
+                if (modUrls.length === 0 && configFiles.length === 0) {
+                    addLog('Error: Please add at least one mod or config file', 'error');
                     return;
                 }
                 
@@ -636,16 +819,20 @@
                 // Show progress elements
                 progressContainer.style.display = 'block';
                 logsContainer.style.display = 'block';
-                logsContainer.innerHTML = '<div class="log-entry">Starting download process...</div>';
+                logsContainer.innerHTML = '<div class="log-entry">Starting modpack creation...</div>';
                 
                 try {
                     const zip = new JSZip();
+                    
+                    // Create mods folder
+                    const modsFolder = zip.folder("mods");
                     let completed = 0;
+                    const totalItems = modUrls.length + configFiles.length;
                     
                     // Download each mod
                     for (const url of modUrls) {
                         try {
-                            addLog(`Downloading: ${url}`);
+                            addLog(`Downloading mod: ${url}`, 'info');
                             
                             const response = await fetch(url);
                             if (!response.ok) {
@@ -655,22 +842,47 @@
                             const blob = await response.blob();
                             const filename = url.substring(url.lastIndexOf('/') + 1);
                             
-                            zip.file(filename, blob);
-                            addLog(`✓ Downloaded: ${filename}`, 'success');
+                            modsFolder.file(filename, blob);
+                            addLog(`✓ Downloaded mod: ${filename}`, 'success');
                             
                             // Update progress
                             completed++;
-                            const progress = Math.round((completed / modUrls.length) * 100);
+                            const progress = Math.round((completed / totalItems) * 100);
                             progressBar.style.width = `${progress}%`;
                             progressBar.textContent = `${progress}%`;
                         } catch (error) {
-                            addLog(`✗ Error with ${url}: ${error.message}`, 'error');
+                            addLog(`✗ Error downloading ${url}: ${error.message}`, 'error');
+                        }
+                    }
+                    
+                    // Create config folder and add config files
+                    if (configFiles.length > 0) {
+                        const configFolder = zip.folder("config");
+                        
+                        for (const config of configFiles) {
+                            try {
+                                addLog(`Creating config: ${config.path}`, 'info');
+                                configFolder.file(config.path, config.content);
+                                addLog(`✓ Created config: ${config.path}`, 'success');
+                                
+                                // Update progress
+                                completed++;
+                                const progress = Math.round((completed / totalItems) * 100);
+                                progressBar.style.width = `${progress}%`;
+                                progressBar.textContent = `${progress}%`;
+                            } catch (error) {
+                                addLog(`✗ Error creating config ${config.path}: ${error.message}`, 'error');
+                            }
                         }
                     }
                     
                     // Generate ZIP
-                    addLog('Creating ZIP archive...');
-                    const content = await zip.generateAsync({type: 'blob'});
+                    addLog('Creating ZIP archive...', 'info');
+                    const content = await zip.generateAsync({type: 'blob'}, metadata => {
+                        const progress = Math.round((metadata.percent) * 100);
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.textContent = `${progress}%`;
+                    });
                     
                     // Download file
                     const finalFilename = `${fileName}.zip`;
@@ -688,22 +900,26 @@
                     const config = JSON.parse(jsonEditor.value);
                     const fileName = config.fileName || 'modpack';
                     const modUrls = config.mods || [];
+                    const configFiles = config.configs || [];
                     
-                    if (modUrls.length === 0) {
-                        addLog('Error: No mods specified in JSON', 'error');
+                    if (modUrls.length === 0 && configFiles.length === 0) {
+                        addLog('Error: No mods or configs specified in JSON', 'error');
                         return;
                     }
                     
-                    addLog(`Modpack "${fileName}" ready to be created with ${modUrls.length} mods!`, 'success');
+                    addLog(`Modpack "${fileName}" ready to be created with ${modUrls.length} mods and ${configFiles.length} config files!`, 'success');
                     addLog('Click "Download ZIP" to finalize.', 'success');
                     
                     // Update UI with JSON configuration
                     packNameInput.value = config.packName || 'MyModpack';
                     zipNameInput.value = fileName;
                     
-                    // Clear and add URLs
+                    // Clear and add URLs and configs
                     urlsContainer.innerHTML = '';
+                    configsContainer.innerHTML = '';
+                    
                     modUrls.forEach(url => addUrlField(url));
+                    configFiles.forEach(cfg => addConfigField(cfg.path, cfg.content));
                     
                 } catch (error) {
                     addLog('Error: Invalid JSON - ' + error.message, 'error');
@@ -713,7 +929,7 @@
             // Add log message
             function addLog(message, type = 'info') {
                 const logEntry = document.createElement('div');
-                logEntry.className = `log-entry ${type === 'error' ? 'log-error' : ''} ${type === 'success' ? 'log-success' : ''}`;
+                logEntry.className = `log-entry ${type === 'error' ? 'log-error' : ''} ${type === 'success' ? 'log-success' : ''} ${type === 'info' ? 'log-info' : ''}`;
                 logEntry.textContent = message;
                 logsContainer.appendChild(logEntry);
                 logsContainer.scrollTop = logsContainer.scrollHeight;
@@ -791,6 +1007,16 @@
                     "https://cdn.modrinth.com/data/EsAfCjCV/versions/gYoWP0NK/appleskin-neoforge-mc1.21.5-3.0.6.jar",
                     "https://cdn.modrinth.com/data/AANobbMI/versions/dfyNHRhw/sodium-neoforge-0.6.13%2Bmc1.21.5.jar",
                     "https://cdn.modrinth.com/data/qQyHxfxd/versions/uks6FgIW/NoChatReports-NEOFORGE-1.21.5-v2.12.0.jar"
+                ],
+                configs: [
+                    {
+                        "path": "soundphysics/soundphysics.json",
+                        "content": "{\n  \"soundDistance\": 64,\n  \"enableReverb\": true\n}"
+                    },
+                    {
+                        "path": "voicechat/voicechat-server.properties",
+                        "content": "port=24454\nudp_port=24455\n"
+                    }
                 ]
             }, null, 2);
             
