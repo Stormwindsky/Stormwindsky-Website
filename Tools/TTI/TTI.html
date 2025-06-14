@@ -23,7 +23,7 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -48,7 +48,7 @@
         .subtitle {
             color: #e0e0e0;
             font-size: 1.2rem;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto 25px;
             line-height: 1.6;
         }
@@ -161,6 +161,11 @@
             color: white;
         }
         
+        #improveBtn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+        }
+        
         #clearBtn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
@@ -177,6 +182,10 @@
         
         #generateBtn:hover {
             background: linear-gradient(45deg, #ff5252, #ff7e40);
+        }
+        
+        #improveBtn:hover {
+            background: linear-gradient(45deg, #3a9ffc, #00d4e6);
         }
         
         #clearBtn:hover {
@@ -347,6 +356,70 @@
             transform: scale(1.1);
         }
         
+        .prompt-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .prompt-display strong {
+            color: #ffd700;
+        }
+        
+        .prompt-history {
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .prompt-history h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .prompt-history ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .prompt-history li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .prompt-history li:last-child {
+            border-bottom: none;
+        }
+        
+        .prompt-history .original {
+            color: #ff6b6b;
+        }
+        
+        .prompt-history .improved {
+            color: #4facfe;
+        }
+        
+        .prompt-history .timestamp {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+        }
+        
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
@@ -355,6 +428,10 @@
             h1 {
                 font-size: 2.2rem;
             }
+            
+            .button-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -362,7 +439,7 @@
     <div class="container">
         <header>
             <h1>AI Image Generator</h1>
-            <p class="subtitle">Transform your imagination into stunning visuals using artificial intelligence. Enter a text description below and watch it come to life as a unique image.</p>
+            <p class="subtitle">Transform your imagination into stunning visuals. Generate images from your text prompts and enhance them with AI-powered improvements.</p>
         </header>
         
         <div class="app-container">
@@ -384,10 +461,20 @@
                         <button id="generateBtn">
                             <i class="fas fa-magic"></i> Generate Image
                         </button>
+                        <button id="improveBtn">
+                            <i class="fas fa-wand-magic-sparkles"></i> Improve Prompt
+                        </button>
                         <button id="clearBtn">
                             <i class="fas fa-trash-alt"></i> Clear
                         </button>
                     </div>
+                </div>
+                
+                <div class="prompt-history">
+                    <h3><i class="fas fa-history"></i> Prompt History</h3>
+                    <ul id="promptHistory">
+                        <!-- History items will be added here -->
+                    </ul>
                 </div>
             </div>
             
@@ -401,12 +488,17 @@
                         </div>
                         <div class="loading">
                             <div class="spinner"></div>
-                            <p>Generating your image...</p>
+                            <p id="loadingText">Generating your image...</p>
                         </div>
                         <img id="generatedImage" alt="Generated image from prompt">
                         <button class="view-fullscreen" id="viewFullscreenBtn" style="display: none;">
                             <i class="fas fa-expand"></i>
                         </button>
+                    </div>
+                    
+                    <div class="prompt-display">
+                        <strong>Current Prompt:</strong>
+                        <div id="currentPrompt">No prompt generated yet</div>
                     </div>
                 </div>
             </div>
@@ -414,7 +506,7 @@
         
         <div class="info">
             <p><i class="fas fa-info-circle"></i> This tool uses the Pollinations AI image generation service but is not affiliated with Pollinations AI. Images are generated by artificial intelligence based on your text description. Generation may take 10-30 seconds.</p>
-            <p><i class="fas fa-lightbulb"></i> Tip: Be as descriptive as possible for better results. Include details about style, colors, setting, and mood.</p>
+            <p><i class="fas fa-lightbulb"></i> Tip: Use the "Improve Prompt" button to enhance your description with AI for better image results.</p>
         </div>
         
         <footer>
@@ -436,14 +528,83 @@
         document.addEventListener('DOMContentLoaded', function() {
             const promptInput = document.getElementById('promptInput');
             const generateBtn = document.getElementById('generateBtn');
+            const improveBtn = document.getElementById('improveBtn');
             const clearBtn = document.getElementById('clearBtn');
             const generatedImage = document.getElementById('generatedImage');
             const imagePlaceholder = document.querySelector('.image-placeholder');
             const loading = document.querySelector('.loading');
+            const loadingText = document.getElementById('loadingText');
             const viewFullscreenBtn = document.getElementById('viewFullscreenBtn');
             const fullscreenOverlay = document.getElementById('fullscreenOverlay');
             const fullscreenImage = document.getElementById('fullscreenImage');
             const closeFullscreen = document.getElementById('closeFullscreen');
+            const currentPrompt = document.getElementById('currentPrompt');
+            const promptHistory = document.getElementById('promptHistory');
+            
+            let history = [];
+            
+            // Function to add prompt to history
+            function addToHistory(original, improved) {
+                const timestamp = new Date().toLocaleTimeString();
+                
+                // Add to beginning of history
+                history.unshift({
+                    original,
+                    improved,
+                    timestamp
+                });
+                
+                // Keep only last 5 items
+                if(history.length > 5) {
+                    history.pop();
+                }
+                
+                // Update history display
+                renderHistory();
+            }
+            
+            // Function to render history
+            function renderHistory() {
+                promptHistory.innerHTML = '';
+                
+                history.forEach(item => {
+                    const li = document.createElement('li');
+                    
+                    li.innerHTML = `
+                        <div>
+                            <span class="original">Original:</span> ${truncate(item.original, 20)}
+                        </div>
+                        <div>
+                            <span class="improved">Improved:</span> ${truncate(item.improved, 20)}
+                        </div>
+                        <span class="timestamp">${item.timestamp}</span>
+                    `;
+                    
+                    // Click to use the improved prompt
+                    li.addEventListener('click', () => {
+                        promptInput.value = item.improved;
+                        generateImage();
+                    });
+                    
+                    promptHistory.appendChild(li);
+                });
+                
+                // Add empty state if no history
+                if(history.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = "No history yet. Improve a prompt to start.";
+                    li.style.color = "rgba(255, 255, 255, 0.5)";
+                    li.style.textAlign = "center";
+                    li.style.padding = "10px 0";
+                    promptHistory.appendChild(li);
+                }
+            }
+            
+            // Function to truncate text
+            function truncate(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
             
             // Function to generate image
             function generateImage() {
@@ -454,12 +615,16 @@
                     return;
                 }
                 
+                // Update current prompt display
+                currentPrompt.textContent = prompt;
+                
                 // Encode the prompt for URL
                 const encodedPrompt = encodeURIComponent(prompt);
                 const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
                 
                 // Show loading indicator
                 loading.style.display = 'flex';
+                loadingText.textContent = "Generating your image...";
                 generatedImage.style.display = 'none';
                 imagePlaceholder.style.display = 'none';
                 viewFullscreenBtn.style.display = 'none';
@@ -486,6 +651,77 @@
                 };
             }
             
+            // Function to improve prompt
+            async function improvePrompt() {
+                const originalPrompt = promptInput.value.trim();
+                
+                if (!originalPrompt) {
+                    alert('Please enter a prompt to improve.');
+                    return;
+                }
+                
+                try {
+                    // Show loading for prompt improvement
+                    loading.style.display = 'flex';
+                    loadingText.textContent = "Improving your prompt...";
+                    generatedImage.style.display = 'none';
+                    imagePlaceholder.style.display = 'none';
+                    viewFullscreenBtn.style.display = 'none';
+                    
+                    // Improve the prompt using Pollinations API
+                    const response = await fetch(`https://text.pollinations.ai/prompt/create me a prompt for image about: ${encodeURIComponent(originalPrompt)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to improve prompt');
+                    }
+                    
+                    const improvedPrompt = await response.text();
+                    
+                    // Set the improved prompt in the textarea
+                    promptInput.value = improvedPrompt;
+                    currentPrompt.textContent = improvedPrompt;
+                    
+                    // Add to history
+                    addToHistory(originalPrompt, improvedPrompt);
+                    
+                    // Now generate the image for the improved prompt
+                    loadingText.textContent = "Generating image from improved prompt...";
+                    
+                    // Encode the prompt for URL
+                    const encodedPrompt = encodeURIComponent(improvedPrompt);
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+                    
+                    // Set image source
+                    generatedImage.src = imageUrl;
+                    
+                    // When image is loaded
+                    generatedImage.onload = function() {
+                        loading.style.display = 'none';
+                        generatedImage.style.display = 'block';
+                        viewFullscreenBtn.style.display = 'flex';
+                    };
+                    
+                    // Handle image loading errors
+                    generatedImage.onerror = function() {
+                        loading.style.display = 'none';
+                        imagePlaceholder.style.display = 'block';
+                        viewFullscreenBtn.style.display = 'none';
+                        imagePlaceholder.innerHTML = `
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Failed to generate image from improved prompt. Please try again.</p>
+                        `;
+                    };
+                } catch (error) {
+                    console.error('Error improving prompt:', error);
+                    loading.style.display = 'none';
+                    imagePlaceholder.style.display = 'block';
+                    imagePlaceholder.innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error: ${error.message}</p>
+                    `;
+                }
+            }
+            
             // Function to clear input and image
             function clearAll() {
                 promptInput.value = '';
@@ -498,6 +734,7 @@
                     <i class="fas fa-cloud-download-alt"></i>
                     <p>Your generated image will appear here. Enter a prompt and click "Generate Image".</p>
                 `;
+                currentPrompt.textContent = 'No prompt generated yet';
             }
             
             // Function to view image in fullscreen
@@ -517,6 +754,7 @@
             
             // Event listeners
             generateBtn.addEventListener('click', generateImage);
+            improveBtn.addEventListener('click', improvePrompt);
             clearBtn.addEventListener('click', clearAll);
             viewFullscreenBtn.addEventListener('click', viewFullscreen);
             closeFullscreen.addEventListener('click', closeFullscreenView);
@@ -535,6 +773,12 @@
                     generateImage();
                 }
             });
+            
+            // Initialize history
+            renderHistory();
+            
+            // Generate initial image
+            setTimeout(generateImage, 500);
         });
     </script>
 </body>
