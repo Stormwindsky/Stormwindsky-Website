@@ -245,6 +245,30 @@
             color: #feb47b;
         }
 
+        .attribution {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .attribution a {
+            color: #feb47b;
+            text-decoration: none;
+        }
+
+        .attribution a:hover {
+            text-decoration: underline;
+        }
+
+        .license-info {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -282,6 +306,10 @@
             .option {
                 padding: 15px 20px;
             }
+            
+            .attribution {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -302,6 +330,11 @@
                         <input type="number" id="questionCount" min="1" max="50" value="5" placeholder="Enter number of questions">
                         <button id="startBtn">Start Quiz <i class="fas fa-play"></i></button>
                     </div>
+                </div>
+                
+                <div class="attribution">
+                    <p>This quiz uses the Open Trivia Database API which is not owned by me.</p>
+                    <p>Questions provided by <a href="https://opentdb.com/" target="_blank">Open Trivia DB</a> under the <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
                 </div>
             </div>
             
@@ -332,6 +365,12 @@
                 <div class="score" id="finalScore">0</div>
                 <p class="score-text">You answered <span id="correctCount">0</span> out of <span id="totalCount">0</span> questions correctly</p>
                 <p id="performanceText">Keep learning and try again!</p>
+                
+                <div class="attribution">
+                    <p>This quiz uses the Open Trivia Database API which is not owned by me.</p>
+                    <p>Questions provided by <a href="https://opentdb.com/" target="_blank">Open Trivia DB</a> under the <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+                </div>
+                
                 <button class="restart-btn" id="restartBtn">Take Another Quiz <i class="fas fa-redo"></i></button>
             </div>
         </div>
