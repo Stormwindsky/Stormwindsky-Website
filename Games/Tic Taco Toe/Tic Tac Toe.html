@@ -8,6 +8,7 @@
         :root {
             --x-color: #4285f4;
             --o-color: #ea4335;
+            --plus-color: #00ff00;
             --bg-color: #f8f9fa;
             --cell-color: #ffffff;
             --shadow-color: rgba(0, 0, 0, 0.1);
@@ -40,6 +41,35 @@
             text-shadow: 2px 2px 4px var(--shadow-color);
         }
 
+        .mode-selector {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .mode-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background-color: var(--cell-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px var(--shadow-color);
+        }
+
+        .mode-btn.active {
+            background-color: var(--x-color);
+            color: white;
+        }
+
         .game-container {
             position: relative;
             width: 100%;
@@ -54,6 +84,11 @@
             width: 100%;
             aspect-ratio: 1/1;
             margin-bottom: 20px;
+        }
+
+        .board.four-by-four {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
         }
 
         .cell {
@@ -75,17 +110,14 @@
         }
 
         .cell.x::before, .cell.x::after,
-        .cell.o::before {
+        .cell.o::before,
+        .cell.plus::before, .cell.plus::after {
             content: '';
             position: absolute;
-            background-color: var(--x-color);
-        }
-
-        .cell.o::before {
-            background-color: var(--o-color);
         }
 
         .cell.x::before, .cell.x::after {
+            background-color: var(--x-color);
             width: 12px;
             height: 80%;
             border-radius: 6px;
@@ -100,10 +132,27 @@
         }
 
         .cell.o::before {
+            background-color: var(--o-color);
             width: 60%;
             height: 60%;
             border-radius: 50%;
             border: 12px solid var(--o-color);
+        }
+
+        .cell.plus::before, .cell.plus::after {
+            background-color: var(--plus-color);
+        }
+
+        .cell.plus::before {
+            width: 12px;
+            height: 60%;
+            border-radius: 6px;
+        }
+
+        .cell.plus::after {
+            width: 60%;
+            height: 12px;
+            border-radius: 6px;
         }
 
         .status {
@@ -175,11 +224,24 @@
             .board {
                 gap: 10px;
             }
+
+            .mode-selector {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .mode-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <h1>Modern Tic Tac Toe</h1>
+    <div class="mode-selector">
+        <button class="mode-btn active" id="classic-mode">Classic (2 Players)</button>
+        <button class="mode-btn" id="three-player-mode">3 Players</button>
+    </div>
     <div class="game-container">
         <div class="status" id="status">Player X's turn</div>
         <div class="board" id="board"></div>
@@ -193,21 +255,54 @@
             const board = document.getElementById('board');
             const status = document.getElementById('status');
             const resetButton = document.getElementById('reset');
+            const classicModeBtn = document.getElementById('classic-mode');
+            const threePlayerModeBtn = document.getElementById('three-player-mode');
+            
             let currentPlayer = 'x';
-            let gameState = ['', '', '', '', '', '', '', '', ''];
+            let gameState = [];
             let gameActive = true;
+            let gameMode = 'classic'; // 'classic' or 'threePlayer'
+            let boardSize = 3;
 
-            // Winning conditions
-            const winningConditions = [
+            // Winning conditions for 3x3 board
+            const winningConditions3x3 = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
                 [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
                 [0, 4, 8], [2, 4, 6]             // diagonals
             ];
 
+            // Winning conditions for 4x4 board (3 in a row)
+            const winningConditions4x4 = [
+                // Rows
+                [0, 1, 2], [1, 2, 3], [4, 5, 6], [5, 6, 7],
+                [8, 9, 10], [9, 10, 11], [12, 13, 14], [13, 14, 15],
+                // Columns
+                [0, 4, 8], [4, 8, 12], [1, 5, 9], [5, 9, 13],
+                [2, 6, 10], [6, 10, 14], [3, 7, 11], [7, 11, 15],
+                // Diagonals
+                [0, 5, 10], [1, 6, 11], [4, 9, 14], [5, 10, 15],
+                [2, 5, 8], [3, 6, 9], [6, 9, 12], [7, 10, 13]
+            ];
+
+            // Initialize the game
+            function initGame() {
+                boardSize = gameMode === 'classic' ? 3 : 4;
+                gameState = Array(boardSize * boardSize).fill('');
+                currentPlayer = 'x';
+                gameActive = true;
+                status.textContent = "Player X's turn";
+                createBoard();
+            }
+
             // Create the board
             function createBoard() {
                 board.innerHTML = '';
-                for (let i = 0; i < 9; i++) {
+                board.className = 'board';
+                if (boardSize === 4) {
+                    board.classList.add('four-by-four');
+                }
+
+                for (let i = 0; i < boardSize * boardSize; i++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
                     cell.setAttribute('data-index', i);
@@ -234,6 +329,7 @@
 
             // Check for win or draw
             function checkResult() {
+                const winningConditions = boardSize === 3 ? winningConditions3x3 : winningConditions4x4;
                 let roundWon = false;
 
                 // Check all winning conditions
@@ -250,7 +346,11 @@
 
                 // If won
                 if (roundWon) {
-                    const winner = currentPlayer === 'x' ? 'X' : 'O';
+                    let winner;
+                    if (currentPlayer === 'x') winner = 'X';
+                    else if (currentPlayer === 'o') winner = 'O';
+                    else winner = '+';
+                    
                     status.textContent = `Player ${winner} wins!`;
                     gameActive = false;
                     createConfetti();
@@ -265,8 +365,20 @@
                 }
 
                 // Continue game
-                currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
-                status.textContent = `Player ${currentPlayer.toUpperCase()}'s turn`;
+                if (gameMode === 'classic') {
+                    currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+                } else {
+                    if (currentPlayer === 'x') currentPlayer = 'o';
+                    else if (currentPlayer === 'o') currentPlayer = 'plus';
+                    else currentPlayer = 'x';
+                }
+                
+                let playerName;
+                if (currentPlayer === 'x') playerName = 'X';
+                else if (currentPlayer === 'o') playerName = 'O';
+                else playerName = '+';
+                
+                status.textContent = `Player ${playerName}'s turn`;
             }
 
             // Highlight winning cells
@@ -279,7 +391,7 @@
 
             // Create confetti effect
             function createConfetti() {
-                const colors = ['#4285f4', '#ea4335', '#fbbc05', '#34a853', '#ff6d00'];
+                const colors = ['#4285f4', '#ea4335', '#00ff00', '#fbbc05', '#34a853', '#ff6d00'];
                 const container = document.querySelector('.game-container');
                 
                 for (let i = 0; i < 100; i++) {
@@ -301,18 +413,32 @@
 
             // Reset game
             function resetGame() {
-                currentPlayer = 'x';
-                gameState = ['', '', '', '', '', '', '', '', ''];
-                gameActive = true;
-                status.textContent = "Player X's turn";
-                createBoard();
+                initGame();
+            }
+
+            // Switch to classic mode
+            function setClassicMode() {
+                gameMode = 'classic';
+                classicModeBtn.classList.add('active');
+                threePlayerModeBtn.classList.remove('active');
+                initGame();
+            }
+
+            // Switch to three player mode
+            function setThreePlayerMode() {
+                gameMode = 'threePlayer';
+                classicModeBtn.classList.remove('active');
+                threePlayerModeBtn.classList.add('active');
+                initGame();
             }
 
             // Event listeners
             resetButton.addEventListener('click', resetGame);
+            classicModeBtn.addEventListener('click', setClassicMode);
+            threePlayerModeBtn.addEventListener('click', setThreePlayerMode);
 
             // Initialize game
-            createBoard();
+            initGame();
         });
     </script>
 </body>
