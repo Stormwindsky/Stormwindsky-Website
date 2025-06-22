@@ -3,23 +3,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Dice Roller</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Advanced 3D Dice Roller</title>
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #ff6b6b;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --dice-color: #ffffff;
+            --dot-color: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark-color);
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark-color);
+            white-space: nowrap;
+        }
+
+        input {
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .color-input {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        button:hover {
+            background-color: #3a5bef;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .dice-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .single-dice-container {
+            perspective: 1000px;
+            width: 100px;
+            height: 100px;
+            margin: 0.5rem;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-out;
+            transform: rotateX(0) rotateY(0) rotateZ(0);
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            background: var(--dice-color);
+            border: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dot-color);
+        }
+
+        /* Dice face positions */
+        .front  { transform: rotateY(0deg) translateZ(50px); }
+        .right  { transform: rotateY(90deg) translateZ(50px); }
+        .back   { transform: rotateY(180deg) translateZ(50px); }
+        .left   { transform: rotateY(-90deg) translateZ(50px); }
+        .top    { transform: rotateX(90deg) translateZ(50px); }
+        .bottom { transform: rotateX(-90deg) translateZ(50px); }
+
+        /* Animation */
+        @keyframes roll {
+            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg); }
+        }
+
+        .rolling {
+            animation: roll 0.8s ease-out;
+        }
+
+        .add-remove-btns {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dice-count {
+            font-weight: bold;
+            margin: 0 1rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .single-dice-container {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .dice-face {
+                font-size: 18px;
+                border-radius: 8px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Custom Dice Roller</h1>
-        <div class="input-group">
-            <label for="min">Min:</label>
-            <input type="number" id="min" value="1" min="1">
+        <h1>3D Dice Roller</h1>
+        
+        <div class="controls">
+            <div class="input-group">
+                <label for="min">Min:</label>
+                <input type="number" id="min" min="1" value="1">
+            </div>
+            <div class="input-group">
+                <label for="max">Max:</label>
+                <input type="number" id="max" min="2" value="6">
+            </div>
+            <div class="color-picker">
+                <label for="dice-color">Dice:</label>
+                <input type="color" id="dice-color" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker">
+                <label for="dot-color">Numbers:</label>
+                <input type="color" id="dot-color" class="color-input" value="#000000">
+            </div>
         </div>
-        <div class="input-group">
-            <label for="max">Max:</label>
-            <input type="number" id="max" value="6" min="2">
+        
+        <button id="roll-btn">Roll Dice</button>
+        
+        <div class="add-remove-btns">
+            <button id="add-dice">Add Dice</button>
+            <span class="dice-count" id="dice-count">1 dice</span>
+            <button id="remove-dice" disabled>Remove Dice</button>
         </div>
-        <button id="roll-btn">Roll the Dice</button>
-        <div id="result"></div>
+        
+        <div class="dice-container" id="dice-container">
+            <!-- Dice will be added here dynamically -->
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const rollBtn = document.getElementById('roll-btn');
+            const minInput = document.getElementById('min');
+            const maxInput = document.getElementById('max');
+            const diceColorInput = document.getElementById('dice-color');
+            const dotColorInput = document.getElementById('dot-color');
+            const diceContainer = document.getElementById('dice-container');
+            const addDiceBtn = document.getElementById('add-dice');
+            const removeDiceBtn = document.getElementById('remove-dice');
+            const diceCountDisplay = document.getElementById('dice-count');
+            
+            // State
+            let diceCount = 1;
+            let minValue = 1;
+            let maxValue = 6;
+            let diceColor = '#ffffff';
+            let dotColor = '#000000';
+            
+            // Initialize from URL parameters
+            function loadFromURL() {
+                const params = new URLSearchParams(window.location.search);
+                
+                if (params.has('min')) {
+                    const minParam = parseInt(params.get('min'));
+                    if (!isNaN(minParam)) {
+                        minValue = minParam;
+                        minInput.value = minValue;
+                    }
+                }
+                
+                if (params.has('max')) {
+                    const maxParam = parseInt(params.get('max'));
+                    if (!isNaN(maxParam)) {
+                        maxValue = maxParam;
+                        maxInput.value = maxValue;
+                    }
+                }
+                
+                if (params.has('diceColor')) {
+                    diceColor = '#' + params.get('diceColor');
+                    diceColorInput.value = diceColor;
+                }
+                
+                if (params.has('dotColor')) {
+                    dotColor = '#' + params.get('dotColor');
+                    dotColorInput.value = dotColor;
+                }
+                
+                if (params.has('diceCount')) {
+                    const countParam = parseInt(params.get('diceCount'));
+                    if (!isNaN(countParam) && countParam > 0 && countParam <= 20) {
+                        diceCount = countParam;
+                    }
+                }
+                
+                updateDiceCount();
+                updateCSSVariables();
+                createDiceElements();
+            }
+            
+            // Save state to URL
+            function saveToURL() {
+                const params = new URLSearchParams();
+                params.set('min', minValue);
+                params.set('max', maxValue);
+                params.set('diceColor', diceColor.substring(1));
+                params.set('dotColor', dotColor.substring(1));
+                params.set('diceCount', diceCount);
+                
+                window.history.replaceState(null, null, '?' + params.toString());
+            }
+            
+            // Update CSS variables
+            function updateCSSVariables() {
+                document.documentElement.style.setProperty('--dice-color', diceColor);
+                document.documentElement.style.setProperty('--dot-color', dotColor);
+            }
+            
+            // Update dice count display
+            function updateDiceCount() {
+                diceCountDisplay.textContent = `${diceCount} ${diceCount === 1 ? 'die' : 'dice'}`;
+                removeDiceBtn.disabled = diceCount <= 1;
+                saveToURL();
+            }
+            
+            // Create initial dice elements
+            function createDiceElements() {
+                diceContainer.innerHTML = '';
+                for (let i = 0; i < diceCount; i++) {
+                    addDiceElement();
+                }
+            }
+            
+            // Add a new dice element
+            function addDiceElement() {
+                const diceWrapper = document.createElement('div');
+                diceWrapper.className = 'single-dice-container';
+                
+                const diceEl = document.createElement('div');
+                diceEl.className = 'dice';
+                diceEl.dataset.value = minValue;
+                
+                // Create all 6 faces with numbers 1-6
+                const faces = [
+                    { class: 'front', value: 1 },
+                    { class: 'right', value: 2 },
+                    { class: 'back', value: 3 },
+                    { class: 'left', value: 4 },
+                    { class: 'top', value: 5 },
+                    { class: 'bottom', value: 6 }
+                ];
+                
+                faces.forEach(face => {
+                    const faceEl = document.createElement('div');
+                    faceEl.className = `dice-face ${face.class}`;
+                    faceEl.textContent = face.value;
+                    diceEl.appendChild(faceEl);
+                });
+                
+                diceWrapper.appendChild(diceEl);
+                diceContainer.appendChild(diceWrapper);
+                
+                // Initialize to show the min value
+                updateDiceFace(diceEl, minValue);
+            }
+            
+            // Update dice to show a specific value
+            function updateDiceFace(diceEl, value) {
+                // Clamp value between 1-6 for the 3D effect
+                const faceValue = Math.max(1, Math.min(6, value));
+                diceEl.dataset.value = value;
+                
+                // Rotate to show the correct face
+                const rotations = {
+                    1: 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)',
+                    2: 'rotateX(0deg) rotateY(-90deg) rotateZ(0deg)',
+                    3: 'rotateX(0deg) rotateY(180deg) rotateZ(0deg)',
+                    4: 'rotateX(0deg) rotateY(90deg) rotateZ(0deg)',
+                    5: 'rotateX(-90deg) rotateY(0deg) rotateZ(0deg)',
+                    6: 'rotateX(90deg) rotateY(0deg) rotateZ(0deg)'
+                };
+                
+                diceEl.style.transform = rotations[faceValue];
+                
+                // Update all faces to show the actual value (not just 1-6)
+                const faces = diceEl.querySelectorAll('.dice-face');
+                faces.forEach(face => {
+                    face.textContent = value;
+                });
+            }
+            
+            // Roll all dice
+            function rollAllDice() {
+                const min = parseInt(minInput.value);
+                const max = parseInt(maxInput.value);
+                
+                if (isNaN(min)) {
+                    alert("Please enter a valid number for minimum value.");
+                    return;
+                }
+                
+                if (isNaN(max)) {
+                    alert("Please enter a valid number for maximum value.");
+                    return;
+                }
+                
+                if (min >= max) {
+                    alert("The minimum value must be less than the maximum value.");
+                    return;
+                }
+                
+                // Update state
+                minValue = min;
+                maxValue = max;
+                
+                // Disable button during roll
+                rollBtn.disabled = true;
+                addDiceBtn.disabled = true;
+                removeDiceBtn.disabled = true;
+                
+                // Get all dice elements
+                const diceElements = diceContainer.querySelectorAll('.dice');
+                
+                // Add rolling animation to all dice
+                diceElements.forEach(diceEl => {
+                    diceEl.classList.add('rolling');
+                });
+                
+                // After animation completes, show results
+                setTimeout(() => {
+                    diceElements.forEach(diceEl => {
+                        const result = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+                        updateDiceFace(diceEl, result);
+                        diceEl.classList.remove('rolling');
+                    });
+                    
+                    // Re-enable buttons
+                    rollBtn.disabled = false;
+                    addDiceBtn.disabled = false;
+                    removeDiceBtn.disabled = diceCount <= 1;
+                    
+                    // Save to URL
+                    saveToURL();
+                }, 800);
+            }
+            
+            // Event listeners
+            rollBtn.addEventListener('click', rollAllDice);
+            
+            diceColorInput.addEventListener('input', function() {
+                diceColor = this.value;
+                updateCSSVariables();
+                saveToURL();
+            });
+            
+            dotColorInput.addEventListener('input', function() {
+                dotColor = this.value;
+                updateCSSVariables();
+                saveToURL();
+            });
+            
+            addDiceBtn.addEventListener('click', function() {
+                if (diceCount < 20) {
+                    diceCount++;
+                    addDiceElement();
+                    updateDiceCount();
+                } else {
+                    alert("Maximum 20 dice allowed");
+                }
+            });
+            
+            removeDiceBtn.addEventListener('click', function() {
+                if (diceCount > 1) {
+                    diceCount--;
+                    diceContainer.removeChild(diceContainer.lastChild);
+                    updateDiceCount();
+                }
+            });
+            
+            // Initialize
+            loadFromURL();
+        });
+    </script>
 </body>
 </html>
