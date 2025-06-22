@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Generator</title>
+    <title>AI Image Generator with Seeds</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -420,6 +420,106 @@
             font-size: 0.75rem;
         }
         
+        /* Seed controls */
+        .seed-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .seed-controls label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        .seed-controls input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            outline: none;
+        }
+        
+        .seed-controls button {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        /* Generation history */
+        .generation-history {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .generation-history h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .generation-history ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .generation-history li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .generation-history li:last-child {
+            border-bottom: none;
+        }
+        
+        .generation-history .history-thumbnail {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .generation-history .history-thumbnail:hover {
+            transform: scale(1.05);
+        }
+        
+        .generation-history .history-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .generation-history .history-prompt {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .generation-history .history-seed {
+            color: #4facfe;
+            font-size: 0.75rem;
+        }
+        
+        .generation-history .history-timestamp {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+        }
+        
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
@@ -432,14 +532,31 @@
             .button-group {
                 flex-direction: column;
             }
+            
+            .seed-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .generation-history li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .generation-history .history-thumbnail {
+                width: 100%;
+                height: auto;
+                max-height: 100px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>AI Image Generator</h1>
-            <p class="subtitle">Transform your imagination into stunning visuals. Generate images from your text prompts and enhance them with AI-powered improvements.</p>
+            <h1>AI Image Generator with Seeds</h1>
+            <p class="subtitle">Transform your imagination into stunning visuals with automatic seed integration. Seeds are automatically added to your prompts for reproducible results.</p>
         </header>
         
         <div class="app-container">
@@ -447,6 +564,12 @@
                 <div class="card">
                     <h2 class="section-title"><i class="fas fa-edit"></i> Enter Your Prompt</h2>
                     <textarea id="promptInput" placeholder="Describe the image you want to generate...">A futuristic cityscape at sunset with flying cars</textarea>
+                    
+                    <div class="seed-controls">
+                        <label for="seedInput">Custom Seed (optional):</label>
+                        <input type="text" id="seedInput" placeholder="Leave empty for random seed">
+                        <button id="randomSeedBtn"><i class="fas fa-dice"></i> Random</button>
+                    </div>
                     
                     <div class="examples">
                         <p>Try these examples:</p>
@@ -476,6 +599,13 @@
                         <!-- History items will be added here -->
                     </ul>
                 </div>
+                
+                <div class="generation-history">
+                    <h3><i class="fas fa-images"></i> Generation History</h3>
+                    <ul id="generationHistory">
+                        <!-- Generation history items will be added here -->
+                    </ul>
+                </div>
             </div>
             
             <div class="output-section">
@@ -499,6 +629,8 @@
                     <div class="prompt-display">
                         <strong>Current Prompt:</strong>
                         <div id="currentPrompt">No prompt generated yet</div>
+                        <strong>Seed Used:</strong>
+                        <div id="currentSeed">None</div>
                     </div>
                 </div>
             </div>
@@ -506,7 +638,7 @@
         
         <div class="info">
             <p><i class="fas fa-info-circle"></i> This tool uses the Pollinations AI image generation service but is not affiliated with Pollinations AI. Images are generated by artificial intelligence based on your text description. Generation may take 10-30 seconds.</p>
-            <p><i class="fas fa-lightbulb"></i> Tip: Use the "Improve Prompt" button to enhance your description with AI for better image results.</p>
+            <p><i class="fas fa-lightbulb"></i> Tip: Seeds are automatically added to your prompt in the format "(Seed: 123456)". The same prompt + seed will generate the same image.</p>
         </div>
         
         <footer>
@@ -530,6 +662,8 @@
             const generateBtn = document.getElementById('generateBtn');
             const improveBtn = document.getElementById('improveBtn');
             const clearBtn = document.getElementById('clearBtn');
+            const randomSeedBtn = document.getElementById('randomSeedBtn');
+            const seedInput = document.getElementById('seedInput');
             const generatedImage = document.getElementById('generatedImage');
             const imagePlaceholder = document.querySelector('.image-placeholder');
             const loading = document.querySelector('.loading');
@@ -539,35 +673,59 @@
             const fullscreenImage = document.getElementById('fullscreenImage');
             const closeFullscreen = document.getElementById('closeFullscreen');
             const currentPrompt = document.getElementById('currentPrompt');
+            const currentSeed = document.getElementById('currentSeed');
             const promptHistory = document.getElementById('promptHistory');
+            const generationHistory = document.getElementById('generationHistory');
             
-            let history = [];
+            let promptHistoryList = [];
+            let generationHistoryList = [];
+            
+            // Function to generate a random seed
+            function generateRandomSeed() {
+                return Math.floor(Math.random() * 1000000000);
+            }
             
             // Function to add prompt to history
-            function addToHistory(original, improved) {
+            function addToPromptHistory(original, improved) {
                 const timestamp = new Date().toLocaleTimeString();
                 
-                // Add to beginning of history
-                history.unshift({
+                promptHistoryList.unshift({
                     original,
                     improved,
                     timestamp
                 });
                 
-                // Keep only last 5 items
-                if(history.length > 5) {
-                    history.pop();
+                if(promptHistoryList.length > 5) {
+                    promptHistoryList.pop();
                 }
                 
-                // Update history display
-                renderHistory();
+                renderPromptHistory();
             }
             
-            // Function to render history
-            function renderHistory() {
+            // Function to add generation to history
+            function addToGenerationHistory(prompt, seed, imageUrl) {
+                const timestamp = new Date().toLocaleTimeString();
+                
+                generationHistoryList.unshift({
+                    prompt,
+                    seed,
+                    imageUrl,
+                    timestamp
+                });
+                
+                if(generationHistoryList.length > 10) {
+                    generationHistoryList.pop();
+                }
+                
+                renderGenerationHistory();
+                localStorage.setItem('generationHistory', JSON.stringify(generationHistoryList));
+            }
+            
+            // Function to render prompt history
+            function renderPromptHistory() {
                 promptHistory.innerHTML = '';
                 
-                history.forEach(item => {
+                promptHistoryList.forEach(item => {
                     const li = document.createElement('li');
                     
                     li.innerHTML = `
@@ -580,7 +738,6 @@
                         <span class="timestamp">${item.timestamp}</span>
                     `;
                     
-                    // Click to use the improved prompt
                     li.addEventListener('click', () => {
                         promptInput.value = item.improved;
                         generateImage();
@@ -589,14 +746,55 @@
                     promptHistory.appendChild(li);
                 });
                 
-                // Add empty state if no history
-                if(history.length === 0) {
+                if(promptHistoryList.length === 0) {
                     const li = document.createElement('li');
                     li.textContent = "No history yet. Improve a prompt to start.";
                     li.style.color = "rgba(255, 255, 255, 0.5)";
                     li.style.textAlign = "center";
                     li.style.padding = "10px 0";
                     promptHistory.appendChild(li);
+                }
+            }
+            
+            // Function to render generation history
+            function renderGenerationHistory() {
+                generationHistory.innerHTML = '';
+                
+                generationHistoryList.forEach(item => {
+                    const li = document.createElement('li');
+                    
+                    li.innerHTML = `
+                        <img src="${item.imageUrl}" alt="Generated image" class="history-thumbnail">
+                        <div class="history-info">
+                            <div class="history-prompt" title="${item.prompt}">${truncate(item.prompt, 40)}</div>
+                            <div class="history-seed">Seed: ${item.seed}</div>
+                            <div class="history-timestamp">${item.timestamp}</div>
+                        </div>
+                    `;
+                    
+                    li.addEventListener('click', () => {
+                        promptInput.value = item.prompt.replace(/ \(Seed: \d+\)$/, '');
+                        seedInput.value = item.seed;
+                        currentPrompt.textContent = item.prompt;
+                        currentSeed.textContent = item.seed;
+                        
+                        generatedImage.src = item.imageUrl;
+                        generatedImage.style.display = 'block';
+                        imagePlaceholder.style.display = 'none';
+                        viewFullscreenBtn.style.display = 'flex';
+                        loading.style.display = 'none';
+                    });
+                    
+                    generationHistory.appendChild(li);
+                });
+                
+                if(generationHistoryList.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = "No generation history yet. Generate an image to start.";
+                    li.style.color = "rgba(255, 255, 255, 0.5)";
+                    li.style.textAlign = "center";
+                    li.style.padding = "10px 0";
+                    generationHistory.appendChild(li);
                 }
             }
             
@@ -608,18 +806,32 @@
             
             // Function to generate image
             function generateImage() {
-                const prompt = promptInput.value.trim();
+                let prompt = promptInput.value.trim();
+                let seed = seedInput.value.trim();
                 
                 if (!prompt) {
                     alert('Please enter a description for the image you want to generate.');
                     return;
                 }
                 
-                // Update current prompt display
-                currentPrompt.textContent = prompt;
+                // If no seed provided, generate a random one
+                if (!seed) {
+                    seed = generateRandomSeed();
+                    seedInput.value = seed;
+                }
+                
+                // Remove any existing seed from prompt
+                prompt = prompt.replace(/ \(Seed: \d+\)$/, '');
+                
+                // Create the final prompt with seed
+                const finalPrompt = `${prompt} (Seed: ${seed})`;
+                
+                // Update displays
+                currentPrompt.textContent = finalPrompt;
+                currentSeed.textContent = seed;
                 
                 // Encode the prompt for URL
-                const encodedPrompt = encodeURIComponent(prompt);
+                const encodedPrompt = encodeURIComponent(finalPrompt);
                 const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
                 
                 // Show loading indicator
@@ -637,6 +849,9 @@
                     loading.style.display = 'none';
                     generatedImage.style.display = 'block';
                     viewFullscreenBtn.style.display = 'flex';
+                    
+                    // Add to generation history
+                    addToGenerationHistory(finalPrompt, seed, imageUrl);
                 };
                 
                 // Handle image loading errors
@@ -653,12 +868,15 @@
             
             // Function to improve prompt
             async function improvePrompt() {
-                const originalPrompt = promptInput.value.trim();
+                let originalPrompt = promptInput.value.trim();
                 
                 if (!originalPrompt) {
                     alert('Please enter a prompt to improve.');
                     return;
                 }
+                
+                // Remove any existing seed from prompt
+                originalPrompt = originalPrompt.replace(/ \(Seed: \d+\)$/, '');
                 
                 try {
                     // Show loading for prompt improvement
@@ -675,20 +893,34 @@
                         throw new Error('Failed to improve prompt');
                     }
                     
-                    const improvedPrompt = await response.text();
+                    let improvedPrompt = await response.text();
                     
-                    // Set the improved prompt in the textarea
+                    // Clean up the improved prompt
+                    improvedPrompt = improvedPrompt.trim();
+                    
+                    // Set the improved prompt in the textarea (without seed)
                     promptInput.value = improvedPrompt;
-                    currentPrompt.textContent = improvedPrompt;
                     
-                    // Add to history
-                    addToHistory(originalPrompt, improvedPrompt);
+                    // Add to history (without seed)
+                    addToPromptHistory(originalPrompt, improvedPrompt);
                     
                     // Now generate the image for the improved prompt
                     loadingText.textContent = "Generating image from improved prompt...";
                     
+                    // Get or generate seed
+                    let seed = seedInput.value.trim();
+                    if (!seed) {
+                        seed = generateRandomSeed();
+                        seedInput.value = seed;
+                    }
+                    
+                    // Create final prompt with seed
+                    const finalPrompt = `${improvedPrompt} (Seed: ${seed})`;
+                    currentPrompt.textContent = finalPrompt;
+                    currentSeed.textContent = seed;
+                    
                     // Encode the prompt for URL
-                    const encodedPrompt = encodeURIComponent(improvedPrompt);
+                    const encodedPrompt = encodeURIComponent(finalPrompt);
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
                     
                     // Set image source
@@ -699,6 +931,9 @@
                         loading.style.display = 'none';
                         generatedImage.style.display = 'block';
                         viewFullscreenBtn.style.display = 'flex';
+                        
+                        // Add to generation history
+                        addToGenerationHistory(finalPrompt, seed, imageUrl);
                     };
                     
                     // Handle image loading errors
@@ -725,6 +960,7 @@
             // Function to clear input and image
             function clearAll() {
                 promptInput.value = '';
+                seedInput.value = '';
                 generatedImage.src = '';
                 generatedImage.style.display = 'none';
                 loading.style.display = 'none';
@@ -735,6 +971,7 @@
                     <p>Your generated image will appear here. Enter a prompt and click "Generate Image".</p>
                 `;
                 currentPrompt.textContent = 'No prompt generated yet';
+                currentSeed.textContent = 'None';
             }
             
             // Function to view image in fullscreen
@@ -752,10 +989,22 @@
                 document.body.style.overflow = 'auto';
             }
             
+            // Load generation history from localStorage
+            function loadGenerationHistory() {
+                const savedHistory = localStorage.getItem('generationHistory');
+                if (savedHistory) {
+                    generationHistoryList = JSON.parse(savedHistory);
+                    renderGenerationHistory();
+                }
+            }
+            
             // Event listeners
             generateBtn.addEventListener('click', generateImage);
             improveBtn.addEventListener('click', improvePrompt);
             clearBtn.addEventListener('click', clearAll);
+            randomSeedBtn.addEventListener('click', function() {
+                seedInput.value = generateRandomSeed();
+            });
             viewFullscreenBtn.addEventListener('click', viewFullscreen);
             closeFullscreen.addEventListener('click', closeFullscreenView);
             
@@ -774,8 +1023,9 @@
                 }
             });
             
-            // Initialize history
-            renderHistory();
+            // Initialize histories
+            renderPromptHistory();
+            loadGenerationHistory();
             
             // Generate initial image
             setTimeout(generateImage, 500);
