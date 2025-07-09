@@ -1,7 +1,7 @@
 # Stormwindsky-Website
 This is my website
 
-Here: https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html
+Here: https://www.stormwindsky.com
 
 About Credits:
 
