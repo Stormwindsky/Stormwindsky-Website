@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="images/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky's Collection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --text-color: #333;
+            --success-color: #4cc9f0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .category-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .category-btn.active {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .content-area {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            text-align: center;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+        
+        .empty-state h2 {
+            color: var(--dark-color);
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+        
+        /* Archive Styles */
+        .archive-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .archive-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+        
+        .archive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            border-left: 5px solid var(--accent-color);
+        }
+        
+        .archive-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-right: 25px;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .archive-content {
+            flex: 1;
+        }
+        
+        .archive-title {
+            font-size: 1.4rem;
+            margin: 0 0 8px 0;
+            color: var(--dark-color);
+        }
+        
+        .archive-description {
+            color: #666;
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .archive-year {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        /* Countdown Styles */
+        .countdown-container {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .event-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .event-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .event-title {
+            font-size: 1.8rem;
+            margin: 0 0 15px 0;
+            color: var(--dark-color);
+        }
+        
+        .event-desc {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Games Styles */
+        .games-container {
+            display: none;
+            width: 100%;
+        }
+        
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 40px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+        }
+        
+        .search-bar button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .search-bar button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .game-card i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover i {
+            transform: scale(1.1);
+        }
+        
+        .game-card h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .game-card p {
+            color: #777;
+            font-size: 0.95rem;
+            margin-top: 10px;
+        }
+        
+        .game-card .play-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .game-card:hover .play-button {
+            background-color: var(--secondary-color);
+            transform: translateY(2px);
+        }
+        
+        /* Non Scratch Projects Styles */
+        .nonscratch-container {
+            display: none;
+            width: 100%;
+        }
+        
+        .platforms-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin: 20px 0;
+        }
+        
+        .platform-section {
+            background: rgba(44, 44, 84, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .platform-section:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(107, 92, 231, 0.4);
+            border-color: rgba(107, 92, 231, 0.4);
+        }
+        
+        .platform-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            color: #ffcc00;
+            font-size: 2rem;
+            font-weight: 600;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .platform-title i {
+            font-size: 2.2rem;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .project-card {
+            background: linear-gradient(135deg, rgba(60, 42, 132, 0.8) 0%, rgba(43, 31, 99, 0.9) 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: left;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(107, 92, 231, 0.5);
+            border-color: rgba(107, 92, 231, 0.5);
+        }
+        
+        a.project-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+        
+        .project-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .project-icon {
+            width: 50px;
+            height: 50px;
+            background: #6b5ce7;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .project-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ffcc00;
+            flex: 1;
+        }
+        
+        .project-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #d4d4ff;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+        
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        
+        .project-type {
+            background: rgba(107, 92, 231, 0.2);
+            color: #b8a9ff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .project-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffcc00;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .project-link-btn i {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .project-link-btn:hover {
+            color: #fff;
+        }
+        
+        .project-link-btn:hover i {
+            transform: translateX(5px);
+        }
+        
+        /* Tools Styles */
+        .tools-container {
+            display: none;
+            width: 100%;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tool-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tool-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .tool-card h3 {
+            margin: 0;
+            color: var(--dark-color);
+        }
+        
+        .tool-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Useless Things Styles */
+        .useless-container {
+            display: none;
+            width: 100%;
+        }
+        
+        .things-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .thing-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+            cursor: pointer;
+            border: 3px solid #ffb3b3;
+        }
+        
+        .thing-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+            border-color: #ff6b6b;
+        }
+        
+        .thing-card i {
+            font-size: 3.5rem;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+        
+        .thing-card h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 1.8rem;
+        }
+        
+        .thing-card p {
+            color: #777;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            
+            .tools-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .thing-card {
+                padding: 20px 15px;
+            }
+            
+            .thing-card i {
+                font-size: 2.8rem;
+            }
+            
+            .thing-card h3 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .category-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Stormwindsky's Collection</h1>
+        </header>
+        
+        <div class="category-buttons">
+            <button class="category-btn" onclick="showCategory('archives')">Digital Archives</button>
+            <button class="category-btn" onclick="showCategory('countdowns')">Countdowns</button>
+            <button class="category-btn" onclick="showCategory('games')">Game Collection</button>
+            <button class="category-btn" onclick="showCategory('nonscratch')">Non Scratch Projects</button>
+            <button class="category-btn" onclick="showCategory('tools')">Toolbox</button>
+            <button class="category-btn" onclick="showCategory('useless')">Useless Things</button>
+        </div>
+        
+        <div class="content-area">
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-folder-open"></i>
+                <h2>Select a Category</h2>
+                <p>Please choose one of the blue buttons above to view the corresponding collection. Each button will display different content in this area.</p>
+            </div>
+            
+            <!-- Archives Content -->
+            <div class="archive-container" id="archivesContent">
+                <div class="archive-container">
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Archives/Storm2018.html" class="archive-card" target="_blank">
+                        <div class="archive-icon">
+                            <i class="fas fa-archive"></i>
+                        </div>
+                        <div class="archive-content">
+                            <h3 class="archive-title">Stormwindsky Scratch Profile</h3>
+                            <p class="archive-description">A preserved version of my original Scratch profile from 2018, showcasing early coding projects and creations.</p>
+                            <span class="archive-year">2018</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <footer>
+                    <p>More historical archives will be added as they become available</p>
+                </footer>
+            </div>
+            
+            <!-- Countdowns Content -->
+            <div class="countdown-container" id="countdownsContent">
+                <div class="event-card">
+                    <div class="event-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h2 class="event-title">Christmas Day</h2>
+                    <p class="event-desc">
+                        Discover how much time remains until December 25th - a magical day of gifts, 
+                        family gatherings, and festive celebrations around the world.
+                    </p>
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Countdowns/Xmas.html" class="btn" target="_blank">View Countdown</a>
+                </div>
+            </div>
+            
+            <!-- Games Content -->
+            <div class="games-container" id="gamesContent">
+                <div class="search-container">
+                    <div class="search-bar">
+                        <input type="text" id="gamesSearchInput" placeholder="Search games...">
+                        <button type="button" id="gamesSearchButton"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <div class="games-grid">
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Tic%20Taco%20Toe/Tic%20Tac%20Toe.html" class="game-card" target="_blank">
+                        <i class="fas fa-times"></i>
+                        <h3>Tic Tac Toe</h3>
+                        <p>The classic X and O strategy game</p>
+                        <div class="play-button">Play Now</div>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Hangman%20Game/Hangman%20Game.html" class="game-card" target="_blank">
+                        <i class="fas fa-user-astronaut"></i>
+                        <h3>Hangman</h3>
+                        <p>Guess the word before the man hangs!</p>
+                        <div class="play-button">Play Now</div>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/OpenQuiz/OpenQuiz.html?quiz=%5B%7B%22question%22%3A%22What%20is%20the%20capital%20of%20France%3F%22%2C%22answers%22%3A%5B%22Paris%22%2C%22London%22%2C%22Berlin%22%2C%22Madrid%22%5D%2C%22correctAnswer%22%3A0%7D%2C%7B%22question%22%3A%22Which%20planet%20is%20known%20as%20the%20Red%20Planet%3F%22%2C%22answers%22%3A%5B%22Earth%22%2C%22Mars%22%2C%22Jupiter%22%2C%22Saturn%22%5D%2C%22correctAnswer%22%3A1%7D%2C%7B%22question%22%3A%22What%20is%20the%20largest%20ocean%20on%20Earth%3F%22%2C%22answers%22%3A%5B%22Atlantic%20Ocean%22%2C%22Indian%20Ocean%22%2C%22Arctic%20Ocean%22%2C%22Pacific%20Ocean%22%5D%2C%22correctAnswer%22%3A3%7D%5D" class="game-card" target="_blank">
+                        <i class="fas fa-question-circle"></i>
+                        <h3>OpenQuiz</h3>
+                        <p>Test your knowledge with fun quizzes</p>
+                        <div class="play-button">Play Now</div>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Snake/Snake.html" class="game-card" target="_blank">
+                        <i class="fas fa-snake"></i>
+                        <h3>Snake Game</h3>
+                        <p>The classic mobile snake adventure</p>
+                        <div class="play-button">Play Now</div>
+                    </a>
+
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Games/Trivia%20Challenge/TC.html" class="game-card" target="_blank">
+                        <i class="fas fa-question-circle"></i>
+                        <h3>Trivia Challenge</h3>
+                        <p>Test your knowledge with trivia quizzes</p>
+                        <div class="play-button">Play Now</div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Non Scratch Projects Content -->
+            <div class="nonscratch-container" id="nonscratchContent">
+                <div class="platforms-container">
+                    <div class="platform-section">
+                        <h2 class="platform-title"><i class="fas fa-code"></i> Gandi IDE</h2>
+                        <div class="projects-grid">
+                            <div class="project-card">
+                                <a href="https://www.cocrea.world/@Stormwindsky/2Doors-Updated" class="project-link" target="_blank">
+                                    <div class="project-header">
+                                        <div class="project-icon"><i class="fas fa-door-open"></i></div>
+                                        <div class="project-title">2Doors (Updated Version)</div>
+                                    </div>
+                                    <div class="project-desc">
+                                        An enhanced continuation of the 2Doors game with new features, improved mechanics, and additional levels. Experience the classic puzzle game with fresh challenges.
+                                    </div>
+                                    <div class="project-meta">
+                                        <span class="project-type">Adventure Puzzle</span>
+                                        <span class="project-link-btn">Play Now <i class="fas fa-arrow-right"></i></span>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="project-card">
+                                <a href="https://www.cocrea.world/@Stormwindsky/ThreeSunsetsatJoes" class="project-link" target="_blank">
+                                    <div class="project-header">
+                                        <div class="project-icon"><i class="fas fa-sun"></i></div>
+                                        <div class="project-title">Three Sunsets at Joe's</div>
+                                    </div>
+                                    <div class="project-desc">
+                                        A quirky adventure inspired by point-and-click storytelling games. Follow a mysterious journey through three sunsets at Joe's peculiar establishment.
+                                    </div>
+                                    <div class="project-meta">
+                                        <span class="project-type">Interactive Story</span>
+                                        <span class="project-link-btn">Explore <i class="fas fa-arrow-right"></i></span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="platform-section">
+                        <h2 class="platform-title"><i class="fas fa-crow"></i> PenguinMod</h2>
+                        <div class="projects-grid">
+                            <div class="project-card">
+                                <a href="https://studio.penguinmod.com/#48757273" class="project-link" target="_blank">
+                                    <div class="project-header">
+                                        <div class="project-icon"><i class="fas fa-ghost"></i></div>
+                                        <div class="project-title">Spooky Pac-Man (Remix)</div>
+                                    </div>
+                                    <div class="project-desc">
+                                        Pac-Man Classic, but with a spooky twist! Navigate through haunted mazes while avoiding ghosts in this Halloween-themed remix of the arcade classic.
+                                    </div>
+                                    <div class="project-meta">
+                                        <span class="project-type">Arcade Remix</span>
+                                        <span class="project-link-btn">Play Now <i class="fas fa-arrow-right"></i></span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <footer>
+                    <p>Created with passion and creativity • All projects are open to explore</p>
+                    <p>My Non Scratch Projects Collection</p>
+                </footer>
+            </div>
+            
+            <!-- Tools Content -->
+            <div class="tools-container" id="toolsContent">
+                <div class="search-container">
+                    <div class="search-bar">
+                        <input type="text" id="toolsSearchInput" placeholder="Search for tools...">
+                        <button type="button" id="toolsSearchButton"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <div class="tools-grid">
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Notepad/Notepad.html" class="tool-card" target="_blank">
+                        <i class="fas fa-edit"></i>
+                        <h3>Online Text Editor</h3>
+                        <p>A simple text editor for your notes</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Pixel_Art_Maker/Pixel_Art_Maker.html" class="tool-card" target="_blank">
+                        <i class="fas fa-th-large"></i>
+                        <h3>Pixel Art Creator</h3>
+                        <p>Create pixel art designs</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html" class="tool-card" target="_blank">
+                        <i class="fas fa-link"></i>
+                        <h3>OpenLinker</h3>
+                        <p>Manage and organize your links</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenDraw/OpenDraw.html" class="tool-card" target="_blank">
+                        <i class="fas fa-paint-brush"></i>
+                        <h3>Open Draw</h3>
+                        <p>A drawing tool for your creativity</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Dice/Dice.html" class="tool-card" target="_blank">
+                        <i class="fas fa-dice"></i>
+                        <h3>3D Dice Roller</h3>
+                        <p>Virtual 3D dice for your games</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/TTS/TTS.html" class="tool-card" target="_blank">
+                        <i class="fas fa-volume-up"></i>
+                        <h3>TTS</h3>
+                        <p>Text to speech converter</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/WikiViewer/WikiViewer.html" class="tool-card" target="_blank">
+                        <i class="fas fa-book"></i>
+                        <h3>WikiViewer</h3>
+                        <p>Browse Wikipedia articles</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Video%20Thumbnail%20Generator/Video%20Thumbnail%20Downloader.html" class="tool-card" target="_blank">
+                        <i class="fas fa-image"></i>
+                        <h3>Video Thumbnail Downloader</h3>
+                        <p>Get thumbnails from videos</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/SB3%20Archiver/SB3Archive.html" class="tool-card" target="_blank">
+                        <i class="fas fa-archive"></i>
+                        <h3>SB3 Archiver</h3>
+                        <p>Manage SB3 files</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Timer/Timer.html" class="tool-card" target="_blank">
+                        <i class="fas fa-clock"></i>
+                        <h3>Timer</h3>
+                        <p>Countdown and stopwatch</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/PVZtools/PVZtools.html" class="tool-card" target="_blank">
+                        <i class="fas fa-gamepad"></i>
+                        <h3>PVZ Tools</h3>
+                        <p>Plants vs Zombies utilities</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Advanced%20Image%20Editor/Advanced%20Image%20Editor.html" class="tool-card" target="_blank">
+                        <i class="fas fa-camera-retro"></i>
+                        <h3>Advanced Image Editor</h3>
+                        <p>Edit and enhance your images</p>
+                    </a>
+
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Change%20your%20Voice%20Online/cyvo.html" class="tool-card" target="_blank">
+                        <i class="fas fa-volume-up"></i>
+                        <h3>Voice Changer</h3>
+                        <p>Change your Voice for free online!!!</p>
+                    </a>
+
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Simple%20Docs/Simple%20Docs.html" class="tool-card" target="_blank">
+                        <i class="fas fa-edit"></i>
+                        <h3>Simple Docs</h3>
+                        <p>Make your Docs 100% & without a account!!!</p>
+                    </a>
+
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/Roblox%20Asset%20Link%20Configurator/Roblox%20Asset%20Link%20Configurator.html" class="tool-card" target="_blank">
+                        <i class="fas fa-archive"></i>
+                        <h3>rbxl downloader</h3>
+                        <p>Only Work for open source (Uncopylocked) games</p>
+                    </a>
+
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/TtG/Text%20to%20Glitch.html" class="tool-card" target="_blank">
+                        <i class="fas icon-bug"></i>
+                        <h3>Text to ĞᛚǐᏜᑕᏂ</h3>
+                        <p>Sorry, this service is not available. (𝗝𝗢𝗞𝗘!!!)</p>
+                    </a>
+
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/MCMC/Minecraft%20Modpack%20Creator.html" class="tool-card" target="_blank">
+                        <i class="fas fa-gamepad"></i>
+                        <h3>MC ModPack Creator Online</h3>
+                        <p>Make your own MC Modpack Easly</p>
+                    </a>
+
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/TTI/TTI.html" class="tool-card" target="_blank">
+                        <i class="fas fa-image"></i>
+                        <h3>Text to image</h3>
+                        <p>Make image with AI</p>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Useless Things Content -->
+            <div class="useless-container" id="uselessContent">
+                <div class="search-container">
+                    <div class="search-bar">
+                        <input type="text" id="uselessSearchInput" placeholder="Search useless things...">
+                        <button type="button" id="uselessSearchButton"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <div class="things-grid">
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Useless%20thing/Smile/Smile.html" class="thing-card" target="_blank">
+                        <i class="fas fa-smile-beam"></i>
+                        <h3>Smile</h3>
+                        <p>Because sometimes you just need a smile</p>
+                    </a>
+                    
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Useless%20thing/MirrorTube/MirrorTube.html" class="thing-card" target="_blank">
+                        <i class="fas fa-film"></i>
+                        <h3>MirrorTube</h3>
+                        <p>YouTube videos, but mirrored!</p>
+                    </a>
+                </div>
+                
+                <div class="footer">
+                    <p>More useless things coming soon... maybe</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show category function
+        function showCategory(category) {
+            // Hide all content areas
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('archivesContent').style.display = 'none';
+            document.getElementById('countdownsContent').style.display = 'none';
+            document.getElementById('gamesContent').style.display = 'none';
+            document.getElementById('nonscratchContent').style.display = 'none';
+            document.getElementById('toolsContent').style.display = 'none';
+            document.getElementById('uselessContent').style.display = 'none';
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected category and mark button as active
+            document.getElementById(category + 'Content').style.display = 'block';
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Games search functionality
+        document.getElementById('gamesSearchButton').addEventListener('click', searchGames);
+        document.getElementById('gamesSearchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchGames();
+            }
+        });
+        
+        function searchGames() {
+            const searchTerm = document.getElementById('gamesSearchInput').value.toLowerCase();
+            const gameCards = document.querySelectorAll('#gamesContent .game-card');
+            
+            gameCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Tools search functionality
+        document.getElementById('toolsSearchButton').addEventListener('click', searchTools);
+        document.getElementById('toolsSearchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchTools();
+            }
+        });
+        
+        function searchTools() {
+            const searchTerm = document.getElementById('toolsSearchInput').value.toLowerCase();
+            const toolCards = document.querySelectorAll('#toolsContent .tool-card');
+            
+            toolCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Useless things search functionality
+        document.getElementById('uselessSearchButton').addEventListener('click', searchUselessThings);
+        document.getElementById('uselessSearchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchUselessThings();
+            }
+        });
+        
+        function searchUselessThings() {
+            const searchTerm = document.getElementById('uselessSearchInput').value.toLowerCase();
+            const thingCards = document.querySelectorAll('#uselessContent .thing-card');
+            
+            thingCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
