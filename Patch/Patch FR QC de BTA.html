@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patch FR QC BTA - Stormwindsky</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 {
+            color: #4a90e2;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 1.5rem;
+            border-radius: 50%;
+            border: 3px solid #4a90e2;
+            object-fit: cover;
+        }
+
+        .description {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background-color: #4a90e2;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background-color: #3a7bc8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .download-btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .credits {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #444;
+            padding-top: 1rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 5px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: #4a90e2;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .status {
+            margin: 1rem 0;
+            font-style: italic;
+            color: #aaa;
+            min-height: 20px;
+        }
+
+        .link {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .warning {
+            color: #e67e22;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://via.placeholder.com/120" alt="Logo Patch FR QC" class="logo">
+        <h1>Patch FR QC pour Better Than Adventure</h1>
+        
+        <div class="description">
+            <p>Ce patch apporte une traduction française québécoise pour le mod Better Than Adventure.</p>
+            <p>Le patch est développé par Stormwindsky et n'est pas affilié à Mojang Studios, Microsoft ou l'équipe de Better Than Adventure.</p>
+            <p class="warning">Assurez-vous d'avoir installé Better Than Adventure avant d'appliquer ce patch.</p>
+        </div>
+        
+        <button id="downloadBtn" class="download-btn">Télécharger le Patch FR QC</button>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="credits">
+            <p>Crédits :</p>
+            <p>Patch développé par <strong>Stormwindsky</strong></p>
+            <p>Jeu original par Mojang Studios & Microsoft - Non affilié</p>
+            <p>Mod Better Than Adventure par son équipe de développement - Non affilié</p>
+            <p>Visitez le site officiel de BTA : <a href="https://www.betterthanadventure.net/" class="link" target="_blank">betterthanadventure.net</a></p>
+            <p>Code source disponible sur <a href="https://github.com/Stormwindsky/Stormwindsky-Website" class="link" target="_blank">GitHub</a></p>
+        </div>
+    </div>
+    
+    <footer>
+        Patch FR QC BTA - Stormwindsky - 2023
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const status = document.getElementById('status');
+            
+            // URL du fichier sur GitHub (version raw)
+            const githubFileUrl = 'https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Patch/frqc_FRQC.zip';
+            
+            downloadBtn.addEventListener('click', function() {
+                downloadBtn.disabled = true;
+                progressContainer.style.display = 'block';
+                status.textContent = 'Initialisation du téléchargement...';
+                
+                // Utilisation de fetch pour le téléchargement avec suivi de progression
+                fetch(githubFileUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur réseau');
+                        }
+                        
+                        const contentLength = +response.headers.get('Content-Length');
+                        let loaded = 0;
+                        const reader = response.body.getReader();
+                        const chunks = [];
+                        
+                        function readChunk() {
+                            return reader.read().then(({done, value}) => {
+                                if (done) {
+                                    return chunks;
+                                }
+                                
+                                chunks.push(value);
+                                loaded += value.length;
+                                const percentComplete = Math.round((loaded / contentLength) * 100);
+                                
+                                progressBar.style.width = percentComplete + '%';
+                                progressBar.textContent = percentComplete + '%';
+                                status.textContent = `Téléchargement... ${formatBytes(loaded)} / ${formatBytes(contentLength)}`;
+                                
+                                return readChunk();
+                            });
+                        }
+                        
+                        return readChunk().then(chunks => {
+                            const blob = new Blob(chunks);
+                            return blob;
+                        });
+                    })
+                    .then(blob => {
+                        progressBar.style.width = '100%';
+                        progressBar.textContent = '100%';
+                        status.textContent = 'Téléchargement terminé! Préparation du fichier...';
+                        
+                        // Créer un lien de téléchargement
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = downloadUrl;
+                        a.download = 'frqc_FRQC.zip';
+                        document.body.appendChild(a);
+                        a.click();
+                        
+                        // Nettoyage
+                        setTimeout(() => {
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(downloadUrl);
+                            status.textContent = 'Téléchargement réussi!';
+                            downloadBtn.disabled = false;
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        status.textContent = 'Erreur lors du téléchargement: ' + error.message;
+                        progressBar.style.backgroundColor = '#e74c3c';
+                        downloadBtn.disabled = false;
+                    });
+            });
+            
+            // Fonction pour formater les bytes en unités lisible
+            function formatBytes(bytes, decimals = 2) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html>
