@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenLinker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #4361ee;
@@ -14,8 +14,22 @@
             --light: #f8f9fa;
             --gray: #adb5bd;
             --dark-gray: #495057;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            --border-radius: 12px;
+            --background-image: none;
+            --background-video: none;
+            --background-color: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        [data-theme="custom"] {
+            --primary: var(--custom-primary, #4361ee);
+            --primary-dark: var(--custom-primary-dark, #3a56d4);
+            --secondary: var(--custom-secondary, #3f37c9);
+            --text: var(--custom-text, #2b2d42);
+            --light: var(--custom-light, #f8f9fa);
+            --gray: var(--custom-gray, #adb5bd);
+            --dark-gray: var(--custom-dark-gray, #495057);
         }
 
         * {
@@ -26,7 +40,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: var(--background-color);
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -34,28 +48,42 @@
             justify-content: center;
             align-items: center;
             color: var(--text);
+            overflow: hidden; /* Prevent scrollbar with background video/image */
+            position: relative;
+        }
+
+        #background-media {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.7); /* Slightly dim background */
         }
 
         .container {
             text-align: center;
-            background-color: white;
-            padding: 2rem;
-            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent background */
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             transition: var(--transition);
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1; /* Ensure container is above background */
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .title-container {
             position: relative;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .title-container:hover .edit-title-btn {
@@ -64,17 +92,18 @@
 
         h1 {
             color: var(--primary);
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
             cursor: pointer;
             transition: var(--transition);
             display: inline-block;
-            padding: 0 10px;
-            border-radius: 5px;
+            padding: 0 15px;
+            border-radius: 8px;
+            font-weight: 700;
         }
 
         h1:hover {
-            background-color: rgba(67, 97, 238, 0.1);
+            background-color: rgba(67, 97, 238, 0.08);
         }
 
         .edit-title-btn {
@@ -88,56 +117,67 @@
             cursor: pointer;
             opacity: 0;
             transition: var(--transition);
-            font-size: 1rem;
+            font-size: 1.1rem;
+            padding: 5px;
+            border-radius: 50%;
         }
 
         .edit-title-btn:hover {
             color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
         }
 
         #links {
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
-            margin-bottom: 1.5rem;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
-        #links a {
-            display: block;
-            padding: 12px 15px;
+        #links a, #links button.download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 20px;
             background-color: var(--primary);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: var(--transition);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transform: translateY(0);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none; /* For button */
+            cursor: pointer; /* For button */
+            gap: 10px;
         }
 
-        #links a:hover {
+        #links a:hover, #links button.download-btn:hover {
             background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
         }
 
         .buttons {
             display: flex;
             justify-content: center;
-            gap: 1rem;
+            gap: 1.2rem;
             flex-wrap: wrap;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 25px;
             background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: var(--transition);
-            font-weight: 500;
+            font-weight: 600;
             box-shadow: var(--shadow);
+            font-size: 1rem;
+            min-width: 120px;
         }
 
         button:hover {
@@ -149,56 +189,64 @@
             background-color: white;
             color: var(--primary);
             border: 1px solid var(--primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         }
 
         button.secondary:hover {
-            background-color: rgba(67, 97, 238, 0.1);
+            background-color: rgba(67, 97, 238, 0.08);
+            color: var(--primary-dark);
         }
 
         .modal {
             display: none;
             position: fixed;
-            z-index: 100;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
             animation: fadeIn 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-content {
             background-color: #fff;
-            margin: 10% auto;
-            padding: 25px;
-            border-radius: 12px;
+            padding: 30px;
+            border-radius: var(--border-radius);
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            animation: slideDown 0.3s;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            animation: slideDown 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from { transform: translateY(-70px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
         }
 
         .modal-header h2 {
             color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 700;
         }
 
         .close {
             color: var(--gray);
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             cursor: pointer;
             transition: var(--transition);
@@ -206,39 +254,45 @@
 
         .close:hover {
             color: var(--text);
+            transform: rotate(90deg);
         }
 
-        textarea {
+        textarea, input[type="text"], input[type="color"] {
             width: 100%;
-            height: 200px;
             margin-bottom: 1rem;
             padding: 12px;
             border-radius: 8px;
             border: 1px solid var(--gray);
             font-family: 'Poppins', sans-serif;
-            resize: vertical;
             transition: var(--transition);
+            font-size: 1rem;
         }
 
-        textarea:focus {
+        textarea {
+            height: 250px;
+            resize: vertical;
+        }
+
+        textarea:focus, input[type="text"]:focus, input[type="color"]:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
 
         .modal-footer {
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
+            margin-top: 1.5rem;
         }
 
         .title-input {
             display: none;
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border: 1px solid var(--gray);
-            border-radius: 5px;
-            font-size: 2.2rem;
+            border-radius: 8px;
+            font-size: 2.5rem;
             text-align: center;
             font-weight: bold;
             color: var(--primary);
@@ -253,138 +307,246 @@
 
         .toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
             background-color: var(--primary);
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 15px 30px;
+            border-radius: 10px;
             box-shadow: var(--shadow);
-            z-index: 1000;
+            z-index: 10000;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            font-weight: 500;
         }
 
         .toast.show {
             opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
         }
+
+        .setting-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background-color: #fcfcfc;
+        }
+
+        .setting-group h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .setting-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .setting-group input[type="color"] {
+            height: 40px;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .setting-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            appearance: none; /* Remove default arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234361ee%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-6.5%200-12.3%203.2-16.1%208.1-3.9%204.9-3.9%2011.6%200%2016.5l128%20127.9c3.9%203.9%2011.6%203.9%2015.4%200l128-127.9c3.9-4.9%203.9-11.6%200-16.5z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+        }
+        .setting-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            outline: none;
+        }
+
+        .modal-body-wrapper {
+            max-height: 400px; /* Limit height for scrollable content */
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding-right: 10px; /* Space for scrollbar */
+        }
+        .modal-edit-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        .modal-edit-options button {
+            flex-grow: 1;
+            min-width: unset;
+        }
+
     </style>
 </head>
 <body>
+    <div id="background-media"></div>
+
     <div class="container">
         <div class="title-container">
             <h1 id="mainTitle">OpenLinker</h1>
             <button class="edit-title-btn" id="editTitleBtn">✏️</button>
-            <input type="text" class="title-input" id="titleInput" maxlength="20">
+            <input type="text" class="title-input" id="titleInput" maxlength="30">
         </div>
         <div id="links">
-            <!-- Links will be dynamically added here -->
-        </div>
+            </div>
         <div class="buttons">
             <button id="editBtn">Edit Links</button>
+            <button id="customizeBtn">Customize Theme</button>
             <button id="shareBtn" class="secondary">Share</button>
         </div>
     </div>
 
-    <!-- Edit Links Modal -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Edit Links</h2>
-                <span class="close">&times;</span>
+                <span class="close edit-modal-close">&times;</span>
             </div>
-            <textarea id="linkInput" placeholder='[
+            <div class="modal-body-wrapper">
+                <div class="modal-edit-options">
+                    <button id="loadJsonUrlBtn" class="secondary">Load from JSON URL</button>
+                    <input type="text" id="jsonUrlInput" placeholder="Enter JSON file URL">
+                </div>
+                <textarea id="linkInput" placeholder='[
   {
-    "text": "Google",
+    "type": "link",
+    "text": "Visit Google",
     "url": "https://google.com"
   },
   {
-    "text": "GitHub",
+    "type": "download",
+    "text": "Download My Files",
+    "files": ["https://example.com/file1.pdf", "https://example.com/image.jpg"]
+  },
+  {
+    "type": "link",
+    "text": "Check out GitHub",
     "url": "https://github.com"
   }
 ]'></textarea>
+            </div>
             <div class="modal-footer">
-                <button id="cancelBtn" class="secondary">Cancel</button>
-                <button id="saveBtn">Save</button>
+                <button id="cancelEditBtn" class="secondary">Cancel</button>
+                <button id="saveEditBtn">Save Links</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
+    <div id="customizeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Customize Theme</h2>
+                <span class="close customize-modal-close">&times;</span>
+            </div>
+            <div class="modal-body-wrapper">
+                <div class="setting-group">
+                    <h3>Background</h3>
+                    <label for="backgroundType">Type:</label>
+                    <select id="backgroundType">
+                        <option value="none">None (Default Gradient)</option>
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                    </select>
+                    <div id="backgroundImageUrlGroup" style="display: none;">
+                        <label for="backgroundImageUrl">Image URL (.png, .jpg, .svg, .gif):</label>
+                        <input type="text" id="backgroundImageUrl" placeholder="https://example.com/bg.jpg">
+                    </div>
+                    <div id="backgroundVideoUrlGroup" style="display: none;">
+                        <label for="backgroundVideoUrl">Video URL (.mp4):</label>
+                        <input type="text" id="backgroundVideoUrl" placeholder="https://example.com/bg.mp4">
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Colors</h3>
+                    <label for="primaryColor">Primary Color:</label>
+                    <input type="color" id="primaryColor">
+                    <label for="textColor">Text Color:</label>
+                    <input type="color" id="textColor">
+                    <label for="secondaryColor">Secondary Button Color:</label>
+                    <input type="color" id="secondaryColor">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="resetThemeBtn" class="secondary">Reset</button>
+                <button id="saveThemeBtn">Save Theme</button>
+            </div>
+        </div>
+    </div>
+
+
     <div class="toast" id="toast"></div>
+
+    <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
+    <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const linksContainer = document.getElementById('links');
             const editBtn = document.getElementById('editBtn');
+            const customizeBtn = document.getElementById('customizeBtn');
             const shareBtn = document.getElementById('shareBtn');
-            const modal = document.getElementById('editModal');
-            const closeBtn = document.querySelector('.close');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const saveBtn = document.getElementById('saveBtn');
+
+            // Modals
+            const editModal = document.getElementById('editModal');
+            const customizeModal = document.getElementById('customizeModal');
+
+            // Close buttons
+            const closeEditModalBtn = document.querySelector('.edit-modal-close');
+            const closeCustomizeModalBtn = document.querySelector('.customize-modal-close');
+
+            // Edit Modal elements
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            const saveEditBtn = document.getElementById('saveEditBtn');
             const linkInput = document.getElementById('linkInput');
+            const loadJsonUrlBtn = document.getElementById('loadJsonUrlBtn'); // New
+            const jsonUrlInput = document.getElementById('jsonUrlInput');     // New
+
+            // Title elements
             const mainTitle = document.getElementById('mainTitle');
             const titleInput = document.getElementById('titleInput');
             const editTitleBtn = document.getElementById('editTitleBtn');
+
+            // Customize Modal elements
+            const backgroundType = document.getElementById('backgroundType');
+            const backgroundImageUrlGroup = document.getElementById('backgroundImageUrlGroup');
+            const backgroundVideoUrlGroup = document.getElementById('backgroundVideoUrlGroup');
+            const backgroundImageUrl = document.getElementById('backgroundImageUrl');
+            const backgroundVideoUrl = document.getElementById('backgroundVideoUrl');
+            const primaryColorInput = document.getElementById('primaryColor');
+            const textColorInput = document.getElementById('textColor');
+            const secondaryColorInput = document.getElementById('secondaryColor');
+            const resetThemeBtn = document.getElementById('resetThemeBtn');
+            const saveThemeBtn = document.getElementById('saveThemeBtn');
+            const backgroundMedia = document.getElementById('background-media');
+
             const toast = document.getElementById('toast');
 
             let links = [];
             let title = "OpenLinker";
+            let jsonUrl = ""; // New: Store the URL of the JSON file
+            let themeSettings = {
+                backgroundType: 'none',
+                backgroundImageUrl: '',
+                backgroundVideoUrl: '',
+                primaryColor: '',
+                textColor: '',
+                secondaryColor: ''
+            };
 
-            // Load data from localStorage or URL
-            function loadData() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const savedLinks = urlParams.get('links');
-                const savedTitle = urlParams.get('title');
-                
-                // Load from URL first
-                if (savedLinks) {
-                    try {
-                        links = JSON.parse(atob(savedLinks));
-                    } catch (e) {
-                        console.error("Error parsing URL links", e);
-                    }
-                }
-                
-                if (savedTitle) {
-                    title = savedTitle;
-                }
-                
-                // Fallback to localStorage
-                if (localStorage.getItem('links')) {
-                    try {
-                        links = JSON.parse(localStorage.getItem('links'));
-                    } catch (e) {
-                        console.error("Error parsing localStorage links", e);
-                    }
-                }
-                
-                if (localStorage.getItem('title')) {
-                    title = localStorage.getItem('title');
-                }
-                
-                renderData();
-            }
+            // --- Utility Functions ---
 
-            // Render links and title
-            function renderData() {
-                // Render title
-                mainTitle.textContent = title;
-                document.title = title + " - Link Manager";
-                
-                // Render links
-                linksContainer.innerHTML = '';
-                links.forEach(link => {
-                    const a = document.createElement('a');
-                    a.href = link.url;
-                    a.textContent = link.text;
-                    a.target = "_blank";
-                    linksContainer.appendChild(a);
-                });
-            }
-
-            // Show toast notification
             function showToast(message) {
                 toast.textContent = message;
                 toast.classList.add('show');
@@ -393,6 +555,238 @@
                 }, 3000);
             }
 
+            function openModal(modalElement) {
+                modalElement.style.display = 'flex';
+            }
+
+            function closeModal(modalElement) {
+                modalElement.style.display = 'none';
+            }
+
+            // --- Data Loading & Saving ---
+
+            function saveDataToLocalStorage() {
+                localStorage.setItem('links', JSON.stringify(links));
+                localStorage.setItem('title', title);
+                localStorage.setItem('jsonUrl', jsonUrl); // Save JSON URL
+                localStorage.setItem('themeSettings', JSON.stringify(themeSettings));
+            }
+
+            // Centralized loading function
+            async function loadAllData() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlLinks = urlParams.get('links');
+                const urlTitle = urlParams.get('title');
+                const urlTheme = urlParams.get('theme');
+                const urlJsonUrl = urlParams.get('jsonUrl'); // New: Get JSON URL from URL
+
+                let dataLoaded = false;
+
+                // Load from URL parameters first
+                if (urlLinks) {
+                    try {
+                        links = JSON.parse(atob(urlLinks));
+                        dataLoaded = true;
+                    } catch (e) {
+                        console.error("Error parsing URL links", e);
+                        showToast("Error loading links from URL.");
+                    }
+                }
+
+                if (urlTitle) {
+                    title = urlTitle;
+                    dataLoaded = true;
+                }
+
+                if (urlTheme) {
+                    try {
+                        const decodedTheme = JSON.parse(atob(urlTheme));
+                        themeSettings = { ...themeSettings, ...decodedTheme };
+                        dataLoaded = true;
+                    } catch (e) {
+                        console.error("Error parsing URL theme", e);
+                        showToast("Error loading theme from URL.");
+                    }
+                }
+
+                if (urlJsonUrl) { // If JSON URL is in the URL, try to load from it
+                    jsonUrl = urlJsonUrl;
+                    await loadLinksFromJsonUrl(jsonUrl); // Load links from this URL
+                    dataLoaded = true;
+                }
+
+                // Fallback to localStorage if no data from URL
+                if (!dataLoaded) {
+                    if (localStorage.getItem('links')) {
+                        try {
+                            links = JSON.parse(localStorage.getItem('links'));
+                        } catch (e) {
+                            console.error("Error parsing localStorage links", e);
+                        }
+                    }
+                    if (localStorage.getItem('title')) {
+                        title = localStorage.getItem('title');
+                    }
+                    if (localStorage.getItem('jsonUrl')) { // Load JSON URL from localStorage
+                        jsonUrl = localStorage.getItem('jsonUrl');
+                        // If JSON URL exists in localStorage, try to load links from it
+                        if (jsonUrl) {
+                            await loadLinksFromJsonUrl(jsonUrl);
+                        }
+                    }
+                    if (localStorage.getItem('themeSettings')) {
+                        try {
+                            const savedTheme = JSON.parse(localStorage.getItem('themeSettings'));
+                            themeSettings = { ...themeSettings, ...savedTheme };
+                        } catch (e) {
+                            console.error("Error parsing localStorage theme settings", e);
+                        }
+                    }
+                }
+
+                renderData();
+                applyTheme();
+            }
+
+            // New function to load links from a JSON URL
+            async function loadLinksFromJsonUrl(url) {
+                if (!url) return;
+
+                showToast("Loading links from URL...");
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        links = data;
+                        jsonUrl = url; // Save the successful URL
+                        saveDataToLocalStorage();
+                        renderData();
+                        showToast("Links loaded successfully from URL!");
+                        return true;
+                    } else {
+                        showToast("Error: JSON from URL is not an array.");
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Failed to load JSON from URL:", error);
+                    showToast(`Error loading JSON from URL: ${error.message}`);
+                    return false;
+                }
+            }
+
+
+            // --- Rendering Functions ---
+
+            function renderData() {
+                // Render title
+                mainTitle.textContent = title;
+                document.title = title + " - OpenLinker";
+
+                // Update JSON URL input in modal
+                jsonUrlInput.value = jsonUrl;
+
+                // Render links and download buttons
+                linksContainer.innerHTML = '';
+                if (links.length === 0) {
+                     const noLinks = document.createElement('p');
+                     noLinks.textContent = 'No links configured yet. Click "Edit Links" to add some!';
+                     noLinks.style.color = 'var(--gray)';
+                     noLinks.style.marginTop = '1rem';
+                     linksContainer.appendChild(noLinks);
+                } else {
+                    links.forEach(item => {
+                        if (item.type === 'link') {
+                            const a = document.createElement('a');
+                            a.href = item.url;
+                            a.textContent = item.text;
+                            a.target = "_blank";
+                            linksContainer.appendChild(a);
+                        } else if (item.type === 'download') {
+                            const button = document.createElement('button');
+                            button.classList.add('download-btn');
+                            button.textContent = item.text;
+                            button.innerHTML += ' <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
+                            button.addEventListener('click', () => handleDownload(item.files, item.text));
+                            linksContainer.appendChild(button);
+                        }
+                    });
+                }
+            }
+
+            function applyTheme() {
+                const root = document.documentElement;
+
+                // Apply colors
+                if (themeSettings.primaryColor) {
+                    root.style.setProperty('--custom-primary', themeSettings.primaryColor);
+                    root.style.setProperty('--custom-primary-dark', darkenColor(themeSettings.primaryColor, -15));
+                } else {
+                     root.style.removeProperty('--custom-primary');
+                     root.style.removeProperty('--custom-primary-dark');
+                }
+                if (themeSettings.textColor) {
+                    root.style.setProperty('--custom-text', themeSettings.textColor);
+                } else {
+                     root.style.removeProperty('--custom-text');
+                }
+                if (themeSettings.secondaryColor) {
+                    root.style.setProperty('--custom-secondary', themeSettings.secondaryColor);
+                } else {
+                     root.style.removeProperty('--custom-secondary');
+                }
+
+                // Set data-theme attribute if any custom color is applied
+                if (themeSettings.primaryColor || themeSettings.textColor || themeSettings.secondaryColor) {
+                    root.setAttribute('data-theme', 'custom');
+                } else {
+                    root.removeAttribute('data-theme');
+                }
+
+                // Apply background
+                backgroundMedia.innerHTML = ''; // Clear previous background
+
+                if (themeSettings.backgroundType === 'image' && themeSettings.backgroundImageUrl) {
+                    const img = document.createElement('img');
+                    img.id = 'background-media';
+                    img.src = themeSettings.backgroundImageUrl;
+                    img.alt = 'Background Image';
+                    backgroundMedia.appendChild(img);
+                    root.style.setProperty('--background-color', 'transparent'); // Ensure gradient is off
+                } else if (themeSettings.backgroundType === 'video' && themeSettings.backgroundVideoUrl) {
+                    const video = document.createElement('video');
+                    video.id = 'background-media';
+                    video.src = themeSettings.backgroundVideoUrl;
+                    video.autoplay = true;
+                    video.loop = true;
+                    video.muted = true; // No sound as per requirement
+                    video.setAttribute('playsinline', ''); // For iOS autoplay
+                    backgroundMedia.appendChild(video);
+                    root.style.setProperty('--background-color', 'transparent'); // Ensure gradient is off
+                } else {
+                    // Default gradient
+                    root.style.setProperty('--background-color', 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)');
+                }
+            }
+
+            // Function to darken/lighten a color (simple version)
+            function darkenColor(hex, percent) {
+                const f = parseInt(hex.slice(1), 16);
+                const t = percent < 0 ? 0 : 255;
+                const p = percent < 0 ? percent * -1 : percent;
+                const R = f >> 16;
+                const G = (f >> 8) & 0x00FF;
+                const B = f & 0x0000FF;
+                const newR = Math.round((t - R) * p / 100 + R);
+                const newG = Math.round((t - G) * p / 100 + G);
+                const newB = Math.round((t - B) * p / 100 + B);
+                return "#" + (0x1000000 + newR * 0x10000 + newG * 0x100 + newB).toString(16).slice(1);
+            }
+
+            // --- Event Handlers ---
+
             // Toggle title editing
             function toggleTitleEdit() {
                 if (titleInput.style.display === 'block') {
@@ -400,9 +794,11 @@
                     const newTitle = titleInput.value.trim();
                     if (newTitle) {
                         title = newTitle;
-                        localStorage.setItem('title', title);
+                        saveDataToLocalStorage();
                         renderData();
                         showToast("Title saved!");
+                    } else {
+                        titleInput.value = title; // Revert if empty
                     }
                     titleInput.style.display = 'none';
                     mainTitle.style.display = 'block';
@@ -415,34 +811,107 @@
                 }
             }
 
-            // Open modal
-            editBtn.addEventListener('click', () => {
-                modal.style.display = 'block';
-                linkInput.value = JSON.stringify(links, null, 2);
-            });
+            // Handle file downloads
+            async function handleDownload(files, buttonText) {
+                if (!files || files.length === 0) {
+                    showToast("No files specified for download.");
+                    return;
+                }
 
-            // Close modal
-            function closeModal() {
-                modal.style.display = 'none';
+                // Check if all files are from the same origin or allowed by CORS
+                const allFilesFetchable = await Promise.all(files.map(async fileUrl => {
+                    try {
+                        const response = await fetch(fileUrl, { method: 'HEAD', mode: 'cors' });
+                        // Check if status is ok (2xx) and if CORS allows it (no error)
+                        return response.ok;
+                    } catch (e) {
+                        console.warn(`CORS or network error for ${fileUrl}:`, e);
+                        return false;
+                    }
+                }));
+
+                const someFilesFailed = allFilesFetchable.some(result => !result);
+                if (someFilesFailed) {
+                    showToast("Warning: Some files might not be downloadable due to server restrictions (CORS).");
+                    console.warn("Please ensure the file URLs are directly accessible and the server allows CORS requests from this domain.");
+                }
+
+
+                if (files.length === 1 && allFilesFetchable[0]) {
+                    // Single file download (only if fetchable)
+                    const fileUrl = files[0];
+                    try {
+                        showToast(`Downloading "${fileUrl.substring(fileUrl.lastIndexOf('/') + 1)}"...`);
+                        const response = await fetch(fileUrl);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const blob = await response.blob();
+                        const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1) || 'downloaded_file';
+                        saveAs(blob, fileName);
+                    } catch (error) {
+                        console.error('Download failed:', error);
+                        showToast(`Failed to download "${fileUrl}".`);
+                    }
+                } else if (files.length > 0) {
+                    // Multiple files, zip them
+                    showToast("Preparing files for download...");
+                    const zip = new JSZip();
+                    let successfulAdds = 0;
+
+                    const promises = files.map(async fileUrl => {
+                        try {
+                            const response = await fetch(fileUrl);
+                            if (!response.ok) {
+                                console.warn(`Skipping ${fileUrl}: HTTP status ${response.status}`);
+                                showToast(`Skipped file ${fileUrl.substring(fileUrl.lastIndexOf('/') + 1)} (server error).`);
+                                return; // Skip this file
+                            }
+                            const blob = await response.blob();
+                            const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1) || 'file';
+                            zip.file(fileName, blob);
+                            successfulAdds++;
+                        } catch (error) {
+                            console.error(`Failed to add ${fileUrl} to zip:`, error);
+                            showToast(`Failed to add ${fileUrl.substring(fileUrl.lastIndexOf('/') + 1)} to zip.`);
+                        }
+                    });
+
+                    await Promise.all(promises);
+
+                    if (successfulAdds > 0) {
+                        zip.generateAsync({ type: "blob" })
+                            .then(function (content) {
+                                saveAs(content, `${buttonText.replace(/[^a-zA-Z0-9]/g, '_') || 'download'}.zip`);
+                                showToast("Downloading zipped files...");
+                            })
+                            .catch(error => {
+                                console.error('Error generating zip:', error);
+                                showToast("Failed to create zip file.");
+                            });
+                    } else {
+                        showToast("No files were successfully added to the zip.");
+                    }
+                }
             }
 
-            closeBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
 
-            // Click outside modal to close
-            window.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
+            // --- Modal Event Listeners ---
+
+            // Edit Links Modal
+            editBtn.addEventListener('click', () => {
+                openModal(editModal);
+                linkInput.value = JSON.stringify(links, null, 2);
+                jsonUrlInput.value = jsonUrl; // Set current JSON URL
             });
+            closeEditModalBtn.addEventListener('click', () => closeModal(editModal));
+            cancelEditBtn.addEventListener('click', () => closeModal(editModal));
 
-            // Save links
-            saveBtn.addEventListener('click', () => {
+            saveEditBtn.addEventListener('click', () => {
                 try {
                     links = JSON.parse(linkInput.value);
-                    localStorage.setItem('links', JSON.stringify(links));
+                    jsonUrl = ""; // Clear JSON URL if manually saving links
+                    saveDataToLocalStorage();
                     renderData();
-                    closeModal();
+                    closeModal(editModal);
                     showToast("Links saved successfully!");
                 } catch (e) {
                     showToast("Error: Invalid JSON format");
@@ -450,14 +919,115 @@
                 }
             });
 
+            // New: Load JSON from URL button
+            loadJsonUrlBtn.addEventListener('click', async () => {
+                const url = jsonUrlInput.value.trim();
+                if (url) {
+                    const success = await loadLinksFromJsonUrl(url);
+                    if (success) {
+                        closeModal(editModal);
+                    }
+                } else {
+                    showToast("Please enter a JSON file URL.");
+                }
+            });
+
+            // Customize Theme Modal
+            customizeBtn.addEventListener('click', () => {
+                openModal(customizeModal);
+                // Populate current theme settings into the form
+                backgroundType.value = themeSettings.backgroundType;
+                backgroundImageUrl.value = themeSettings.backgroundImageUrl;
+                backgroundVideoUrl.value = themeSettings.backgroundVideoUrl;
+                primaryColorInput.value = themeSettings.primaryColor || getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+                textColorInput.value = themeSettings.textColor || getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+                secondaryColorInput.value = themeSettings.secondaryColor || getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim();
+
+                // Show/hide URL inputs based on background type
+                backgroundType.dispatchEvent(new Event('change'));
+            });
+            closeCustomizeModalBtn.addEventListener('click', () => closeModal(customizeModal));
+            saveThemeBtn.addEventListener('click', () => {
+                themeSettings.backgroundType = backgroundType.value;
+                themeSettings.backgroundImageUrl = backgroundImageUrl.value.trim();
+                themeSettings.backgroundVideoUrl = backgroundVideoUrl.value.trim();
+                themeSettings.primaryColor = primaryColorInput.value;
+                themeSettings.textColor = textColorInput.value;
+                themeSettings.secondaryColor = secondaryColorInput.value;
+
+                saveDataToLocalStorage();
+                applyTheme();
+                closeModal(customizeModal);
+                showToast("Theme settings saved!");
+            });
+
+            resetThemeBtn.addEventListener('click', () => {
+                themeSettings = {
+                    backgroundType: 'none',
+                    backgroundImageUrl: '',
+                    backgroundVideoUrl: '',
+                    primaryColor: '', // Reset to empty string to use CSS default
+                    textColor: '',
+                    secondaryColor: ''
+                };
+                saveDataToLocalStorage();
+                applyTheme();
+                // Update modal inputs to reflect reset
+                backgroundType.value = themeSettings.backgroundType;
+                backgroundImageUrl.value = themeSettings.backgroundImageUrl;
+                backgroundVideoUrl.value = themeSettings.backgroundVideoUrl;
+                // Revert color inputs to current computed CSS values, not blank
+                primaryColorInput.value = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+                textColorInput.value = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+                secondaryColorInput.value = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim();
+
+                backgroundType.dispatchEvent(new Event('change')); // Update visibility of URL inputs
+                showToast("Theme reset to default!");
+            });
+
+            backgroundType.addEventListener('change', function() {
+                backgroundImageUrlGroup.style.display = 'none';
+                backgroundVideoUrlGroup.style.display = 'none';
+                if (this.value === 'image') {
+                    backgroundImageUrlGroup.style.display = 'block';
+                } else if (this.value === 'video') {
+                    backgroundVideoUrlGroup.style.display = 'block';
+                }
+            });
+
+
             // Generate shareable link
             shareBtn.addEventListener('click', () => {
-                const data = btoa(JSON.stringify(links));
-                const url = new URL(window.location.href);
-                url.searchParams.set('links', data);
-                url.searchParams.set('title', title);
-                
-                // Copy to clipboard
+                const baseUrl = window.location.origin + window.location.pathname;
+                const url = new URL(baseUrl);
+
+                // Prioritize jsonUrl if it's set
+                if (jsonUrl) {
+                    url.searchParams.set('jsonUrl', jsonUrl);
+                } else if (links.length > 0) {
+                    // Only save inline links if no jsonUrl is used
+                    url.searchParams.set('links', btoa(JSON.stringify(links)));
+                }
+
+                if (title !== "OpenLinker") { // Only add title if it's not the default
+                    url.searchParams.set('title', title);
+                }
+
+                // Only add theme settings if they are not default
+                const defaultTheme = {
+                    backgroundType: 'none',
+                    backgroundImageUrl: '',
+                    backgroundVideoUrl: '',
+                    primaryColor: '',
+                    textColor: '',
+                    secondaryColor: ''
+                };
+                const hasCustomTheme = Object.keys(themeSettings).some(key => themeSettings[key] !== defaultTheme[key]);
+
+                if (hasCustomTheme) {
+                    url.searchParams.set('theme', btoa(JSON.stringify(themeSettings)));
+                }
+
                 navigator.clipboard.writeText(url.toString()).then(() => {
                     showToast("Shareable link copied to clipboard!");
                 }).catch(err => {
@@ -468,19 +1038,26 @@
 
             // Edit title
             editTitleBtn.addEventListener('click', toggleTitleEdit);
-            
-            // Also allow clicking the title to edit
             mainTitle.addEventListener('click', toggleTitleEdit);
-            
-            // Handle Enter key in title input
             titleInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     toggleTitleEdit();
                 }
             });
 
-            // Initialize
-            loadData();
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === editModal) {
+                    closeModal(editModal);
+                }
+                if (e.target === customizeModal) {
+                    closeModal(customizeModal);
+                }
+            });
+
+
+            // --- Initialization ---
+            loadAllData(); // Use the new centralized loading function
         });
     </script>
 </body>
