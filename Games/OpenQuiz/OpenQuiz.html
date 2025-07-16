@@ -4,25 +4,480 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenQuiz</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4bb543;
+            --error-color: #ff3333;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            transform: translateY(0);
+            transition: var(--transition);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .quiz-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .question {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            text-align: left;
+            transition: var(--transition);
+        }
+        
+        .question:hover {
+            transform: translateX(5px);
+        }
+        
+        .question h3 {
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .question label {
+            display: block;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        .question label:hover {
+            background: rgba(67, 97, 238, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .question input[type="radio"] {
+            margin-right: 10px;
+            accent-color: var(--primary-color);
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #customize {
+            background-color: var(--secondary-color);
+        }
+        
+        #customize:hover {
+            background-color: #3730a3;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            transform: scale(0.95);
+            animation: modalOpen 0.3s forwards;
+        }
+        
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark-color);
+            transition: var(--transition);
+        }
+        
+        .close:hover {
+            color: var(--error-color);
+            transform: rotate(90deg);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: var(--transition);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes modalOpen {
+            to { transform: scale(1); }
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--dark-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="quiz-container">
-        <h1>Quiz</h1>
+        <h1>OpenQuiz</h1>
         <div id="quiz"></div>
-        <button id="submit">Submit Quiz</button>
-        <button id="customize">Customize Quiz</button>
+        <div class="button-group">
+            <button id="submit">Submit Quiz</button>
+            <button id="customize">Customize Quiz</button>
+        </div>
     </div>
 
     <div id="customization-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Customize Quiz</h2>
-            <textarea id="quiz-json" placeholder="Paste your JSON quiz here..."></textarea>
+            <p>Edit the JSON below to customize your quiz:</p>
+            <textarea id="quiz-json" placeholder='[
+  {
+    "question": "Your question here",
+    "answers": ["Option 1", "Option 2", "Option 3"],
+    "correctAnswer": 0
+  }
+]'></textarea>
             <button id="save-quiz">Save Quiz</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quizContainer = document.getElementById('quiz');
+            const submitButton = document.getElementById('submit');
+            const customizeButton = document.getElementById('customize');
+            const modal = document.getElementById('customization-modal');
+            const closeModal = document.querySelector('.close');
+            const saveQuizButton = document.getElementById('save-quiz');
+            const quizJsonTextarea = document.getElementById('quiz-json');
+            const toast = document.getElementById('toast');
+
+            // Default quiz data
+            let quizData = [
+                {
+                    question: "What is the capital of France?",
+                    answers: ["London", "Paris", "Berlin", "Madrid"],
+                    correctAnswer: 1
+                },
+                {
+                    question: "Which language runs in a web browser?",
+                    answers: ["Java", "C", "Python", "JavaScript"],
+                    correctAnswer: 3
+                },
+                {
+                    question: "What does CSS stand for?",
+                    answers: [
+                        "Central Style Sheets",
+                        "Cascading Style Sheets",
+                        "Cascading Simple Sheets",
+                        "Cars SUVs Sailboats"
+                    ],
+                    correctAnswer: 1
+                }
+            ];
+
+            // Load quiz from URL if available
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizParam = urlParams.get('quiz');
+            if (quizParam) {
+                try {
+                    quizData = JSON.parse(decodeURIComponent(quizParam));
+                    showToast('Quiz loaded from URL!');
+                } catch (e) {
+                    console.error('Invalid quiz data in URL');
+                    showToast('Invalid quiz data in URL', true);
+                }
+            }
+
+            // Initialize quiz
+            loadQuiz();
+
+            function loadQuiz() {
+                quizContainer.innerHTML = '';
+                if (quizData.length === 0) {
+                    quizContainer.innerHTML = '<p>No questions available. Please customize the quiz.</p>';
+                    return;
+                }
+
+                quizData.forEach((question, index) => {
+                    const questionElement = document.createElement('div');
+                    questionElement.classList.add('question');
+                    
+                    // Add animation delay based on index
+                    questionElement.style.animationDelay = `${index * 0.1}s`;
+                    
+                    questionElement.innerHTML = `
+                        <h3>${index + 1}. ${question.question}</h3>
+                        ${question.answers.map((answer, i) => `
+                            <label>
+                                <input type="radio" name="question${index}" value="${i}">
+                                ${answer}
+                            </label>
+                        `).join('')}
+                    `;
+                    quizContainer.appendChild(questionElement);
+                });
+            }
+
+            submitButton.addEventListener('click', () => {
+                let score = 0;
+                const results = [];
+                
+                quizData.forEach((question, index) => {
+                    const selectedAnswer = document.querySelector(`input[name="question${index}"]:checked`);
+                    if (selectedAnswer) {
+                        const isCorrect = selectedAnswer.value == question.correctAnswer;
+                        if (isCorrect) score++;
+                        results.push({
+                            question: question.question,
+                            selected: question.answers[selectedAnswer.value],
+                            correct: question.answers[question.correctAnswer],
+                            isCorrect
+                        });
+                    }
+                });
+                
+                if (results.length < quizData.length) {
+                    showToast('Please answer all questions!', true);
+                    return;
+                }
+                
+                // Display results in a more engaging way
+                const resultHTML = results.map((result, i) => `
+                    <div class="question" style="text-align: left; margin-bottom: 15px;">
+                        <h3>${i+1}. ${result.question}</h3>
+                        <p>Your answer: ${result.selected}</p>
+                        <p>Correct answer: ${result.correct}</p>
+                        <p style="color: ${result.isCorrect ? 'var(--success-color)' : 'var(--error-color)'};">
+                            ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </p>
+                    </div>
+                `).join('');
+                
+                const percentage = Math.round((score / quizData.length) * 100);
+                const resultContainer = document.createElement('div');
+                resultContainer.innerHTML = `
+                    <h2 style="margin: 20px 0; color: ${percentage > 70 ? 'var(--success-color)' : percentage > 40 ? 'var(--accent-color)' : 'var(--error-color)'}">
+                        Your score: ${score} out of ${quizData.length} (${percentage}%)
+                    </h2>
+                    ${resultHTML}
+                    <button id="close-results" style="margin-top: 20px;">Close Results</button>
+                `;
+                
+                quizContainer.innerHTML = '';
+                quizContainer.appendChild(resultContainer);
+                
+                // Add event listener for close button
+                document.getElementById('close-results').addEventListener('click', () => {
+                    loadQuiz();
+                });
+            });
+
+            customizeButton.addEventListener('click', () => {
+                modal.style.display = 'block';
+                quizJsonTextarea.value = JSON.stringify(quizData, null, 2);
+            });
+
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            saveQuizButton.addEventListener('click', () => {
+                try {
+                    const newQuizData = JSON.parse(quizJsonTextarea.value);
+                    if (!Array.isArray(newQuizData) || newQuizData.length === 0) {
+                        throw new Error('Quiz data must be a non-empty array');
+                    }
+                    
+                    quizData = newQuizData;
+                    loadQuiz();
+                    const quizString = encodeURIComponent(JSON.stringify(quizData));
+                    window.history.replaceState({}, '', `?quiz=${quizString}`);
+                    modal.style.display = 'none';
+                    showToast('Quiz saved successfully!');
+                } catch (e) {
+                    showToast('Invalid JSON format or structure', true);
+                    console.error(e);
+                }
+            });
+
+            // Toast notification function
+            function showToast(message, isError = false) {
+                toast.textContent = message;
+                toast.style.backgroundColor = isError ? 'var(--error-color)' : 'var(--dark-color)';
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
 </body>
 </html>
