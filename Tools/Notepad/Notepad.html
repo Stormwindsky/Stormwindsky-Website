@@ -25,12 +25,13 @@
         }
         textarea {
             width: 100%;
-            height: 90%;
+            height: 85%;
             border: none;
             outline: none;
             resize: none;
             font-size: 16px;
             line-height: 1.5;
+            font-family: 'Consolas', monospace;
         }
         .controls {
             margin-top: 10px;
@@ -45,9 +46,14 @@
             color: #fff;
             border-radius: 5px;
             margin-left: 10px;
+            transition: all 0.2s ease;
         }
         button:hover {
             background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
         }
         select {
             padding: 9px 15px;
@@ -56,47 +62,231 @@
             border: 1px solid #ddd;
             margin-right: 10px;
         }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tts-controls {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        .tts-controls label {
+            margin-right: 10px;
+        }
+        .tts-controls input {
+            vertical-align: middle;
+        }
+        .custom-format {
+            display: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="notepad">
         <textarea id="editor" placeholder="Start typing here..."></textarea>
         <div class="controls">
-            <select id="fileFormat">
+            <select id="fileFormat" onchange="toggleCustomFormat()">
                 <option value="txt">Text (.txt)</option>
                 <option value="html">HTML (.html)</option>
                 <option value="js">JavaScript (.js)</option>
                 <option value="css">CSS (.css)</option>
+                <option value="json">JSON (.json)</option>
+                <option value="custom">Custom Format</option>
+                <option value="folder">Folder Structure</option>
             </select>
-            <button onclick="saveAsFile()">Save as File</button>
+            
+            <div id="customFormatContainer" class="custom-format">
+                <input type="text" id="customFormat" placeholder="Enter extension (e.g., md, xml)">
+            </div>
+            
+            <div class="tooltip">
+                <button onclick="saveAsFile()">Save as File</button>
+                <span class="tooltiptext">Choose "Folder Structure" to download ASCII as real folders</span>
+            </div>
             <button onclick="saveAsURL()">Save as URL</button>
+            <button onclick="toggleTTSControls()">TTS</button>
+        </div>
+        
+        <div id="ttsControls" class="tts-controls">
+            <label for="ttsVoice">Voice:</label>
+            <select id="ttsVoice"></select>
+            
+            <label for="ttsRate">Speed:</label>
+            <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
+            <span id="rateValue">1</span>
+            
+            <button onclick="startTTS()">Play</button>
+            <button onclick="stopTTS()">Stop</button>
+            <button onclick="pauseTTS()">Pause</button>
+            <button onclick="resumeTTS()">Resume</button>
         </div>
     </div>
 
     <script>
+        // TTS variables
+        let ttsSpeech = null;
+        let voices = [];
+        
+        // Function to toggle TTS controls visibility
+        function toggleTTSControls() {
+            const ttsControls = document.getElementById('ttsControls');
+            ttsControls.style.display = ttsControls.style.display === 'block' ? 'none' : 'block';
+            
+            // Load voices when TTS controls are shown for the first time
+            if (ttsControls.style.display === 'block' && voices.length === 0) {
+                loadVoices();
+            }
+        }
+        
+        // Function to load available voices
+        function loadVoices() {
+            voices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('ttsVoice');
+            
+            voiceSelect.innerHTML = '';
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.setAttribute('data-name', voice.name);
+                voiceSelect.appendChild(option);
+            });
+        }
+        
+        // Event listener for when voices are loaded
+        speechSynthesis.onvoiceschanged = loadVoices;
+        
+        // Function to start text-to-speech
+        function startTTS() {
+            const text = document.getElementById('editor').value;
+            if (!text) return;
+            
+            const voiceSelect = document.getElementById('ttsVoice');
+            const rate = document.getElementById('ttsRate').value;
+            const selectedVoice = voiceSelect.selectedOptions[0].getAttribute('data-name');
+            
+            stopTTS(); // Stop any ongoing speech
+            
+            ttsSpeech = new SpeechSynthesisUtterance(text);
+            ttsSpeech.rate = rate;
+            
+            if (selectedVoice) {
+                const voice = voices.find(v => v.name === selectedVoice);
+                if (voice) ttsSpeech.voice = voice;
+            }
+            
+            window.speechSynthesis.speak(ttsSpeech);
+        }
+        
+        // Function to stop text-to-speech
+        function stopTTS() {
+            if (ttsSpeech) {
+                window.speechSynthesis.cancel();
+            }
+        }
+        
+        // Function to pause text-to-speech
+        function pauseTTS() {
+            window.speechSynthesis.pause();
+        }
+        
+        // Function to resume text-to-speech
+        function resumeTTS() {
+            window.speechSynthesis.resume();
+        }
+        
+        // Update rate value display
+        document.getElementById('ttsRate').addEventListener('input', function() {
+            document.getElementById('rateValue').textContent = this.value;
+        });
+        
+        // Function to toggle custom format input
+        function toggleCustomFormat() {
+            const formatSelect = document.getElementById('fileFormat');
+            const customFormatContainer = document.getElementById('customFormatContainer');
+            
+            if (formatSelect.value === 'custom') {
+                customFormatContainer.style.display = 'block';
+            } else {
+                customFormatContainer.style.display = 'none';
+            }
+        }
+        
         // Function to save text as a file with selected format
         function saveAsFile() {
             const text = document.getElementById('editor').value;
-            const format = document.getElementById('fileFormat').value;
+            const formatSelect = document.getElementById('fileFormat');
+            const format = formatSelect.value;
+            
+            if (format === 'folder') {
+                // Create a ZIP file from the ASCII structure
+                createFolderStructure(text);
+                return;
+            }
+            
+            // Handle custom format
+            let actualFormat = format;
+            let extension = '.' + format;
+            
+            if (format === 'custom') {
+                const customFormat = document.getElementById('customFormat').value.trim();
+                if (!customFormat) {
+                    alert('Please enter a custom file extension');
+                    return;
+                }
+                actualFormat = customFormat;
+                extension = '.' + customFormat;
+            }
             
             // Determine MIME type based on format
-            let mimeType, extension;
-            switch(format) {
+            let mimeType = 'text/plain'; // default
+            
+            switch(actualFormat.toLowerCase()) {
                 case 'html':
                     mimeType = 'text/html';
-                    extension = '.html';
                     break;
                 case 'js':
                     mimeType = 'text/javascript';
-                    extension = '.js';
                     break;
                 case 'css':
                     mimeType = 'text/css';
-                    extension = '.css';
+                    break;
+                case 'json':
+                    mimeType = 'application/json';
+                    // Try to format as pretty JSON if possible
+                    try {
+                        const jsonObj = JSON.parse(text);
+                        text = JSON.stringify(jsonObj, null, 2);
+                    } catch (e) {
+                        // Not valid JSON, save as is
+                    }
                     break;
                 default:
+                    // For unknown formats, use text/plain
                     mimeType = 'text/plain';
-                    extension = '.txt';
             }
             
             const blob = new Blob([text], { type: mimeType });
@@ -105,6 +295,71 @@
             link.download = 'note' + extension;
             link.click();
             URL.revokeObjectURL(link.href);
+        }
+
+        // Function to create folder structure from ASCII
+        function createFolderStructure(asciiText) {
+            const JSZip = window.JSZip;
+            const zip = new JSZip();
+            
+            // Parse the ASCII structure
+            const lines = asciiText.split('\n');
+            let currentPath = [];
+            let rootFolderName = "project"; // Default root folder name
+            
+            // Try to detect root folder name from first line
+            const firstLine = lines[0] || '';
+            const rootMatch = firstLine.match(/([^\/\s│├└]+)\/?$/);
+            if (rootMatch && rootMatch[1]) {
+                rootFolderName = rootMatch[1];
+            }
+            
+            const root = zip.folder(rootFolderName);
+            
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                
+                // Skip the root folder line if it matches
+                if (line.trim() === rootFolderName + '/') continue;
+                
+                // Determine indentation level
+                const indentMatch = line.match(/^([│ ]*)(├── |└── )?/);
+                const indent = indentMatch ? indentMatch[0].length : 0;
+                const level = Math.floor(indent / 4);
+                
+                // Trim current path to match indentation level
+                currentPath = currentPath.slice(0, level);
+                
+                // Extract folder/file name
+                const nameMatch = line.match(/(├── |└── )?([^\/\s│├└]+)\/?$/);
+                if (!nameMatch || !nameMatch[2]) continue;
+                
+                const name = nameMatch[2].trim();
+                if (!name) continue;
+                
+                // Add to current path
+                currentPath.push(name);
+                
+                // Check if it's a file (no trailing slash and has extension)
+                if (!line.includes('/') && name.includes('.')) {
+                    // It's a file - add empty content to ZIP
+                    const filePath = currentPath.join('/');
+                    root.file(filePath, '');
+                } else {
+                    // It's a folder - ensure it exists in ZIP
+                    const folderPath = currentPath.join('/') + '/';
+                    root.folder(folderPath);
+                }
+            }
+            
+            // Generate the ZIP file
+            zip.generateAsync({type: 'blob'}).then(function(content) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = rootFolderName + '.zip';
+                link.click();
+                URL.revokeObjectURL(link.href);
+            });
         }
 
         // Function to save text in URL hash
@@ -122,6 +377,15 @@
                 const text = decodeURIComponent(encodedText);
                 document.getElementById('editor').value = text;
             }
+            
+            // Load JSZip library dynamically
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            document.head.appendChild(script);
+            
+            // Initialize TTS rate display
+            document.getElementById('rateValue').textContent = 
+                document.getElementById('ttsRate').value;
         };
     </script>
 </body>
