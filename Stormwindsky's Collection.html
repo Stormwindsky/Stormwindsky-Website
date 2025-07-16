@@ -598,7 +598,67 @@
             font-size: 1rem;
             margin-top: 10px;
         }
-        
+
+        /* Text to Glitch Effect */
+        .glitch-effect {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-effect::before,
+        .glitch-effect::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch-effect::before {
+            color: #0ff;
+            z-index: -1;
+            animation: glitch 6s infinite alternate;
+        }
+
+        .glitch-effect::after {
+            color: #f0f;
+            z-index: -2;
+            animation: glitch 4s infinite alternate-reverse;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+                opacity: 0.8;
+            }
+            5% {
+                transform: translate(-1px, 1px);
+                opacity: 0.7;
+            }
+            10% {
+                transform: translate(1px, -1px);
+                opacity: 0.8;
+            }
+            15% {
+                transform: translate(-1px, 1px);
+                opacity: 0.7;
+            }
+            20% {
+                transform: translate(1px, -1px);
+                opacity: 0.8;
+            }
+            25% {
+                transform: translate(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(0);
+                opacity: 0.8;
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.2rem;
@@ -678,6 +738,17 @@
                         <div class="archive-content">
                             <h3 class="archive-title">Stormwindsky Scratch Profile</h3>
                             <p class="archive-description">A preserved version of my original Scratch profile from 2018, showcasing early coding projects and creations.</p>
+                            <span class="archive-year">2018</span>
+                        </div>
+                    </a>
+                    
+                    <a href="https://www.stormwindsky.com/Archives/Storm2018.html" class="archive-card" target="_blank">
+                        <div class="archive-icon">
+                            <i class="fas fa-archive"></i>
+                        </div>
+                        <div class="archive-content">
+                            <h3 class="archive-title">Stormwindsky Website Archive</h3>
+                            <p class="archive-description">An archived version of my personal website from 2018, showing my early web development work.</p>
                             <span class="archive-year">2018</span>
                         </div>
                     </a>
@@ -919,8 +990,8 @@
                     </a>
 
                     <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/TtG/Text%20to%20Glitch.html" class="tool-card" target="_blank">
-                        <i class="fas icon-bug"></i>
-                        <h3>Text to ĞᛚǐᏜᑕᏂ</h3>
+                        <i class="fas fa-bug"></i>
+                        <h3 class="glitch-effect" data-text="Text to ĞᛚǐᏜᑕᏂ">Text to ĞᛚǐᏜᑕᏂ</h3>
                         <p>Sorry, this service is not available. (𝗝𝗢𝗞𝗘!!!)</p>
                     </a>
 
