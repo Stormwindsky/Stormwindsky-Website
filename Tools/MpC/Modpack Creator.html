@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Modpack Creator</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .step {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .step-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loader.spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modpack-structure {
+            background-color: var(--secondary);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: monospace;
+        }
+        
+        .folder {
+            margin-left: 20px;
+        }
+        
+        .file {
+            margin-left: 40px;
+            color: #bdc3c7;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .close-modal {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        
+        .tab-container {
+            margin-top: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            border-color: #ddd;
+            border-bottom-color: white;
+            background-color: white;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .file-list {
+            margin-top: 15px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .add-file-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .add-file-form input {
+            flex-grow: 1;
+        }
+        
+        .warning-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #e74c3c;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .warning-content {
+            max-width: 800px;
+        }
+        
+        .warning-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .license-info {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+        
+        .default-maps {
+            margin-top: 15px;
+        }
+        
+        .map-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .map-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Minecraft Modpack Creator</h1>
+            <p>Create your custom Minecraft modpack easily</p>
+        </header>
+        
+        <!-- Step 1: Modpack Name -->
+        <div class="step active" id="step1">
+            <h2 class="step-title">Step 1: Name Your Modpack</h2>
+            <div class="form-group">
+                <label for="modpack-name">Modpack Folder Name:</label>
+                <input type="text" id="modpack-name" placeholder="e.g. MyAwesomeModpack">
+            </div>
+            <div class="btn-group">
+                <button class="btn" id="next1">Next</button>
+            </div>
+        </div>
+        
+        <!-- Step 2: Choose Loader -->
+        <div class="step" id="step2">
+            <h2 class="step-title">Step 2: Choose Mod Loader</h2>
+            <p>Select whether you want to create a Fabric or NeoForge modpack:</p>
+            <div class="form-group">
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn" id="choose-fabric">Fabric</button>
+                    <button class="btn" id="choose-neoforge">NeoForge</button>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn" id="back2">Back</button>
+            </div>
+            
+            <div class="loader" id="loader2">
+                <div class="spinner"></div>
+                <p>Generating folder structure...</p>
+            </div>
+            
+            <div class="modpack-structure" id="structure-preview" style="display: none;">
+                <p>Your modpack folder structure will be:</p>
+                <div id="structure-content"></div>
+            </div>
+        </div>
+        
+        <!-- Step 3: Modpack Configuration -->
+        <div class="step" id="step3">
+            <h2 class="step-title">Step 3: Configure Your Modpack</h2>
+            <p>Add content to your modpack by clicking the buttons below:</p>
+            
+            <div class="tab-container">
+                <div class="tabs" id="modpack-tabs">
+                    <!-- Tabs will be generated dynamically based on loader choice -->
+                </div>
+                
+                <div id="tab-contents">
+                    <!-- Tab contents will be generated dynamically -->
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" id="back3">Back</button>
+                <button class="btn btn-success" id="finish-modpack">Finish & Generate Modpack</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add File Modal -->
+    <div class="modal" id="add-file-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title" id="modal-title">Add File</h3>
+            <div id="modal-description"></div>
+            
+            <div class="add-file-form">
+                <input type="text" id="file-url" placeholder="Enter file URL...">
+                <button class="btn" id="add-file-btn">Add</button>
+            </div>
+            
+            <div class="file-list" id="modal-file-list">
+                <!-- Files will be added here -->
+            </div>
+            
+            <div class="default-maps" id="default-maps-container" style="display: none;">
+                <h4>Default Maps:</h4>
+                <div id="default-maps-list"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Warning Screen -->
+    <div class="warning-screen" id="warning-screen">
+        <div class="warning-content">
+            <h2 class="warning-title">SECURITY WARNING</h2>
+            <p>This modpack contains links to unauthorized file hosting services that violate our security policies.</p>
+            <p>For your safety, this modpack cannot be downloaded or modified.</p>
+            <p>Reasons for this restriction:</p>
+            <ul style="text-align: left; margin: 20px auto; max-width: 600px;">
+                <li>These services may host files that were removed by moderators for security reasons</li>
+                <li>Files may contain viruses or malware</li>
+                <li>These services are not properly moderated for public file sharing</li>
+            </ul>
+            <p>Please contact the modpack creator and ask them to use approved hosting services only.</p>
+            
+            <div class="license-info">
+                <p>This action is enforced by the modpack license which requires all files to come from trusted sources only.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentStep = 1;
+        let modpackName = '';
+        let modpackLoader = '';
+        let modpackData = {
+            mods: [],
+            resourcepacks: [],
+            config: [],
+            screenshots: [],
+            saves: [],
+            shaderpacks: [],
+            coremods: [],
+            defaultconfigs: [],
+            downloads: [],
+            logs: [],
+            'server-resource-packs': []
+        };
+        
+        // DOM elements
+        const steps = {
+            1: document.getElementById('step1'),
+            2: document.getElementById('step2'),
+            3: document.getElementById('step3')
+        };
+        
+        const nextButtons = {
+            1: document.getElementById('next1'),
+            2: document.getElementById('back2')
+        };
+        
+        const backButtons = {
+            2: document.getElementById('back2'),
+            3: document.getElementById('back3')
+        };
+        
+        const loaderButtons = {
+            fabric: document.getElementById('choose-fabric'),
+            neoforge: document.getElementById('choose-neoforge')
+        };
+        
+        const loaderElement = document.getElementById('loader2');
+        const structurePreview = document.getElementById('structure-preview');
+        const structureContent = document.getElementById('structure-content');
+        
+        // Modal elements
+        const addFileModal = document.getElementById('add-file-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDescription = document.getElementById('modal-description');
+        const fileUrlInput = document.getElementById('file-url');
+        const addFileBtn = document.getElementById('add-file-btn');
+        const modalFileList = document.getElementById('modal-file-list');
+        const closeModal = document.querySelector('.close-modal');
+        const defaultMapsContainer = document.getElementById('default-maps-container');
+        const defaultMapsList = document.getElementById('default-maps-list');
+        
+        // Warning screen
+        const warningScreen = document.getElementById('warning-screen');
+        
+        // Tab elements
+        const modpackTabs = document.getElementById('modpack-tabs');
+        const tabContents = document.getElementById('tab-contents');
+        
+        // Default maps for saves
+        const defaultMaps = [
+            {
+                name: "The Temple of Notch 1.4.6 by disco",
+                url: "https://web.archive.org/web/20141007031717/http://www.ocddisco.com/download/maps/The%20Temple%20of%20Notch%201.4.6%20by%20disco.zip"
+            },
+            {
+                name: "Evil Santa Boss Fight by disco",
+                url: "https://web.archive.org/web/20130522201259/http://www.ocddisco.com/download/maps/Evil%20Santa%20Boss%20Fight%20by%20disco.zip"
+            },
+            {
+                name: "Cake Defence 1.4.6 by disco",
+                url: "https://web.archive.org/web/20141010174750/http://www.ocddisco.com/download/maps/Cake%20Defence%201.4.6%20by%20disco.zip"
+            },
+            {
+                name: "Sonic the Hedgehog 1.0",
+                url: "https://web.archive.org/web/20140711205610/http://www.ocddisco.com/download/maps/Sonic%20the%20Hedgehog%201.0.zip"
+            },
+            {
+                name: "Easter Bunny Boss Fight 1.4.6 by disco",
+                url: "https://web.archive.org/web/20141010223108/http://www.ocddisco.com/download/maps/Easter%20Bunny%20Boss%20Fight%201.4.6%20by%20disco.zip"
+            }
+        ];
+        
+        // Current tab state
+        let currentTab = '';
+        let currentFileType = '';
+        let isAddingDefaultMap = false;
+        
+        // Event Listeners
+        nextButtons[1].addEventListener('click', () => {
+            modpackName = document.getElementById('modpack-name').value.trim();
+            if (!modpackName) {
+                alert('Please enter a name for your modpack');
+                return;
+            }
+            goToStep(2);
+        });
+        
+        loaderButtons.fabric.addEventListener('click', () => {
+            modpackLoader = 'fabric';
+            selectLoader();
+        });
+        
+        loaderButtons.neoforge.addEventListener('click', () => {
+            modpackLoader = 'neoforge';
+            selectLoader();
+        });
+        
+        backButtons[2].addEventListener('click', () => goToStep(1));
+        backButtons[3].addEventListener('click', () => goToStep(2));
+        
+        document.getElementById('finish-modpack').addEventListener('click', finishModpack);
+        
+        // Modal events
+        closeModal.addEventListener('click', () => addFileModal.style.display = 'none');
+        addFileBtn.addEventListener('click', addFileFromModal);
+        fileUrlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addFileFromModal();
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === addFileModal) {
+                addFileModal.style.display = 'none';
+            }
+        });
+        
+        // Functions
+        function goToStep(step) {
+            steps[currentStep].classList.remove('active');
+            currentStep = step;
+            steps[currentStep].classList.add('active');
+            
+            // Special handling for step 3
+            if (step === 3) {
+                setupModpackTabs();
+            }
+        }
+        
+        function selectLoader() {
+            loaderElement.style.display = 'block';
+            
+            // Simulate loading
+            setTimeout(() => {
+                loaderElement.style.display = 'none';
+                structurePreview.style.display = 'block';
+                generateStructurePreview();
+                
+                // Enable next step
+                setTimeout(() => goToStep(3), 500);
+            }, 1500);
+        }
+        
+        function generateStructurePreview() {
+            structureContent.innerHTML = '';
+            
+            const rootFolder = document.createElement('div');
+            rootFolder.textContent = `${modpackName}/`;
+            structureContent.appendChild(rootFolder);
+            
+            const minecraftFolder = document.createElement('div');
+            minecraftFolder.className = 'folder';
+            minecraftFolder.textContent = 'minecraft/';
+            structureContent.appendChild(minecraftFolder);
+            
+            if (modpackLoader === 'fabric') {
+                const folders = ['coremods', 'mods', 'resourcepacks', 'saves', 'screenshots', 'shaderpacks', 'texturepacks'];
+                folders.forEach(folder => {
+                    const el = document.createElement('div');
+                    el.className = 'folder';
+                    el.textContent = `${folder}/`;
+                    minecraftFolder.appendChild(el);
+                });
+            } else { // neoforge
+                const folders = ['coremods', 'mods', 'config', 'defaultconfigs', 'downloads', 'logs', 'resourcepacks', 'saves', 'server-resource-packs'];
+                folders.forEach(folder => {
+                    const el = document.createElement('div');
+                    el.className = 'folder';
+                    el.textContent = `${folder}/`;
+                    minecraftFolder.appendChild(el);
+                    
+                    // Special handling for logs and downloads
+                    if (folder === 'logs') {
+                        const logFiles = ['debug.log', 'latest.log'];
+                        logFiles.forEach(file => {
+                            const fileEl = document.createElement('div');
+                            fileEl.className = 'file';
+                            fileEl.textContent = file;
+                            el.appendChild(fileEl);
+                        });
+                        
+                        const telemetryFolder = document.createElement('div');
+                        telemetryFolder.className = 'folder';
+                        telemetryFolder.textContent = 'telemetry/';
+                        el.appendChild(telemetryFolder);
+                    }
+                    
+                    if (folder === 'downloads') {
+                        const downloadFile = document.createElement('div');
+                        downloadFile.className = 'file';
+                        downloadFile.textContent = 'log.json';
+                        el.appendChild(downloadFile);
+                    }
+                });
+            }
+        }
+        
+        function setupModpackTabs() {
+            modpackTabs.innerHTML = '';
+            tabContents.innerHTML = '';
+            
+            const tabs = [];
+            const tabContentDivs = [];
+            
+            if (modpackLoader === 'fabric') {
+                tabs.push(
+                    { id: 'mods', name: 'Mods', folder: 'mods', fileType: '.jar', description: 'Add mods (.jar files) from trusted sources only.' },
+                    { id: 'textures', name: 'Textures', folder: 'resourcepacks', fileType: '.zip', description: 'Add texture packs (.zip files) from Modrinth only.' },
+                    { id: 'config', name: 'Configuration', folder: 'config', fileType: '.toml', description: 'Add configuration files (.toml files) from GitHub only.' },
+                    { id: 'shaders', name: 'Shaders', folder: 'shaderpacks', fileType: '.zip', description: 'Add shader packs (.zip files) from Modrinth only.' },
+                    { id: 'screenshots', name: 'Screenshots', folder: 'screenshots', fileType: '.png', description: 'Add screenshots (.png files) from GitHub or CurseForge only.' },
+                    { id: 'worlds', name: 'Worlds', folder: 'saves', fileType: '.zip', description: 'Add world saves (.zip files) from approved sources only.' }
+                );
+            } else { // neoforge
+                tabs.push(
+                    { id: 'mods', name: 'Mods', folder: 'mods', fileType: '.jar', description: 'Add mods (.jar files) from trusted sources only.' },
+                    { id: 'textures', name: 'Textures', folder: 'resourcepacks', fileType: '.zip', description: 'Add texture packs (.zip files) from Modrinth only.' },
+                    { id: 'config', name: 'Configuration', folder: 'config', fileType: '.toml', description: 'Add configuration files (.toml files) from GitHub only.' },
+                    { id: 'screenshots', name: 'Screenshots', folder: 'screenshots', fileType: '.png', description: 'Add screenshots (.png files) from GitHub or CurseForge only.' },
+                    { id: 'worlds', name: 'Worlds', folder: 'saves', fileType: '.zip', description: 'Add world saves (.zip files) from approved sources only.' }
+                );
+            }
+            
+            tabs.forEach((tab, index) => {
+                // Create tab button
+                const tabButton = document.createElement('div');
+                tabButton.className = `tab ${index === 0 ? 'active' : ''}`;
+                tabButton.textContent = tab.name;
+                tabButton.dataset.tab = tab.id;
+                tabButton.addEventListener('click', () => switchTab(tab.id));
+                modpackTabs.appendChild(tabButton);
+                
+                // Create tab content
+                const tabContent = document.createElement('div');
+                tabContent.className = `tab-content ${index === 0 ? 'active' : ''}`;
+                tabContent.id = `tab-${tab.id}`;
+                
+                const tabTitle = document.createElement('h3');
+                tabTitle.textContent = tab.name;
+                tabContent.appendChild(tabTitle);
+                
+                const tabDesc = document.createElement('p');
+                tabDesc.textContent = tab.description;
+                tabContent.appendChild(tabDesc);
+                
+                const addButton = document.createElement('button');
+                addButton.className = 'btn';
+                addButton.textContent = 'Add File';
+                addButton.addEventListener('click', () => openAddFileModal(tab.folder, tab.fileType, tab.description, tab.id === 'worlds'));
+                tabContent.appendChild(addButton);
+                
+                const fileList = document.createElement('div');
+                fileList.className = 'file-list';
+                fileList.id = `file-list-${tab.folder}`;
+                tabContent.appendChild(fileList);
+                
+                // For worlds tab, add default maps button
+                if (tab.id === 'worlds') {
+                    const defaultMapsBtn = document.createElement('button');
+                    defaultMapsBtn.className = 'btn';
+                    defaultMapsBtn.textContent = 'Add Default Maps';
+                    defaultMapsBtn.style.marginLeft = '10px';
+                    defaultMapsBtn.addEventListener('click', showDefaultMaps);
+                    tabContent.appendChild(defaultMapsBtn);
+                }
+                
+                tabContents.appendChild(tabContent);
+                
+                // Render existing files
+                renderFileList(tab.folder);
+            });
+            
+            // Set first tab as active
+            if (tabs.length > 0) {
+                currentTab = tabs[0].id;
+            }
+        }
+        
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            currentTab = tabId;
+        }
+        
+        function openAddFileModal(folder, fileType, description, isWorldsTab = false) {
+            currentFileType = fileType;
+            modalTitle.textContent = `Add to ${folder}`;
+            modalDescription.textContent = description;
+            
+            // Clear previous files
+            modalFileList.innerHTML = '';
+            fileUrlInput.value = '';
+            
+            // Show default maps for worlds tab
+            defaultMapsContainer.style.display = isWorldsTab ? 'block' : 'none';
+            
+            if (isWorldsTab) {
+                defaultMapsList.innerHTML = '';
+                defaultMaps.forEach(map => {
+                    const mapItem = document.createElement('div');
+                    mapItem.className = 'map-item';
+                    mapItem.textContent = map.name;
+                    mapItem.addEventListener('click', () => {
+                        isAddingDefaultMap = true;
+                        addFile(folder, map.url, map.name);
+                        isAddingDefaultMap = false;
+                        addFileModal.style.display = 'none';
+                    });
+                    defaultMapsList.appendChild(mapItem);
+                });
+            }
+            
+            addFileModal.style.display = 'flex';
+            fileUrlInput.focus();
+        }
+        
+        function showDefaultMaps() {
+            openAddFileModal('saves', '.zip', 'Add world saves (.zip files) from approved sources only.', true);
+        }
+        
+        function addFileFromModal() {
+            const url = fileUrlInput.value.trim();
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            addFile(getCurrentFolder(), url);
+            fileUrlInput.value = '';
+        }
+        
+        function getCurrentFolder() {
+            // Get the current folder based on active tab
+            const activeTab = document.querySelector('.tab.active');
+            if (!activeTab) return '';
+            
+            const tabId = activeTab.dataset.tab;
+            
+            if (modpackLoader === 'fabric') {
+                switch(tabId) {
+                    case 'mods': return 'mods';
+                    case 'textures': return 'resourcepacks';
+                    case 'config': return 'config';
+                    case 'shaders': return 'shaderpacks';
+                    case 'screenshots': return 'screenshots';
+                    case 'worlds': return 'saves';
+                }
+            } else { // neoforge
+                switch(tabId) {
+                    case 'mods': return 'mods';
+                    case 'textures': return 'resourcepacks';
+                    case 'config': return 'config';
+                    case 'screenshots': return 'screenshots';
+                    case 'worlds': return 'saves';
+                }
+            }
+            
+            return '';
+        }
+        
+        function addFile(folder, url, customName = '') {
+            // Validate URL based on folder and file type
+            if (!isAddingDefaultMap && !validateFile(folder, url)) {
+                return false;
+            }
+            
+            // Add file to modpack data
+            const fileName = customName || url.split('/').pop();
+            modpackData[folder].push({
+                name: fileName,
+                url: url
+            });
+            
+            // Update file list display
+            renderFileList(folder);
+            
+            return true;
+        }
+        
+        function validateFile(folder, url) {
+            // Check file extension
+            const extension = url.split('.').pop().toLowerCase();
+            const expectedExtension = currentFileType.replace('.', '');
+            
+            if (extension !== expectedExtension) {
+                alert(`Only ${currentFileType} files are allowed in this folder.`);
+                return false;
+            }
+            
+            // Check for blocked domains (except for default maps)
+            const blockedDomains = [
+                'web.archive.org/web/',
+                'files.catbox.moe/',
+                'litter.catbox.moe/',
+                'h.uguu.se/'
+            ];
+            
+            for (const domain of blockedDomains) {
+                if (url.includes(domain)) {
+                    // Only allow Wayback Machine URLs for default maps
+                    if (domain === 'web.archive.org/web/' && folder === 'saves') {
+                        continue;
+                    }
+                    
+                    alert(`For security reasons, we don't allow files from ${domain}. Please use approved sources only.`);
+                    return false;
+                }
+            }
+            
+            // Check allowed domains based on folder
+            let allowedDomains = [];
+            
+            switch(folder) {
+                case 'mods':
+                    // Only .jar allowed, no specific domain required (but blocked domains already checked)
+                    break;
+                    
+                case 'resourcepacks':
+                case 'shaderpacks':
+                    allowedDomains = ['cdn.modrinth.com'];
+                    break;
+                    
+                case 'config':
+                    allowedDomains = ['raw.githubusercontent.com'];
+                    break;
+                    
+                case 'screenshots':
+                    allowedDomains = ['raw.githubusercontent.com', 'media.forgecdn.net'];
+                    break;
+                    
+                case 'saves':
+                    // Special case - only allowed default maps (already handled)
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            if (allowedDomains.length > 0) {
+                let domainAllowed = false;
+                for (const domain of allowedDomains) {
+                    if (url.includes(domain)) {
+                        domainAllowed = true;
+                        break;
+                    }
+                }
+                
+                if (!domainAllowed) {
+                    alert(`Files in this folder must come from: ${allowedDomains.join(' or ')}`);
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function renderFileList(folder) {
+            const fileList = document.getElementById(`file-list-${folder}`);
+            if (!fileList) return;
+            
+            fileList.innerHTML = '';
+            
+            if (modpackData[folder].length === 0) {
+                fileList.innerHTML = '<p>No files added yet.</p>';
+                return;
+            }
+            
+            modpackData[folder].forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileName = document.createElement('span');
+                fileName.textContent = file.name;
+                
+                const fileActions = document.createElement('div');
+                fileActions.className = 'file-actions';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-danger';
+                removeBtn.textContent = '-';
+                removeBtn.addEventListener('click', () => removeFile(folder, index));
+                
+                fileActions.appendChild(removeBtn);
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(fileActions);
+                
+                fileList.appendChild(fileItem);
+            });
+        }
+        
+        function removeFile(folder, index) {
+            modpackData[folder].splice(index, 1);
+            renderFileList(folder);
+        }
+        
+        function finishModpack() {
+            // Check for any blocked URLs in the modpack (except allowed Wayback Machine maps)
+            if (hasBlockedUrls()) {
+                warningScreen.style.display = 'flex';
+                return;
+            }
+            
+            // Generate JSON representation of the modpack
+            const modpackJson = JSON.stringify({
+                name: modpackName,
+                loader: modpackLoader,
+                data: modpackData
+            }, null, 2);
+            
+            // Create download as a folder structure
+            createFolderStructureDownload();
+            
+            // Save to URL
+            const url = window.location.href.split('#')[0] + '#' + encodeURIComponent(modpackJson);
+            window.location.href = url;
+            
+            // Show completion message
+            alert(`Modpack "${modpackName}" has been created successfully! The download should start automatically.`);
+        }
+        
+        function createFolderStructureDownload() {
+            // Create a zip file with the folder structure and files
+            const JSZip = window.JSZip;
+            const zip = new JSZip();
+            
+            // Create the root folder
+            const rootFolder = zip.folder(modpackName);
+            const minecraftFolder = rootFolder.folder('minecraft');
+            
+            // Add files to their respective folders
+            for (const folder in modpackData) {
+                if (modpackData[folder].length > 0) {
+                    const currentFolder = minecraftFolder.folder(folder);
+                    
+                    // Add each file to the folder
+                    modpackData[folder].forEach(file => {
+                        // For demonstration, we'll just add empty files with the correct names
+                        // In a real implementation, you would fetch the files from their URLs
+                        currentFolder.file(file.name, '[Content would be downloaded from: ' + file.url + ']');
+                    });
+                }
+            }
+            
+            // Generate the zip file
+            zip.generateAsync({type: 'blob'}).then(content => {
+                // Create download link
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${modpackName}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        function hasBlockedUrls() {
+            const blockedDomains = [
+                'files.catbox.moe/',
+                'litter.catbox.moe/',
+                'h.uguu.se/'
+            ];
+            
+            // Also block Wayback Machine URLs except for the allowed maps
+            const allowedWaybackUrls = defaultMaps.map(map => map.url);
+            
+            // Check all folders for blocked URLs
+            for (const folder in modpackData) {
+                for (const file of modpackData[folder]) {
+                    // Check regular blocked domains
+                    for (const domain of blockedDomains) {
+                        if (file.url.includes(domain)) {
+                            return true;
+                        }
+                    }
+                    
+                    // Check Wayback Machine URLs (only allow the specific default maps)
+                    if (file.url.includes('web.archive.org/web/')) {
+                        if (!allowedWaybackUrls.includes(file.url)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Check URL hash for existing modpack data
+        function checkUrlParameters() {
+            const hash = window.location.hash.substring(1);
+            
+            if (hash) {
+                try {
+                    const modpackData = JSON.parse(decodeURIComponent(hash));
+                    loadModpackFromData(modpackData);
+                } catch (e) {
+                    console.error('Error parsing modpack data:', e);
+                }
+            }
+        }
+        
+        function loadModpackFromData(data) {
+            if (hasBlockedUrlsInData(data)) {
+                warningScreen.style.display = 'flex';
+                return;
+            }
+            
+            modpackName = data.name;
+            modpackLoader = data.loader;
+            modpackData = data.data;
+            
+            document.getElementById('modpack-name').value = modpackName;
+            goToStep(3);
+        }
+        
+        function hasBlockedUrlsInData(data) {
+            const blockedDomains = [
+                'files.catbox.moe/',
+                'litter.catbox.moe/',
+                'h.uguu.se/'
+            ];
+            
+            // Allowed Wayback Machine URLs
+            const allowedWaybackUrls = defaultMaps.map(map => map.url);
+            
+            // Check all folders for blocked URLs
+            for (const folder in data.data) {
+                for (const file of data.data[folder]) {
+                    // Check regular blocked domains
+                    for (const domain of blockedDomains) {
+                        if (file.url.includes(domain)) {
+                            return true;
+                        }
+                    }
+                    
+                    // Check Wayback Machine URLs (only allow the specific default maps)
+                    if (file.url.includes('web.archive.org/web/')) {
+                        if (!allowedWaybackUrls.includes(file.url)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Initialize
+        checkUrlParameters();
+        
+        // Load JSZip library dynamically
+        function loadJSZip() {
+            return new Promise((resolve, reject) => {
+                if (window.JSZip) {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Load JSZip when page loads
+        loadJSZip().catch(err => {
+            console.error('Failed to load JSZip:', err);
+        });
+    </script>
+</body>
+</html>
