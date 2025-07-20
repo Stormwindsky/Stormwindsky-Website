@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chess – SVG graphics, coordinates & bot</title>
+<style>
+    :root{--light:#f0d9b5;--dark:#b58863;--highlight:#f6f669;--check:#ff5252;--red:#ff4444;--font:'Segoe UI',Arial,Helvetica}
+    body{background:#222;color:#fff;display:flex;flex-direction:column;align-items:center;padding:20px;font-family:var(--font)}
+    h1{margin:0 0 15px;font-size:2em}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:15px}
+    .controls button,.controls select{padding:8px 12px;font-size:1em;border:none;border-radius:4px;cursor:pointer}
+    .controls button{background:#444;color:#fff}.controls button:hover{background:#555}
+    #creditsBtn{background:linear-gradient(135deg,#4caf50,#81c784);border:none;padding:10px 20px;color:#fff;border-radius:50px;font-size:.9em;cursor:pointer;transform:scale(1);transition:transform .3s,box-shadow .3s;box-shadow:0 4px 15px rgba(76,175,80,.4)}
+    #creditsBtn:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(76,175,80,.6)}
+    .board-wrapper{display:flex;align-items:flex-start;gap:8px}
+    .files{display:flex;font-size:14px;margin-left:30px}
+    .files div{width:60px;text-align:center;font-weight:bold}
+    .ranks{display:flex;flex-direction:column;justify-content:space-around;font-size:14px;height:480px;font-weight:bold}
+    #gameBoard{display:grid;grid-template-columns:repeat(8,60px);grid-template-rows:repeat(8,60px);border:2px solid #000;position:relative}
+    .square{width:60px;height:60px;display:flex;align-items:center;justify-content:center;position:relative}
+    .light{background:var(--light)}.dark{background:var(--dark)}
+    .possible{background:var(--highlight);opacity:.7}
+    .check{background:var(--check)}
+    .enemy-preview{background:var(--red);opacity:.7}
+    .piece{cursor:pointer;transition:transform .2s;width:48px;height:48px}
+    .piece:hover{transform:scale(1.1)}
+    .animate-fly{animation:flyAway .6s ease-out forwards}
+    @keyframes flyAway{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-150px) scale(.3) rotate(45deg);opacity:0}}
+    .animate-shake{animation:shake .4s infinite}
+    @keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(-1px,0)}50%{transform:translate(1px,0)}75%{transform:translate(-1px,0)}100%{transform:translate(0,0)}}
+    .sweat{position:absolute;top:-8px;right:-2px;width:10px;height:10px;background:#00aaff;border-radius:50%;opacity:0}
+    .animate-shake .sweat{opacity:1;animation:drip 2s infinite}
+    @keyframes drip{0%{transform:translateY(0)}100%{transform:translateY(12px);opacity:0}}
+    #status{margin-top:15px;font-size:1.2em}
+    #promotionModal{display:none;position:fixed;z-index:10;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);justify-content:center;align-items:center}
+    #promotionModal .box{background:#fff;padding:20px;border-radius:8px;display:flex;gap:15px}
+    #promotionModal .choice{width:60px;height:60px;font-size:40px;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:4px}
+    #promotionModal .choice:hover{border-color:#000}
+    #historyPanel{position:fixed;top:10px;right:10px;background:#111;border:1px solid #444;border-radius:6px;padding:8px;font-size:12px;max-height:200px;overflow-y:auto;width:180px;display:none}
+    #historyPanel button{margin-top:5px;width:100%}
+</style>
+</head>
+<body>
+
+<h1>Chess Game</h1>
+
+<div class="controls">
+    <label>Play as:
+        <select id="playAs">
+            <option value="white">White</option>
+            <option value="black">Black</option>
+        </select>
+    </label>
+    <button id="newGameBtn">New Game</button>
+    <button id="botToggleBtn">Enable Bot</button>
+    <button id="creditsBtn">Credits</button>
+</div>
+
+<div id="historyPanel">
+    <div><strong>Move History</strong></div>
+    <ol id="moveList"></ol>
+    <button id="downloadBtn">Download .txt</button>
+</div>
+
+<div class="board-wrapper">
+    <div class="ranks">
+        <div>8</div><div>7</div><div>6</div><div>5</div>
+        <div>4</div><div>3</div><div>2</div><div>1</div>
+    </div>
+    <div>
+        <div id="gameBoard"></div>
+        <div class="files">
+            <div>a</div><div>b</div><div>c</div><div>d</div>
+            <div>e</div><div>f</div><div>g</div><div>h</div>
+        </div>
+    </div>
+</div>
+
+<div id="status">White to move</div>
+
+<!-- promotion modal -->
+<div id="promotionModal">
+    <div class="box">
+        <div class="choice" data-piece="q">♕</div>
+        <div class="choice" data-piece="r">♖</div>
+        <div class="choice" data-piece="b">♗</div>
+        <div class="choice" data-piece="n">♘</div>
+    </div>
+</div>
+
+<script>
+/* ---------- piece images ---------- */
+const pieceSVG = {
+    K: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+    Q: 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+    R: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+    B: 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+    N: 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+    P: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+    k: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg',
+    q: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+    r: 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+    b: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+    n: 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+    p: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg'
+};
+
+/* ---------- CC0 SFX ---------- */
+const moveSounds = [
+    'https://www.stormwindsky.com/Files/sfx/move1.wav',
+    'https://www.stormwindsky.com/Files/sfx/move2.wav',
+    'https://www.stormwindsky.com/Files/sfx/move3.wav',
+    'https://www.stormwindsky.com/Files/sfx/move4.wav',
+    'https://www.stormwindsky.com/Files/sfx/move5.wav'
+];
+const captureSound  = 'https://www.stormwindsky.com/Files/sfx/pop.wav';
+
+function playSound(url, pitchMin = -0.2, pitchMax = 0.5) {
+    const audio = new Audio(url);
+    audio.playbackRate = 1 + (Math.random() * (pitchMax - pitchMin) + pitchMin);
+    audio.play();
+}
+
+/* ---------- move history ---------- */
+const moveList = [];
+const historyPanel = document.createElement('div');
+historyPanel.id = 'historyPanel';
+document.body.appendChild(historyPanel);
+historyPanel.innerHTML = `<div><strong>Move History</strong></div><ol id="moveList"></ol><button id="downloadBtn">Download .txt</button>`;
+historyPanel.style.display = 'block';
+
+function addHistory(from, to, piece, captured) {
+    const fromSquare = String.fromCharCode(97 + from[1]) + (8 - from[0]);
+    const toSquare   = String.fromCharCode(97 + to[1])   + (8 - to[0]);
+    const move = `${piece}${fromSquare}${captured ? 'x' : ''}${toSquare}`;
+    moveList.push(move);
+    const li = document.createElement('li');
+    li.textContent = move;
+    document.getElementById('moveList').appendChild(li);
+}
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob = new Blob([moveList.join('\n')], {type:'text/plain'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'chess_moves.txt'; a.click();
+    URL.revokeObjectURL(url);
+});
+
+/* ---------- state ---------- */
+let board = [];
+let turn = 'w';
+let selected = null;
+let possibleMoves = [];
+let gameOver = false;
+let againstBot = false;
+let botColor = 'b';
+
+/* ---------- dom ---------- */
+const boardEl = document.getElementById('gameBoard');
+const statusEl = document.getElementById('status');
+const promotionModal = document.getElementById('promotionModal');
+const playAsSelect = document.getElementById('playAs');
+const newGameBtn = document.getElementById('newGameBtn');
+const botToggleBtn = document.getElementById('botToggleBtn');
+const creditsBtn = document.getElementById('creditsBtn');
+
+/* ---------- init ---------- */
+function initBoard() {
+    board = [
+        ['r','n','b','q','k','b','n','r'],
+        ['p','p','p','p','p','p','p','p'],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        ['P','P','P','P','P','P','P','P'],
+        ['R','N','B','Q','K','B','N','R']
+    ];
+    turn = 'w';
+    selected = null;
+    possibleMoves = [];
+    gameOver = false;
+    moveList.length = 0;
+    document.getElementById('moveList').innerHTML = '';
+    render();
+    statusEl.textContent = 'White to move';
+}
+
+function render() {
+    boardEl.innerHTML = '';
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const piece = board[row][col];
+            const square = document.createElement('div');
+            square.classList.add('square', (row + col) % 2 === 0 ? 'light' : 'dark');
+            square.dataset.row = row;
+            square.dataset.col = col;
+            if (piece) {
+                const img = document.createElement('img');
+                img.classList.add('piece');
+                img.src = pieceSVG[piece];
+                img.dataset.color = piece === piece.toUpperCase() ? 'w' : 'b';
+                square.appendChild(img);
+            }
+            square.addEventListener('click', handleSquareClick);
+            square.addEventListener('dblclick', handleDoubleClick); // <-- double-click preview
+            boardEl.appendChild(square);
+        }
+    }
+    highlightCheck();
+}
+
+/* ---------- move generation ---------- */
+function isEnemy(r, c, color) {
+    if (r < 0 || r > 7 || c < 0 || c > 7) return false;
+    const p = board[r][c];
+    return p && (p === p.toUpperCase() ? 'w' : 'b') !== color;
+}
+function isEmpty(r, c) { return r >= 0 && r <= 7 && c >= 0 && c <= 7 && !board[r][c]; }
+function copyBoard() { return board.map(r => r.slice()); }
+
+function kingPos(b, color) {
+    const king = color === 'w' ? 'K' : 'k';
+    for (let r = 0; r < 8; r++)
+        for (let c = 0; c < 8; c++)
+            if (b[r][c] === king) return [r, c];
+    return null;
+}
+
+function isInCheck(b, color) {
+    const kp = kingPos(b, color);
+    if (!kp) return false;
+    const [kr, kc] = kp;
+
+    // pawn
+    const dir = color === 'w' ? -1 : 1;
+    for (const dc of [-1, 1]) {
+        const r = kr + dir, c = kc + dc;
+        if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+            const p = b[r][c];
+            if (p && p.toLowerCase() === 'p' && (p === p.toUpperCase() ? 'w' : 'b') !== color) return true;
+        }
+    }
+    // knight
+    const knightMoves = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+    for (const [dr, dc] of knightMoves) {
+        const r = kr + dr, c = kc + dc;
+        if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+            const p = b[r][c];
+            if (p && p.toLowerCase() === 'n' && (p === p.toUpperCase() ? 'w' : 'b') !== color) return true;
+        }
+    }
+    // sliding
+    const ray = [
+        [[0,1],[0,-1],[1,0],[-1,0]],
+        [[1,1],[1,-1],[-1,1],[-1,-1]]
+    ];
+    for (const directions of ray) {
+        for (const [dr, dc] of directions) {
+            let r = kr + dr, c = kc + dc;
+            while (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+                const p = b[r][c];
+                if (p) {
+                    const enemyColor = p === p.toUpperCase() ? 'w' : 'b';
+                    if (enemyColor === color) break;
+                    const type = p.toLowerCase();
+                    if ((directions[0][0] === 0 ? 'rq' : 'bq').includes(type)) return true;
+                    break;
+                }
+                r += dr; c += dc;
+            }
+        }
+    }
+    // king
+    for (let dr = -1; dr <= 1; dr++)
+        for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const r = kr + dr, c = kc + dc;
+            if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+                const p = b[r][c];
+                if (p && p.toLowerCase() === 'k' && (p === p.toUpperCase() ? 'w' : 'b') !== color) return true;
+            }
+        }
+    return false;
+}
+
+function getLegalMoves(r, c) {
+    const piece = board[r][c];
+    if (!piece) return [];
+    const color = piece === piece.toUpperCase() ? 'w' : 'b';
+    const type = piece.toLowerCase();
+    const moves = [];
+
+    if (type === 'p') {
+        const dir = color === 'w' ? -1 : 1;
+        if (isEmpty(r + dir, c)) {
+            moves.push([r + dir, c]);
+            if ((color === 'w' && r === 6 || color === 'b' && r === 1) && isEmpty(r + 2 * dir, c))
+                moves.push([r + 2 * dir, c]);
+        }
+        [-1, 1].forEach(dc => {
+            const nr = r + dir, nc = c + dc;
+            if (nr >= 0 && nr <= 7 && nc >= 0 && nc <= 7 && isEnemy(nr, nc, color))
+                moves.push([nr, nc]);
+        });
+    } else if (type === 'n') {
+        [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]
+            .forEach(([dr, dc]) => {
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr <= 7 && nc >= 0 && nc <= 7 && (!board[nr][nc] || isEnemy(nr, nc, color)))
+                    moves.push([nr, nc]);
+            });
+    } else if ('rbq'.includes(type)) {
+        const directions = type === 'r' ? [[0,1],[0,-1],[1,0],[-1,0]]
+                                       : type === 'b' ? [[1,1],[1,-1],[-1,1],[-1,-1]]
+                                       : [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+        directions.forEach(([dr, dc]) => {
+            let nr = r + dr, nc = c + dc;
+            while (nr >= 0 && nr <= 7 && nc >= 0 && nc <= 7) {
+                if (!board[nr][nc]) moves.push([nr, nc]);
+                else {
+                    if (isEnemy(nr, nc, color)) moves.push([nr, nc]);
+                    break;
+                }
+                nr += dr; nc += dc;
+            }
+        });
+    } else if (type === 'k') {
+        for (let dr = -1; dr <= 1; dr++)
+            for (let dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr <= 7 && nc >= 0 && nc <= 7 && (!board[nr][nc] || isEnemy(nr, nc, color)))
+                    moves.push([nr, nc]);
+            }
+        const row = color === 'w' ? 7 : 0;
+        if (r === row && c === 4) {
+            if (!board[row][5] && !board[row][6] && board[row][7] === (color === 'w' ? 'R' : 'r')) {
+                const temp = copyBoard();
+                temp[row][4] = null; temp[row][5] = color === 'w' ? 'K' : 'k';
+                if (!isInCheck(temp, color)) {
+                    temp[row][5] = null; temp[row][6] = color === 'w' ? 'K' : 'k';
+                    if (!isInCheck(temp, color)) moves.push([row, 6]);
+                }
+            }
+            if (!board[row][3] && !board[row][2] && !board[row][1] && board[row][0] === (color === 'w' ? 'R' : 'r')) {
+                const temp = copyBoard();
+                temp[row][4] = null; temp[row][3] = color === 'w' ? 'K' : 'k';
+                if (!isInCheck(temp, color)) {
+                    temp[row][3] = null; temp[row][2] = color === 'w' ? 'K' : 'k';
+                    if (!isInCheck(temp, color)) moves.push([row, 2]);
+                }
+            }
+        }
+    }
+    return moves.filter(([nr, nc]) => {
+        const temp = copyBoard();
+        temp[nr][nc] = temp[r][c];
+        temp[r][c] = null;
+        return !isInCheck(temp, (piece === piece.toUpperCase() ? 'w' : 'b'));
+    });
+}
+
+/* ---------- game flow ---------- */
+function handleSquareClick(e) {
+    if (gameOver) return;
+    const row = +e.currentTarget.dataset.row;
+    const col = +e.currentTarget.dataset.col;
+
+    if (selected) {
+        if (possibleMoves.some(m => m[0] === row && m[1] === col)) {
+            const captured = board[row][col];
+            const fromPiece = board[selected.row][selected.col];
+            addHistory([selected.row, selected.col], [row, col], fromPiece, captured);
+            if (fromPiece.toLowerCase() === 'p') {
+                const img = document.querySelector(`.square[data-row="${selected.row}"][data-col="${selected.col}"] img`);
+                if (img) {
+                    img.style.transition = 'transform .3s';
+                    img.style.transform = 'translateY(-5px)';
+                    setTimeout(() => { img.style.transform = 'translateY(0)'; }, 300);
+                }
+            }
+            if (captured) {
+                const targetImg = document.querySelector(`.square[data-row="${row}"][data-col="${col}"] img`);
+                if (targetImg) {
+                    targetImg.classList.add('animate-fly');
+                    setTimeout(() => targetImg.remove(), 600);
+                }
+            }
+            move(selected.row, selected.col, row, col);
+            return;
+        } else {
+            clearHighlights();
+            selected = null;
+            possibleMoves = [];
+        }
+    }
+    const piece = board[row][col];
+    if (!piece) return;
+    const color = piece === piece.toUpperCase() ? 'w' : 'b';
+    if (color !== turn) return;
+    selected = {row, col};
+    possibleMoves = getLegalMoves(row, col);
+    highlightPossible();
+}
+
+/* ---------- double-click preview ---------- */
+function handleDoubleClick(e) {
+    const row = +e.currentTarget.dataset.row;
+    const col = +e.currentTarget.dataset.col;
+    const pieceClicked = board[row][col];
+    if (!pieceClicked) return;
+    const pieceColor = pieceClicked === pieceClicked.toUpperCase() ? 'w' : 'b';
+    if (pieceColor === turn) return; // own piece
+    clearHighlights();
+    const enemyMoves = getLegalMoves(row, col);
+    enemyMoves.forEach(([r, c]) => {
+        document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`).classList.add('enemy-preview');
+    });
+}
+
+/* ---------- move ---------- */
+function move(fromRow, fromCol, toRow, toCol, promo = null) {
+    const piece = board[fromRow][fromCol];
+    const captured = board[toRow][toCol];
+    if (captured) playSound(captureSound, -0.2, 0.5);
+    else          playSound(moveSounds[Math.floor(Math.random() * moveSounds.length)], -0.2, 0.5);
+
+    if (piece.toLowerCase() === 'p' && (toRow === 0 || toRow === 7)) {
+        if (!promo) { showPromotion(fromRow, fromCol, toRow, toCol); return; }
+    }
+    board[toRow][toCol] = promo ? (piece === piece.toUpperCase() ? promo.toUpperCase() : promo.toLowerCase()) : piece;
+    board[fromRow][fromCol] = null;
+
+    turn = turn === 'w' ? 'b' : 'w';
+    selected = null;
+    possibleMoves = [];
+    render();
+
+    // king check / checkmate shake
+    const king = turn === 'w' ? 'K' : 'k';
+    let kingSquare = null;
+    for (let r = 0; r < 8; r++)
+        for (let c = 0; c < 8; c++)
+            if (board[r][c] === king) kingSquare = [r, c];
+    if (kingSquare) {
+        const img = document.querySelector(`.square[data-row="${kingSquare[0]}"][data-col="${kingSquare[1]}"] img`);
+        if (isCheckmate()) {
+            img?.classList.add('animate-shake');
+            if (!img?.querySelector('.sweat')) {
+                const sweat = document.createElement('div');
+                sweat.className = 'sweat';
+                img.appendChild(sweat);
+            }
+        } else {
+            img?.classList.remove('animate-shake');
+            img?.querySelector('.sweat')?.remove();
+        }
+    }
+
+    if (isCheckmate()) {
+        gameOver = true;
+        statusEl.textContent = `${turn === 'w' ? 'Black' : 'White'} wins by checkmate!`;
+    } else if (isStalemate()) {
+        gameOver = true;
+        statusEl.textContent = "Draw by stalemate.";
+    } else if (isInCheck(board, turn)) {
+        statusEl.textContent = `${turn === 'w' ? 'Black' : 'White'} is in check`;
+    } else {
+        statusEl.textContent = `${turn === 'w' ? 'White' : 'Black'} to move`;
+    }
+    if (!gameOver && againstBot && turn === botColor) setTimeout(botMove, 500);
+}
+
+function showPromotion(r1, c1, r2, c2) {
+    promotionModal.style.display = 'flex';
+    promotionModal.querySelectorAll('.choice').forEach(el => {
+        el.onclick = () => {
+            move(r1, c1, r2, c2, el.dataset.piece);
+            promotionModal.style.display = 'none';
+        };
+    });
+}
+
+function getAllLegalMoves(color) {
+    const moves = [];
+    for (let r = 0; r < 8; r++)
+        for (let c = 0; c < 8; c++)
+            if (board[r][c] && (board[r][c] === board[r][c].toUpperCase() ? 'w' : 'b') === color)
+                getLegalMoves(r, c).forEach(([nr, nc]) => moves.push([r, c, nr, nc]));
+    return moves;
+}
+const isCheckmate = () => isInCheck(board, turn) && getAllLegalMoves(turn).length === 0;
+const isStalemate = () => !isInCheck(board, turn) && getAllLegalMoves(turn).length === 0;
+
+/* ---------- ui helpers ---------- */
+function highlightPossible() {
+    possibleMoves.forEach(([r, c]) => document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`).classList.add('possible'));
+}
+function clearHighlights() {
+    document.querySelectorAll('.square').forEach(s => s.classList.remove('possible', 'enemy-preview', 'check'));
+}
+function highlightCheck() {
+    for (let r = 0; r < 8; r++)
+        for (let c = 0; c < 8; c++)
+            if (board[r][c] === (turn === 'w' ? 'K' : 'k') && isInCheck(board, turn))
+                document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`).classList.add('check');
+}
+
+/* ---------- bot ---------- */
+function botMove() {
+    const moves = getAllLegalMoves(botColor);
+    if (!moves.length) return;
+    const [r1, c1, r2, c2] = moves[Math.floor(Math.random() * moves.length)];
+    move(r1, c1, r2, c2);
+}
+
+/* ---------- events ---------- */
+newGameBtn.addEventListener('click', () => {
+    againstBot = false;
+    botToggleBtn.textContent = "Enable Bot";
+    initBoard();
+});
+botToggleBtn.addEventListener('click', () => {
+    againstBot = !againstBot;
+    botColor = playAsSelect.value === 'white' ? 'b' : 'w';
+    botToggleBtn.textContent = againstBot ? "Disable Bot" : "Enable Bot";
+    initBoard();
+});
+creditsBtn.addEventListener('click', () => {
+    alert(
+`Piece graphics © Cburnett for Wikipedia  
+License: CC-BY-SA 3.0  
+https://creativecommons.org/licenses/by-sa/3.0/  
+Source set: https://en.wikipedia.org/wiki/User:Cburnett/GFDL_images/Chess  
+
+\─  SOUND EFFECTS  ─  
+Move & capture sounds based on **CC0** assets by Aidan_Walker  
+- Boardgame piece wobbles: https://opengameart.org/content/boardgame-piece-wobbles  
+- Godot Intro: https://opengameart.org/content/godot-intro  
+Edited & re-pitched for this chess game.`
+    );
+});
+
+/* ---------- start ---------- */
+initBoard();
+</script>
+</body>
+</html>
