@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chess – SVG graphics, coordinates & bot</title>
+<title>Chess – SVG, coordinates, bot, SFX</title>
 <style>
     :root{--light:#f0d9b5;--dark:#b58863;--highlight:#f6f669;--check:#ff5252;--red:#ff4444;--font:'Segoe UI',Arial,Helvetica}
     body{background:#222;color:#fff;display:flex;flex-direction:column;align-items:center;padding:20px;font-family:var(--font)}
@@ -32,10 +32,11 @@
     .animate-shake .sweat{opacity:1;animation:drip 2s infinite}
     @keyframes drip{0%{transform:translateY(0)}100%{transform:translateY(12px);opacity:0}}
     #status{margin-top:15px;font-size:1.2em}
-    #promotionModal{display:none;position:fixed;z-index:10;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);justify-content:center;align-items:center}
+    #promotionModal{display:none;position:fixed;z-index:100;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);justify-content:center;align-items:center}
     #promotionModal .box{background:#fff;padding:20px;border-radius:8px;display:flex;gap:15px}
-    #promotionModal .choice{width:60px;height:60px;font-size:40px;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:4px}
+    #promotionModal .choice{width:60px;height:60px;font-size:40px;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:4px;display:flex;align-items:center;justify-content:center}
     #promotionModal .choice:hover{border-color:#000}
+    #promotionModal .choice img{width:48px;height:48px}
     #historyPanel{position:fixed;top:10px;right:10px;background:#111;border:1px solid #444;border-radius:6px;padding:8px;font-size:12px;max-height:200px;overflow-y:auto;width:180px;display:none}
     #historyPanel button{margin-top:5px;width:100%}
 </style>
@@ -81,10 +82,10 @@
 <!-- promotion modal -->
 <div id="promotionModal">
     <div class="box">
-        <div class="choice" data-piece="q">♕</div>
-        <div class="choice" data-piece="r">♖</div>
-        <div class="choice" data-piece="b">♗</div>
-        <div class="choice" data-piece="n">♘</div>
+        <div class="choice" data-piece="q"><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg"></div>
+        <div class="choice" data-piece="r"><img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg"></div>
+        <div class="choice" data-piece="b"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg"></div>
+        <div class="choice" data-piece="n"><img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg"></div>
     </div>
 </div>
 
@@ -204,7 +205,7 @@ function render() {
                 square.appendChild(img);
             }
             square.addEventListener('click', handleSquareClick);
-            square.addEventListener('dblclick', handleDoubleClick); // <-- double-click preview
+            square.addEventListener('dblclick', handleDoubleClick);
             boardEl.appendChild(square);
         }
     }
@@ -412,7 +413,7 @@ function handleDoubleClick(e) {
     const pieceClicked = board[row][col];
     if (!pieceClicked) return;
     const pieceColor = pieceClicked === pieceClicked.toUpperCase() ? 'w' : 'b';
-    if (pieceColor === turn) return; // own piece
+    if (pieceColor === turn) return;
     clearHighlights();
     const enemyMoves = getLegalMoves(row, col);
     enemyMoves.forEach(([r, c]) => {
@@ -420,7 +421,6 @@ function handleDoubleClick(e) {
     });
 }
 
-/* ---------- move ---------- */
 function move(fromRow, fromCol, toRow, toCol, promo = null) {
     const piece = board[fromRow][fromCol];
     const captured = board[toRow][toCol];
@@ -438,7 +438,6 @@ function move(fromRow, fromCol, toRow, toCol, promo = null) {
     possibleMoves = [];
     render();
 
-    // king check / checkmate shake
     const king = turn === 'w' ? 'K' : 'k';
     let kingSquare = null;
     for (let r = 0; r < 8; r++)
