@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormHex - Modern Hex Editor</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --info: #0984e3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--secondary);
+            border-radius: 0.5rem;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            background-color: rgba(108, 92, 231, 0.05);
+        }
+
+        .drop-zone.active {
+            border-color: var(--success);
+            background-color: rgba(0, 184, 148, 0.05);
+        }
+
+        .drop-zone h2 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .drop-zone p {
+            color: var(--light);
+            opacity: 0.7;
+        }
+
+        .file-info {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .file-size {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .editor-container {
+            display: none;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .editor-title {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .offset-header, .hex-header, .ascii-header {
+            font-weight: bold;
+            color: var(--secondary);
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .hex-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(16, 1fr) 200px;
+            gap: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .offset {
+            color: var(--warning);
+            font-family: monospace;
+            text-align: right;
+            padding: 0.25rem;
+        }
+
+        .hex-cell {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.25rem;
+            padding: 0.25rem;
+            text-align: center;
+            font-family: monospace;
+            transition: all 0.2s ease;
+        }
+
+        .hex-cell:hover {
+            background-color: rgba(108, 92, 231, 0.2);
+            border-color: var(--primary);
+        }
+
+        .hex-cell:focus {
+            outline: none;
+            background-color: rgba(108, 92, 231, 0.3);
+            border-color: var(--primary);
+        }
+
+        .ascii-cell {
+            font-family: monospace;
+            padding: 0.25rem;
+            text-align: left;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5649c0;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #8c7ae6;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #00a383;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-bar {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cursor-position {
+            font-family: monospace;
+        }
+
+        .history-panel {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .history-panel h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .history-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .page-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .goto-page {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .goto-page input {
+            width: 60px;
+            padding: 0.25rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.25rem;
+            color: var(--light);
+            text-align: center;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Search bar styling */
+        .search-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            color: var(--light);
+            font-family: monospace;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-btn {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--info);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background-color: #0876c9;
+        }
+
+        @media (max-width: 768px) {
+            .hex-grid {
+                grid-template-columns: 60px repeat(8, 1fr) 100px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">✧</span>
+                <h1>StormHex</h1>
+            </div>
+            <div class="status-bar">
+                <span class="cursor-position">Offset: 0x0</span>
+                <span id="statusMessage">Ready</span>
+            </div>
+        </header>
+
+        <div id="dropZone" class="drop-zone">
+            <h2>Drag & Drop File Here</h2>
+            <p>or click to browse</p>
+            <input type="file" id="fileInput" style="display: none;">
+        </div>
+
+        <div id="fileInfo" class="file-info" style="display: none;">
+            <span class="file-name" id="fileName">No file selected</span>
+            <span class="file-size" id="fileSize">0 bytes</span>
+        </div>
+
+        <div id="editorContainer" class="editor-container">
+            <div class="editor-header">
+                <div class="editor-title">Hex View</div>
+                <div id="editorStatus">Editing</div>
+            </div>
+            
+            <!-- Added search bar -->
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Enter offset (e.g., 0x1A or 26)">
+                <button id="searchBtn" class="search-btn">Go to Offset</button>
+            </div>
+            
+            <div class="hex-grid" id="hexGrid">
+                <!-- Hex editor content will be generated here -->
+            </div>
+            <div class="pagination" id="pagination">
+                <button id="firstPage" class="page-btn" disabled>«</button>
+                <button id="prevPage" class="page-btn" disabled>‹</button>
+                <div class="page-info">
+                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                </div>
+                <div class="goto-page">
+                    <span>Go to:</span>
+                    <input type="number" id="pageInput" min="1" value="1">
+                </div>
+                <button id="nextPage" class="page-btn" disabled>›</button>
+                <button id="lastPage" class="page-btn" disabled>»</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="saveBtn" class="btn btn-primary" disabled>
+                <span>💾</span> Save Changes
+            </button>
+            <button id="downloadBtn" class="btn btn-secondary" disabled>
+                <span>📥</span> Download .StormHex
+            </button>
+            <button id="loadHistoryBtn" class="btn btn-secondary" disabled>
+                <span>📂</span> Load .StormHex
+            </button>
+            <button id="clearBtn" class="btn btn-danger">
+                <span>🗑️</span> Clear
+            </button>
+            <div style="flex-grow: 1;"></div>
+            <div class="goto-page">
+                <span>Rows per page:</span>
+                <select id="rowsPerPage">
+                    <option value="64">64</option>
+                    <option value="128" selected>128</option>
+                    <option value="256">256</option>
+                    <option value="512">512</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="historyPanel" class="history-panel">
+            <h3>Edit History</h3>
+            <div class="history-list" id="historyList">
+                <!-- History items will be added here -->
+            </div>
+            <button id="clearHistoryBtn" class="btn btn-danger">
+                <span>🧹</span> Clear History
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM elements
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const editorContainer = document.getElementById('editorContainer');
+            const hexGrid = document.getElementById('hexGrid');
+            const saveBtn = document.getElementById('saveBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const loadHistoryBtn = document.getElementById('loadHistoryBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const historyPanel = document.getElementById('historyPanel');
+            const historyList = document.getElementById('historyList');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const cursorPosition = document.querySelector('.cursor-position');
+            const statusMessage = document.getElementById('statusMessage');
+            const pagination = document.getElementById('pagination');
+            const firstPageBtn = document.getElementById('firstPage');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const lastPageBtn = document.getElementById('lastPage');
+            const currentPageSpan = document.getElementById('currentPage');
+            const totalPagesSpan = document.getElementById('totalPages');
+            const pageInput = document.getElementById('pageInput');
+            const rowsPerPageSelect = document.getElementById('rowsPerPage');
+            
+            // New search elements
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+
+            // State variables
+            let currentFile = null;
+            let fileData = null;
+            let originalData = null;
+            let editHistory = [];
+            let cursorOffset = 0;
+            let currentPage = 1;
+            let rowsPerPage = 128;
+            let totalPages = 1;
+
+            // Initialize
+            setupEventListeners();
+
+            function setupEventListeners() {
+                // Drag and drop events
+                dropZone.addEventListener('click', () => fileInput.click());
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('active');
+                });
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('active');
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('active');
+                    if (e.dataTransfer.files.length) {
+                        handleFileSelection(e.dataTransfer.files[0]);
+                    }
+                });
+
+                // File input change
+                fileInput.addEventListener('change', () => {
+                    if (fileInput.files.length) {
+                        if (fileInput.files[0].name.endsWith('.StormHex')) {
+                            loadHistoryFile(fileInput.files[0]);
+                        } else {
+                            handleFileSelection(fileInput.files[0]);
+                        }
+                    }
+                });
+
+                // Button events
+                saveBtn.addEventListener('click', saveChanges);
+                downloadBtn.addEventListener('click', downloadHistory);
+                loadHistoryBtn.addEventListener('click', () => fileInput.click());
+                clearBtn.addEventListener('click', clearEditor);
+                clearHistoryBtn.addEventListener('click', clearHistory);
+
+                // Pagination events
+                firstPageBtn.addEventListener('click', () => goToPage(1));
+                prevPageBtn.addEventListener('click', () => goToPage(currentPage - 1));
+                nextPageBtn.addEventListener('click', () => goToPage(currentPage + 1));
+                lastPageBtn.addEventListener('click', () => goToPage(totalPages));
+                pageInput.addEventListener('change', () => {
+                    const page = parseInt(pageInput.value);
+                    if (page >= 1 && page <= totalPages) {
+                        goToPage(page);
+                    } else {
+                        pageInput.value = currentPage;
+                    }
+                });
+                rowsPerPageSelect.addEventListener('change', () => {
+                    rowsPerPage = parseInt(rowsPerPageSelect.value);
+                    if (fileData) {
+                        calculateTotalPages();
+                        goToPage(1);
+                    }
+                });
+                
+                // Search functionality
+                searchBtn.addEventListener('click', goToOffset);
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        goToOffset();
+                    }
+                });
+            }
+
+            function handleFileSelection(file) {
+                currentFile = file;
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'flex';
+                statusMessage.textContent = 'Loading file...';
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        originalData = new Uint8Array(arrayBuffer);
+                        fileData = new Uint8Array(arrayBuffer);
+                        
+                        calculateTotalPages();
+                        renderHexEditor();
+                        
+                        editorContainer.style.display = 'block';
+                        saveBtn.disabled = false;
+                        downloadBtn.disabled = false;
+                        loadHistoryBtn.disabled = false;
+                        historyPanel.style.display = 'block';
+                        
+                        addToHistory('File loaded: ' + file.name);
+                        statusMessage.textContent = 'Ready';
+                    } catch (err) {
+                        statusMessage.textContent = 'Error loading file';
+                        console.error(err);
+                    }
+                };
+                reader.onerror = () => {
+                    statusMessage.textContent = 'Error reading file';
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            function calculateTotalPages() {
+                if (!fileData) return;
+                
+                const bytes = fileData.length;
+                const bytesPerRow = 16;
+                const rows = Math.ceil(bytes / bytesPerRow);
+                totalPages = Math.ceil(rows / (rowsPerPage / bytesPerRow));
+                totalPagesSpan.textContent = totalPages;
+                updatePaginationButtons();
+            }
+
+            function updatePaginationButtons() {
+                firstPageBtn.disabled = currentPage === 1;
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages;
+                lastPageBtn.disabled = currentPage === totalPages;
+                pageInput.value = currentPage;
+            }
+
+            function goToPage(page) {
+                if (page < 1 || page > totalPages || !fileData) return;
+                
+                currentPage = page;
+                currentPageSpan.textContent = currentPage;
+                renderHexEditor();
+                updatePaginationButtons();
+            }
+            
+            function goToOffset() {
+                if (!fileData) return;
+                
+                const input = searchInput.value.trim();
+                let offset;
+                
+                // Check if input is hex (starts with 0x)
+                if (input.startsWith('0x')) {
+                    offset = parseInt(input.substring(2), 16);
+                } else {
+                    // Assume decimal
+                    offset = parseInt(input, 10);
+                }
+                
+                if (isNaN(offset) || offset < 0 || offset >= fileData.length) {
+                    statusMessage.textContent = 'Invalid offset';
+                    return;
+                }
+                
+                // Calculate which page this offset would be on
+                const bytesPerPage = rowsPerPage * 16;
+                const targetPage = Math.floor(offset / bytesPerPage) + 1;
+                
+                // Go to that page
+                goToPage(targetPage);
+                
+                // Highlight the cell (after a small delay to allow render)
+                setTimeout(() => {
+                    const cell = document.querySelector(`.hex-cell[data-offset="${offset}"]`);
+                    if (cell) {
+                        cell.focus();
+                        cell.select();
+                        statusMessage.textContent = `Jumped to offset 0x${offset.toString(16).toUpperCase()}`;
+                    } else {
+                        statusMessage.textContent = `Offset 0x${offset.toString(16).toUpperCase()} is on this page`;
+                    }
+                }, 100);
+            }
+
+            function renderHexEditor() {
+                if (!fileData) return;
+                
+                hexGrid.innerHTML = '';
+
+                // Create headers
+                const offsetHeader = document.createElement('div');
+                offsetHeader.className = 'offset-header';
+                offsetHeader.textContent = 'Offset';
+                hexGrid.appendChild(offsetHeader);
+
+                for (let i = 0; i < 16; i++) {
+                    const hexHeader = document.createElement('div');
+                    hexHeader.className = 'hex-header';
+                    hexHeader.textContent = i.toString(16).toUpperCase().padStart(2, '0');
+                    hexGrid.appendChild(hexHeader);
+                }
+
+                const asciiHeader = document.createElement('div');
+                asciiHeader.className = 'ascii-header';
+                asciiHeader.textContent = 'ASCII';
+                hexGrid.appendChild(asciiHeader);
+
+                // Calculate range to display
+                const bytesPerPage = rowsPerPage * 16;
+                const startByte = (currentPage - 1) * bytesPerPage;
+                const endByte = Math.min(startByte + bytesPerPage, fileData.length);
+                
+                // Calculate number of rows needed for current page
+                const startRow = Math.floor(startByte / 16);
+                const endRow = Math.min(Math.ceil(endByte / 16), Math.ceil(fileData.length / 16));
+
+                for (let row = startRow; row < endRow; row++) {
+                    const offset = row * 16;
+                    const offsetCell = document.createElement('div');
+                    offsetCell.className = 'offset';
+                    offsetCell.textContent = '0x' + offset.toString(16).toUpperCase().padStart(8, '0');
+                    hexGrid.appendChild(offsetCell);
+
+                    // Create hex cells for this row
+                    let asciiChars = '';
+                    for (let col = 0; col < 16; col++) {
+                        const cellOffset = offset + col;
+                        if (cellOffset < fileData.length) {
+                            const hexCell = document.createElement('input');
+                            hexCell.className = 'hex-cell';
+                            hexCell.type = 'text';
+                            hexCell.maxLength = 2;
+                            hexCell.value = fileData[cellOffset].toString(16).toUpperCase().padStart(2, '0');
+                            hexCell.dataset.offset = cellOffset;
+
+                            hexCell.addEventListener('focus', (e) => {
+                                cursorOffset = parseInt(e.target.dataset.offset);
+                                updateCursorPosition();
+                            });
+
+                            hexCell.addEventListener('input', (e) => {
+                                const offset = parseInt(e.target.dataset.offset);
+                                const value = e.target.value;
+                                
+                                // Validate hex input
+                                if (/^[0-9A-Fa-f]{0,2}$/.test(value)) {
+                                    if (value.length === 2) {
+                                        const byteValue = parseInt(value, 16);
+                                        if (!isNaN(byteValue) && byteValue >= 0 && byteValue <= 255) {
+                                            fileData[offset] = byteValue;
+                                            addToHistory(`Modified byte at 0x${offset.toString(16).toUpperCase()}: ${originalData[offset].toString(16).toUpperCase().padStart(2, '0')} → ${value.toUpperCase()}`);
+                                            originalData[offset] = byteValue; // Update original after first edit
+                                            
+                                            // Update ASCII representation
+                                            const rowElement = e.target.parentElement;
+                                            const asciiCell = rowElement.lastChild;
+                                            const asciiOffset = offset - (row * 16);
+                                            const newAsciiChars = asciiCell.textContent.split('');
+                                            newAsciiChars[asciiOffset] = byteValue >= 32 && byteValue <= 126 ? String.fromCharCode(byteValue) : '.';
+                                            asciiCell.textContent = newAsciiChars.join('');
+                                        }
+                                    }
+                                } else {
+                                    // Revert to previous valid value
+                                    e.target.value = fileData[offset].toString(16).toUpperCase().padStart(2, '0');
+                                }
+                            });
+
+                            hexGrid.appendChild(hexCell);
+
+                            // Build ASCII representation
+                            const charCode = fileData[cellOffset];
+                            asciiChars += charCode >= 32 && charCode <= 126 ? String.fromCharCode(charCode) : '.';
+                        } else {
+                            // Empty cell for padding
+                            const emptyCell = document.createElement('div');
+                            emptyCell.className = 'hex-cell';
+                            hexGrid.appendChild(emptyCell);
+                            asciiChars += ' ';
+                        }
+                    }
+
+                    // Add ASCII representation
+                    const asciiCell = document.createElement('div');
+                    asciiCell.className = 'ascii-cell';
+                    asciiCell.textContent = asciiChars;
+                    hexGrid.appendChild(asciiCell);
+                }
+            }
+
+            function updateCursorPosition() {
+                cursorPosition.textContent = `Offset: 0x${cursorOffset.toString(16).toUpperCase()}`;
+            }
+
+            function saveChanges() {
+                if (!currentFile) return;
+
+                statusMessage.textContent = 'Saving file...';
+                
+                const blob = new Blob([fileData], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = currentFile.name;
+                a.click();
+
+                URL.revokeObjectURL(url);
+                addToHistory('File saved: ' + currentFile.name);
+                statusMessage.textContent = 'File saved';
+            }
+
+            function downloadHistory() {
+                if (!currentFile || editHistory.length === 0) return;
+
+                statusMessage.textContent = 'Creating history file...';
+                
+                const historyData = {
+                    fileName: currentFile.name,
+                    fileSize: currentFile.size,
+                    originalData: Array.from(originalData),
+                    currentData: Array.from(fileData),
+                    history: editHistory,
+                    timestamp: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = currentFile.name + '.StormHex';
+                a.click();
+
+                URL.revokeObjectURL(url);
+                addToHistory('History saved: ' + currentFile.name + '.StormHex');
+                statusMessage.textContent = 'History file created';
+            }
+
+            function loadHistoryFile(file) {
+                statusMessage.textContent = 'Loading history file...';
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const historyData = JSON.parse(e.target.result);
+                        
+                        // Validate the history file
+                        if (!historyData.fileName || !historyData.currentData || !Array.isArray(historyData.currentData)) {
+                            throw new Error('Invalid history file format');
+                        }
+
+                        // Update UI with history data
+                        currentFile = new File([new Uint8Array(historyData.currentData)], historyData.fileName);
+                        fileName.textContent = historyData.fileName;
+                        fileSize.textContent = formatFileSize(historyData.currentData.length);
+                        fileInfo.style.display = 'flex';
+
+                        originalData = new Uint8Array(historyData.originalData || historyData.currentData);
+                        fileData = new Uint8Array(historyData.currentData);
+                        editHistory = historyData.history || [];
+
+                        calculateTotalPages();
+                        renderHexEditor();
+                        editorContainer.style.display = 'block';
+                        saveBtn.disabled = false;
+                        downloadBtn.disabled = false;
+                        loadHistoryBtn.disabled = false;
+                        historyPanel.style.display = 'block';
+
+                        // Display history
+                        renderHistory();
+                        addToHistory('History loaded from: ' + file.name);
+                        statusMessage.textContent = 'History loaded';
+                    } catch (err) {
+                        statusMessage.textContent = 'Error loading history file';
+                        console.error(err);
+                    }
+                };
+                reader.onerror = () => {
+                    statusMessage.textContent = 'Error reading history file';
+                };
+                reader.readAsText(file);
+            }
+
+            function addToHistory(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                editHistory.push(`${timestamp} - ${message}`);
+                renderHistory();
+            }
+
+            function renderHistory() {
+                historyList.innerHTML = '';
+                editHistory.slice().reverse().forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.textContent = item;
+                    historyList.appendChild(historyItem);
+                });
+            }
+
+            function clearHistory() {
+                editHistory = [];
+                renderHistory();
+                statusMessage.textContent = 'History cleared';
+            }
+
+            function clearEditor() {
+                currentFile = null;
+                fileData = null;
+                originalData = null;
+                editHistory = [];
+                currentPage = 1;
+                totalPages = 1;
+                
+                fileInfo.style.display = 'none';
+                editorContainer.style.display = 'none';
+                historyPanel.style.display = 'none';
+                hexGrid.innerHTML = '';
+                
+                saveBtn.disabled = true;
+                downloadBtn.disabled = true;
+                loadHistoryBtn.disabled = true;
+                
+                fileInput.value = '';
+                cursorPosition.textContent = 'Offset: 0x0';
+                currentPageSpan.textContent = '1';
+                totalPagesSpan.textContent = '1';
+                statusMessage.textContent = 'Ready';
+                searchInput.value = '';
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html>
