@@ -122,11 +122,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .editor-title {
-            font-weight: bold;
-            color: var(--secondary);
-        }
-
         .offset-header, .hex-header, .ascii-header {
             font-weight: bold;
             color: var(--secondary);
@@ -398,6 +393,49 @@
             background-color: #0876c9;
         }
 
+        /* Data Inspector styling */
+        .data-inspector {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .data-inspector h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .data-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .data-type {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .data-type h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .data-value {
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .data-size {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            margin-top: 0.25rem;
+        }
+
         @media (max-width: 768px) {
             .hex-grid {
                 grid-template-columns: 60px repeat(8, 1fr) 100px;
@@ -410,6 +448,10 @@
             .search-container {
                 flex-direction: column;
                 align-items: stretch;
+            }
+
+            .data-types {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -465,6 +507,14 @@
                 </div>
                 <button id="nextPage" class="page-btn" disabled>›</button>
                 <button id="lastPage" class="page-btn" disabled>»</button>
+            </div>
+        </div>
+
+        <!-- Data Inspector Panel -->
+        <div id="dataInspector" class="data-inspector">
+            <h3>Data Inspector</h3>
+            <div class="data-types" id="dataTypes">
+                <!-- Data types will be generated here -->
             </div>
         </div>
 
@@ -532,10 +582,10 @@
             const totalPagesSpan = document.getElementById('totalPages');
             const pageInput = document.getElementById('pageInput');
             const rowsPerPageSelect = document.getElementById('rowsPerPage');
-            
-            // Search elements
             const searchInput = document.getElementById('searchInput');
             const searchBtn = document.getElementById('searchBtn');
+            const dataInspector = document.getElementById('dataInspector');
+            const dataTypesContainer = document.getElementById('dataTypes');
 
             // State variables
             let currentFile = null;
@@ -638,6 +688,7 @@
                         downloadBtn.disabled = false;
                         loadHistoryBtn.disabled = false;
                         historyPanel.style.display = 'block';
+                        dataInspector.style.display = 'block';
                         
                         addToHistory('File loaded: ' + file.name);
                         statusMessage.textContent = 'Ready';
@@ -716,6 +767,7 @@
                         cell.focus();
                         cell.select();
                         statusMessage.textContent = `Jumped to offset 0x${offset.toString(16).toUpperCase()}`;
+                        updateDataInspector(offset);
                     } else {
                         statusMessage.textContent = `Offset 0x${offset.toString(16).toUpperCase()} is on this page`;
                     }
@@ -776,6 +828,7 @@
                             hexCell.addEventListener('focus', (e) => {
                                 cursorOffset = parseInt(e.target.dataset.offset);
                                 updateCursorPosition();
+                                updateDataInspector(cursorOffset);
                             });
 
                             hexCell.addEventListener('input', (e) => {
@@ -798,6 +851,11 @@
                                             const newAsciiChars = asciiCell.textContent.split('');
                                             newAsciiChars[asciiOffset] = byteValue >= 32 && byteValue <= 126 ? String.fromCharCode(byteValue) : '.';
                                             asciiCell.textContent = newAsciiChars.join('');
+
+                                            // Update data inspector if this is the selected byte
+                                            if (cursorOffset === offset) {
+                                                updateDataInspector(offset);
+                                            }
                                         }
                                     }
                                 } else {
@@ -830,6 +888,136 @@
 
             function updateCursorPosition() {
                 cursorPosition.textContent = `Offset: 0x${cursorOffset.toString(16).toUpperCase()}`;
+            }
+
+            function updateDataInspector(offset) {
+                if (!fileData || offset < 0 || offset >= fileData.length) return;
+                
+                dataTypesContainer.innerHTML = '';
+                
+                // Get the data view starting at the current offset
+                const dataView = new DataView(fileData.buffer);
+                const remainingBytes = fileData.length - offset;
+                
+                // 1-byte unsigned integer
+                if (remainingBytes >= 1) {
+                    const value = dataView.getUint8(offset);
+                    addDataType('UInt8', value, `0x${value.toString(16).toUpperCase()}`, 1);
+                }
+                
+                // 1-byte signed integer
+                if (remainingBytes >= 1) {
+                    const value = dataView.getInt8(offset);
+                    addDataType('Int8', value, `0x${(value >>> 0).toString(16).toUpperCase()}`, 1);
+                }
+                
+                // 2-byte unsigned integer (little endian)
+                if (remainingBytes >= 2) {
+                    const value = dataView.getUint16(offset, true);
+                    addDataType('UInt16 (LE)', value, `0x${value.toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                }
+                
+                // 2-byte unsigned integer (big endian)
+                if (remainingBytes >= 2) {
+                    const value = dataView.getUint16(offset, false);
+                    addDataType('UInt16 (BE)', value, `0x${value.toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                }
+                
+                // 2-byte signed integer (little endian)
+                if (remainingBytes >= 2) {
+                    const value = dataView.getInt16(offset, true);
+                    addDataType('Int16 (LE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                }
+                
+                // 2-byte signed integer (big endian)
+                if (remainingBytes >= 2) {
+                    const value = dataView.getInt16(offset, false);
+                    addDataType('Int16 (BE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                }
+                
+                // 4-byte unsigned integer (little endian)
+                if (remainingBytes >= 4) {
+                    const value = dataView.getUint32(offset, true);
+                    addDataType('UInt32 (LE)', value, `0x${value.toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                }
+                
+                // 4-byte unsigned integer (big endian)
+                if (remainingBytes >= 4) {
+                    const value = dataView.getUint32(offset, false);
+                    addDataType('UInt32 (BE)', value, `0x${value.toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                }
+                
+                // 4-byte signed integer (little endian)
+                if (remainingBytes >= 4) {
+                    const value = dataView.getInt32(offset, true);
+                    addDataType('Int32 (LE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                }
+                
+                // 4-byte signed integer (big endian)
+                if (remainingBytes >= 4) {
+                    const value = dataView.getInt32(offset, false);
+                    addDataType('Int32 (BE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                }
+                
+                // 4-byte float (little endian)
+                if (remainingBytes >= 4) {
+                    const value = dataView.getFloat32(offset, true);
+                    addDataType('Float32 (LE)', value, value.toString(), 4);
+                }
+                
+                // 4-byte float (big endian)
+                if (remainingBytes >= 4) {
+                    const value = dataView.getFloat32(offset, false);
+                    addDataType('Float32 (BE)', value, value.toString(), 4);
+                }
+                
+                // 8-byte float (little endian)
+                if (remainingBytes >= 8) {
+                    const value = dataView.getFloat64(offset, true);
+                    addDataType('Float64 (LE)', value, value.toString(), 8);
+                }
+                
+                // 8-byte float (big endian)
+                if (remainingBytes >= 8) {
+                    const value = dataView.getFloat64(offset, false);
+                    addDataType('Float64 (BE)', value, value.toString(), 8);
+                }
+                
+                // ASCII string (up to 16 characters)
+                let asciiString = '';
+                const maxLength = Math.min(16, remainingBytes);
+                for (let i = 0; i < maxLength; i++) {
+                    const charCode = fileData[offset + i];
+                    if (charCode >= 32 && charCode <= 126) {
+                        asciiString += String.fromCharCode(charCode);
+                    } else {
+                        break;
+                    }
+                }
+                if (asciiString.length > 0) {
+                    addDataType('ASCII String', asciiString, `"${asciiString}"`, asciiString.length);
+                }
+            }
+
+            function addDataType(type, decimalValue, hexValue, size) {
+                const typeElement = document.createElement('div');
+                typeElement.className = 'data-type';
+                
+                const typeHeader = document.createElement('h4');
+                typeHeader.textContent = type;
+                typeElement.appendChild(typeHeader);
+                
+                const valueElement = document.createElement('div');
+                valueElement.className = 'data-value';
+                valueElement.textContent = hexValue;
+                typeElement.appendChild(valueElement);
+                
+                const sizeElement = document.createElement('div');
+                sizeElement.className = 'data-size';
+                sizeElement.textContent = `${size} byte${size !== 1 ? 's' : ''}`;
+                typeElement.appendChild(sizeElement);
+                
+                dataTypesContainer.appendChild(typeElement);
             }
 
             function saveChanges() {
@@ -907,6 +1095,7 @@
                         downloadBtn.disabled = false;
                         loadHistoryBtn.disabled = false;
                         historyPanel.style.display = 'block';
+                        dataInspector.style.display = 'block';
 
                         // Display history
                         renderHistory();
@@ -956,7 +1145,9 @@
                 fileInfo.style.display = 'none';
                 editorContainer.style.display = 'none';
                 historyPanel.style.display = 'none';
+                dataInspector.style.display = 'none';
                 hexGrid.innerHTML = '';
+                dataTypesContainer.innerHTML = '';
                 
                 saveBtn.disabled = true;
                 downloadBtn.disabled = true;
