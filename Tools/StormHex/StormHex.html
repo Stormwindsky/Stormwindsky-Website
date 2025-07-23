@@ -444,9 +444,9 @@
                 <div id="editorStatus">Editing</div>
             </div>
             
-            <!-- Added search bar -->
+            <!-- Search bar -->
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Enter offset (e.g., 0x1A or 26)">
+                <input type="text" id="searchInput" class="search-input" placeholder="Enter offset (e.g., 0x1A, 4CCF2A, or 26)">
                 <button id="searchBtn" class="search-btn">Go to Offset</button>
             </div>
             
@@ -533,7 +533,7 @@
             const pageInput = document.getElementById('pageInput');
             const rowsPerPageSelect = document.getElementById('rowsPerPage');
             
-            // New search elements
+            // Search elements
             const searchInput = document.getElementById('searchInput');
             const searchBtn = document.getElementById('searchBtn');
 
@@ -686,9 +686,12 @@
                 const input = searchInput.value.trim();
                 let offset;
                 
-                // Check if input is hex (starts with 0x)
+                // Check if input is hex (starts with 0x or is hex without prefix)
                 if (input.startsWith('0x')) {
                     offset = parseInt(input.substring(2), 16);
+                } else if (/^[0-9A-Fa-f]+$/.test(input)) {
+                    // Hex value without 0x prefix (like 4CCF2A)
+                    offset = parseInt(input, 16);
                 } else {
                     // Assume decimal
                     offset = parseInt(input, 10);
