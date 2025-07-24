@@ -68,6 +68,7 @@
             margin-bottom: 2rem;
             transition: all 0.3s ease;
             background-color: rgba(108, 92, 231, 0.05);
+            cursor: pointer;
         }
 
         .drop-zone.active {
@@ -430,6 +431,28 @@
             word-break: break-all;
         }
 
+        .data-value.editable {
+            cursor: pointer;
+            background-color: rgba(108, 92, 231, 0.1);
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .data-value.editable:hover {
+            background-color: rgba(108, 92, 231, 0.2);
+        }
+
+        .data-value input {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 0.25rem;
+            color: var(--light);
+            font-family: monospace;
+            padding: 0.25rem;
+        }
+
         .data-size {
             font-size: 0.8rem;
             color: var(--secondary);
@@ -596,35 +619,49 @@
             let currentPage = 1;
             let rowsPerPage = 128;
             let totalPages = 1;
+            let activeDataInspectorType = null;
 
             // Initialize
             setupEventListeners();
 
             function setupEventListeners() {
-                // Drag and drop events
+                // Drag and drop events - WORKING VERSION
                 dropZone.addEventListener('click', () => fileInput.click());
-                dropZone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    dropZone.classList.add('active');
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        dropZone.classList.add('active');
+                    });
                 });
-                dropZone.addEventListener('dragleave', () => {
-                    dropZone.classList.remove('active');
+
+                ['dragleave', 'dragend'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.classList.remove('active');
+                    });
                 });
+
                 dropZone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     dropZone.classList.remove('active');
-                    if (e.dataTransfer.files.length) {
-                        handleFileSelection(e.dataTransfer.files[0]);
+                    if (e.dataTransfer.files.length > 0) {
+                        const file = e.dataTransfer.files[0];
+                        if (file.name.endsWith('.StormHex')) {
+                            loadHistoryFile(file);
+                        } else {
+                            handleFileSelection(file);
+                        }
                     }
                 });
 
                 // File input change
                 fileInput.addEventListener('change', () => {
-                    if (fileInput.files.length) {
-                        if (fileInput.files[0].name.endsWith('.StormHex')) {
-                            loadHistoryFile(fileInput.files[0]);
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+                        if (file.name.endsWith('.StormHex')) {
+                            loadHistoryFile(file);
                         } else {
-                            handleFileSelection(fileInput.files[0]);
+                            handleFileSelection(file);
                         }
                     }
                 });
@@ -667,6 +704,8 @@
             }
 
             function handleFileSelection(file) {
+                if (!file) return;
+                
                 currentFile = file;
                 fileName.textContent = file.name;
                 fileSize.textContent = formatFileSize(file.size);
@@ -694,12 +733,15 @@
                         statusMessage.textContent = 'Ready';
                     } catch (err) {
                         statusMessage.textContent = 'Error loading file';
-                        console.error(err);
+                        console.error('Error loading file:', err);
                     }
                 };
+                
                 reader.onerror = () => {
                     statusMessage.textContent = 'Error reading file';
+                    console.error('FileReader error');
                 };
+                
                 reader.readAsArrayBuffer(file);
             }
 
@@ -839,10 +881,10 @@
                                 if (/^[0-9A-Fa-f]{0,2}$/.test(value)) {
                                     if (value.length === 2) {
                                         const byteValue = parseInt(value, 16);
-                                        if (!isNaN(byteValue) && byteValue >= 0 && byteValue <= 255) {
+                                        if (!isNaN(byteValue)) {
+                                            const oldValue = fileData[offset];
                                             fileData[offset] = byteValue;
-                                            addToHistory(`Modified byte at 0x${offset.toString(16).toUpperCase()}: ${originalData[offset].toString(16).toUpperCase().padStart(2, '0')} → ${value.toUpperCase()}`);
-                                            originalData[offset] = byteValue; // Update original after first edit
+                                            addToHistory(`Modified byte at 0x${offset.toString(16).toUpperCase()}: ${oldValue.toString(16).toUpperCase().padStart(2, '0')} → ${value.toUpperCase()}`);
                                             
                                             // Update ASCII representation
                                             const rowElement = e.target.parentElement;
@@ -894,6 +936,7 @@
                 if (!fileData || offset < 0 || offset >= fileData.length) return;
                 
                 dataTypesContainer.innerHTML = '';
+                activeDataInspectorType = null;
                 
                 // Get the data view starting at the current offset
                 const dataView = new DataView(fileData.buffer);
@@ -902,85 +945,197 @@
                 // 1-byte unsigned integer
                 if (remainingBytes >= 1) {
                     const value = dataView.getUint8(offset);
-                    addDataType('UInt8', value, `0x${value.toString(16).toUpperCase()}`, 1);
+                    addDataType('UInt8', value, `0x${value.toString(16).toUpperCase()}`, 1, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= 0 && num <= 255) {
+                            dataView.setUint8(offset, num);
+                            updateHexCell(offset, num);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 1-byte signed integer
                 if (remainingBytes >= 1) {
                     const value = dataView.getInt8(offset);
-                    addDataType('Int8', value, `0x${(value >>> 0).toString(16).toUpperCase()}`, 1);
+                    addDataType('Int8', value, `0x${(value >>> 0).toString(16).toUpperCase()}`, 1, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= -128 && num <= 127) {
+                            dataView.setInt8(offset, num);
+                            updateHexCell(offset, num);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 2-byte unsigned integer (little endian)
                 if (remainingBytes >= 2) {
                     const value = dataView.getUint16(offset, true);
-                    addDataType('UInt16 (LE)', value, `0x${value.toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                    addDataType('UInt16 (LE)', value, `0x${value.toString(16).toUpperCase().padStart(4, '0')}`, 2, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= 0 && num <= 65535) {
+                            dataView.setUint16(offset, num, true);
+                            updateHexCells(offset, 2);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 2-byte unsigned integer (big endian)
                 if (remainingBytes >= 2) {
                     const value = dataView.getUint16(offset, false);
-                    addDataType('UInt16 (BE)', value, `0x${value.toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                    addDataType('UInt16 (BE)', value, `0x${value.toString(16).toUpperCase().padStart(4, '0')}`, 2, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= 0 && num <= 65535) {
+                            dataView.setUint16(offset, num, false);
+                            updateHexCells(offset, 2);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 2-byte signed integer (little endian)
                 if (remainingBytes >= 2) {
                     const value = dataView.getInt16(offset, true);
-                    addDataType('Int16 (LE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                    addDataType('Int16 (LE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`, 2, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= -32768 && num <= 32767) {
+                            dataView.setInt16(offset, num, true);
+                            updateHexCells(offset, 2);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 2-byte signed integer (big endian)
                 if (remainingBytes >= 2) {
                     const value = dataView.getInt16(offset, false);
-                    addDataType('Int16 (BE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`, 2);
+                    addDataType('Int16 (BE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`, 2, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= -32768 && num <= 32767) {
+                            dataView.setInt16(offset, num, false);
+                            updateHexCells(offset, 2);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 4-byte unsigned integer (little endian)
                 if (remainingBytes >= 4) {
                     const value = dataView.getUint32(offset, true);
-                    addDataType('UInt32 (LE)', value, `0x${value.toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                    addDataType('UInt32 (LE)', value, `0x${value.toString(16).toUpperCase().padStart(8, '0')}`, 4, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= 0 && num <= 4294967295) {
+                            dataView.setUint32(offset, num, true);
+                            updateHexCells(offset, 4);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 4-byte unsigned integer (big endian)
                 if (remainingBytes >= 4) {
                     const value = dataView.getUint32(offset, false);
-                    addDataType('UInt32 (BE)', value, `0x${value.toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                    addDataType('UInt32 (BE)', value, `0x${value.toString(16).toUpperCase().padStart(8, '0')}`, 4, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= 0 && num <= 4294967295) {
+                            dataView.setUint32(offset, num, false);
+                            updateHexCells(offset, 4);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 4-byte signed integer (little endian)
                 if (remainingBytes >= 4) {
                     const value = dataView.getInt32(offset, true);
-                    addDataType('Int32 (LE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                    addDataType('Int32 (LE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`, 4, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= -2147483648 && num <= 2147483647) {
+                            dataView.setInt32(offset, num, true);
+                            updateHexCells(offset, 4);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 4-byte signed integer (big endian)
                 if (remainingBytes >= 4) {
                     const value = dataView.getInt32(offset, false);
-                    addDataType('Int32 (BE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`, 4);
+                    addDataType('Int32 (BE)', value, `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`, 4, offset, (newValue) => {
+                        const num = parseInt(newValue);
+                        if (!isNaN(num) && num >= -2147483648 && num <= 2147483647) {
+                            dataView.setInt32(offset, num, false);
+                            updateHexCells(offset, 4);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 4-byte float (little endian)
                 if (remainingBytes >= 4) {
                     const value = dataView.getFloat32(offset, true);
-                    addDataType('Float32 (LE)', value, value.toString(), 4);
+                    addDataType('Float32 (LE)', value, value.toString(), 4, offset, (newValue) => {
+                        const num = parseFloat(newValue);
+                        if (!isNaN(num)) {
+                            dataView.setFloat32(offset, num, true);
+                            updateHexCells(offset, 4);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 4-byte float (big endian)
                 if (remainingBytes >= 4) {
                     const value = dataView.getFloat32(offset, false);
-                    addDataType('Float32 (BE)', value, value.toString(), 4);
+                    addDataType('Float32 (BE)', value, value.toString(), 4, offset, (newValue) => {
+                        const num = parseFloat(newValue);
+                        if (!isNaN(num)) {
+                            dataView.setFloat32(offset, num, false);
+                            updateHexCells(offset, 4);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 8-byte float (little endian)
                 if (remainingBytes >= 8) {
                     const value = dataView.getFloat64(offset, true);
-                    addDataType('Float64 (LE)', value, value.toString(), 8);
+                    addDataType('Float64 (LE)', value, value.toString(), 8, offset, (newValue) => {
+                        const num = parseFloat(newValue);
+                        if (!isNaN(num)) {
+                            dataView.setFloat64(offset, num, true);
+                            updateHexCells(offset, 8);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // 8-byte float (big endian)
                 if (remainingBytes >= 8) {
                     const value = dataView.getFloat64(offset, false);
-                    addDataType('Float64 (BE)', value, value.toString(), 8);
+                    addDataType('Float64 (BE)', value, value.toString(), 8, offset, (newValue) => {
+                        const num = parseFloat(newValue);
+                        if (!isNaN(num)) {
+                            dataView.setFloat64(offset, num, false);
+                            updateHexCells(offset, 8);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 // ASCII string (up to 16 characters)
@@ -995,11 +1150,34 @@
                     }
                 }
                 if (asciiString.length > 0) {
-                    addDataType('ASCII String', asciiString, `"${asciiString}"`, asciiString.length);
+                    addDataType('ASCII String', asciiString, `"${asciiString}"`, asciiString.length, offset, (newValue) => {
+                        // Remove quotes if present
+                        if (newValue.startsWith('"') && newValue.endsWith('"')) {
+                            newValue = newValue.substring(1, newValue.length - 1);
+                        }
+                        
+                        // Validate ASCII characters
+                        for (let i = 0; i < newValue.length; i++) {
+                            const charCode = newValue.charCodeAt(i);
+                            if (charCode < 32 || charCode > 126) {
+                                return false;
+                            }
+                        }
+                        
+                        // Update the bytes
+                        for (let i = 0; i < newValue.length; i++) {
+                            if (offset + i >= fileData.length) break;
+                            fileData[offset + i] = newValue.charCodeAt(i);
+                        }
+                        
+                        // Update hex cells and ASCII representation
+                        updateHexCells(offset, newValue.length);
+                        return true;
+                    });
                 }
             }
 
-            function addDataType(type, decimalValue, hexValue, size) {
+            function addDataType(type, decimalValue, hexValue, size, offset, updateCallback) {
                 const typeElement = document.createElement('div');
                 typeElement.className = 'data-type';
                 
@@ -1008,8 +1186,48 @@
                 typeElement.appendChild(typeHeader);
                 
                 const valueElement = document.createElement('div');
-                valueElement.className = 'data-value';
+                valueElement.className = 'data-value editable';
                 valueElement.textContent = hexValue;
+                valueElement.dataset.type = type;
+                valueElement.dataset.offset = offset;
+                valueElement.dataset.size = size;
+                
+                valueElement.addEventListener('click', (e) => {
+                    if (activeDataInspectorType === type) return;
+                    
+                    // If another type is being edited, save it first
+                    if (activeDataInspectorType) {
+                        const activeElement = document.querySelector(`.data-value[data-type="${activeDataInspectorType}"]`);
+                        if (activeElement && activeElement.querySelector('input')) {
+                            saveDataInspectorEdit(activeElement);
+                        }
+                    }
+                    
+                    // Create input field for editing
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = hexValue;
+                    
+                    // Replace the text with input field
+                    valueElement.innerHTML = '';
+                    valueElement.appendChild(input);
+                    input.focus();
+                    
+                    // Set this as the active type being edited
+                    activeDataInspectorType = type;
+                    
+                    // Handle saving when focus is lost or Enter is pressed
+                    input.addEventListener('blur', () => {
+                        saveDataInspectorEdit(valueElement, updateCallback);
+                    });
+                    
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            saveDataInspectorEdit(valueElement, updateCallback);
+                        }
+                    });
+                });
+                
                 typeElement.appendChild(valueElement);
                 
                 const sizeElement = document.createElement('div');
@@ -1018,6 +1236,136 @@
                 typeElement.appendChild(sizeElement);
                 
                 dataTypesContainer.appendChild(typeElement);
+            }
+
+            function saveDataInspectorEdit(element, updateCallback) {
+                const input = element.querySelector('input');
+                if (!input) return;
+                
+                const newValue = input.value;
+                const type = element.dataset.type;
+                const offset = parseInt(element.dataset.offset);
+                const size = parseInt(element.dataset.size);
+                
+                // Call the update callback if provided
+                let success = false;
+                if (updateCallback) {
+                    success = updateCallback(newValue);
+                }
+                
+                if (success) {
+                    // Add to history
+                    addToHistory(`Modified ${type} at 0x${offset.toString(16).toUpperCase()}`);
+                    
+                    // Update the display value
+                    const dataView = new DataView(fileData.buffer);
+                    let displayValue = '';
+                    
+                    // Recalculate the display value based on type
+                    if (type === 'UInt8') {
+                        const value = dataView.getUint8(offset);
+                        displayValue = `0x${value.toString(16).toUpperCase()}`;
+                    } else if (type === 'Int8') {
+                        const value = dataView.getInt8(offset);
+                        displayValue = `0x${(value >>> 0).toString(16).toUpperCase()}`;
+                    } else if (type === 'UInt16 (LE)') {
+                        const value = dataView.getUint16(offset, true);
+                        displayValue = `0x${value.toString(16).toUpperCase().padStart(4, '0')}`;
+                    } else if (type === 'UInt16 (BE)') {
+                        const value = dataView.getUint16(offset, false);
+                        displayValue = `0x${value.toString(16).toUpperCase().padStart(4, '0')}`;
+                    } else if (type === 'Int16 (LE)') {
+                        const value = dataView.getInt16(offset, true);
+                        displayValue = `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`;
+                    } else if (type === 'Int16 (BE)') {
+                        const value = dataView.getInt16(offset, false);
+                        displayValue = `0x${(value >>> 0).toString(16).toUpperCase().padStart(4, '0')}`;
+                    } else if (type === 'UInt32 (LE)') {
+                        const value = dataView.getUint32(offset, true);
+                        displayValue = `0x${value.toString(16).toUpperCase().padStart(8, '0')}`;
+                    } else if (type === 'UInt32 (BE)') {
+                        const value = dataView.getUint32(offset, false);
+                        displayValue = `0x${value.toString(16).toUpperCase().padStart(8, '0')}`;
+                    } else if (type === 'Int32 (LE)') {
+                        const value = dataView.getInt32(offset, true);
+                        displayValue = `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`;
+                    } else if (type === 'Int32 (BE)') {
+                        const value = dataView.getInt32(offset, false);
+                        displayValue = `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`;
+                    } else if (type === 'Float32 (LE)' || type === 'Float32 (BE)') {
+                        const value = type.includes('LE)') ? 
+                            dataView.getFloat32(offset, true) : 
+                            dataView.getFloat32(offset, false);
+                        displayValue = value.toString();
+                    } else if (type === 'Float64 (LE)' || type === 'Float64 (BE)') {
+                        const value = type.includes('LE)') ? 
+                            dataView.getFloat64(offset, true) : 
+                            dataView.getFloat64(offset, false);
+                        displayValue = value.toString();
+                    } else if (type === 'ASCII String') {
+                        let asciiString = '';
+                        for (let i = 0; i < size; i++) {
+                            if (offset + i >= fileData.length) break;
+                            const charCode = fileData[offset + i];
+                            if (charCode >= 32 && charCode <= 126) {
+                                asciiString += String.fromCharCode(charCode);
+                            } else {
+                                break;
+                            }
+                        }
+                        displayValue = `"${asciiString}"`;
+                    }
+                    
+                    // Update the element
+                    element.innerHTML = displayValue;
+                    element.className = 'data-value editable';
+                    activeDataInspectorType = null;
+                    statusMessage.textContent = `${type} updated`;
+                } else {
+                    // Revert to original value
+                    element.innerHTML = input.value;
+                    element.className = 'data-value editable';
+                    activeDataInspectorType = null;
+                    statusMessage.textContent = `Invalid value for ${type}`;
+                }
+            }
+
+            function updateHexCell(offset, value) {
+                const cell = document.querySelector(`.hex-cell[data-offset="${offset}"]`);
+                if (cell) {
+                    cell.value = value.toString(16).toUpperCase().padStart(2, '0');
+                    
+                    // Update ASCII representation
+                    const rowElement = cell.parentElement;
+                    const asciiCell = rowElement.lastChild;
+                    const row = Math.floor(offset / 16);
+                    const asciiOffset = offset - (row * 16);
+                    const newAsciiChars = asciiCell.textContent.split('');
+                    newAsciiChars[asciiOffset] = value >= 32 && value <= 126 ? String.fromCharCode(value) : '.';
+                    asciiCell.textContent = newAsciiChars.join('');
+                }
+            }
+
+            function updateHexCells(startOffset, count) {
+                for (let i = 0; i < count; i++) {
+                    const offset = startOffset + i;
+                    if (offset >= fileData.length) break;
+                    
+                    const cell = document.querySelector(`.hex-cell[data-offset="${offset}"]`);
+                    if (cell) {
+                        const value = fileData[offset];
+                        cell.value = value.toString(16).toUpperCase().padStart(2, '0');
+                        
+                        // Update ASCII representation
+                        const rowElement = cell.parentElement;
+                        const asciiCell = rowElement.lastChild;
+                        const row = Math.floor(offset / 16);
+                        const asciiOffset = offset - (row * 16);
+                        const newAsciiChars = asciiCell.textContent.split('');
+                        newAsciiChars[asciiOffset] = value >= 32 && value <= 126 ? String.fromCharCode(value) : '.';
+                        asciiCell.textContent = newAsciiChars.join('');
+                    }
+                }
             }
 
             function saveChanges() {
