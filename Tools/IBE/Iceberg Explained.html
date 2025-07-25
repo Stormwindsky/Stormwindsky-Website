@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iceberg of Flash Games</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #222;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        h1:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        #iceberg-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .text-label {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #4fc3f7;
+            cursor: move;
+            max-width: 200px;
+            word-wrap: break-word;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        
+        .image-container {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            transition: all 0.2s;
+            max-width: 200px;
+            max-height: 200px;
+        }
+        
+        .image-content {
+            max-width: 100%;
+            max-height: 100%;
+            border: 2px solid transparent;
+        }
+        
+        .image-container:hover .image-content {
+            border-color: #4fc3f7;
+        }
+        
+        .text-label:hover, .image-container:hover {
+            transform: scale(1.05);
+        }
+        
+        .text-label.has-link {
+            border-color: #ff9800;
+        }
+        
+        .delete-btn {
+            position: absolute;
+            left: -10px;
+            top: -10px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .delete-btn:hover {
+            background: #ff0000;
+            transform: scale(1.2);
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 800px;
+        }
+        
+        .instructions p {
+            margin: 5px 0;
+        }
+        
+        .highlight {
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+        
+        .highlight-orange {
+            color: #ff9800;
+            font-weight: bold;
+        }
+        
+        .highlight-green {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .share-section {
+            margin-top: 20px;
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        #share-url {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            background-color: #444;
+            color: white;
+            border: 1px solid #4fc3f7;
+            border-radius: 4px;
+        }
+        
+        .copy-btn {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #4fc3f7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .copy-btn:hover {
+            background-color: #3da8d8;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="main-title" contenteditable="true">Iceberg of Flash Games</h1>
+    
+    <div class="container">
+        <img id="iceberg-image" src="https://i.redd.it/h6540l0pg1vb1.png" alt="Iceberg of Flash Games">
+    </div>
+    
+    <div class="instructions">
+        <p><span class="highlight">M</span> - Add new text</p>
+        <p><span class="highlight-green">I</span> - Add new image (from URL)</p>
+        <p><span class="highlight">Click ❌ button</span> - Remove element</p>
+        <p><span class="highlight">Drag & drop</span> - Move existing elements</p>
+        <p><span class="highlight-orange">Double-click</span> - Open element's associated link</p>
+        <p><span class="highlight">Click on title</span> - Edit main title</p>
+    </div>
+    
+    <div class="share-section">
+        <p>Share your iceberg:</p>
+        <input type="text" id="share-url" readonly>
+        <button class="copy-btn" onclick="copyShareUrl()">Copy URL</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            const icebergImage = document.getElementById('iceberg-image');
+            const mainTitle = document.getElementById('main-title');
+            
+            // Load saved data from URL or localStorage
+            loadSavedData();
+            
+            // Make title editable
+            mainTitle.addEventListener('blur', function() {
+                updateShareUrl();
+            });
+            
+            // Function to create new text
+            function createNewText(x = 50, y = 50) {
+                const title = prompt("Enter text title:");
+                if (!title) return;
+                
+                const link = prompt("Enter link (optional - leave empty for none):");
+                
+                const textElement = document.createElement('div');
+                textElement.className = 'text-label';
+                textElement.textContent = title;
+                textElement.style.left = `${x}px`;
+                textElement.style.top = `${y}px`;
+                textElement.dataset.link = link || '';
+                textElement.dataset.type = 'text';
+                
+                // Add delete button
+                addDeleteButton(textElement);
+                
+                if (link) {
+                    textElement.classList.add('has-link');
+                    textElement.title = "Double-click to open link";
+                    
+                    // Handle double-click to open link
+                    textElement.ondblclick = function(e) {
+                        if (this.dataset.link) {
+                            window.open(this.dataset.link, '_blank');
+                            e.stopPropagation();
+                        }
+                    };
+                }
+                
+                // Make element draggable
+                makeDraggable(textElement);
+                
+                container.appendChild(textElement);
+                updateShareUrl();
+                return textElement;
+            }
+            
+            // Function to create new image
+            function createNewImage(x = 50, y = 50) {
+                let imageUrl = prompt("Enter image URL (supports .svg, .png, .jpg, .gif):");
+                if (!imageUrl) return;
+                
+                // Validate URL and extension
+                try {
+                    new URL(imageUrl);
+                    const ext = imageUrl.split('.').pop().toLowerCase();
+                    if (!['svg', 'png', 'jpg', 'jpeg', 'gif'].includes(ext)) {
+                        alert("Please use a valid image URL with .svg, .png, .jpg, or .gif extension");
+                        return;
+                    }
+                } catch (e) {
+                    alert("Please enter a valid URL");
+                    return;
+                }
+                
+                const link = prompt("Enter link (optional - leave empty for none):");
+                
+                // Create container for image and delete button
+                const containerElement = document.createElement('div');
+                containerElement.className = 'image-container';
+                containerElement.style.left = `${x}px`;
+                containerElement.style.top = `${y}px`;
+                containerElement.dataset.link = link || '';
+                containerElement.dataset.type = 'image';
+                containerElement.dataset.src = imageUrl;
+                
+                // Create image element
+                const imgElement = document.createElement('img');
+                imgElement.className = 'image-content';
+                imgElement.src = imageUrl;
+                
+                // Set default size
+                imgElement.style.maxWidth = '200px';
+                imgElement.style.maxHeight = '200px';
+                
+                // Add delete button to container
+                addDeleteButton(containerElement);
+                
+                // Add image to container
+                containerElement.appendChild(imgElement);
+                
+                if (link) {
+                    containerElement.title = "Double-click to open link";
+                    containerElement.style.cursor = 'pointer';
+                    
+                    // Handle double-click to open link
+                    containerElement.ondblclick = function(e) {
+                        if (this.dataset.link) {
+                            window.open(this.dataset.link, '_blank');
+                            e.stopPropagation();
+                        }
+                    };
+                }
+                
+                // Make container draggable
+                makeDraggable(containerElement);
+                
+                container.appendChild(containerElement);
+                updateShareUrl();
+                return containerElement;
+            }
+            
+            // Function to add delete button to an element
+            function addDeleteButton(element) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '❌';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    const elementType = element.dataset.type === 'image' ? 'image' : 'text';
+                    const confirmMessage = element.dataset.type === 'image' 
+                        ? "Delete this image?" 
+                        : `Delete this text?\n"${element.textContent || ''}"`;
+                    
+                    if (confirm(confirmMessage)) {
+                        element.remove();
+                        updateShareUrl();
+                    }
+                };
+                element.appendChild(deleteBtn);
+            }
+            
+            // Function to make element draggable with smooth cursor following
+            function makeDraggable(element) {
+                let offsetX, offsetY;
+                let isDragging = false;
+                
+                element.onmousedown = function(e) {
+                    if (e.target.classList.contains('delete-btn')) return;
+                    if (e.detail > 1) return;
+                    
+                    isDragging = true;
+                    
+                    // Calculate initial offset
+                    const rect = element.getBoundingClientRect();
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+                    
+                    // Set initial position (relative to container)
+                    element.style.position = 'absolute';
+                    element.style.zIndex = '1000';
+                    
+                    document.onmousemove = function(e) {
+                        if (!isDragging) return;
+                        
+                        // Calculate new position (relative to container)
+                        const containerRect = container.getBoundingClientRect();
+                        let newLeft = e.clientX - containerRect.left - offsetX;
+                        let newTop = e.clientY - containerRect.top - offsetY;
+                        
+                        // Constrain to container boundaries
+                        newLeft = Math.max(0, Math.min(newLeft, containerRect.width - element.offsetWidth));
+                        newTop = Math.max(0, Math.min(newTop, containerRect.height - element.offsetHeight));
+                        
+                        element.style.left = `${newLeft}px`;
+                        element.style.top = `${newTop}px`;
+                    };
+                    
+                    document.onmouseup = function() {
+                        isDragging = false;
+                        document.onmousemove = null;
+                        document.onmouseup = null;
+                        element.style.zIndex = '';
+                        updateShareUrl();
+                    };
+                    
+                    e.preventDefault();
+                };
+                
+                // Prevent text selection while dragging
+                element.onselectstart = function() {
+                    return !isDragging;
+                };
+            }
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (e.key.toLowerCase() === 'm') {
+                    createNewText(x, y);
+                    e.preventDefault();
+                } else if (e.key.toLowerCase() === 'i') {
+                    createNewImage(x, y);
+                    e.preventDefault();
+                }
+            });
+            
+            // Save data when page is unloaded
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('icebergData', getCurrentDataAsJson());
+            });
+            
+            // Function to get current data as JSON
+            function getCurrentDataAsJson() {
+                const elements = document.querySelectorAll('.container > .text-label, .container > .image-container');
+                const elementsToSave = [];
+                
+                elements.forEach(el => {
+                    const elementData = {
+                        type: el.dataset.type,
+                        left: el.style.left,
+                        top: el.style.top,
+                        link: el.dataset.link || ''
+                    };
+                    
+                    if (el.dataset.type === 'text') {
+                        elementData.text = el.textContent;
+                    } else if (el.dataset.type === 'image') {
+                        elementData.src = el.dataset.src;
+                    }
+                    
+                    elementsToSave.push(elementData);
+                });
+                
+                return JSON.stringify({
+                    title: mainTitle.textContent,
+                    elements: elementsToSave
+                });
+            }
+            
+            // Function to update share URL
+            function updateShareUrl() {
+                const data = getCurrentDataAsJson();
+                const compressed = LZString.compressToEncodedURIComponent(data);
+                const url = new URL(window.location.href);
+                url.searchParams.set('data', compressed);
+                window.history.replaceState(null, '', url.toString());
+                document.getElementById('share-url').value = url.toString();
+            }
+            
+            // Function to load saved data
+            function loadSavedData() {
+                // First try to load from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlData = urlParams.get('data');
+                
+                if (urlData) {
+                    try {
+                        const decompressed = LZString.decompressFromEncodedURIComponent(urlData);
+                        const data = JSON.parse(decompressed);
+                        loadData(data);
+                        return;
+                    } catch (e) {
+                        console.error("Error loading from URL:", e);
+                    }
+                }
+                
+                // If no URL data, try localStorage
+                const savedData = localStorage.getItem('icebergData');
+                if (savedData) {
+                    try {
+                        const data = JSON.parse(savedData);
+                        loadData(data);
+                    } catch (e) {
+                        console.error("Error loading from localStorage:", e);
+                    }
+                }
+            }
+            
+            // Function to load data into the page
+            function loadData(data) {
+                if (data.title) {
+                    mainTitle.textContent = data.title;
+                }
+                
+                if (data.elements && Array.isArray(data.elements)) {
+                    data.elements.forEach(elementData => {
+                        let element;
+                        
+                        if (elementData.type === 'text') {
+                            element = document.createElement('div');
+                            element.className = 'text-label';
+                            element.textContent = elementData.text;
+                            element.dataset.type = 'text';
+                            
+                            if (elementData.link) {
+                                element.classList.add('has-link');
+                                element.title = "Double-click to open link";
+                                element.ondblclick = function(e) {
+                                    if (this.dataset.link) {
+                                        window.open(this.dataset.link, '_blank');
+                                        e.stopPropagation();
+                                    }
+                                };
+                            }
+                        } else if (elementData.type === 'image') {
+                            // Create container for image
+                            element = document.createElement('div');
+                            element.className = 'image-container';
+                            element.dataset.type = 'image';
+                            element.dataset.src = elementData.src;
+                            
+                            // Create image element
+                            const imgElement = document.createElement('img');
+                            imgElement.className = 'image-content';
+                            imgElement.src = elementData.src;
+                            imgElement.style.maxWidth = '200px';
+                            imgElement.style.maxHeight = '200px';
+                            
+                            element.appendChild(imgElement);
+                            
+                            if (elementData.link) {
+                                element.title = "Double-click to open link";
+                                element.style.cursor = 'pointer';
+                                element.ondblclick = function(e) {
+                                    if (this.dataset.link) {
+                                        window.open(this.dataset.link, '_blank');
+                                        e.stopPropagation();
+                                    }
+                                };
+                            }
+                        }
+                        
+                        if (element) {
+                            element.style.left = elementData.left;
+                            element.style.top = elementData.top;
+                            element.dataset.link = elementData.link || '';
+                            
+                            // Add delete button
+                            addDeleteButton(element);
+                            
+                            // Make element draggable
+                            makeDraggable(element);
+                            
+                            container.appendChild(element);
+                        }
+                    });
+                }
+                
+                updateShareUrl();
+            }
+        });
+        
+        // Function to copy share URL
+        function copyShareUrl() {
+            const shareUrl = document.getElementById('share-url');
+            shareUrl.select();
+            document.execCommand('copy');
+            alert("URL copied to clipboard!");
+        }
+    </script>
+    
+    <!-- LZString library for URL compression -->
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
+</body>
+</html>
