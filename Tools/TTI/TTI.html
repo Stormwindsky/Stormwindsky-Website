@@ -3,1032 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Generator with Seeds</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Image Generator Pollinations.ai</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #f5f5f5;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             padding: 20px;
         }
-        
         .container {
-            max-width: 1000px;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            padding: 30px;
+            max-width: 600px;
+            box-sizing: border-box;
         }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
         h1 {
-            color: #fff;
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: #4CAF50;
         }
-        
-        .subtitle {
-            color: #e0e0e0;
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 25px;
-            line-height: 1.6;
+        .form-group {
+            margin-bottom: 15px;
         }
-        
-        .app-container {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .input-section {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .output-section {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            padding: 25px;
-            height: 100%;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .section-title {
-            color: #fff;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .section-title i {
-            background: rgba(255, 255, 255, 0.2);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        textarea {
-            width: 100%;
-            height: 180px;
-            padding: 15px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(0, 0, 0, 0.2);
-            color: white;
-            font-size: 1.1rem;
-            resize: vertical;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        
-        textarea:focus {
-            background: rgba(0, 0, 0, 0.3);
-            box-shadow: 0 0 0 2px #ff6b6b;
-        }
-        
-        textarea::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        .examples {
-            margin-top: 15px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-        
-        .examples ul {
-            padding-left: 20px;
-            margin-top: 8px;
-        }
-        
-        .examples li {
+        label {
+            display: block;
             margin-bottom: 5px;
+            font-weight: bold;
         }
-        
+        input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #333;
+            color: #f5f5f5;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
         .button-group {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            justify-content: space-between;
+            gap: 10px;
         }
-        
         button {
-            flex: 1;
-            padding: 15px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease;
+            flex-grow: 1;
+        }
+        button#generateBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button#generateBtn:hover {
+            background-color: #45a049;
+        }
+        button#saveUrlBtn {
+            background-color: #2196F3;
+            color: white;
+        }
+        button#saveUrlBtn:hover {
+            background-color: #0b7dda;
+        }
+        #image-display-area {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #generated-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: none; /* Hidden by default */
+        }
+        #seed-display {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #333;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            visibility: hidden; /* Hidden by default, not just display: none */
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s linear;
         }
-        
-        #generateBtn {
-            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+        #seed-display.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+        #seed-value {
+            font-family: 'Courier New', Courier, monospace;
+            color: #ccc;
+        }
+        #copySeedBtn {
+            background-color: #6c757d;
             color: white;
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 3px;
+            cursor: pointer;
         }
-        
-        #improveBtn {
-            background: linear-gradient(45deg, #4facfe, #00f2fe);
-            color: white;
+        #copySeedBtn:hover {
+            background-color: #5a6268;
         }
-        
-        #clearBtn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+        #url-output {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 4px;
+            word-wrap: break-word;
+            font-size: 14px;
+            border: 1px dashed #555;
+            display: none; /* Hidden by default */
         }
-        
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        #generateBtn:hover {
-            background: linear-gradient(45deg, #ff5252, #ff7e40);
-        }
-        
-        #improveBtn:hover {
-            background: linear-gradient(45deg, #3a9ffc, #00d4e6);
-        }
-        
-        #clearBtn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .image-container {
-            height: 400px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .image-placeholder {
+        .alert {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
             text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-            padding: 30px;
         }
-        
-        .image-placeholder i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        .image-placeholder p {
-            font-size: 1.1rem;
-            max-width: 80%;
-            margin: 0 auto;
-        }
-        
-        #generatedImage {
-            max-width: 100%;
-            max-height: 100%;
-            display: none;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .loading {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .alert-success {
+            background-color: #28a745;
             color: white;
-            z-index: 10;
-            border-radius: 10px;
         }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #ff6b6b;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+        .alert-info {
+            background-color: #17a2b8;
+            color: white;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .alert-danger {
+            background-color: #dc3545;
+            color: white;
         }
-        
-        .info {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 25px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            line-height: 1.6;
+        .credits {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
         }
-        
-        .info a {
-            color: #ff6b6b;
+        .credits a {
+            color: #4CAF50;
             text-decoration: none;
         }
-        
-        .info a:hover {
+        .credits a:hover {
             text-decoration: underline;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9rem;
-        }
-        
-        /* Fullscreen image styles */
-        .fullscreen-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .fullscreen-image-container {
-            position: relative;
-            max-width: 90%;
-            max-height: 90%;
-        }
-        
-        #fullscreenImage {
-            max-width: 100%;
-            max-height: 90vh;
-            border-radius: 10px;
-        }
-        
-        .close-fullscreen {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 2rem;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.2);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .close-fullscreen:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-        
-        .view-fullscreen {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 20;
-        }
-        
-        .view-fullscreen:hover {
-            background: rgba(0, 0, 0, 0.8);
-            transform: scale(1.1);
-        }
-        
-        .prompt-display {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        .prompt-display strong {
-            color: #ffd700;
-        }
-        
-        .prompt-history {
-            margin-top: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-        
-        .prompt-history h3 {
-            color: #fff;
-            margin-bottom: 10px;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .prompt-history ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        .prompt-history li {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .prompt-history li:last-child {
-            border-bottom: none;
-        }
-        
-        .prompt-history .original {
-            color: #ff6b6b;
-        }
-        
-        .prompt-history .improved {
-            color: #4facfe;
-        }
-        
-        .prompt-history .timestamp {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.75rem;
-        }
-        
-        /* Seed controls */
-        .seed-controls {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .seed-controls label {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-        }
-        
-        .seed-controls input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            background: rgba(0, 0, 0, 0.2);
-            color: white;
-            outline: none;
-        }
-        
-        .seed-controls button {
-            padding: 10px 15px;
-            font-size: 0.9rem;
-        }
-        
-        /* Generation history */
-        .generation-history {
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .generation-history h3 {
-            color: #fff;
-            margin-bottom: 10px;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .generation-history ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        .generation-history li {
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .generation-history li:last-child {
-            border-bottom: none;
-        }
-        
-        .generation-history .history-thumbnail {
-            width: 50px;
-            height: 50px;
-            border-radius: 5px;
-            object-fit: cover;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .generation-history .history-thumbnail:hover {
-            transform: scale(1.05);
-        }
-        
-        .generation-history .history-info {
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .generation-history .history-prompt {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .generation-history .history-seed {
-            color: #4facfe;
-            font-size: 0.75rem;
-        }
-        
-        .generation-history .history-timestamp {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.75rem;
-        }
-        
-        @media (max-width: 768px) {
-            .app-container {
-                flex-direction: column;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .seed-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .generation-history li {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            
-            .generation-history .history-thumbnail {
-                width: 100%;
-                height: auto;
-                max-height: 100px;
-            }
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <header>
-            <h1>AI Image Generator with Seeds</h1>
-            <p class="subtitle">Transform your imagination into stunning visuals with automatic seed integration. Seeds are automatically added to your prompts for reproducible results.</p>
-        </header>
-        
-        <div class="app-container">
-            <div class="input-section">
-                <div class="card">
-                    <h2 class="section-title"><i class="fas fa-edit"></i> Enter Your Prompt</h2>
-                    <textarea id="promptInput" placeholder="Describe the image you want to generate...">A futuristic cityscape at sunset with flying cars</textarea>
-                    
-                    <div class="seed-controls">
-                        <label for="seedInput">Custom Seed (optional):</label>
-                        <input type="text" id="seedInput" placeholder="Leave empty for random seed">
-                        <button id="randomSeedBtn"><i class="fas fa-dice"></i> Random</button>
-                    </div>
-                    
-                    <div class="examples">
-                        <p>Try these examples:</p>
-                        <ul>
-                            <li>"A majestic waterfall in a tropical forest"</li>
-                            <li>"Steampunk robot drinking coffee in a cafe"</li>
-                            <li>"Underwater castle made of coral and pearls"</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="button-group">
-                        <button id="generateBtn">
-                            <i class="fas fa-magic"></i> Generate Image
-                        </button>
-                        <button id="improveBtn">
-                            <i class="fas fa-wand-magic-sparkles"></i> Improve Prompt
-                        </button>
-                        <button id="clearBtn">
-                            <i class="fas fa-trash-alt"></i> Clear
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="prompt-history">
-                    <h3><i class="fas fa-history"></i> Prompt History</h3>
-                    <ul id="promptHistory">
-                        <!-- History items will be added here -->
-                    </ul>
-                </div>
-                
-                <div class="generation-history">
-                    <h3><i class="fas fa-images"></i> Generation History</h3>
-                    <ul id="generationHistory">
-                        <!-- Generation history items will be added here -->
-                    </ul>
-                </div>
+        <h1>Pollinations.ai Image Generator</h1>
+        <div class="form-group">
+            <label for="prompt">Prompt (Text)</label>
+            <input type="text" id="prompt" placeholder="Enter your prompt here">
+        </div>
+        <div class="form-group">
+            <label for="width">Width</label>
+            <input type="number" id="width" value="1024" min="1">
+        </div>
+        <div class="form-group">
+            <label for="height">Height</label>
+            <input type="number" id="height" value="1024" min="1">
+        </div>
+        <div class="form-group">
+            <label for="seed">Seed</label>
+            <input type="text" id="seed" placeholder="Leave empty for random">
+        </div>
+        <div class="form-group">
+            <label for="negative_prompt">Negative Prompts</label>
+            <textarea id="negative_prompt" rows="3">blurry,black border,low quality,lowres,noisy,pixelated</textarea>
+        </div>
+        <div class="form-group">
+            <label>Options</label>
+            <div>
+                <input type="checkbox" id="enhance" checked>
+                <label for="enhance">Enhance Image (enhance)</label>
             </div>
-            
-            <div class="output-section">
-                <div class="card">
-                    <h2 class="section-title"><i class="fas fa-image"></i> Generated Image</h2>
-                    <div class="image-container">
-                        <div class="image-placeholder">
-                            <i class="fas fa-cloud-download-alt"></i>
-                            <p>Your generated image will appear here. Enter a prompt and click "Generate Image".</p>
-                        </div>
-                        <div class="loading">
-                            <div class="spinner"></div>
-                            <p id="loadingText">Generating your image...</p>
-                        </div>
-                        <img id="generatedImage" alt="Generated image from prompt">
-                        <button class="view-fullscreen" id="viewFullscreenBtn" style="display: none;">
-                            <i class="fas fa-expand"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="prompt-display">
-                        <strong>Current Prompt:</strong>
-                        <div id="currentPrompt">No prompt generated yet</div>
-                        <strong>Seed Used:</strong>
-                        <div id="currentSeed">None</div>
-                    </div>
-                </div>
+            <div>
+                <input type="checkbox" id="safe" checked>
+                <label for="safe">Safe Mode (safe)</label>
             </div>
         </div>
-        
-        <div class="info">
-            <p><i class="fas fa-info-circle"></i> This tool uses the Pollinations AI image generation service but is not affiliated with Pollinations AI. Images are generated by artificial intelligence based on your text description. Generation may take 10-30 seconds.</p>
-            <p><i class="fas fa-lightbulb"></i> Tip: Seeds are automatically added to your prompt in the format "(Seed: 123456)". The same prompt + seed will generate the same image.</p>
+        <div class="button-group">
+            <button id="generateBtn">Generate Image</button>
+            <button id="saveUrlBtn">Save Configuration to URL</button>
         </div>
-        
-        <footer>
-            <p>This web page is licensed under <a href="https://opensource.org/license/mit" target="_blank">MIT license</a>. Source code available at <a href="https://github.com/Stormwindsky/Stormwindsky-Website/tree/main" target="_blank">GitHub</a>.</p>
-        </footer>
+        <div id="alert-message" class="alert" style="display: none;"></div>
     </div>
 
-    <!-- Fullscreen image overlay -->
-    <div class="fullscreen-overlay" id="fullscreenOverlay">
-        <div class="fullscreen-image-container">
-            <img id="fullscreenImage" alt="Fullscreen generated image">
-            <div class="close-fullscreen" id="closeFullscreen">
-                <i class="fas fa-times"></i>
-            </div>
+    <div id="image-display-area">
+        <img id="generated-image" src="" alt="Generated Image">
+        <div id="seed-display">
+            <span>Generated Seed: </span>
+            <span id="seed-value"></span>
+            <button id="copySeedBtn">Copy Seed</button>
         </div>
+    </div>
+
+    <div id="url-output"></div>
+
+    <div class="credits">
+        <p>This page is licensed under the <a href="https://github.com/Stormwindsky/Stormwindsky-Website/blob/main/LICENSE" target="_blank">MIT License</a>. <br>Source code for this website is available on <a href="https://github.com/Stormwindsky/Stormwindsky-Website/tree/main" target="_blank">GitHub</a>.</p>
+        <p>Image generation is powered by the open-source AI from Pollinations.ai. <br>The AI source code is available on <a href="https://github.com/pollinations/pollinations" target="_blank">GitHub</a>.</p>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const promptInput = document.getElementById('promptInput');
+        document.addEventListener('DOMContentLoaded', () => {
+            const promptInput = document.getElementById('prompt');
+            const widthInput = document.getElementById('width');
+            const heightInput = document.getElementById('height');
+            const seedInput = document.getElementById('seed');
+            const negativePromptInput = document.getElementById('negative_prompt');
+            const enhanceCheckbox = document.getElementById('enhance');
+            const safeCheckbox = document.getElementById('safe');
             const generateBtn = document.getElementById('generateBtn');
-            const improveBtn = document.getElementById('improveBtn');
-            const clearBtn = document.getElementById('clearBtn');
-            const randomSeedBtn = document.getElementById('randomSeedBtn');
-            const seedInput = document.getElementById('seedInput');
-            const generatedImage = document.getElementById('generatedImage');
-            const imagePlaceholder = document.querySelector('.image-placeholder');
-            const loading = document.querySelector('.loading');
-            const loadingText = document.getElementById('loadingText');
-            const viewFullscreenBtn = document.getElementById('viewFullscreenBtn');
-            const fullscreenOverlay = document.getElementById('fullscreenOverlay');
-            const fullscreenImage = document.getElementById('fullscreenImage');
-            const closeFullscreen = document.getElementById('closeFullscreen');
-            const currentPrompt = document.getElementById('currentPrompt');
-            const currentSeed = document.getElementById('currentSeed');
-            const promptHistory = document.getElementById('promptHistory');
-            const generationHistory = document.getElementById('generationHistory');
-            
-            let promptHistoryList = [];
-            let generationHistoryList = [];
-            
-            // Function to generate a random seed
+            const saveUrlBtn = document.getElementById('saveUrlBtn');
+            const generatedImage = document.getElementById('generated-image');
+            const seedDisplay = document.getElementById('seed-display');
+            const seedValueSpan = document.getElementById('seed-value');
+            const copySeedBtn = document.getElementById('copySeedBtn');
+            const urlOutput = document.getElementById('url-output');
+            const alertMessage = document.getElementById('alert-message');
+
+            const API_BASE_URL = 'https://image.pollinations.ai/prompt/';
+
             function generateRandomSeed() {
-                return Math.floor(Math.random() * 1000000000);
+                return Math.floor(Math.random() * 1000000000); // Generates a random integer
             }
-            
-            // Function to add prompt to history
-            function addToPromptHistory(original, improved) {
-                const timestamp = new Date().toLocaleTimeString();
-                
-                promptHistoryList.unshift({
-                    original,
-                    improved,
-                    timestamp
-                });
-                
-                if(promptHistoryList.length > 5) {
-                    promptHistoryList.pop();
-                }
-                
-                renderPromptHistory();
+
+            function generateImageUrl(currentSeed) {
+                const promptValue = encodeURIComponent(promptInput.value);
+                const widthValue = widthInput.value || 1024;
+                const heightValue = heightInput.value || 1024;
+                const seedParam = currentSeed ? `&seed=${currentSeed}` : '';
+                const enhanceValue = `&enhance=${enhanceCheckbox.checked}`;
+                const safeValue = `&safe=${safeCheckbox.checked}`;
+                const negativePromptValue = `&negative_prompt=${encodeURIComponent(negativePromptInput.value)}`;
+
+                return `${API_BASE_URL}${promptValue}?width=${widthValue}&height=${heightValue}&model=counterfeit-v3-clean&nologo=true${enhanceValue}${safeValue}${seedParam}${negativePromptValue}`;
             }
-            
-            // Function to add generation to history
-            function addToGenerationHistory(prompt, seed, imageUrl) {
-                const timestamp = new Date().toLocaleTimeString();
-                
-                generationHistoryList.unshift({
-                    prompt,
-                    seed,
-                    imageUrl,
-                    timestamp
-                });
-                
-                if(generationHistoryList.length > 10) {
-                    generationHistoryList.pop();
-                }
-                
-                renderGenerationHistory();
-                localStorage.setItem('generationHistory', JSON.stringify(generationHistoryList));
+
+            function showAlert(message, type) {
+                alertMessage.textContent = message;
+                alertMessage.className = `alert alert-${type}`;
+                alertMessage.style.display = 'block';
+                setTimeout(() => {
+                    alertMessage.style.display = 'none';
+                }, 3000);
             }
-            
-            // Function to render prompt history
-            function renderPromptHistory() {
-                promptHistory.innerHTML = '';
-                
-                promptHistoryList.forEach(item => {
-                    const li = document.createElement('li');
-                    
-                    li.innerHTML = `
-                        <div>
-                            <span class="original">Original:</span> ${truncate(item.original, 20)}
-                        </div>
-                        <div>
-                            <span class="improved">Improved:</span> ${truncate(item.improved, 20)}
-                        </div>
-                        <span class="timestamp">${item.timestamp}</span>
-                    `;
-                    
-                    li.addEventListener('click', () => {
-                        promptInput.value = item.improved;
-                        generateImage();
-                    });
-                    
-                    promptHistory.appendChild(li);
-                });
-                
-                if(promptHistoryList.length === 0) {
-                    const li = document.createElement('li');
-                    li.textContent = "No history yet. Improve a prompt to start.";
-                    li.style.color = "rgba(255, 255, 255, 0.5)";
-                    li.style.textAlign = "center";
-                    li.style.padding = "10px 0";
-                    promptHistory.appendChild(li);
-                }
-            }
-            
-            // Function to render generation history
-            function renderGenerationHistory() {
-                generationHistory.innerHTML = '';
-                
-                generationHistoryList.forEach(item => {
-                    const li = document.createElement('li');
-                    
-                    li.innerHTML = `
-                        <img src="${item.imageUrl}" alt="Generated image" class="history-thumbnail">
-                        <div class="history-info">
-                            <div class="history-prompt" title="${item.prompt}">${truncate(item.prompt, 40)}</div>
-                            <div class="history-seed">Seed: ${item.seed}</div>
-                            <div class="history-timestamp">${item.timestamp}</div>
-                        </div>
-                    `;
-                    
-                    li.addEventListener('click', () => {
-                        promptInput.value = item.prompt.replace(/ \(Seed: \d+\)$/, '');
-                        seedInput.value = item.seed;
-                        currentPrompt.textContent = item.prompt;
-                        currentSeed.textContent = item.seed;
-                        
-                        generatedImage.src = item.imageUrl;
-                        generatedImage.style.display = 'block';
-                        imagePlaceholder.style.display = 'none';
-                        viewFullscreenBtn.style.display = 'flex';
-                        loading.style.display = 'none';
-                    });
-                    
-                    generationHistory.appendChild(li);
-                });
-                
-                if(generationHistoryList.length === 0) {
-                    const li = document.createElement('li');
-                    li.textContent = "No generation history yet. Generate an image to start.";
-                    li.style.color = "rgba(255, 255, 255, 0.5)";
-                    li.style.textAlign = "center";
-                    li.style.padding = "10px 0";
-                    generationHistory.appendChild(li);
-                }
-            }
-            
-            // Function to truncate text
-            function truncate(text, maxLength) {
-                if (text.length <= maxLength) return text;
-                return text.substring(0, maxLength) + '...';
-            }
-            
-            // Function to generate image
-            function generateImage() {
-                let prompt = promptInput.value.trim();
-                let seed = seedInput.value.trim();
-                
-                if (!prompt) {
-                    alert('Please enter a description for the image you want to generate.');
+
+            generateBtn.addEventListener('click', () => {
+                if (promptInput.value.trim() === '') {
+                    showAlert("Please enter a prompt to generate the image.", 'info');
                     return;
                 }
-                
-                // If no seed provided, generate a random one
-                if (!seed) {
-                    seed = generateRandomSeed();
-                    seedInput.value = seed;
+
+                let currentSeed = seedInput.value.trim();
+                if (!currentSeed) {
+                    currentSeed = generateRandomSeed();
                 }
-                
-                // Remove any existing seed from prompt
-                prompt = prompt.replace(/ \(Seed: \d+\)$/, '');
-                
-                // Create the final prompt with seed
-                const finalPrompt = `${prompt} (Seed: ${seed})`;
-                
-                // Update displays
-                currentPrompt.textContent = finalPrompt;
-                currentSeed.textContent = seed;
-                
-                // Encode the prompt for URL
-                const encodedPrompt = encodeURIComponent(finalPrompt);
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
-                
-                // Show loading indicator
-                loading.style.display = 'flex';
-                loadingText.textContent = "Generating your image...";
-                generatedImage.style.display = 'none';
-                imagePlaceholder.style.display = 'none';
-                viewFullscreenBtn.style.display = 'none';
-                
-                // Set image source
+
+                const imageUrl = generateImageUrl(currentSeed);
                 generatedImage.src = imageUrl;
-                
-                // When image is loaded
-                generatedImage.onload = function() {
-                    loading.style.display = 'none';
-                    generatedImage.style.display = 'block';
-                    viewFullscreenBtn.style.display = 'flex';
-                    
-                    // Add to generation history
-                    addToGenerationHistory(finalPrompt, seed, imageUrl);
+                generatedImage.style.display = 'block';
+
+                seedValueSpan.textContent = currentSeed;
+                seedDisplay.classList.add('visible'); // Show seed display with transition
+
+                showAlert("Generating image...", 'success');
+            });
+
+            copySeedBtn.addEventListener('click', () => {
+                const seedToCopy = seedValueSpan.textContent;
+                navigator.clipboard.writeText(seedToCopy).then(() => {
+                    showAlert("Seed copied to clipboard!", 'success');
+                }).catch(err => {
+                    showAlert("Error copying seed.", 'danger');
+                });
+            });
+
+            saveUrlBtn.addEventListener('click', () => {
+                const config = {
+                    prompt: promptInput.value,
+                    width: parseInt(widthInput.value),
+                    height: parseInt(heightInput.value),
+                    seed: seedInput.value,
+                    negative_prompt: negativePromptInput.value,
+                    enhance: enhanceCheckbox.checked,
+                    safe: safeCheckbox.checked
                 };
+                const jsonConfig = JSON.stringify(config);
+                const baseUrl = window.location.href.split('?')[0];
+                const savedUrl = `${baseUrl}?config=${encodeURIComponent(jsonConfig)}`;
                 
-                // Handle image loading errors
-                generatedImage.onerror = function() {
-                    loading.style.display = 'none';
-                    imagePlaceholder.style.display = 'block';
-                    viewFullscreenBtn.style.display = 'none';
-                    imagePlaceholder.innerHTML = `
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Failed to generate image. Please try a different description.</p>
-                    `;
-                };
-            }
-            
-            // Function to improve prompt
-            async function improvePrompt() {
-                let originalPrompt = promptInput.value.trim();
-                
-                if (!originalPrompt) {
-                    alert('Please enter a prompt to improve.');
-                    return;
-                }
-                
-                // Remove any existing seed from prompt
-                originalPrompt = originalPrompt.replace(/ \(Seed: \d+\)$/, '');
-                
+                urlOutput.textContent = savedUrl;
+                urlOutput.style.display = 'block';
+                navigator.clipboard.writeText(savedUrl).then(() => {
+                    showAlert("Configuration URL copied to clipboard!", 'success');
+                }).catch(err => {
+                    showAlert("Error copying URL.", 'danger');
+                });
+            });
+
+            // Handle URL parameter to load configuration
+            const params = new URLSearchParams(window.location.search);
+            const configParam = params.get('config');
+            if (configParam) {
                 try {
-                    // Show loading for prompt improvement
-                    loading.style.display = 'flex';
-                    loadingText.textContent = "Improving your prompt...";
-                    generatedImage.style.display = 'none';
-                    imagePlaceholder.style.display = 'none';
-                    viewFullscreenBtn.style.display = 'none';
-                    
-                    // Improve the prompt using Pollinations API
-                    const response = await fetch(`https://text.pollinations.ai/prompt/create me a prompt for image about: ${encodeURIComponent(originalPrompt)}`);
-                    
-                    if (!response.ok) {
-                        throw new Error('Failed to improve prompt');
-                    }
-                    
-                    let improvedPrompt = await response.text();
-                    
-                    // Clean up the improved prompt
-                    improvedPrompt = improvedPrompt.trim();
-                    
-                    // Set the improved prompt in the textarea (without seed)
-                    promptInput.value = improvedPrompt;
-                    
-                    // Add to history (without seed)
-                    addToPromptHistory(originalPrompt, improvedPrompt);
-                    
-                    // Now generate the image for the improved prompt
-                    loadingText.textContent = "Generating image from improved prompt...";
-                    
-                    // Get or generate seed
-                    let seed = seedInput.value.trim();
-                    if (!seed) {
-                        seed = generateRandomSeed();
-                        seedInput.value = seed;
-                    }
-                    
-                    // Create final prompt with seed
-                    const finalPrompt = `${improvedPrompt} (Seed: ${seed})`;
-                    currentPrompt.textContent = finalPrompt;
-                    currentSeed.textContent = seed;
-                    
-                    // Encode the prompt for URL
-                    const encodedPrompt = encodeURIComponent(finalPrompt);
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
-                    
-                    // Set image source
-                    generatedImage.src = imageUrl;
-                    
-                    // When image is loaded
-                    generatedImage.onload = function() {
-                        loading.style.display = 'none';
-                        generatedImage.style.display = 'block';
-                        viewFullscreenBtn.style.display = 'flex';
-                        
-                        // Add to generation history
-                        addToGenerationHistory(finalPrompt, seed, imageUrl);
-                    };
-                    
-                    // Handle image loading errors
-                    generatedImage.onerror = function() {
-                        loading.style.display = 'none';
-                        imagePlaceholder.style.display = 'block';
-                        viewFullscreenBtn.style.display = 'none';
-                        imagePlaceholder.innerHTML = `
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Failed to generate image from improved prompt. Please try again.</p>
-                        `;
-                    };
-                } catch (error) {
-                    console.error('Error improving prompt:', error);
-                    loading.style.display = 'none';
-                    imagePlaceholder.style.display = 'block';
-                    imagePlaceholder.innerHTML = `
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Error: ${error.message}</p>
-                    `;
+                    const config = JSON.parse(decodeURIComponent(configParam));
+                    promptInput.value = config.prompt || '';
+                    widthInput.value = config.width || 1024;
+                    heightInput.value = config.height || 1024;
+                    seedInput.value = config.seed || '';
+                    negativePromptInput.value = config.negative_prompt || "blurry,black border,low quality,lowres,noisy,pixelated";
+                    enhanceCheckbox.checked = config.enhance !== false;
+                    safeCheckbox.checked = config.safe !== false;
+                    showAlert("Configuration loaded from URL.", 'info');
+                } catch (e) {
+                    console.error("Error loading configuration from URL", e);
                 }
             }
-            
-            // Function to clear input and image
-            function clearAll() {
-                promptInput.value = '';
-                seedInput.value = '';
-                generatedImage.src = '';
-                generatedImage.style.display = 'none';
-                loading.style.display = 'none';
-                viewFullscreenBtn.style.display = 'none';
-                imagePlaceholder.style.display = 'block';
-                imagePlaceholder.innerHTML = `
-                    <i class="fas fa-cloud-download-alt"></i>
-                    <p>Your generated image will appear here. Enter a prompt and click "Generate Image".</p>
-                `;
-                currentPrompt.textContent = 'No prompt generated yet';
-                currentSeed.textContent = 'None';
-            }
-            
-            // Function to view image in fullscreen
-            function viewFullscreen() {
-                if (generatedImage.src && generatedImage.style.display === 'block') {
-                    fullscreenImage.src = generatedImage.src;
-                    fullscreenOverlay.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                }
-            }
-            
-            // Function to close fullscreen
-            function closeFullscreenView() {
-                fullscreenOverlay.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-            
-            // Load generation history from localStorage
-            function loadGenerationHistory() {
-                const savedHistory = localStorage.getItem('generationHistory');
-                if (savedHistory) {
-                    generationHistoryList = JSON.parse(savedHistory);
-                    renderGenerationHistory();
-                }
-            }
-            
-            // Event listeners
-            generateBtn.addEventListener('click', generateImage);
-            improveBtn.addEventListener('click', improvePrompt);
-            clearBtn.addEventListener('click', clearAll);
-            randomSeedBtn.addEventListener('click', function() {
-                seedInput.value = generateRandomSeed();
-            });
-            viewFullscreenBtn.addEventListener('click', viewFullscreen);
-            closeFullscreen.addEventListener('click', closeFullscreenView);
-            
-            // Close fullscreen when clicking outside the image
-            fullscreenOverlay.addEventListener('click', function(e) {
-                if (e.target === fullscreenOverlay) {
-                    closeFullscreenView();
-                }
-            });
-            
-            // Allow Enter key to generate image (but not Shift+Enter)
-            promptInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    generateImage();
-                }
-            });
-            
-            // Initialize histories
-            renderPromptHistory();
-            loadGenerationHistory();
-            
-            // Generate initial image
-            setTimeout(generateImage, 500);
         });
     </script>
 </body>
