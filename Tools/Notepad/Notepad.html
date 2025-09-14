@@ -3,39 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Notepad</title>
+    <title>Notepad Online</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            padding: 20px;
             background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
         .notepad {
-            width: 80%;
-            height: 80%;
+            width: 90%;
+            max-width: 1200px;
+            height: 87vh;
             padding: 20px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
+            display: flex;
+            flex-direction: column;
         }
         textarea {
             width: 100%;
-            height: 85%;
+            height: 100%;
             border: none;
             outline: none;
             resize: none;
             font-size: 16px;
             line-height: 1.5;
             font-family: 'Consolas', monospace;
+            flex-grow: 1;
         }
         .controls {
-            margin-top: 10px;
-            text-align: right;
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .left-controls, .right-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
         }
         button {
             padding: 10px 20px;
@@ -45,8 +60,8 @@
             background-color: #007bff;
             color: #fff;
             border-radius: 5px;
-            margin-left: 10px;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         button:hover {
             background-color: #0056b3;
@@ -60,7 +75,6 @@
             font-size: 16px;
             border-radius: 5px;
             border: 1px solid #ddd;
-            margin-right: 10px;
         }
         .tooltip {
             position: relative;
@@ -92,9 +106,12 @@
             background-color: #f8f9fa;
             border-radius: 5px;
             display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
         }
         .tts-controls label {
-            margin-right: 10px;
+            margin-right: 5px;
         }
         .tts-controls input {
             vertical-align: middle;
@@ -103,32 +120,108 @@
             display: none;
             margin-top: 10px;
         }
+        #downloadFilesBtn {
+            display: none;
+            background-color: #28a745;
+        }
+        #downloadFilesBtn:hover {
+            background-color: #218838;
+        }
+        .modpack-settings {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .modpack-settings select {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            margin: 0 10px;
+        }
+        .url-counter {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <div class="notepad">
         <textarea id="editor" placeholder="Start typing here..."></textarea>
         <div class="controls">
-            <select id="fileFormat" onchange="toggleCustomFormat()">
-                <option value="txt">Text (.txt)</option>
-                <option value="html">HTML (.html)</option>
-                <option value="js">JavaScript (.js)</option>
-                <option value="css">CSS (.css)</option>
-                <option value="json">JSON (.json)</option>
-                <option value="custom">Custom Format</option>
-                <option value="folder">Folder Structure</option>
+            <div class="left-controls">
+                <select id="fileFormat" onchange="toggleCustomFormat()">
+                    <option value="txt">Text (.txt)</option>
+                    <option value="html">HTML (.html)</option>
+                    <option value="js">JavaScript (.js)</option>
+                    <option value="css">CSS (.css)</option>
+                    <option value="json">JSON (.json)</option>
+                    <option value="java">Java (.java)</option>
+                    <option value="py">Python (.py)</option>
+                    <option value="svelte">Svelte (.svelte)</option>
+                    <option value="sh">Shell (MacOs & Linux only) (.sh)</option>
+                    <option value="bat">Shell (Windows only (.bat)</option>
+                    <option value="ps1">PowerShell (Windows only (.ps1)</option>
+                    <option value="custom">Custom Format</option>
+                    <option value="folder">Folder Structure</option>
+                </select>
+                
+                <div id="customFormatContainer" class="custom-format">
+                    <input type="text" id="customFormat" placeholder="Enter extension (e.g., md, xml)">
+                </div>
+                
+                <div class="tooltip">
+                    <button onclick="saveAsFile()">Save as File</button>
+                    <span class="tooltiptext">Choose "Folder Structure" to download ASCII as real folders</span>
+                </div>
+                <button onclick="saveAsURL()">Save as URL</button>
+            </div>
+            
+            <div class="right-controls">
+                <button id="downloadFilesBtn" onclick="confirmDownload()">Download Files</button>
+                <span id="urlCounter" class="url-counter">0 URLs</span>
+                <button onclick="toggleTTSControls()">TTS</button>
+            </div>
+        </div>
+        
+        <div class="modpack-settings">
+            <label for="modpackMode">ModPack Mode:</label>
+            <select id="modpackMode" onchange="checkForURLs()">
+                <option value="none">None</option>
+                <option value="fabric">MC Fabric ModPack Mode</option>
+                <option value="forge">MC Forge ModPack Mode</option>
+                <option value="neoforge">MC NeoForge ModPack Mode</option>
+                <option value="quilt">MC Quilt ModPack Mode</option>
+                <option value="liteloader">MC LiteLoader ModPack Mode</option>
+                <option value="babric">MC Babric ModPack Mode</option>
+                <option value="babric-bta">MC Babric (BTA) ModPack Mode</option>
             </select>
-            
-            <div id="customFormatContainer" class="custom-format">
-                <input type="text" id="customFormat" placeholder="Enter extension (e.g., md, xml)">
-            </div>
-            
-            <div class="tooltip">
-                <button onclick="saveAsFile()">Save as File</button>
-                <span class="tooltiptext">Choose "Folder Structure" to download ASCII as real folders</span>
-            </div>
-            <button onclick="saveAsURL()">Save as URL</button>
-            <button onclick="toggleTTSControls()">TTS</button>
         </div>
         
         <div id="ttsControls" class="tts-controls">
@@ -146,18 +239,33 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h3>Download Confirmation</h3>
+            <p>Are you sure you want to download these files? Please note that there are no security guarantees for downloaded files.</p>
+            <div class="modal-buttons">
+                <button onclick="proceedDownload()" style="background-color: #28a745;">Yes</button>
+                <button onclick="cancelDownload()" style="background-color: #dc3545;">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         // TTS variables
         let ttsSpeech = null;
         let voices = [];
+        let detectedUrls = [];
+        let modpackMode = 'none';
         
         // Function to toggle TTS controls visibility
         function toggleTTSControls() {
             const ttsControls = document.getElementById('ttsControls');
-            ttsControls.style.display = ttsControls.style.display === 'block' ? 'none' : 'block';
+            ttsControls.style.display = ttsControls.style.display === 'flex' ? 'none' : 'flex';
             
             // Load voices when TTS controls are shown for the first time
-            if (ttsControls.style.display === 'block' && voices.length === 0) {
+            if (ttsControls.style.display === 'flex' && voices.length === 0) {
                 loadVoices();
             }
         }
@@ -299,7 +407,6 @@
 
         // Function to create folder structure from ASCII
         function createFolderStructure(asciiText) {
-            const JSZip = window.JSZip;
             const zip = new JSZip();
             
             // Parse the ASCII structure
@@ -370,6 +477,127 @@
             alert("Text saved in URL. You can now copy this URL to share your notes.");
         }
 
+        // Function to detect URLs in text
+        function detectURLs(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.match(urlRegex) || [];
+        }
+
+        // Function to check if text contains URLs and show/hide download button
+        function checkForURLs() {
+            const text = document.getElementById('editor').value;
+            const modpackMode = document.getElementById('modpackMode').value;
+            detectedUrls = detectURLs(text);
+            const downloadBtn = document.getElementById('downloadFilesBtn');
+            const urlCounter = document.getElementById('urlCounter');
+            
+            urlCounter.textContent = `${detectedUrls.length} URLs`;
+            
+            // Afficher le bouton seulement si des URLs sont détectées ET si le mode n'est pas "none"
+            if (detectedUrls.length > 0 && modpackMode !== 'none') {
+                downloadBtn.style.display = 'inline-block';
+            } else {
+                downloadBtn.style.display = 'none';
+            }
+        }
+
+        // Function to show confirmation modal
+        function confirmDownload() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'block';
+        }
+
+        // Function to proceed with download
+        function proceedDownload() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none';
+            downloadFiles();
+        }
+
+        // Function to cancel download
+        function cancelDownload() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none';
+        }
+
+        // Function to download files based on selected mode
+        async function downloadFiles() {
+            const modpackMode = document.getElementById('modpackMode').value;
+            
+            if (detectedUrls.length === 0) {
+                alert('No URLs detected in the text.');
+                return;
+            }
+            
+            const zip = new JSZip();
+            
+            // Create folders based on modpack mode
+            if (modpackMode !== 'none') {
+                if (modpackMode === 'liteloader') {
+                    zip.folder('mods');
+                } else {
+                    zip.folder('mods');
+                    zip.folder('config');
+                }
+                
+                if (modpackMode === 'fabric' || modpackMode === 'quilt' || modpackMode === 'liteloader' || 
+                    modpackMode === 'babric' || modpackMode === 'babric-bta') {
+                    zip.folder('shaderpacks');
+                    zip.folder('resourcepacks');
+                } else if (modpackMode === 'forge' || modpackMode === 'neoforge') {
+                    zip.folder('shaders');
+                    zip.folder('resourcepacks');
+                }
+            }
+            
+            // Download each file
+            for (const url of detectedUrls) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const blob = await response.blob();
+                    const fileName = url.substring(url.lastIndexOf('/') + 1);
+                    
+                    // Determine where to place the file based on modpack mode and file extension
+                    let filePath = fileName;
+                    
+                    if (modpackMode !== 'none') {
+                        if (fileName.endsWith('.jar')) {
+                            filePath = 'mods/' + fileName;
+                        } else if (fileName.endsWith('.toml') || fileName.endsWith('.json') || fileName.endsWith('.json5')) {
+                            filePath = 'config/' + fileName;
+                        } else if (fileName.endsWith('.zip')) {
+                            // For ZIP files, we would need to extract and process them
+                            // This is a simplified version - in a real implementation, 
+                            // you would need to handle ZIP extraction and content analysis
+                            if (modpackMode === 'fabric' || modpackMode === 'quilt' || modpackMode === 'liteloader' || 
+                                modpackMode === 'babric' || modpackMode === 'babric-bta') {
+                                filePath = 'resourcepacks/' + fileName;
+                            } else if (modpackMode === 'forge' || modpackMode === 'neoforge') {
+                                filePath = 'resourcepacks/' + fileName;
+                            }
+                        } else if (fileName.endsWith('.litemod') && modpackMode === 'liteloader') {
+                            filePath = 'mods/' + fileName;
+                        }
+                    }
+                    
+                    zip.file(filePath, blob);
+                } catch (error) {
+                    console.error(`Error downloading ${url}:`, error);
+                }
+            }
+            
+            // Generate and download the ZIP file
+            zip.generateAsync({type: 'blob'}).then(function(content) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'downloaded_files.zip';
+                link.click();
+                URL.revokeObjectURL(link.href);
+            });
+        }
+
         // Load text from URL hash when page loads
         window.onload = function() {
             if (window.location.hash) {
@@ -378,14 +606,18 @@
                 document.getElementById('editor').value = text;
             }
             
-            // Load JSZip library dynamically
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-            document.head.appendChild(script);
-            
             // Initialize TTS rate display
             document.getElementById('rateValue').textContent = 
                 document.getElementById('ttsRate').value;
+                
+            // Add event listener to check for URLs when text changes
+            document.getElementById('editor').addEventListener('input', checkForURLs);
+            
+            // Add event listener to check when modpack mode changes
+            document.getElementById('modpackMode').addEventListener('change', checkForURLs);
+            
+            // Initial check for URLs
+            checkForURLs();
         };
     </script>
 </body>
