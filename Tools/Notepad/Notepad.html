@@ -169,10 +169,55 @@
             font-size: 14px;
             color: #666;
         }
+        /* Styles pour la zone de dépôt */
+        .drop-zone {
+            position: relative;
+        }
+        .drop-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 123, 255, 0.7);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border: 3px dashed #007bff;
+            border-radius: 8px;
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .drop-overlay.active {
+            display: flex;
+        }
+        /* Style pour le bouton de chargement de fichier */
+        #fileInput {
+            display: none;
+        }
+        .file-input-label {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #6c757d;
+            color: #fff;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .file-input-label:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
-    <div class="notepad">
+    <div class="notepad drop-zone" id="dropZone">
+        <div class="drop-overlay" id="dropOverlay">Déposer le fichier ici</div>
         <textarea id="editor" placeholder="Start typing here..."></textarea>
         <div class="controls">
             <div class="left-controls">
@@ -201,6 +246,12 @@
                     <span class="tooltiptext">Choose "Folder Structure" to download ASCII as real folders</span>
                 </div>
                 <button onclick="saveAsURL()">Save as URL</button>
+                
+                <!-- Nouveau bouton pour charger un fichier -->
+                <label for="fileInput" class="file-input-label">
+                    Load File
+                </label>
+                <input type="file" id="fileInput" accept=".txt,.html,.js,.css,.json,.java,.py,.svelte,.sh,.bat,.ps1,text/plain" onchange="handleFileSelect(event)">
             </div>
             
             <div class="right-controls">
@@ -598,6 +649,79 @@
             });
         }
 
+        // Nouvelle fonction pour gérer la sélection de fichier
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editor').value = e.target.result;
+                checkForURLs(); // Vérifier les URLs après le chargement
+            };
+            
+            // Essayer de lire comme texte, peu importe le format
+            reader.readAsText(file);
+        }
+        
+        // Fonctions pour gérer le glisser-déposer
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const dropOverlay = document.getElementById('dropOverlay');
+            
+            // Empêcher le comportement par défaut
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Gestion des événements de drag
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropOverlay.classList.add('active');
+            }
+            
+            function unhighlight() {
+                dropOverlay.classList.remove('active');
+            }
+            
+            // Gérer le dépôt de fichier
+            dropZone.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length) {
+                    handleFiles(files);
+                }
+            }
+        }
+        
+        function handleFiles(files) {
+            const file = files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                document.getElementById('editor').value = e.target.result;
+                checkForURLs(); // Vérifier les URLs après le chargement
+            };
+            
+            // Essayer de lire comme texte, peu importe le format
+            reader.readAsText(file);
+        }
+
         // Load text from URL hash when page loads
         window.onload = function() {
             if (window.location.hash) {
@@ -618,6 +742,9 @@
             
             // Initial check for URLs
             checkForURLs();
+            
+            // Configurer le glisser-déposer
+            setupDragAndDrop();
         };
     </script>
 </body>
