@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SB3 Converter - SVG to PNG</title>
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #ff6b4a;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .language-btn {
+            background: none;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .language-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .upload-area {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+            border: 3px dashed #ccc;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #3a5be0;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-download {
+            background-color: var(--secondary-color);
+            margin-left: 10px;
+        }
+
+        .btn-download:hover {
+            background-color: #e05a3a;
+        }
+
+        .warning {
+            background-color: #fff4e6;
+            border-left: 4px solid #ff8c00;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .warning h3 {
+            color: #ff8c00;
+            margin-bottom: 10px;
+        }
+
+        .filters-panel {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .filters-panel h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .filter-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .filter-btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background-color: #e9ecef;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .file-info {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .file-info h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .conversion-progress {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .converted-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .converted-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .converted-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: contain;
+            background-color: #f5f5f5;
+        }
+
+        .converted-item p {
+            padding: 8px;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .upload-area {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .converted-items {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1 id="title">SB3 Converter</h1>
+                <p class="subtitle" id="subtitle">Convert SVG to PNG in your Scratch projects</p>
+            </div>
+            <div class="language-selector">
+                <button class="language-btn active" id="enBtn">EN</button>
+                <button class="language-btn" id="frBtn">FR</button>
+            </div>
+        </header>
+
+        <div class="warning">
+            <h3 id="warningTitle">Warning</h3>
+            <p id="warningText">This tool is experimental and may sometimes produce unexpected results. Some SVG features may not convert correctly to PNG. Make sure to test your project after conversion.</p>
+        </div>
+
+        <div class="upload-area" id="dropArea">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text" id="uploadText">Drag and drop your .sb3 file here or</p>
+            <input type="file" id="fileInput" accept=".sb3" hidden>
+            <button class="btn" id="browseBtn">Browse files</button>
+        </div>
+
+        <div class="filters-panel hidden" id="filtersPanel">
+            <h2 id="filtersTitle">Image Filters</h2>
+            
+            <div class="filter-group">
+                <label id="grayscaleLabel">Grayscale: <span id="grayscaleValue">0%</span></label>
+                <input type="range" class="filter-slider" id="grayscaleSlider" min="0" max="100" value="0">
+            </div>
+            
+            <div class="filter-group">
+                <label id="saturationLabel">Saturation: <span id="saturationValue">100%</span></label>
+                <input type="range" class="filter-slider" id="saturationSlider" min="0" max="200" value="100">
+            </div>
+            
+            <div class="filter-group">
+                <label id="invertLabel">Invert Colors: <span id="invertValue">0%</span></label>
+                <input type="range" class="filter-slider" id="invertSlider" min="0" max="100" value="0">
+            </div>
+            
+            <div class="filter-group">
+                <label id="qualityLabel">Quality Reduction: <span id="qualityValue">0%</span></label>
+                <input type="range" class="filter-slider" id="qualitySlider" min="0" max="100" value="0">
+            </div>
+            
+            <div class="filter-btns">
+                <button class="filter-btn" id="resetFiltersBtn">Reset Filters</button>
+                <button class="filter-btn" id="applyFiltersBtn">Apply Filters</button>
+                <button class="filter-btn" id="undoFiltersBtn" disabled>Undo Last Change</button>
+            </div>
+        </div>
+
+        <div class="file-info hidden" id="fileInfo">
+            <h2 id="fileInfoTitle">File Information</h2>
+            <p id="fileName">Name: </p>
+            <p id="fileSize">Size: </p>
+        </div>
+
+        <div class="conversion-progress hidden" id="conversionProgress">
+            <h2 id="conversionTitle">Conversion in Progress</h2>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <p class="status" id="statusText">Preparing...</p>
+            
+            <button class="btn btn-download hidden" id="downloadBtn">Download Modified SB3</button>
+            
+            <div class="converted-items" id="convertedItems"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements DOM
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const conversionProgress = document.getElementById('conversionProgress');
+            const progressBar = document.getElementById('progressBar');
+            const statusText = document.getElementById('statusText');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const convertedItems = document.getElementById('convertedItems');
+            const filtersPanel = document.getElementById('filtersPanel');
+            const enBtn = document.getElementById('enBtn');
+            const frBtn = document.getElementById('frBtn');
+            
+            // Filtres
+            const grayscaleSlider = document.getElementById('grayscaleSlider');
+            const saturationSlider = document.getElementById('saturationSlider');
+            const invertSlider = document.getElementById('invertSlider');
+            const qualitySlider = document.getElementById('qualitySlider');
+            const grayscaleValue = document.getElementById('grayscaleValue');
+            const saturationValue = document.getElementById('saturationValue');
+            const invertValue = document.getElementById('invertValue');
+            const qualityValue = document.getElementById('qualityValue');
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+            const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+            const undoFiltersBtn = document.getElementById('undoFiltersBtn');
+            
+            let convertedSb3 = null;
+            let originalFileName = "";
+            let currentLanguage = "en";
+            let originalImages = new Map();
+            let filterHistory = [];
+            
+            // Textes multilingues
+            const translations = {
+                en: {
+                    title: "SB3 Converter",
+                    subtitle: "Convert SVG to PNG in your Scratch projects",
+                    warningTitle: "Warning",
+                    warningText: "This tool is experimental and may sometimes produce unexpected results. Some SVG features may not convert correctly to PNG. Make sure to test your project after conversion.",
+                    uploadText: "Drag and drop your .sb3 file here or",
+                    browseBtn: "Browse files",
+                    filtersTitle: "Image Filters",
+                    grayscaleLabel: "Grayscale:",
+                    saturationLabel: "Saturation:",
+                    invertLabel: "Invert Colors:",
+                    qualityLabel: "Quality Reduction:",
+                    resetFilters: "Reset Filters",
+                    applyFilters: "Apply Filters",
+                    undoFilters: "Undo Last Change",
+                    fileInfoTitle: "File Information",
+                    conversionTitle: "Conversion in Progress",
+                    preparing: "Preparing...",
+                    extracting: "Extracting SB3 file...",
+                    converting: "Converting %count% SVG files...",
+                    conversionProgress: "Converting %current%/%total%...",
+                    creating: "Creating new SB3 file...",
+                    completed: "Conversion completed! %count% files converted.",
+                    downloadBtn: "Download Modified SB3",
+                    error: "Conversion error. Please make sure the file is valid."
+                },
+                fr: {
+                    title: "Convertisseur SB3",
+                    subtitle: "Convertir les SVG en PNG dans vos projets Scratch",
+                    warningTitle: "Avertissement",
+                    warningText: "Cet outil est expérimental et peut parfois produire des résultats inattendus. Certaines fonctionnalités SVG peuvent ne pas être converties correctement en PNG. Assurez-vous de tester votre projet après la conversion.",
+                    uploadText: "Glissez-déposez votre fichier .sb3 ici ou",
+                    browseBtn: "Parcourir les fichiers",
+                    filtersTitle: "Filtres d'image",
+                    grayscaleLabel: "Noir et blanc:",
+                    saturationLabel: "Saturation:",
+                    invertLabel: "Inverser les couleurs:",
+                    qualityLabel: "Réduction de qualité:",
+                    resetFilters: "Réinitialiser les filtres",
+                    applyFilters: "Appliquer les filtres",
+                    undoFilters: "Annuler le dernier changement",
+                    fileInfoTitle: "Informations du fichier",
+                    conversionTitle: "Conversion en cours",
+                    preparing: "Préparation...",
+                    extracting: "Extraction du fichier SB3...",
+                    converting: "Conversion de %count% fichiers SVG...",
+                    conversionProgress: "Conversion %current%/%total%...",
+                    creating: "Création du nouveau fichier SB3...",
+                    completed: "Conversion terminée! %count% fichiers convertis.",
+                    downloadBtn: "Télécharger le SB3 modifié",
+                    error: "Erreur de conversion. Veuillez vérifier que le fichier est valide."
+                }
+            };
+            
+            // Initialiser la langue
+            setLanguage('en');
+            
+            // Gestionnaires d'événements pour les boutons de langue
+            enBtn.addEventListener('click', () => setLanguage('en'));
+            frBtn.addEventListener('click', () => setLanguage('fr'));
+            
+            function setLanguage(lang) {
+                currentLanguage = lang;
+                document.getElementById('title').textContent = translations[lang].title;
+                document.getElementById('subtitle').textContent = translations[lang].subtitle;
+                document.getElementById('warningTitle').textContent = translations[lang].warningTitle;
+                document.getElementById('warningText').textContent = translations[lang].warningText;
+                document.getElementById('uploadText').textContent = translations[lang].uploadText;
+                document.getElementById('browseBtn').textContent = translations[lang].browseBtn;
+                document.getElementById('filtersTitle').textContent = translations[lang].filtersTitle;
+                document.getElementById('grayscaleLabel').textContent = translations[lang].grayscaleLabel;
+                document.getElementById('saturationLabel').textContent = translations[lang].saturationLabel;
+                document.getElementById('invertLabel').textContent = translations[lang].invertLabel;
+                document.getElementById('qualityLabel').textContent = translations[lang].qualityLabel;
+                resetFiltersBtn.textContent = translations[lang].resetFilters;
+                applyFiltersBtn.textContent = translations[lang].applyFilters;
+                undoFiltersBtn.textContent = translations[lang].undoFilters;
+                document.getElementById('fileInfoTitle').textContent = translations[lang].fileInfoTitle;
+                document.getElementById('conversionTitle').textContent = translations[lang].conversionTitle;
+                
+                // Mettre à jour les boutons de langue
+                enBtn.classList.toggle('active', lang === 'en');
+                frBtn.classList.toggle('active', lang === 'fr');
+            }
+            
+            // Mise à jour des valeurs des filtres
+            grayscaleSlider.addEventListener('input', () => {
+                grayscaleValue.textContent = `${grayscaleSlider.value}%`;
+            });
+            
+            saturationSlider.addEventListener('input', () => {
+                saturationValue.textContent = `${saturationSlider.value}%`;
+            });
+            
+            invertSlider.addEventListener('input', () => {
+                invertValue.textContent = `${invertSlider.value}%`;
+            });
+            
+            qualitySlider.addEventListener('input', () => {
+                qualityValue.textContent = `${qualitySlider.value}%`;
+            });
+            
+            // Réinitialiser les filtres
+            resetFiltersBtn.addEventListener('click', () => {
+                grayscaleSlider.value = 0;
+                saturationSlider.value = 100;
+                invertSlider.value = 0;
+                qualitySlider.value = 0;
+                
+                grayscaleValue.textContent = '0%';
+                saturationValue.textContent = '100%';
+                invertValue.textContent = '0%';
+                qualityValue.textContent = '0%';
+            });
+            
+            // Appliquer les filtres
+            applyFiltersBtn.addEventListener('click', () => {
+                if (originalImages.size === 0) {
+                    alert(currentLanguage === 'en' 
+                        ? "No images available to filter. Please convert a project first." 
+                        : "Aucune image disponible pour le filtrage. Veuillez d'abord convertir un projet.");
+                    return;
+                }
+                
+                // Sauvegarder l'état actuel pour l'historique d'annulation
+                saveFilterState();
+                
+                // Appliquer les filtres à toutes les images converties
+                const grayscale = parseInt(grayscaleSlider.value);
+                const saturation = parseInt(saturationSlider.value);
+                const invert = parseInt(invertSlider.value);
+                const quality = parseInt(qualitySlider.value);
+                
+                applyFiltersToAllImages(grayscale, saturation, invert, quality);
+                
+                undoFiltersBtn.disabled = filterHistory.length === 0;
+            });
+            
+            // Annuler le dernier changement de filtre
+            undoFiltersBtn.addEventListener('click', () => {
+                if (filterHistory.length > 0) {
+                    const previousState = filterHistory.pop();
+                    
+                    // Restaurer les images à l'état précédent
+                    for (const [path, imageData] of previousState) {
+                        originalImages.set(path, imageData);
+                    }
+                    
+                    // Mettre à jour les aperçus
+                    updatePreviews();
+                    
+                    undoFiltersBtn.disabled = filterHistory.length === 0;
+                }
+            });
+            
+            function saveFilterState() {
+                // Sauvegarder l'état actuel des images
+                const currentState = new Map();
+                for (const [path, imageData] of originalImages) {
+                    currentState.set(path, imageData);
+                }
+                filterHistory.push(currentState);
+                undoFiltersBtn.disabled = false;
+            }
+            
+            function applyFiltersToAllImages(grayscale, saturation, invert, quality) {
+                for (const [path, imageData] of originalImages) {
+                    applyFiltersToImage(path, imageData, grayscale, saturation, invert, quality);
+                }
+                updatePreviews();
+            }
+            
+            function applyFiltersToImage(path, imageData, grayscale, saturation, invert, quality) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Appliquer les filtres
+                    ctx.filter = `grayscale(${grayscale}%) saturate(${saturation}%) invert(${invert}%)`;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Réduire la qualité si nécessaire
+                    if (quality > 0) {
+                        const scale = 1 - (quality / 200); // Réduction jusqu'à 50%
+                        const scaledWidth = Math.max(1, Math.floor(img.width * scale));
+                        const scaledHeight = Math.max(1, Math.floor(img.height * scale));
+                        
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = scaledWidth;
+                        tempCanvas.height = scaledHeight;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        
+                        // Redimensionner avec interpolation basse qualité
+                        tempCtx.imageSmoothingEnabled = false;
+                        tempCtx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight);
+                        
+                        // Remettre à la taille originale
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.imageSmoothingEnabled = false;
+                        ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+                    }
+                    
+                    // Mettre à jour l'image originale
+                    canvas.toBlob(blob => {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            originalImages.set(path, new Uint8Array(reader.result));
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    }, 'image/png');
+                };
+                img.src = URL.createObjectURL(new Blob([imageData], { type: 'image/png' }));
+            }
+            
+            function updatePreviews() {
+                convertedItems.innerHTML = '';
+                
+                for (const [path, imageData] of originalImages) {
+                    const blob = new Blob([imageData], { type: 'image/png' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const convertedItem = document.createElement('div');
+                    convertedItem.className = 'converted-item';
+                    
+                    const imgElement = document.createElement('img');
+                    imgElement.src = url;
+                    
+                    const fileName = document.createElement('p');
+                    fileName.textContent = path.split('/').pop();
+                    
+                    convertedItem.appendChild(imgElement);
+                    convertedItem.appendChild(fileName);
+                    convertedItems.appendChild(convertedItem);
+                }
+            }
+            
+            // Gestion des événements de glisser-déposer
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0 && files[0].name.endsWith('.sb3')) {
+                    handleFile(files[0]);
+                } else {
+                    alert(currentLanguage === 'en' 
+                        ? 'Please drop a valid .sb3 file' 
+                        : 'Veuillez déposer un fichier .sb3 valide');
+                }
+            }
+            
+            browseBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    handleFile(fileInput.files[0]);
+                }
+            });
+            
+            downloadBtn.addEventListener('click', () => {
+                if (convertedSb3) {
+                    const downloadLink = document.createElement('a');
+                    const originalName = originalFileName.replace('.sb3', '');
+                    downloadLink.href = URL.createObjectURL(convertedSb3);
+                    downloadLink.download = `${originalName}-Bitmapfied.sb3`;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                }
+            });
+            
+            function handleFile(file) {
+                // Réinitialiser l'historique des filtres
+                filterHistory = [];
+                undoFiltersBtn.disabled = true;
+                originalImages.clear();
+                
+                // Stocker le nom du fichier original
+                originalFileName = file.name;
+                
+                // Afficher les informations du fichier
+                fileName.textContent = `${currentLanguage === 'en' ? 'Name' : 'Nom'}: ${file.name}`;
+                fileSize.textContent = `${currentLanguage === 'en' ? 'Size' : 'Taille'}: ${formatFileSize(file.size)}`;
+                fileInfo.classList.remove('hidden');
+                
+                // Afficher le panneau de filtres
+                filtersPanel.classList.remove('hidden');
+                
+                // Commencer la conversion
+                convertSb3(file);
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = currentLanguage === 'en' 
+                    ? ['Bytes', 'KB', 'MB', 'GB'] 
+                    : ['Octets', 'KO', 'MO', 'GO'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            async function convertSb3(file) {
+                conversionProgress.classList.remove('hidden');
+                statusText.textContent = translations[currentLanguage].preparing;
+                progressBar.style.width = '10%';
+                
+                try {
+                    // Lire le fichier SB3 (qui est un zip)
+                    const jsZip = await JSZip.loadAsync(file);
+                    
+                    // Trouver et traiter tous les SVG
+                    const svgFiles = [];
+                    jsZip.forEach((relativePath, zipEntry) => {
+                        if (!zipEntry.dir && relativePath.endsWith('.svg')) {
+                            svgFiles.push({
+                                path: relativePath,
+                                entry: zipEntry
+                            });
+                        }
+                    });
+                    
+                    statusText.textContent = translations[currentLanguage].converting.replace('%count%', svgFiles.length);
+                    progressBar.style.width = '30%';
+                    
+                    // Convertir chaque SVG en PNG
+                    let convertedCount = 0;
+                    convertedItems.innerHTML = '';
+                    
+                    // Charger le fichier project.json
+                    const projectJson = await jsZip.file('project.json').async('text');
+                    let updatedProjectJson = projectJson;
+                    
+                    for (const svgFile of svgFiles) {
+                        try {
+                            // Lire le contenu SVG
+                            const svgContent = await svgFile.entry.async('text');
+                            
+                            // Créer un élément image pour charger le SVG
+                            const img = new Image();
+                            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgContent)));
+                            
+                            await new Promise((resolve) => {
+                                img.onload = resolve;
+                            });
+                            
+                            // Créer un canvas pour convertir en PNG
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            
+                            // Convertir le canvas en blob PNG
+                            const pngBlob = await new Promise(resolve => {
+                                canvas.toBlob(resolve, 'image/png');
+                            });
+                            
+                            // Convertir le blob en données binaires
+                            const pngData = await new Response(pngBlob).arrayBuffer();
+                            
+                            // Stocker l'image originale pour les filtres
+                            originalImages.set(svgFile.path, new Uint8Array(pngData));
+                            
+                            // Remplacer le SVG par le PNG dans le zip
+                            const pngPath = svgFile.path.replace('.svg', '.png');
+                            jsZip.file(pngPath, pngData);
+                            
+                            // Supprimer le fichier SVG original
+                            jsZip.remove(svgFile.path);
+                            
+                            // Mettre à jour le project.json pour référencer le PNG au lieu du SVG
+                            // Remplacer toutes les références au SVG
+                            const svgFileName = svgFile.path.split('/').pop();
+                            const pngFileName = pngPath.split('/').pop();
+                            
+                            // Remplacer le nom du fichier avec et sans extension
+                            updatedProjectJson = updatedProjectJson
+                                .replace(new RegExp(svgFileName, 'g'), pngFileName)
+                                .replace(new RegExp(svgFileName.replace('.svg', ''), 'g'), pngFileName.replace('.png', ''));
+                            
+                            // Remplacer le format de données SVG par PNG
+                            updatedProjectJson = updatedProjectJson
+                                .replace(/"dataFormat":"svg"/g, '"dataFormat":"png"')
+                                .replace(/"dataFormat":"SVG"/g, '"dataFormat":"png"');
+                            
+                            // Afficher un aperçu
+                            const convertedItem = document.createElement('div');
+                            convertedItem.className = 'converted-item';
+                            
+                            const imgElement = document.createElement('img');
+                            imgElement.src = URL.createObjectURL(pngBlob);
+                            
+                            const fileName = document.createElement('p');
+                            fileName.textContent = pngPath.split('/').pop();
+                            
+                            convertedItem.appendChild(imgElement);
+                            convertedItem.appendChild(fileName);
+                            convertedItems.appendChild(convertedItem);
+                            
+                        } catch (error) {
+                            console.error(`Erreur lors de la conversion de ${svgFile.path}:`, error);
+                        }
+                        
+                        convertedCount++;
+                        progressBar.style.width = `${30 + (convertedCount / svgFiles.length) * 60}%`;
+                        statusText.textContent = translations[currentLanguage].conversionProgress
+                            .replace('%current%', convertedCount)
+                            .replace('%total%', svgFiles.length);
+                    }
+                    
+                    // Mettre à jour le project.json dans le zip
+                    jsZip.file('project.json', updatedProjectJson);
+                    
+                    statusText.textContent = translations[currentLanguage].creating;
+                    progressBar.style.width = '95%';
+                    
+                    // Générer le nouveau fichier SB3
+                    const newSb3 = await jsZip.generateAsync({
+                        type: 'blob',
+                        compression: 'DEFLATE',
+                        compressionOptions: {
+                            level: 6
+                        }
+                    });
+                    
+                    convertedSb3 = newSb3;
+                    
+                    progressBar.style.width = '100%';
+                    statusText.textContent = translations[currentLanguage].completed.replace('%count%', svgFiles.length);
+                    downloadBtn.classList.remove('hidden');
+                    
+                } catch (error) {
+                    console.error('Erreur lors de la conversion:', error);
+                    statusText.textContent = translations[currentLanguage].error;
+                }
+            }
+        });
+    </script>
+    
+    <!-- Inclure la bibliothèque JSZip pour manipuler les archives -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>
