@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,6 +95,7 @@
             margin-left: -100px;
             opacity: 0;
             transition: opacity 0.3s;
+            font-size: 12px;
         }
         .tooltip:hover .tooltiptext {
             visibility: visible;
@@ -126,17 +127,6 @@
         }
         #downloadFilesBtn:hover {
             background-color: #218838;
-        }
-        .modpack-settings {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            width: 100%;
-        }
-        .modpack-settings select {
-            width: 100%;
-            margin-bottom: 10px;
         }
         .modal {
             display: none;
@@ -213,16 +203,59 @@
             background-color: #5a6268;
             transform: translateY(-1px);
         }
+        .warning-modal {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        .warning-modal .modal-content {
+            border: 2px solid #ffc107;
+        }
+        .warning-modal button {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .warning-modal button:hover {
+            background-color: #e0a800;
+        }
+        .language-selector {
+            margin-left: 10px;
+        }
+        #createZipBtn {
+            background-color: #17a2b8;
+            display: none;
+        }
+        #createZipBtn:hover {
+            background-color: #138496;
+        }
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
     <div class="notepad drop-zone" id="dropZone">
         <div class="drop-overlay" id="dropOverlay">Déposer le fichier ici</div>
-        <textarea id="editor" placeholder="Start typing here..."></textarea>
+        <textarea id="editor" placeholder="Commencez à taper ici..."></textarea>
+        <div id="statusMessage" class="status-message"></div>
+        
         <div class="controls">
             <div class="left-controls">
                 <select id="fileFormat" onchange="toggleCustomFormat()">
-                    <option value="txt">Text (.txt)</option>
+                    <option value="txt">Texte (.txt)</option>
                     <option value="html">HTML (.html)</option>
                     <option value="js">JavaScript (.js)</option>
                     <option value="css">CSS (.css)</option>
@@ -230,86 +263,255 @@
                     <option value="java">Java (.java)</option>
                     <option value="py">Python (.py)</option>
                     <option value="svelte">Svelte (.svelte)</option>
-                    <option value="sh">Shell (MacOs & Linux only) (.sh)</option>
-                    <option value="bat">Shell (Windows only (.bat)</option>
-                    <option value="ps1">PowerShell (Windows only (.ps1)</option>
-                    <option value="custom">Custom Format</option>
-                    <option value="folder">Folder Structure</option>
+                    <option value="sh">Shell (MacOs & Linux uniquement) (.sh)</option>
+                    <option value="bat">Shell (Windows uniquement (.bat)</option>
+                    <option value="ps1">PowerShell (Windows uniquement (.ps1)</option>
+                    <option value="custom">Format personnalisé</option>
+                    <option value="folder">Structure de dossiers</option>
                 </select>
                 
                 <div id="customFormatContainer" class="custom-format">
-                    <input type="text" id="customFormat" placeholder="Enter extension (e.g., md, xml)">
+                    <input type="text" id="customFormat" placeholder="Entrez l'extension (ex: md, xml)">
                 </div>
                 
                 <div class="tooltip">
-                    <button onclick="saveAsFile()">Save as File</button>
-                    <span class="tooltiptext">Choose "Folder Structure" to download ASCII as real folders</span>
+                    <button onclick="saveAsFile()" id="saveAsFileBtn">Enregistrer en fichier</button>
+                    <span class="tooltiptext" id="saveAsFileTooltip">Choisissez "Structure de dossiers" pour télécharger l'ASCII en vrais dossiers</span>
                 </div>
-                <button onclick="saveAsURL()">Save as URL</button>
+                <button onclick="saveAsURL()" id="saveAsURLBtn">Enregistrer en URL</button>
                 
                 <!-- Nouveau bouton pour charger un fichier -->
-                <label for="fileInput" class="file-input-label">
-                    Load File
+                <label for="fileInput" class="file-input-label" id="fileInputLabel">
+                    Charger un fichier
                 </label>
                 <input type="file" id="fileInput" accept=".txt,.html,.js,.css,.json,.java,.py,.svelte,.sh,.bat,.ps1,text/plain" onchange="handleFileSelect(event)">
             </div>
             
             <div class="right-controls">
-                <button id="downloadFilesBtn" onclick="confirmDownload()">Download Files</button>
+                <button id="downloadFilesBtn" onclick="confirmDownload()">Télécharger les fichiers</button>
+                <button id="createZipBtn" onclick="createZipFromNotepad()">Créer .zip</button>
                 <span id="urlCounter" class="url-counter">0 URLs</span>
-                <button onclick="toggleTTSControls()">TTS</button>
+                <button onclick="toggleTTSControls()" id="ttsBtn">TTS</button>
+                <select id="languageSelector" class="language-selector" onchange="changeLanguage()">
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                </select>
             </div>
         </div>
         
-        <div class="modpack-settings">
-            <label for="modpackMode">ModPack Mode:</label>
-            <select id="modpackMode" onchange="checkForURLs()">
-                <option value="none">None</option>
-                <option value="fabric">MC Fabric ModPack Mode</option>
-                <option value="forge">MC Forge ModPack Mode</option>
-                <option value="neoforge">MC NeoForge ModPack Mode</option>
-                <option value="quilt">MC Quilt ModPack Mode</option>
-                <option value="liteloader">MC LiteLoader ModPack Mode</option>
-                <option value="babric">MC Babric ModPack Mode</option>
-                <option value="babric-bta">MC Babric (BTA) ModPack Mode</option>
-            </select>
-        </div>
-        
         <div id="ttsControls" class="tts-controls">
-            <label for="ttsVoice">Voice:</label>
+            <label for="ttsVoice" id="ttsVoiceLabel">Voix:</label>
             <select id="ttsVoice"></select>
             
-            <label for="ttsRate">Speed:</label>
+            <label for="ttsRate" id="ttsRateLabel">Vitesse:</label>
             <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
             <span id="rateValue">1</span>
             
-            <button onclick="startTTS()">Play</button>
-            <button onclick="stopTTS()">Stop</button>
-            <button onclick="pauseTTS()">Pause</button>
-            <button onclick="resumeTTS()">Resume</button>
+            <button onclick="startTTS()" id="ttsPlayBtn">Jouer</button>
+            <button onclick="stopTTS()" id="ttsStopBtn">Arrêter</button>
+            <button onclick="pauseTTS()" id="ttsPauseBtn">Pause</button>
+            <button onclick="resumeTTS()" id="ttsResumeBtn">Reprendre</button>
         </div>
     </div>
 
     <!-- Confirmation Modal -->
     <div id="confirmationModal" class="modal">
         <div class="modal-content">
-            <h3>Download Confirmation</h3>
-            <p>Are you sure you want to download these files? Please note that there are no security guarantees for downloaded files.</p>
+            <h3 id="confirmDownloadTitle">Confirmation de téléchargement</h3>
+            <p id="confirmDownloadText">Êtes-vous sûr de vouloir télécharger ces fichiers? Veuillez noter qu'il n'y a aucune garantie de sécurité pour les fichiers téléchargés.</p>
             <div class="modal-buttons">
-                <button onclick="proceedDownload()" style="background-color: #28a745;">Yes</button>
-                <button onclick="cancelDownload()" style="background-color: #dc3545;">No</button>
+                <button onclick="proceedDownload()" style="background-color: #28a745;" id="confirmYesBtn">Oui</button>
+                <button onclick="cancelDownload()" style="background-color: #dc3545;" id="confirmNoBtn">Non</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div id="warningModal" class="modal warning-modal">
+        <div class="modal-content">
+            <h3 id="warningTitle">Avertissement de sécurité</h3>
+            <p id="warningText"></p>
+            <div class="modal-buttons">
+                <button onclick="proceedWithWarning()" id="warningProceedBtn">Je sais ce que je fais</button>
+                <button onclick="cancelWithWarning()" style="background-color: #6c757d;" id="warningCancelBtn">Annuler</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
-        // TTS variables
+        // Variables globales
         let ttsSpeech = null;
         let voices = [];
         let detectedUrls = [];
-        let modpackMode = 'none';
+        let currentLanguage = 'fr';
+        let warningAction = null;
+        let warningData = null;
         
+        // Textes multilingues
+        const translations = {
+            fr: {
+                editorPlaceholder: "Commencez à taper ici...",
+                saveAsFile: "Enregistrer en fichier",
+                saveAsFileTooltip: "Choisissez 'Structure de dossiers' pour télécharger l'ASCII en vrais dossiers",
+                saveAsURL: "Enregistrer en URL",
+                loadFile: "Charger un fichier",
+                downloadFiles: "Télécharger les fichiers",
+                createZip: "Créer .zip",
+                tts: "TTS",
+                ttsVoice: "Voix:",
+                ttsRate: "Vitesse:",
+                ttsPlay: "Jouer",
+                ttsStop: "Arrêter",
+                ttsPause: "Pause",
+                ttsResume: "Reprendre",
+                confirmDownloadTitle: "Confirmation de téléchargement",
+                confirmDownloadText: "Êtes-vous sûr de vouloir télécharger ces fichiers? Veuillez noter qu'il n'y a aucune garantie de sécurité pour les fichiers téléchargés.",
+                confirmYes: "Oui",
+                confirmNo: "Non",
+                warningTitle: "Avertissement de sécurité",
+                zipBombWarning: "Ce fichier ZIP contient un grand nombre de fichiers identiques ou semble être une ZIP bomb. Les ZIP bombs sont conçues pour crashser votre système en utilisant toutes vos ressources. Voulez-vous vraiment continuer?",
+                exeWarning: "Ce fichier contient des exécutables (.exe, .jar, etc.) qui peuvent être dangereux. Les fichiers exécutables peuvent contenir des virus ou des logiciels malveillants. Voulez-vous vraiment continuer?",
+                numericContentWarning: "Ce fichier contient principalement des chiffres sans contenu significatif, ce qui peut être le signe d'un fichier malveillant. Voulez-vous vraiment continuer?",
+                warningProceed: "Je sais ce que je fais",
+                warningCancel: "Annuler",
+                customFormatPlaceholder: "Entrez l'extension (ex: md, xml)",
+                noCZError: "Erreur: Le format de création de ZIP nécessite une directive *CZ = NomDuZip*",
+                noEndError: "Erreur: Le format de création de ZIP nécessite une directive *end* pour terminer",
+                noFilesError: "Erreur: Aucun fichier trouvé dans les directives de création de ZIP",
+                invalidStructureError: "Erreur: Structure de création de ZIP invalide",
+                creatingZip: "Création du ZIP en cours...",
+                zipCreated: "ZIP créé avec succès!",
+                noteFileContent: "Ce fichier a été généré automatiquement. Veuillez vérifier les licences des contenus téléchargés et créditer les auteurs originaux si nécessaire.",
+                downloadError: "Erreur de téléchargement: ",
+                downloadSuccess: "Téléchargement réussi: ",
+                totalFiles: "Fichiers traités: "
+            },
+            en: {
+                editorPlaceholder: "Start typing here...",
+                saveAsFile: "Save as File",
+                saveAsFileTooltip: "Choose 'Folder Structure' to download ASCII as real folders",
+                saveAsURL: "Save as URL",
+                loadFile: "Load File",
+                downloadFiles: "Download Files",
+                createZip: "Create .zip",
+                tts: "TTS",
+                ttsVoice: "Voice:",
+                ttsRate: "Speed:",
+                ttsPlay: "Play",
+                ttsStop: "Stop",
+                ttsPause: "Pause",
+                ttsResume: "Resume",
+                confirmDownloadTitle: "Download Confirmation",
+                confirmDownloadText: "Are you sure you want to download these files? Please note that there are no security guarantees for downloaded files.",
+                confirmYes: "Yes",
+                confirmNo: "No",
+                warningTitle: "Security Warning",
+                zipBombWarning: "This ZIP file contains a large number of identical files or appears to be a ZIP bomb. ZIP bombs are designed to crash your system by using all your resources. Do you really want to continue?",
+                exeWarning: "This file contains executables (.exe, .jar, etc.) that can be dangerous. Executable files may contain viruses or malware. Do you really want to continue?",
+                numericContentWarning: "This file contains mostly numbers without meaningful content, which may be a sign of a malicious file. Do you really want to continue?",
+                warningProceed: "I know what I'm doing",
+                warningCancel: "Cancel",
+                customFormatPlaceholder: "Enter extension (e.g., md, xml)",
+                noCZError: "Error: ZIP creation format requires a *CZ = ZipName* directive",
+                noEndError: "Error: ZIP creation format requires an *end* directive to terminate",
+                noFilesError: "Error: No files found in ZIP creation directives",
+                invalidStructureError: "Error: Invalid ZIP creation structure",
+                creatingZip: "Creating ZIP...",
+                zipCreated: "ZIP created successfully!",
+                noteFileContent: "This file was automatically generated. Please check the licenses of downloaded content and credit original authors if necessary.",
+                downloadError: "Download error: ",
+                downloadSuccess: "Download successful: ",
+                totalFiles: "Processed files: "
+            }
+        };
+
+        // Fonction pour afficher un message de statut
+        function showStatusMessage(message, isError = false) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = isError ? 'status-message status-error' : 'status-message status-success';
+            statusElement.style.display = 'block';
+            
+            // Masquer le message après 5 secondes
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fonction pour changer la langue
+        function changeLanguage() {
+            const langSelect = document.getElementById('languageSelector');
+            currentLanguage = langSelect.value;
+            applyLanguage();
+            // Sauvegarder la préférence de langue
+            localStorage.setItem('notepadLanguage', currentLanguage);
+        }
+
+        // Appliquer la langue sélectionnée
+        function applyLanguage() {
+            const lang = translations[currentLanguage];
+            
+            // Mettre à jour les textes de l'interface
+            document.getElementById('editor').placeholder = lang.editorPlaceholder;
+            document.getElementById('saveAsFileBtn').textContent = lang.saveAsFile;
+            document.getElementById('saveAsFileTooltip').textContent = lang.saveAsFileTooltip;
+            document.getElementById('saveAsURLBtn').textContent = lang.saveAsURL;
+            document.getElementById('fileInputLabel').textContent = lang.loadFile;
+            document.getElementById('downloadFilesBtn').textContent = lang.downloadFiles;
+            document.getElementById('createZipBtn').textContent = lang.createZip;
+            document.getElementById('ttsBtn').textContent = lang.tts;
+            document.getElementById('ttsVoiceLabel').textContent = lang.ttsVoice;
+            document.getElementById('ttsRateLabel').textContent = lang.ttsRate;
+            document.getElementById('ttsPlayBtn').textContent = lang.ttsPlay;
+            document.getElementById('ttsStopBtn').textContent = lang.ttsStop;
+            document.getElementById('ttsPauseBtn').textContent = lang.ttsPause;
+            document.getElementById('ttsResumeBtn').textContent = lang.ttsResume;
+            document.getElementById('confirmDownloadTitle').textContent = lang.confirmDownloadTitle;
+            document.getElementById('confirmDownloadText').textContent = lang.confirmDownloadText;
+            document.getElementById('confirmYesBtn').textContent = lang.confirmYes;
+            document.getElementById('confirmNoBtn').textContent = lang.confirmNo;
+            document.getElementById('warningTitle').textContent = lang.warningTitle;
+            document.getElementById('warningProceedBtn').textContent = lang.warningProceed;
+            document.getElementById('warningCancelBtn').textContent = lang.warningCancel;
+            document.getElementById('customFormat').placeholder = lang.customFormatPlaceholder;
+            
+            // Mettre à jour les options du sélecteur de format de fichier
+            const formatSelect = document.getElementById('fileFormat');
+            if (formatSelect.options[0].text !== (currentLanguage === 'fr' ? 'Texte (.txt)' : 'Text (.txt)')) {
+                formatSelect.innerHTML = '';
+                const options = [
+                    {value: 'txt', text: currentLanguage === 'fr' ? 'Texte (.txt)' : 'Text (.txt)'},
+                    {value: 'html', text: 'HTML (.html)'},
+                    {value: 'js', text: 'JavaScript (.js)'},
+                    {value: 'css', text: 'CSS (.css)'},
+                    {value: 'json', text: 'JSON (.json)'},
+                    {value: 'java', text: 'Java (.java)'},
+                    {value: 'py', text: 'Python (.py)'},
+                    {value: 'svelte', text: 'Svelte (.svelte)'},
+                    {value: 'sh', text: currentLanguage === 'fr' ? 'Shell (MacOs & Linux uniquement) (.sh)' : 'Shell (MacOs & Linux only) (.sh)'},
+                    {value: 'bat', text: currentLanguage === 'fr' ? 'Shell (Windows uniquement (.bat)' : 'Shell (Windows only (.bat)'},
+                    {value: 'ps1', text: currentLanguage === 'fr' ? 'PowerShell (Windows uniquement (.ps1)' : 'PowerShell (Windows only (.ps1)'},
+                    {value: 'custom', text: currentLanguage === 'fr' ? 'Format personnalisé' : 'Custom Format'},
+                    {value: 'folder', text: currentLanguage === 'fr' ? 'Structure de dossiers' : 'Folder Structure'}
+                ];
+                
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    formatSelect.appendChild(option);
+                });
+                
+                // Restaurer la sélection précédente si possible
+                const previousFormat = localStorage.getItem('notepadFormat');
+                if (previousFormat) {
+                    formatSelect.value = previousFormat;
+                    toggleCustomFormat();
+                }
+            }
+        }
+
         // Function to toggle TTS controls visibility
         function toggleTTSControls() {
             const ttsControls = document.getElementById('ttsControls');
@@ -392,6 +594,9 @@
             } else {
                 customFormatContainer.style.display = 'none';
             }
+            
+            // Sauvegarder le format sélectionné
+            localStorage.setItem('notepadFormat', formatSelect.value);
         }
         
         // Function to save text as a file with selected format
@@ -413,7 +618,7 @@
             if (format === 'custom') {
                 const customFormat = document.getElementById('customFormat').value.trim();
                 if (!customFormat) {
-                    alert('Please enter a custom file extension');
+                    alert(currentLanguage === 'fr' ? 'Veuillez entrer une extension de fichier personnalisée' : 'Please enter a custom file extension');
                     return;
                 }
                 actualFormat = customFormat;
@@ -525,7 +730,9 @@
             const text = document.getElementById('editor').value;
             const encodedText = encodeURIComponent(text);
             window.location.hash = encodedText;
-            alert("Text saved in URL. You can now copy this URL to share your notes.");
+            alert(currentLanguage === 'fr' 
+                ? "Texte enregistré dans l'URL. Vous pouvez maintenant copier cette URL pour partager vos notes." 
+                : "Text saved in URL. You can now copy this URL to share your notes.");
         }
 
         // Function to detect URLs in text
@@ -537,18 +744,25 @@
         // Function to check if text contains URLs and show/hide download button
         function checkForURLs() {
             const text = document.getElementById('editor').value;
-            const modpackMode = document.getElementById('modpackMode').value;
             detectedUrls = detectURLs(text);
             const downloadBtn = document.getElementById('downloadFilesBtn');
+            const createZipBtn = document.getElementById('createZipBtn');
             const urlCounter = document.getElementById('urlCounter');
             
             urlCounter.textContent = `${detectedUrls.length} URLs`;
             
-            // Afficher le bouton seulement si des URLs sont détectées ET si le mode n'est pas "none"
-            if (detectedUrls.length > 0 && modpackMode !== 'none') {
+            // Afficher le bouton de téléchargement si des URLs sont détectées
+            if (detectedUrls.length > 0) {
                 downloadBtn.style.display = 'inline-block';
             } else {
                 downloadBtn.style.display = 'none';
+            }
+            
+            // Afficher le bouton de création de ZIP si le format correspond
+            if (text.includes('*CZ =') && text.includes('*end*')) {
+                createZipBtn.style.display = 'inline-block';
+            } else {
+                createZipBtn.style.display = 'none';
             }
         }
 
@@ -573,33 +787,12 @@
 
         // Function to download files based on selected mode
         async function downloadFiles() {
-            const modpackMode = document.getElementById('modpackMode').value;
-            
             if (detectedUrls.length === 0) {
-                alert('No URLs detected in the text.');
+                alert(currentLanguage === 'fr' ? 'Aucune URL détectée dans le texte.' : 'No URLs detected in the text.');
                 return;
             }
             
             const zip = new JSZip();
-            
-            // Create folders based on modpack mode
-            if (modpackMode !== 'none') {
-                if (modpackMode === 'liteloader') {
-                    zip.folder('mods');
-                } else {
-                    zip.folder('mods');
-                    zip.folder('config');
-                }
-                
-                if (modpackMode === 'fabric' || modpackMode === 'quilt' || modpackMode === 'liteloader' || 
-                    modpackMode === 'babric' || modpackMode === 'babric-bta') {
-                    zip.folder('shaderpacks');
-                    zip.folder('resourcepacks');
-                } else if (modpackMode === 'forge' || modpackMode === 'neoforge') {
-                    zip.folder('shaders');
-                    zip.folder('resourcepacks');
-                }
-            }
             
             // Download each file
             for (const url of detectedUrls) {
@@ -610,32 +803,10 @@
                     const blob = await response.blob();
                     const fileName = url.substring(url.lastIndexOf('/') + 1);
                     
-                    // Determine where to place the file based on modpack mode and file extension
-                    let filePath = fileName;
-                    
-                    if (modpackMode !== 'none') {
-                        if (fileName.endsWith('.jar')) {
-                            filePath = 'mods/' + fileName;
-                        } else if (fileName.endsWith('.toml') || fileName.endsWith('.json') || fileName.endsWith('.json5')) {
-                            filePath = 'config/' + fileName;
-                        } else if (fileName.endsWith('.zip')) {
-                            // For ZIP files, we would need to extract and process them
-                            // This is a simplified version - in a real implementation, 
-                            // you would need to handle ZIP extraction and content analysis
-                            if (modpackMode === 'fabric' || modpackMode === 'quilt' || modpackMode === 'liteloader' || 
-                                modpackMode === 'babric' || modpackMode === 'babric-bta') {
-                                filePath = 'resourcepacks/' + fileName;
-                            } else if (modpackMode === 'forge' || modpackMode === 'neoforge') {
-                                filePath = 'resourcepacks/' + fileName;
-                            }
-                        } else if (fileName.endsWith('.litemod') && modpackMode === 'liteloader') {
-                            filePath = 'mods/' + fileName;
-                        }
-                    }
-                    
-                    zip.file(filePath, blob);
+                    zip.file(fileName, blob);
                 } catch (error) {
                     console.error(`Error downloading ${url}:`, error);
+                    showStatusMessage(translations[currentLanguage].downloadError + url, true);
                 }
             }
             
@@ -722,8 +893,253 @@
             reader.readAsText(file);
         }
 
+        // Fonction pour créer un ZIP à partir du contenu du notepad
+        async function createZipFromNotepad() {
+            const text = document.getElementById('editor').value;
+            
+            // Vérifier la présence des directives nécessaires
+            if (!text.includes('*CZ =')) {
+                alert(translations[currentLanguage].noCZError);
+                return;
+            }
+            
+            if (!text.includes('*end*')) {
+                alert(translations[currentLanguage].noEndError);
+                return;
+            }
+            
+            // Parser le contenu pour extraire les informations de création de ZIP
+            const lines = text.split('\n');
+            let zipName = '';
+            let noteContent = '';
+            const filesToDownload = [];
+            let currentPath = []; // Pour gérer l'imbrication des dossiers
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('*CZ =')) {
+                    zipName = line.substring(5).trim();
+                } else if (line.startsWith('*Note =')) {
+                    noteContent = line.substring(7).trim();
+                } else if (line.startsWith('*F =')) {
+                    // Nouveau dossier racine
+                    const folderName = line.substring(4).trim();
+                    currentPath = [folderName];
+                } else if (line.startsWith('*IF =')) {
+                    if (line.endsWith('= end*')) {
+                        // Fin d'un sous-dossier
+                        currentPath.pop();
+                    } else {
+                        // Nouveau sous-dossier
+                        const folderName = line.substring(5).trim();
+                        currentPath.push(folderName);
+                    }
+                } else if (line.startsWith('*File =')) {
+                    // Extraction de l'URL sans l'astérisque de fin
+                    let url = line.substring(7).trim();
+                    
+                    // Supprimer l'astérisque final s'il existe
+                    if (url.endsWith('*')) {
+                        url = url.substring(0, url.length - 1).trim();
+                    }
+                    
+                    if (url) {
+                        // Déterminer le chemin complet du fichier
+                        let filePath = '';
+                        if (currentPath.length > 0) {
+                            filePath = currentPath.join('/') + '/';
+                        }
+                        const fileName = url.substring(url.lastIndexOf('/') + 1);
+                        filePath += fileName;
+                        
+                        filesToDownload.push({
+                            url: url,
+                            path: filePath
+                        });
+                    }
+                } else if (line === '*end*') {
+                    // Fin d'une section, réinitialiser le chemin courant
+                    currentPath = [];
+                }
+            }
+            
+            if (filesToDownload.length === 0) {
+                alert(translations[currentLanguage].noFilesError);
+                return;
+            }
+            
+            // Vérifications de sécurité
+            let hasExecutables = false;
+            let hasDuplicateUrls = false;
+            let hasNumericContent = false;
+            const urlCount = {};
+            
+            for (const file of filesToDownload) {
+                // Vérifier les fichiers exécutables
+                if (file.url.toLowerCase().match(/\.(exe|jar|bat|cmd|sh|msi|dll|so|dylib)$/)) {
+                    hasExecutables = true;
+                }
+                
+                // Compter les URLs pour détecter les doublons
+                if (urlCount[file.url]) {
+                    urlCount[file.url]++;
+                    if (urlCount[file.url] > 3) {
+                        hasDuplicateUrls = true;
+                    }
+                } else {
+                    urlCount[file.url] = 1;
+                }
+            }
+            
+            // Vérifier le contenu numérique (simplifié)
+            if (text.replace(/[^0-9]/g, '').length > text.length * 0.7) {
+                hasNumericContent = true;
+            }
+            
+            // Afficher les avertissements si nécessaire
+            if (hasExecutables) {
+                showWarning('exe');
+                warningData = {zipName, noteContent, filesToDownload};
+                return;
+            }
+            
+            if (hasDuplicateUrls) {
+                showWarning('zipBomb');
+                warningData = {zipName, noteContent, filesToDownload};
+                return;
+            }
+            
+            if (hasNumericContent) {
+                showWarning('numericContent');
+                warningData = {zipName, noteContent, filesToDownload};
+                return;
+            }
+            
+            // Si pas d'avertissements, procéder au téléchargement
+            proceedWithZipCreation(zipName, noteContent, filesToDownload);
+        }
+        
+        // Fonction pour afficher un avertissement
+        function showWarning(type) {
+            const modal = document.getElementById('warningModal');
+            const warningText = document.getElementById('warningText');
+            
+            switch(type) {
+                case 'exe':
+                    warningText.textContent = translations[currentLanguage].exeWarning;
+                    break;
+                case 'zipBomb':
+                    warningText.textContent = translations[currentLanguage].zipBombWarning;
+                    break;
+                case 'numericContent':
+                    warningText.textContent = translations[currentLanguage].numericContentWarning;
+                    break;
+            }
+            
+            warningAction = 'createZip';
+            modal.style.display = 'block';
+        }
+        
+        // Fonction pour procéder après un avertissement
+        function proceedWithWarning() {
+            const modal = document.getElementById('warningModal');
+            modal.style.display = 'none';
+            
+            if (warningAction === 'createZip' && warningData) {
+                proceedWithZipCreation(warningData.zipName, warningData.noteContent, warningData.filesToDownload);
+            }
+        }
+        
+        // Fonction pour annuler après un avertissement
+        function cancelWithWarning() {
+            const modal = document.getElementById('warningModal');
+            modal.style.display = 'none';
+            warningAction = null;
+            warningData = null;
+        }
+        
+        // Fonction pour procéder à la création du ZIP
+        async function proceedWithZipCreation(zipName, noteContent, filesToDownload) {
+            showStatusMessage(translations[currentLanguage].creatingZip);
+            
+            const zip = new JSZip();
+            let successCount = 0;
+            let errorCount = 0;
+            
+            // Ajouter le fichier de note si spécifié
+            if (noteContent) {
+                zip.file('NoteandCredits.txt', translations[currentLanguage].noteFileContent + '\n\n' + noteContent);
+            }
+            
+            // Télécharger chaque fichier
+            for (const file of filesToDownload) {
+                try {
+                    const response = await fetch(file.url);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const blob = await response.blob();
+                    
+                    // Créer la structure de dossiers si nécessaire
+                    const pathParts = file.path.split('/');
+                    if (pathParts.length > 1) {
+                        const fileName = pathParts.pop();
+                        let currentFolder = zip;
+                        
+                        for (const folder of pathParts) {
+                            if (!currentFolder.folder(folder)) {
+                                currentFolder = currentFolder.folder(folder);
+                            } else {
+                                currentFolder = currentFolder.folder(folder);
+                            }
+                        }
+                        
+                        currentFolder.file(fileName, blob);
+                    } else {
+                        zip.file(file.path, blob);
+                    }
+                    
+                    successCount++;
+                    showStatusMessage(`${translations[currentLanguage].downloadSuccess} ${file.url}`, false);
+                } catch (error) {
+                    console.error(`Error downloading ${file.url}:`, error);
+                    errorCount++;
+                    showStatusMessage(`${translations[currentLanguage].downloadError} ${file.url}: ${error.message}`, true);
+                }
+            }
+            
+            // Générer et télécharger le fichier ZIP
+            if (successCount > 0) {
+                zip.generateAsync({type: 'blob'}).then(function(content) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = zipName + '.zip';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                    
+                    const message = `${translations[currentLanguage].zipCreated} ${translations[currentLanguage].totalFiles} ${successCount}/${filesToDownload.length}`;
+                    if (errorCount > 0) {
+                        showStatusMessage(message + ` (${errorCount} erreurs)`, true);
+                    } else {
+                        showStatusMessage(message, false);
+                    }
+                });
+            } else {
+                showStatusMessage(translations[currentLanguage].noFilesError, true);
+            }
+        }
+
         // Load text from URL hash when page loads
         window.onload = function() {
+            // Charger la préférence de langue
+            const savedLanguage = localStorage.getItem('notepadLanguage');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+                document.getElementById('languageSelector').value = currentLanguage;
+            }
+            
+            applyLanguage();
+            
             if (window.location.hash) {
                 const encodedText = window.location.hash.substring(1);
                 const text = decodeURIComponent(encodedText);
@@ -736,9 +1152,6 @@
                 
             // Add event listener to check for URLs when text changes
             document.getElementById('editor').addEventListener('input', checkForURLs);
-            
-            // Add event listener to check when modpack mode changes
-            document.getElementById('modpackMode').addEventListener('change', checkForURLs);
             
             // Initial check for URLs
             checkForURLs();
