@@ -5,27 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notepad Online</title>
     <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --text-color: #333;
+            --notepad-bg: #fff;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-color: #ddd;
+            --tooltip-bg: #555;
+            --modal-bg: #fefefe;
+            --status-success: #d4edda;
+            --status-error: #f8d7da;
+            --tts-bg: #f8f9fa;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --notepad-bg: #2d2d2d;
+            --button-bg: #0d6efd;
+            --button-hover: #0a58ca;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --border-color: #444;
+            --tooltip-bg: #333;
+            --modal-bg: #3d3d3d;
+            --status-success: #155724;
+            --status-error: #721c24;
+            --tts-bg: #343a40;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f0f0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
         }
         .notepad {
             width: 90%;
             max-width: 1200px;
             height: 87vh;
             padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: var(--notepad-bg);
+            box-shadow: 0 0 10px var(--shadow-color);
             border-radius: 8px;
             display: flex;
             flex-direction: column;
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
         textarea {
             width: 100%;
@@ -37,6 +70,9 @@
             line-height: 1.5;
             font-family: 'Consolas', monospace;
             flex-grow: 1;
+            background-color: var(--notepad-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
         .controls {
             margin-top: 15px;
@@ -57,14 +93,14 @@
             font-size: 16px;
             cursor: pointer;
             border: none;
-            background-color: #007bff;
+            background-color: var(--button-bg);
             color: #fff;
             border-radius: 5px;
             transition: all 0.2s ease;
             white-space: nowrap;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--button-hover);
             transform: translateY(-1px);
         }
         button:active {
@@ -74,7 +110,10 @@
             padding: 9px 15px;
             font-size: 16px;
             border-radius: 5px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
+            background-color: var(--notepad-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
         .tooltip {
             position: relative;
@@ -83,7 +122,7 @@
         .tooltip .tooltiptext {
             visibility: hidden;
             width: 200px;
-            background-color: #555;
+            background-color: var(--tooltip-bg);
             color: #fff;
             text-align: center;
             border-radius: 6px;
@@ -104,12 +143,13 @@
         .tts-controls {
             margin-top: 15px;
             padding: 10px;
-            background-color: #f8f9fa;
+            background-color: var(--tts-bg);
             border-radius: 5px;
             display: none;
             flex-wrap: wrap;
             gap: 10px;
             align-items: center;
+            transition: background-color 0.3s;
         }
         .tts-controls label {
             margin-right: 5px;
@@ -139,14 +179,15 @@
             background-color: rgba(0,0,0,0.5);
         }
         .modal-content {
-            background-color: #fefefe;
+            background-color: var(--modal-bg);
             margin: 15% auto;
             padding: 20px;
-            border: 1px solid #888;
+            border: 1px solid var(--border-color);
             width: 80%;
             max-width: 500px;
             border-radius: 8px;
             text-align: center;
+            transition: background-color 0.3s, border-color 0.3s;
         }
         .modal-buttons {
             margin-top: 20px;
@@ -235,21 +276,42 @@
             display: none;
         }
         .status-success {
-            background-color: #d4edda;
+            background-color: var(--status-success);
             color: #155724;
             border: 1px solid #c3e6cb;
         }
         .status-error {
-            background-color: #f8d7da;
+            background-color: var(--status-error);
             color: #721c24;
             border: 1px solid #f5c6cb;
+        }
+        #themeToggle {
+            background-color: #6c757d;
+        }
+        #themeToggle:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
 <body>
     <div class="notepad drop-zone" id="dropZone">
         <div class="drop-overlay" id="dropOverlay">Drop file here</div>
-        <textarea id="editor" placeholder="Start typing here..."></textarea>
+        <textarea id="editor" placeholder="Start typing here...">*CZ = MonProjet*
+*Note = Ce projet utilise des ressources sous licence MIT. Merci de créditer les auteurs originaux.*
+
+*F = mods*
+*File = https://cdn.modrinth.com/data/P7dR8mSH/versions/UapVHwiP/fabric-api-0.92.6%2B1.20.1.jar*
+*File = https://cdn.modrinth.com/data/9s6osm5g/versions/2xQdCMyG/cloth-config-11.1.136-fabric.jar*
+*File = https://cdn.modrinth.com/data/EsAfCjCV/versions/xcauwnEB/appleskin-fabric-mc1.20.1-2.5.1.jar*
+*end*
+
+*F = resourcepacks*
+*File = https://cdn.modrinth.com/data/BaY1UdGV/versions/xHC7bqmW/Unique%20Dark%20-%20Lite%20-%201.20.1.zip*
+*end*
+
+*F = config*
+*File = CF + json + name = config.json = {"MC-577":true,"MC-22882":true,"MC-59810":true,"MC-89146":true,"MC-90683":true,"MC-112730":true,"MC-122477":true,"MC-199467":true,"MC-235035":true,"MC-237493":true,"MC-263865":true,"opt_out_updater":true,"gameplay_fixes_in_multiplayer":false,"default_disabled":true}*
+*end*</textarea>
         <div id="statusMessage" class="status-message"></div>
         
         <div class="controls">
@@ -289,8 +351,9 @@
             <div class="right-controls">
                 <button id="downloadFilesBtn" onclick="confirmDownload()">Download Files</button>
                 <button id="createZipBtn" onclick="createZipFromNotepad()">Create .zip</button>
-                <span id="urlCounter" class="url-counter">0 URLs</span>
+                <span id="urlCounter" class="url-counter">0 URLs/CFs</span>
                 <button onclick="toggleTTSControls()" id="ttsBtn">TTS</button>
+                <button id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
                 <select id="languageSelector" class="language-selector" onchange="changeLanguage()">
                     <option value="en">English</option>
                     <option value="fr">Français</option>
@@ -346,6 +409,7 @@
         let currentLanguage = 'en';
         let warningAction = null;
         let warningData = null;
+        let isDarkMode = false;
         
         // Multilingual texts
         const translations = {
@@ -384,7 +448,9 @@
                 noteFileContent: "This file was automatically generated. Please check the licenses of downloaded content and credit original authors if necessary.",
                 downloadError: "Download error: ",
                 downloadSuccess: "Download successful: ",
-                totalFiles: "Processed files: "
+                totalFiles: "Processed files: ",
+                darkMode: "🌙 Dark Mode",
+                lightMode: "☀️ Light Mode"
             },
             fr: {
                 editorPlaceholder: "Commencez à taper ici...",
@@ -421,7 +487,9 @@
                 noteFileContent: "Ce fichier a été généré automatiquement. Veuillez vérifier les licences des contenus téléchargés et créditer les auteurs originaux si nécessaire.",
                 downloadError: "Erreur de téléchargement: ",
                 downloadSuccess: "Téléchargement réussi: ",
-                totalFiles: "Fichiers traités: "
+                totalFiles: "Fichiers traités: ",
+                darkMode: "🌙 Mode Sombre",
+                lightMode: "☀️ Mode Clair"
             }
         };
 
@@ -475,6 +543,10 @@
             document.getElementById('warningCancelBtn').textContent = lang.warningCancel;
             document.getElementById('customFormat').placeholder = lang.customFormatPlaceholder;
             
+            // Update theme button text
+            const themeButton = document.getElementById('themeToggle');
+            themeButton.textContent = isDarkMode ? lang.lightMode : lang.darkMode;
+            
             // Update file format selector options
             const formatSelect = document.getElementById('fileFormat');
             if (formatSelect.options[0].text !== (currentLanguage === 'en' ? 'Text (.txt)' : 'Texte (.txt)')) {
@@ -508,6 +580,20 @@
                     toggleCustomFormat();
                 }
             }
+        }
+
+        // Function to toggle theme
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            
+            // Update button text
+            const themeButton = document.getElementById('themeToggle');
+            const lang = translations[currentLanguage];
+            themeButton.textContent = isDarkMode ? lang.lightMode : lang.darkMode;
+            
+            // Save theme preference
+            localStorage.setItem('notepadTheme', isDarkMode ? 'dark' : 'light');
         }
 
         // Function to toggle TTS controls visibility
@@ -663,10 +749,29 @@
                 : "Texte enregistré dans l'URL. Vous pouvez maintenant copier cette URL pour partager vos notes.");
         }
 
-        // Function to detect URLs in text
+        // Function to detect URLs and CF+format in text
         function detectURLs(text) {
             const urlRegex = /(https?:\/\/[^\s]+)/g;
-            return text.match(urlRegex) || [];
+            const cfRegex = /CF\s*\+\s*(\w+)\s*(?:\+\s*name\s*=\s*([^=]+)\s*=\s*)?([^*]+?)(?=\s*(?:CF\s*\+\s*\w+|$|\*))/g;
+            
+            const urls = text.match(urlRegex) || [];
+            const cfMatches = [];
+            
+            let match;
+            while ((match = cfRegex.exec(text)) !== null) {
+                const format = match[1].trim();
+                const customName = match[2] ? match[2].trim() : null;
+                const content = match[3].trim();
+                
+                cfMatches.push({
+                    format: format,
+                    customName: customName,
+                    content: content,
+                    isCF: true
+                });
+            }
+            
+            return [...urls, ...cfMatches];
         }
 
         // Function to check if text contains URLs and show/hide download button
@@ -677,7 +782,7 @@
             const createZipBtn = document.getElementById('createZipBtn');
             const urlCounter = document.getElementById('urlCounter');
             
-            urlCounter.textContent = `${detectedUrls.length} URLs`;
+            urlCounter.textContent = `${detectedUrls.length} URLs/CFs`;
             
             // Show download button if URLs are detected
             if (detectedUrls.length > 0) {
@@ -716,25 +821,37 @@
         // Function to download files based on selected mode
         async function downloadFiles() {
             if (detectedUrls.length === 0) {
-                alert(currentLanguage === 'en' ? 'No URLs detected in the text.' : 'Aucune URL détectée dans le texte.');
+                alert(currentLanguage === 'en' ? 'No URLs/CF detected in the text.' : 'Aucune URL/CF détectée dans le texte.');
                 return;
             }
             
             const zip = new JSZip();
             
-            // Download each file
-            for (const url of detectedUrls) {
+            // Download each file or process CF content
+            for (const item of detectedUrls) {
                 try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    
-                    const blob = await response.blob();
-                    const fileName = url.substring(url.lastIndexOf('/') + 1);
-                    
-                    zip.file(fileName, blob);
+                    if (typeof item === 'string') {
+                        // Regular URL
+                        const response = await fetch(item);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        
+                        const blob = await response.blob();
+                        const fileName = item.substring(item.lastIndexOf('/') + 1);
+                        
+                        zip.file(fileName, blob);
+                    } else if (item.isCF) {
+                        // CF + format content
+                        const extension = item.format;
+                        const content = item.content;
+                        const fileName = item.customName 
+                            ? item.customName + (item.customName.includes('.') ? '' : '.' + extension)
+                            : `cf_file_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${extension}`;
+                        
+                        zip.file(fileName, content);
+                    }
                 } catch (error) {
-                    console.error(`Error downloading ${url}:`, error);
-                    showStatusMessage(translations[currentLanguage].downloadError + url, true);
+                    console.error(`Error processing ${typeof item === 'string' ? item : 'CF content'}:`, error);
+                    showStatusMessage(translations[currentLanguage].downloadError + (typeof item === 'string' ? item : 'CF content'), true);
                 }
             }
             
@@ -864,25 +981,50 @@
                         currentPath.push(folderName);
                     }
                 } else if (line.startsWith('*File =')) {
-                    // Extract URL without ending asterisk
-                    let url = line.substring(7).trim();
+                    // Extract URL or CF content without ending asterisk
+                    let content = line.substring(7).trim();
                     
                     // Remove final asterisk if exists
-                    if (url.endsWith('*')) {
-                        url = url.substring(0, url.length - 1).trim();
+                    if (content.endsWith('*')) {
+                        content = content.substring(0, content.length - 1).trim();
                     }
                     
-                    if (url) {
+                    if (content) {
+                        // Check if it's a CF format or URL
+                        let url, cfFormat, cfContent, cfCustomName;
+                        
+                        if (content.startsWith('CF +')) {
+                            // Handle CF + format content with optional custom name
+                            const cfMatch = content.match(/CF\s*\+\s*(\w+)\s*(?:\+\s*name\s*=\s*([^=]+)\s*=\s*)?(.+)/);
+                            if (cfMatch) {
+                                cfFormat = cfMatch[1].trim();
+                                cfCustomName = cfMatch[2] ? cfMatch[2].trim() : null;
+                                cfContent = cfMatch[3].trim();
+                            }
+                        } else {
+                            // Regular URL
+                            url = content;
+                        }
+                        
                         // Determine full file path
                         let filePath = '';
                         if (currentPath.length > 0) {
                             filePath = currentPath.join('/') + '/';
                         }
-                        const fileName = url.substring(url.lastIndexOf('/') + 1);
+                        
+                        const fileName = url 
+                            ? url.substring(url.lastIndexOf('/') + 1)
+                            : (cfCustomName 
+                                ? (cfCustomName.includes('.') ? cfCustomName : cfCustomName + '.' + cfFormat)
+                                : `cf_file_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${cfFormat}`);
+                        
                         filePath += fileName;
                         
                         filesToDownload.push({
                             url: url,
+                            cfFormat: cfFormat,
+                            cfContent: cfContent,
+                            cfCustomName: cfCustomName,
                             path: filePath
                         });
                     }
@@ -905,18 +1047,20 @@
             
             for (const file of filesToDownload) {
                 // Check for executable files
-                if (file.url.toLowerCase().match(/\.(exe|jar|bat|cmd|sh|msi|dll|so|dylib)$/)) {
+                if (file.url && file.url.toLowerCase().match(/\.(exe|jar|bat|cmd|sh|msi|dll|so|dylib)$/)) {
                     hasExecutables = true;
                 }
                 
                 // Count URLs to detect duplicates
-                if (urlCount[file.url]) {
-                    urlCount[file.url]++;
-                    if (urlCount[file.url] > 3) {
-                        hasDuplicateUrls = true;
+                if (file.url) {
+                    if (urlCount[file.url]) {
+                        urlCount[file.url]++;
+                        if (urlCount[file.url] > 3) {
+                            hasDuplicateUrls = true;
+                        }
+                    } else {
+                        urlCount[file.url] = 1;
                     }
-                } else {
-                    urlCount[file.url] = 1;
                 }
             }
             
@@ -1000,13 +1144,22 @@
                 zip.file('NoteandCredits.txt', translations[currentLanguage].noteFileContent + '\n\n' + noteContent);
             }
             
-            // Download each file
+            // Download each file or process CF content
             for (const file of filesToDownload) {
                 try {
-                    const response = await fetch(file.url);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    let blob;
                     
-                    const blob = await response.blob();
+                    if (file.url) {
+                        // Regular URL file
+                        const response = await fetch(file.url);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        blob = await response.blob();
+                    } else if (file.cfContent) {
+                        // CF + format content
+                        blob = new Blob([file.cfContent], { type: 'text/plain' });
+                    } else {
+                        continue; // Skip if neither URL nor CF content
+                    }
                     
                     // Create folder structure if needed
                     const pathParts = file.path.split('/');
@@ -1028,11 +1181,11 @@
                     }
                     
                     successCount++;
-                    showStatusMessage(`${translations[currentLanguage].downloadSuccess} ${file.url}`, false);
+                    showStatusMessage(`${translations[currentLanguage].downloadSuccess} ${file.url || 'CF content'}`, false);
                 } catch (error) {
-                    console.error(`Error downloading ${file.url}:`, error);
+                    console.error(`Error processing ${file.url || 'CF content'}:`, error);
                     errorCount++;
-                    showStatusMessage(`${translations[currentLanguage].downloadError} ${file.url}: ${error.message}`, true);
+                    showStatusMessage(`${translations[currentLanguage].downloadError} ${file.url || 'CF content'}: ${error.message}`, true);
                 }
             }
             
@@ -1064,6 +1217,13 @@
             if (savedLanguage) {
                 currentLanguage = savedLanguage;
                 document.getElementById('languageSelector').value = currentLanguage;
+            }
+            
+            // Load theme preference
+            const savedTheme = localStorage.getItem('notepadTheme');
+            if (savedTheme === 'dark') {
+                isDarkMode = true;
+                document.body.classList.add('dark-mode');
             }
             
             applyLanguage();
