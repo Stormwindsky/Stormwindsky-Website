@@ -3,339 +3,683 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stormwindsky - Explorer</title>
+    <title>StormExplorer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* cool :D */
+        /* --- Global Variables & Reset --- */
         :root {
+            /* Light Mode Default */
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
-            --background-color: #f8f9fa;
-            --card-color: #ffffff;
-            --text-color: #333333;
+            --background-color-home: #ffffff;
+            --background-color-results: #f1f3f4;
+            --text-color: #202124;
+            --link-color: #1a0dab;
+            --url-color: #006621;
+            --card-color: #ffffff; /* Card and Header background */
+            --border-color: #dadce0;
             --error-color: #e63946;
-            --success-color: #2a9d8f;
-            --border-radius: 12px;
-            --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
             --transition: all 0.3s ease;
+            
+            /* Dark Mode Variables */
+            --dark-bg: #1a1a2e;
+            --dark-card: #202124;
+            --dark-text: #e8eaed;
+            --dark-link: #8ab4f8;
+            --dark-url: #9ab87a;
+            --dark-border: #3c4043;
+            --dark-input-bg: #202124;
+
+            /* Halloween Theme Variables */
+            --halloween-primary: #ff6600; /* Pumpkin orange */
+            --halloween-secondary: #5e1a7b; /* Deep purple */
+            --halloween-link: #ffb703; /* Gold/yellowish */
+            --halloween-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
+            --halloween-gradient: linear-gradient(135deg, #ff6600 0%, #5e1a7b 100%);
         }
 
+        /* --- Dark Mode Styles FIX APPLIED HERE --- */
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+        
+        /* Ensures the results screen container also uses the dark background */
+        body.dark-mode #search-results-screen {
+            background-color: var(--dark-bg);
+        }
+
+        body.dark-mode .search-header,
+        body.dark-mode .search-result-card,
+        body.dark-mode footer {
+            background-color: var(--dark-card);
+            box-shadow: var(--box-shadow);
+        }
+
+        body.dark-mode .home-search-input,
+        body.dark-mode .search-input {
+            background-color: var(--dark-input-bg);
+            color: var(--dark-text);
+            border: 1px solid var(--dark-border);
+        }
+
+        body.dark-mode .result-title a {
+            color: var(--dark-link);
+        }
+        
+        body.dark-mode .result-link-url {
+            color: var(--dark-url);
+        }
+        
+        body.dark-mode .category-label {
+            background-color: #3c4043;
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode .result-tabs {
+            border-bottom-color: var(--dark-border);
+        }
+
+        body.dark-mode .filter-item label {
+            background-color: #3c4043;
+            color: var(--dark-text);
+            border-color: var(--dark-border);
+        }
+
+        body.dark-mode .filter-item input[type="checkbox"]:checked + label {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* --- Halloween Theme Overrides --- */
+        body.halloween-theme {
+            background-color: #1c1c1c; /* Darker background */
+            color: var(--dark-text);
+        }
+
+        body.halloween-theme #search-results-screen {
+             background-color: #1c1c1c; 
+        }
+        
+        body.halloween-theme .home-logo {
+            color: var(--halloween-primary);
+        }
+        
+        body.halloween-theme .home-logo i {
+             animation: textGlowHalloween 3s ease-in-out infinite alternate;
+             text-shadow: var(--halloween-shadow);
+        }
+        
+        body.halloween-theme .logo {
+            color: var(--halloween-link) !important;
+             animation: textGlowHalloween 3s ease-in-out infinite alternate;
+             text-shadow: var(--halloween-shadow);
+        }
+
+        body.halloween-theme .logo i {
+             animation: textGlowHalloween 3s ease-in-out infinite alternate;
+        }
+
+        body.halloween-theme .search-header,
+        body.halloween-theme .search-result-card,
+        body.halloween-theme footer {
+            background-color: #333333;
+        }
+
+        body.halloween-theme .result-title a {
+            color: var(--halloween-link);
+        }
+
+        body.halloween-theme .filter-item input[type="checkbox"]:checked + label {
+            background: var(--halloween-gradient);
+            border-color: var(--halloween-primary);
+        }
+        
+        /* Ghost Particles (Copied from Welcome.html) */
+        .ghost-element {
+            position: absolute;
+            font-size: 4rem;
+            opacity: 0;
+            animation: floatGhost 20s infinite ease-in-out;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transition: all 0.5s;
+            z-index: 1; /* Below the search screen */
+        }
+        
+        @keyframes floatGhost {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.15;
+            }
+            50% {
+                transform: translateY(-150px) translateX(70px) rotate(10deg);
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes textGlowHalloween {
+            from {
+                text-shadow: 0 0 5px rgba(255, 102, 0, 0.5);
+            }
+            to {
+                text-shadow: 0 0 15px rgba(255, 102, 0, 0.8), 
+                            0 0 20px rgba(94, 26, 123, 0.6);
+            }
+        }
+
+        /* --- Standard Styles (keep existing) --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Roboto', Arial, sans-serif;
         }
 
         body {
-            background-color: var(--background-color);
+            background-color: var(--background-color-home);
             color: var(--text-color);
-            line-height: 1.6;
-            padding: 2rem;
+            line-height: 1.4;
             min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.8;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* Controls Area */
-        .controls-area {
-            margin: 2rem auto;
-            max-width: 900px;
-            background: var(--card-color);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            font-size: 14px;
+            transition: background-color 0.3s;
         }
         
-        .search-input {
+        /* Background Particle container */
+        .bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 0.75rem 1.25rem;
-            border: 2px solid #ced4da;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-            margin-bottom: 1rem;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
         }
 
-        .search-input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        /* Screen Management */
+        .screen {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
 
-        .filter-header {
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: var(--secondary-color);
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 0.5rem;
+        .screen.active {
+            display: flex; /* Use flex for home screen centering */
         }
         
-        .category-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            justify-content: center;
-            padding: 0.5rem 0;
+        /* Transition Animation */
+        .fade-out-up {
+            opacity: 0 !important;
+            transform: translateY(-50px);
         }
 
-        .filter-item {
+        /* Home Screen Styling */
+        #home-screen {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: inherit; /* Inherit from body for smooth background color changes */
+        }
+
+        .home-logo {
+            font-size: 60px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
+        }
+        
+        .home-logo i {
+            margin-right: 15px;
+            font-size: 80px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        .home-search-container {
+            width: 100%;
+            max-width: 580px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .home-search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+            transition: box-shadow 0.3s;
+        }
+
+        .home-search-input::placeholder {
+            color: #70757a;
+        }
+
+        .home-search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aa0a6;
             cursor: pointer;
-            user-select: none;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+        
+        /* Search Results Screen Styling */
+
+        /* Animation */
+        @keyframes bounce {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-3px); }
+        }
+
+        #search-results-screen {
+            display: none;
+            background-color: var(--background-color-results);
+            padding-top: 100px;
+        }
+        
+        #search-results-screen.active {
+            display: block; 
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header / Search Bar Area (Fixed Position) */
+        .search-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            padding: 15px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .logo i {
+            margin-right: 8px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        /* Result Tabs */
+        .result-tabs {
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 0 5px 0;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .category-filters {
+            display: inline-flex;
+            gap: 15px;
         }
 
         .filter-item input[type="checkbox"] {
-            margin-right: 0.5rem;
-            accent-color: var(--primary-color);
-            width: 1.1rem;
-            height: 1.1rem;
+            display: none;
         }
 
         .filter-item label {
-            font-weight: 500;
-            color: var(--text-color);
-        }
-        
-        /* Loading & Error */
-        .loading {
-            text-align: center;
-            font-size: 1.2rem;
-            margin: 2rem 0;
-            color: var(--primary-color);
-        }
-
-        .error-message {
-            text-align: center;
-            padding: 2rem;
-            background-color: #ffeeee;
-            border-radius: var(--border-radius);
-            color: var(--error-color);
-            font-size: 1.2rem;
-            margin: 2rem 0;
-            border-left: 5px solid var(--error-color);
-        }
-
-        .retry-btn {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            background-color: var(--error-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
             cursor: pointer;
-            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #f8f9fa;
+            color: #5f6368;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.2s, color 0.2s;
+            font-size: 13px;
+            white-space: nowrap;
         }
 
-        .retry-btn:hover {
-            opacity: 0.9;
-        }
-
-        /* Files Grid */
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .file-card {
-            background-color: var(--card-color);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .file-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .file-icon {
-            background-color: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            font-size: 2.5rem;
-            color: var(--primary-color);
-        }
-
-        .file-info {
-            padding: 1.5rem;
-            flex-grow: 1;
-        }
-
-        .file-name {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-            word-break: break-word;
-        }
-        
-        .file-category {
-            font-size: 0.9rem;
-            color: var(--primary-color);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .file-path {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 1rem;
-            word-break: break-word;
-        }
-
-        .visit-btn {
-            display: inline-block;
+        .filter-item input[type="checkbox"]:checked + label {
             background-color: var(--primary-color);
             color: white;
-            text-decoration: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
+            border-color: var(--primary-color);
             font-weight: 500;
-            transition: var(--transition);
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            text-align: center;
         }
 
-        .visit-btn:hover {
-            background-color: var(--secondary-color);
+        /* Search Results List */
+        .search-result-card {
+            background-color: var(--card-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            box-shadow: var(--box-shadow);
         }
 
+        .result-title a {
+            font-size: 20px;
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        
+        /* Footer */
         footer {
+            background-color: var(--card-color);
             text-align: center;
-            margin-top: 4rem;
-            padding-top: 2rem;
+            padding: 2rem 20px;
             border-top: 1px solid #e9ecef;
             color: #6c757d;
             font-size: 0.9rem;
+            margin-top: 40px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+        
+        body.halloween-theme .theme-toggle {
+            background: var(--halloween-gradient);
+            box-shadow: var(--halloween-shadow);
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Media Queries (keep existing) */
+        @media (max-width: 900px) {
+             #home-screen {
+                padding: 20px;
             }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .files-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .category-filters {
-                gap: 1rem;
-                justify-content: flex-start;
-            }
+            /* ... (rest of the media queries) ... */
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Stormwindsky - Explorer 🔍</h1>
-            <p class="subtitle">Browse and filter HTML files from the GitHub repository across multiple categories.</p>
-        </header>
-        
-        <div class="controls-area">
-            <input type="text" id="search-input" class="search-input" placeholder="Search HTML files by name...">
-            
-            <div class="filter-header">Filter by Category:</div>
-            <div id="category-filters" class="category-filters">
-                </div>
-        </div>
-        
-        <div id="loading" class="loading">
-            Loading...
-        </div>
+<body class="theme-placeholder">
+    
+    <div class="bg-elements"></div>
 
-        <div id="error-container" class="error-message" style="display: none;">
-            <div id="error-message">Error loading files.</div>
-            <button id="retry-btn" class="retry-btn">Retry</button>
+    <div id="home-screen" class="screen active">
+        <div class="home-logo">
+            <i class="fas fa-search"></i>StormExplorer <span id="halloween-emoji-header"></span>
         </div>
-
-        <div id="files-container" class="files-grid"></div>
-
-        <footer>
-            <p>Data retrieved from the Stormwindsky/Stormwindsky-Website GitHub API.</p>
-        </footer>
+        <div class="home-search-container">
+            <input type="text" id="home-search-input" class="home-search-input" placeholder="No Tracking. Just Search..." autofocus>
+            <i class="fas fa-search home-search-icon" id="home-search-button"></i>
+        </div>
     </div>
 
+    <div id="search-results-screen" class="screen">
+        
+        <div class="search-header">
+            <div class="header-content">
+                <a href="#" class="logo" onclick="window.location.reload()">
+                    <i class="fas fa-search"></i>StormExplorer <span id="halloween-emoji-nav"></span>
+                </a>
+                <div class="search-form">
+                    <input type="text" id="results-search-input" class="search-input" placeholder="Search files on Stormwindsky-Website...">
+                </div>
+            </div>
+
+            <div class="result-tabs">
+                <span class="filter-header">Exclude Categories:</span>
+                <div id="category-filters" class="category-filters">
+                    </div>
+            </div>
+        </div>
+        
+        <div class="container main-content">
+            <div class="search-results-list">
+                <div id="loading" class="loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> Loading results...
+                </div>
+        
+                <div id="error-container" class="error-message" style="display: none;">
+                    <div id="error-message">Error loading files.</div>
+                    <button id="retry-btn" class="retry-btn">Retry</button>
+                </div>
+                
+                <div id="result-stats" class="result-stats" style="display: none;"></div>
+
+                <div id="files-container">
+                    </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Data retrieved from the <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" style="color: inherit;">Stormwindsky/Stormwindsky-Website GitHub API</a>.</p>
+        </footer>
+    </div>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
     <script>
+        // --- Theme Logic ---
+        
+        // Check if it's October (Month is 0-indexed, so 9 is October)
+        function isOctober() {
+            const now = new Date();
+            // Using a mock date for testing purposes - October 13, 2025
+            // Remove this line to use the real date:
+            // return now.getMonth() === 9;
+            return true; // FORCE HALLOWEEN FOR DEMO
+        }
+        
+        function createGhostParticles() {
+            const bgElements = document.querySelector('.bg-elements');
+            // Clear existing elements first
+            bgElements.innerHTML = '';
+            const ghosts = ['👻', '🦇', '🕷️', '🕸️', '💀', '🎃']; 
+            
+            for (let i = 0; i < 7; i++) {
+                const ghost = document.createElement('div');
+                ghost.classList.add('ghost-element');
+                
+                const emoji = ghosts[Math.floor(Math.random() * ghosts.length)];
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 10;
+                const duration = Math.random() * 15 + 15;
+                const size = Math.random() * 1.5 + 1;
+                
+                ghost.textContent = emoji;
+                ghost.style.top = `${posY}%`;
+                ghost.style.left = `${posX}%`;
+                ghost.style.fontSize = `${size}rem`;
+                ghost.style.animation = `floatGhost ${duration}s infinite ease-in-out ${delay}s`;
+                
+                bgElements.appendChild(ghost);
+            }
+        }
+        
+        function applyHalloweenTheme() {
+            if (isOctober()) {
+                document.body.classList.add('halloween-theme');
+                document.getElementById('halloween-emoji-header').textContent = '🎃';
+                document.getElementById('halloween-emoji-nav').textContent = '🎃';
+                document.querySelector('.theme-toggle').textContent = '🎃'; // Pumpkin icon for October
+                createGhostParticles();
+            } else {
+                 // Ensure emojis are cleared if not October
+                if(document.getElementById('halloween-emoji-header')) {
+                    document.getElementById('halloween-emoji-header').textContent = '';
+                }
+                if(document.getElementById('halloween-emoji-nav')) {
+                    document.getElementById('halloween-emoji-nav').textContent = '';
+                }
+                // Clear any leftover ghost particles
+                document.querySelector('.bg-elements').innerHTML = '';
+            }
+        }
+        
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (body.classList.contains('dark-mode')) {
+                // Switch to Light Mode
+                body.classList.remove('dark-mode');
+                if (isOctober()) {
+                    themeToggle.textContent = '🎃'; 
+                } else {
+                    themeToggle.textContent = '🌙';
+                }
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Switch to Dark Mode
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                body.classList.remove('dark-mode');
+                // Check for October theme when loading light mode
+                if (isOctober()) {
+                    themeToggle.textContent = '🎃';
+                } else {
+                    themeToggle.textContent = '🌙';
+                }
+            }
+        }
+        
+        // --- End Theme Logic ---
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM Elements ---
+            const homeScreen = document.getElementById('home-screen');
+            const resultsScreen = document.getElementById('search-results-screen');
+            const homeSearchInput = document.getElementById('home-search-input');
+            const homeSearchButton = document.getElementById('home-search-button');
+            const resultsSearchInput = document.getElementById('results-search-input');
             const filesContainer = document.getElementById('files-container');
             const loadingElement = document.getElementById('loading');
             const errorContainer = document.getElementById('error-container');
             const errorMessage = document.getElementById('error-message');
             const retryBtn = document.getElementById('retry-btn');
-            const searchInput = document.getElementById('search-input');
             const categoryFiltersContainer = document.getElementById('category-filters');
+            const resultStats = document.getElementById('result-stats');
             
-            let allFiles = []; // Stores all files retrieved from GitHub
+            let allFiles = []; 
+            let isDataLoaded = false;
 
             // --- Configuration ---
             const repoOwner = 'Stormwindsky';
             const repoName = 'Stormwindsky-Website';
-            // The list of top-level folders to search through (used for filtering)
             const targetFolders = ['Games', 'Tools', 'Useless thing', 'Countdowns', 'Archives']; 
-            // Base URL for direct access to files via GitHub Pages
             const baseUrl = `https://${repoOwner}.github.io/${repoName}/`; 
             // --- End Configuration ---
 
-            // Function to generate the visit URL for GitHub Pages
+            // --- Utility Functions ---
+
             function generateVisitUrl(path) {
-                // Ensure spaces are correctly encoded for the URL
                 return baseUrl + path.split(' ').join('%20'); 
             }
 
-            // Function to determine the main category from the file path
             function getCategoryFromPath(path) {
                 const parts = path.split('/');
                 const rootFolder = parts[0];
                 return targetFolders.includes(rootFolder) ? rootFolder : 'Other';
             }
+            
+            /**
+             * Handles the animated transition from the home screen to the results screen.
+             */
+            function switchToResultsView() {
+                // 1. Start the animation
+                homeScreen.classList.add('fade-out-up');
+                
+                // 2. Transfer search term and update the results view after a short delay (for animation)
+                setTimeout(() => {
+                    // Hide home screen completely
+                    homeScreen.classList.remove('active');
 
-            // Function to fetch all HTML files from the entire repository using the Git Trees API
+                    // Show results screen
+                    resultsScreen.classList.add('active');
+                    
+                    // Transfer search input value
+                    resultsSearchInput.value = homeSearchInput.value;
+                    
+                    // Run the search logic to display results
+                    handleSearchAndFilter();
+
+                    // Focus on the results search bar
+                    resultsSearchInput.focus();
+                }, 400); // Must match the CSS transition duration
+            }
+
+            // --- GitHub Data Fetching ---
+
             async function fetchAllHtmlFiles() {
                 try {
-                    loadingElement.style.display = 'block';
+                    isDataLoaded = false;
                     errorContainer.style.display = 'none';
-                    filesContainer.innerHTML = '';
+                    homeSearchInput.placeholder = "Loading files...";
+
+                    if(resultsScreen.classList.contains('active')) {
+                        filesContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                        loadingElement.style.display = 'block';
+                    }
                     
                     const startTime = Date.now();
-                    
-                    // Git Trees API URL for recursive file list on the 'main' branch
                     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/main?recursive=1`;
                     
                     const response = await fetch(apiUrl);
@@ -346,54 +690,66 @@
                     
                     const treeData = await response.json();
                     
-                    // Filter: only keep files (type === 'blob') that end with '.html' and start with a target folder
                     const htmlFiles = treeData.tree.filter(item => 
                         item.type === 'blob' && 
                         item.path.toLowerCase().endsWith('.html') &&
-                        targetFolders.some(folder => item.path.startsWith(folder + '/')) // Ensures it's in a target folder
+                        targetFolders.some(folder => item.path.startsWith(folder + '/')) 
                     );
 
                     if (htmlFiles.length === 0) {
                         throw new Error(`No HTML files found in the specified target folders.`);
                     }
                     
-                    // Prepare files data
                     allFiles = htmlFiles.map(file => ({
-                        name: file.path.substring(file.path.lastIndexOf('/') + 1), // Get just the file name
+                        name: file.path.substring(file.path.lastIndexOf('/') + 1),
                         path: file.path, 
-                        category: getCategoryFromPath(file.path), // Determine the category
-                        url: generateVisitUrl(file.path) // Create the public visit URL
+                        category: getCategoryFromPath(file.path),
+                        url: generateVisitUrl(file.path)
                     }));
                     
-                    // Sort files by name
                     allFiles.sort((a, b) => a.name.localeCompare(b.name));
                     
-                    // Ensure loading is shown for at least 500ms
+                    isDataLoaded = true;
+                    
                     const elapsed = Date.now() - startTime;
                     if (elapsed < 500) {
                         await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
                     }
                     
                     loadingElement.style.display = 'none';
-                    updateCategoryFilters(); // Build and enable filters
-                    handleSearchAndFilter(); // Display initial results
+                    homeSearchInput.placeholder = "No Tracking. Just Search...";
+                    
+                    updateCategoryFilters(); 
+                    
+                    if(resultsScreen.classList.contains('active')) {
+                        handleSearchAndFilter();
+                    }
+                    
                 } catch (error) {
                     console.error('Error:', error);
                     loadingElement.style.display = 'none';
+                    
+                    if (!resultsScreen.classList.contains('active')) {
+                        homeScreen.classList.remove('active');
+                        resultsScreen.classList.add('active');
+                    }
+                    
+                    homeSearchInput.placeholder = "ERROR loading files.";
                     errorMessage.textContent = error.message || 'Error loading HTML files from GitHub.'; 
                     errorContainer.style.display = 'block';
                 }
             }
 
-            // Function to create category filter checkboxes
+            // --- Filter and Display Logic ---
+
             function updateCategoryFilters() {
-                categoryFiltersContainer.innerHTML = ''; // Clear existing filters
+                categoryFiltersContainer.innerHTML = ''; 
                 
                 targetFolders.forEach(folder => {
                     const filterItem = document.createElement('div');
                     filterItem.className = 'filter-item';
                     
-                    const checkboxId = `filter-${folder.replace(/\s/g, '-')}`; // Handle spaces in IDs
+                    const checkboxId = `filter-${folder.replace(/\s/g, '-')}`;
                     
                     filterItem.innerHTML = `
                         <input type="checkbox" id="${checkboxId}" value="${folder}" checked>
@@ -405,66 +761,103 @@
                 });
             }
             
-            // Function to display a list of files
-            function displayFiles(files) {
+            function displayFiles(files, timeTaken) {
                 filesContainer.innerHTML = '';
                 
+                resultStats.style.display = 'block';
+                const timeString = timeTaken ? ` (${timeTaken.toFixed(2)} seconds)` : '';
+                resultStats.innerHTML = `About ${files.length} results found${timeString}`;
+
                 if (files.length === 0) {
-                    filesContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #6c757d;">No HTML files found matching your criteria.</div>';
+                    filesContainer.innerHTML = '<div class="no-results">No results found matching your search and category criteria. Try refining your filters or search term.</div>';
                     return;
                 }
                 
                 files.forEach(file => {
-                    const fileCard = document.createElement('div');
-                    fileCard.className = 'file-card';
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'search-result-card';
                     
-                    fileCard.innerHTML = `
-                        <div class="file-icon">
-                            <i class="fas fa-file-code"></i> 
+                    const snippetText = `File Path: ${file.path}. This HTML file is part of the '${file.category}' collection on the Stormwindsky-Website.`;
+                    const displayUrl = file.url.replace('https://', '').replace(/\/$/, '');
+                    
+                    resultCard.innerHTML = `
+                        <div class="result-link-url">
+                            ${displayUrl}
+                            <span class="category-label">${file.category}</span>
                         </div>
-                        <div class="file-info">
-                            <div class="file-category">Category: ${file.category}</div>
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-path">Path: ${file.path}</div>
-                            <a href="${file.url}" class="visit-btn" target="_blank">Visit File <i class="fas fa-external-link-alt"></i></a>
-                        </div>
+                        <h2 class="result-title">
+                            <a href="${file.url}" target="_blank">${file.name}</a>
+                        </h2>
+                        <div class="result-snippet">${snippetText}</div>
                     `;
                     
-                    filesContainer.appendChild(fileCard);
+                    filesContainer.appendChild(resultCard);
                 });
             }
             
-            // Function to handle both search input and category filters
             function handleSearchAndFilter() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
+                const searchStartTime = Date.now();
+                const searchTerm = resultsSearchInput.value.toLowerCase().trim();
                 
-                // 1. Get selected categories
-                const selectedCategories = Array.from(document.querySelectorAll('#category-filters input:checked'))
+                if (!isDataLoaded) {
+                    loadingElement.style.display = 'block';
+                    errorContainer.style.display = 'none';
+                    filesContainer.innerHTML = '';
+                    resultStats.style.display = 'none';
+                    return;
+                }
+                
+                loadingElement.style.display = 'none';
+                errorContainer.style.display = 'none';
+
+                const includedCategories = Array.from(document.querySelectorAll('#category-filters input:checked'))
                                                 .map(cb => cb.value);
                 
                 let filteredFiles = allFiles;
                 
-                // 2. Filter by Category
                 filteredFiles = filteredFiles.filter(file => 
-                    selectedCategories.includes(file.category)
+                    includedCategories.includes(file.category)
                 );
                 
-                // 3. Filter by Search Term
                 if (searchTerm !== '') {
                     filteredFiles = filteredFiles.filter(file => 
                         file.name.toLowerCase().includes(searchTerm) || 
-                        file.path.toLowerCase().includes(searchTerm) // Also search in the full path
+                        file.path.toLowerCase().includes(searchTerm)
                     );
                 }
                 
-                displayFiles(filteredFiles);
+                const searchEndTime = Date.now();
+                const timeTaken = (searchEndTime - searchStartTime) / 1000;
+                
+                displayFiles(filteredFiles, timeTaken);
             }
 
-            // Events
-            searchInput.addEventListener('input', handleSearchAndFilter);
+            // --- Event Listeners ---
+            
+            function homeSearchTrigger(event) {
+                if (event.type === 'click' || (event.type === 'keyup' && event.key === 'Enter')) {
+                    if (isDataLoaded || homeSearchInput.value.trim() !== '') {
+                        switchToResultsView();
+                    }
+                }
+            }
+            
+            homeSearchInput.addEventListener('keyup', homeSearchTrigger);
+            homeSearchButton.addEventListener('click', homeSearchTrigger);
+
+            resultsSearchInput.addEventListener('input', handleSearchAndFilter);
+            
+            resultsSearchInput.addEventListener('keyup', (event) => {
+                 if (event.key === 'Enter') {
+                    handleSearchAndFilter();
+                 }
+            });
+
             retryBtn.addEventListener('click', fetchAllHtmlFiles);
             
-            // Initial load
+            // --- Initialization ---
+            applyHalloweenTheme(); 
+            loadTheme();
             fetchAllHtmlFiles();
         });
     </script>
