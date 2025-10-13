@@ -507,6 +507,17 @@
             margin-top: 1rem;
         }
 
+        /* Dark Web Modal specific styles */
+        .darkweb-iframe {
+            width: 100%;
+            /* 16:9 aspect ratio */
+            aspect-ratio: 16 / 9; 
+            height: auto;
+            border: none;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
         /* Floating particles */
         @keyframes floatParticle {
             0% {
@@ -571,7 +582,6 @@
     </style>
 </head>
 <body>
-    <!-- Animated background elements -->
     <div class="bg-elements">
         <div class="bg-element" style="width: 200px; height: 200px; background: var(--primary-color); top: 10%; left: 5%; animation-delay: 0s;"></div>
         <div class="bg-element" style="width: 150px; height: 150px; background: var(--accent-color); top: 60%; left: 80%; animation-delay: 2s;"></div>
@@ -620,7 +630,6 @@
         </div>
     </div>
 
-    <!-- About Me Modal -->
     <div id="aboutModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -635,7 +644,6 @@
         </div>
     </div>
 
-    <!-- Username Origin Modal -->
     <div id="originModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -645,7 +653,6 @@
         </div>
     </div>
 
-    <!-- Collection Modal -->
     <div id="collectionModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -653,7 +660,28 @@
             <iframe src="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" class="collection-iframe" title="Stormwindsky's Collection"></iframe>
         </div>
     </div>
-
+    
+    <div id="darkWebModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeDarkWebModal">&times;</button>
+            <h2 style="color: #FF0000;">!! YOU HACKED INTO THE DARK WEB !!</h2>
+            <p style="text-align: center; font-weight: 700; color: #ff0000; font-size: 1.2rem;">ARE YOU SURE YOU WANT TO WATCH THIS VIDEO??</p>
+            <p style="text-align: center; font-style: italic;">THIS IS A LOST MEDIA VIDEO from the DEEPEST parts of the INTERNET, it is EXTREMELY cursed and LIKELY to infect your COMPUTER with a TERRIBLE virus. DO NOT proceed unless you are a certified HACKER!!</p>
+            
+            <iframe 
+                width="560" 
+                height="315" 
+                src="https://www.youtube.com/embed/A9knxzzqdnE" 
+                class="darkweb-iframe" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+            </iframe>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;">(Disclaimer: This is just a fun Halloween/Troll Easter Egg, the video is safe and the 'Dark Web' warning is fake!)</p>
+        </div>
+    </div>
+    
     <footer>
         <div class="social-links">
             <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" aria-label="GitHub">
@@ -751,52 +779,86 @@
             const collectionModal = document.getElementById('collectionModal');
             const collectionBtn = document.getElementById('collectionLink');
             
-            // Close buttons
+            // Dark Web Modal (Easter Egg)
+            const darkWebModal = document.getElementById('darkWebModal');
+            const closeDarkWebModalBtn = document.getElementById('closeDarkWebModal');
+            
+            // Close buttons (common)
             const closeButtons = document.querySelectorAll('.close-modal');
 
-            // Open About Me modal
-            aboutBtn.onclick = function() {
-                aboutModal.style.display = 'flex';
+            // Function to open a modal
+            function openModal(modal) {
+                modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
-
-            // Open Origin modal
-            originBtn.onclick = function() {
-                originModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+            
+            // Function to close a modal
+            function closeModal(modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
             }
-
-            // Open Collection modal
-            collectionBtn.onclick = function() {
-                collectionModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
-
-            // Close modals
+            
+            // Open Modals
+            aboutBtn.onclick = () => openModal(aboutModal);
+            originBtn.onclick = () => openModal(originModal);
+            collectionBtn.onclick = () => openModal(collectionModal);
+            
+            // Close Modals
             closeButtons.forEach(button => {
                 button.onclick = function() {
-                    aboutModal.style.display = 'none';
-                    originModal.style.display = 'none';
-                    collectionModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    closeModal(aboutModal);
+                    closeModal(originModal);
+                    closeModal(collectionModal);
+                    closeModal(darkWebModal); // Also close the easter egg modal
                 }
             });
 
             // Close when clicking outside modal
             window.onclick = function(event) {
                 if (event.target == aboutModal) {
-                    aboutModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    closeModal(aboutModal);
                 }
                 if (event.target == originModal) {
-                    originModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    closeModal(originModal);
                 }
                 if (event.target == collectionModal) {
-                    collectionModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    closeModal(collectionModal);
+                }
+                if (event.target == darkWebModal) {
+                    closeModal(darkWebModal);
                 }
             }
+            
+            // Easter Egg Logic (Key Sequence 666)
+            const konamiCode = '666';
+            let keySequence = '';
+
+            document.addEventListener('keydown', (e) => {
+                const key = e.key;
+
+                // Check if the key is a number (to support both number row and numpad)
+                if (key >= '0' && key <= '9') {
+                    keySequence += key;
+                    
+                    // Keep only the last 3 characters
+                    if (keySequence.length > 3) {
+                        keySequence = keySequence.slice(-3);
+                    }
+                    
+                    // Check for the '666' sequence
+                    if (keySequence === konamiCode) {
+                        // Reset sequence to prevent repeated trigger without user clicking
+                        keySequence = ''; 
+                        openModal(darkWebModal);
+                    }
+                } else {
+                    // Reset sequence if a non-number key is pressed
+                    keySequence = '';
+                }
+            });
+            
+            // Ensure the specific close button for Dark Web Modal works too
+            closeDarkWebModalBtn.onclick = () => closeModal(darkWebModal);
         }
 
         // Initialize on load
