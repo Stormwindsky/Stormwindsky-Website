@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halloween Countdown</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            /* Halloween-themed background: dark purple/black/orange tones */
+            background: linear-gradient(135deg, #000000, #1c0024, #2a1147);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.7); /* Darker container */
+            border-radius: 15px;
+            border: 2px solid #ff6600; /* Orange border for theme */
+            box-shadow: 0 10px 25px rgba(255, 102, 0, 0.4); /* Orange glow effect */
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            /* Halloween colors: orange and deep red/purple */
+            background: linear-gradient(to right, #ff6600, #800080);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: rgba(255, 102, 0, 0.2); /* Semi-transparent orange */
+            color: #ffaa00; /* Bright orange number color */
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+            min-width: 80px;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .countdown-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            color: #cccccc; /* Slightly lighter label color */
+        }
+
+        /* NEW STYLE FOR LEAVES */
+        .leaf {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+            /* We will set the background color dynamically in JavaScript to simulate different leaf colors */
+            width: 15px; /* Size of the leaf element */
+            height: 15px;
+            border-radius: 0 50% 50% 50%; /* A simple shape that resembles a leaf */
+            opacity: 0.7; 
+        }
+
+        .music-credit {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            z-index: 100;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5); /* Darker credit background */
+        }
+
+        .music-credit a {
+            color: #ff9900; /* Orange link color */
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .countdown {
+                gap: 0.8rem;
+            }
+            
+            .countdown-number {
+                font-size: 2rem;
+                min-width: 60px;
+            }
+            
+            .countdown-label {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Halloween Countdown</h1>
+        <div class="countdown">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">Days</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="music-credit">
+        "Ghost Dance" Kevin MacLeod (incompetech.com)<br>
+        Licensed under Creative Commons: By Attribution 4.0 License<br>
+        <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">http://creativecommons.org/licenses/by/4.0/</a>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ghost%20Dance.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Countdown functionality
+        function updateCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            // Halloween is October 31st (Month 9 in JavaScript, as months are 0-indexed)
+            let halloween = new Date(currentYear, 9, 31);
+            
+            // If Halloween has passed this year, set it to next year
+            if (now > halloween) {
+                halloween = new Date(currentYear + 1, 9, 31);
+            }
+            
+            const diff = halloween - now;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        // Initial call and set interval
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        
+        // Leaf Fall creation
+        const leafColors = ['#ff4500', '#ffa500', '#8b0000', '#daaa00']; // Red-Orange, Orange, Dark Red, Dark Yellow
+
+        function createLeaf() {
+            const leaf = document.createElement('div');
+            leaf.classList.add('leaf');
+            
+            // Random color
+            leaf.style.backgroundColor = leafColors[Math.floor(Math.random() * leafColors.length)];
+
+            // Random size between 10px and 20px
+            const size = Math.random() * 10 + 10;
+            leaf.style.width = `${size}px`;
+            leaf.style.height = `${size}px`;
+            
+            // Random starting position
+            leaf.style.left = `${Math.random() * window.innerWidth}px`;
+            leaf.style.top = '-20px'; // Start slightly above view
+            
+            // Random rotation on start
+            leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            document.body.appendChild(leaf);
+            
+            // Animation properties
+            const fallSpeed = Math.random() * 0.3 + 0.5; // 0.5 to 0.8 pixels per frame
+            const windSway = Math.random() * 10 + 5; // Horizontal sway magnitude 5 to 15
+            const rotationSpeed = Math.random() * 0.05 + 0.02; // Rotation speed
+            const endPosition = window.innerHeight + 20;
+
+            let currentRotation = parseFloat(leaf.style.transform.replace('rotate(', '').replace('deg)', ''));
+            let currentXOffset = 0;
+            
+            const animate = () => {
+                let currentTop = parseFloat(leaf.style.top);
+                const progress = currentTop / endPosition;
+                
+                // 1. Move down
+                currentTop += fallSpeed;
+                leaf.style.top = `${currentTop}px`;
+                
+                // 2. Horizontal sway (using sin function for natural floating)
+                currentXOffset = Math.sin(progress * Math.PI * 2) * windSway;
+                
+                // 3. Rotation
+                currentRotation += rotationSpeed;
+
+                // Apply all transforms
+                leaf.style.transform = `translateX(${currentXOffset}px) rotate(${currentRotation}deg)`;
+                
+                if (currentTop < endPosition) {
+                    requestAnimationFrame(animate);
+                } else {
+                    leaf.remove();
+                }
+            };
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Create leaves periodically
+        setInterval(createLeaf, 250);
+        
+        // Background music - will play when user interacts with page
+        document.addEventListener('click', function() {
+            const bgMusic = document.getElementById('bgMusic');
+            if (bgMusic.paused) {
+                bgMusic.volume = 0.4;
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
