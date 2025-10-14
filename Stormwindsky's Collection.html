@@ -624,12 +624,14 @@
             const repoOwner = 'Stormwindsky';
             const repoName = 'Stormwindsky-Website';
             const targetFolders = ['Games', 'Tools', 'Useless thing', 'Countdowns', 'Archives', 'Others']; 
-            const baseUrl = `https://${repoOwner}.github.io/${repoName}/`; 
+            // MODIFICATION: Using the custom domain provided by the user and forcing HTTPS.
+            const baseUrl = `https://www.stormwindsky.com/`; 
             // --- End Configuration ---
 
             // --- Utility Functions ---
 
             function generateVisitUrl(path) {
+                // Generates URL using the new baseUrl (https://www.stormwindsky.com/)
                 return baseUrl + path.split(' ').join('%20'); 
             }
 
@@ -680,6 +682,7 @@
                     }
                     
                     const startTime = Date.now();
+                    // The API endpoint remains GitHub's, as that's where the file list is retrieved from
                     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/main?recursive=1`;
                     
                     const response = await fetch(apiUrl);
@@ -704,7 +707,7 @@
                         name: file.path.substring(file.path.lastIndexOf('/') + 1),
                         path: file.path, 
                         category: getCategoryFromPath(file.path),
-                        url: generateVisitUrl(file.path)
+                        url: generateVisitUrl(file.path) // Uses the custom HTTPS baseUrl
                     }));
                     
                     allFiles.sort((a, b) => a.name.localeCompare(b.name));
@@ -778,11 +781,13 @@
                     resultCard.className = 'search-result-card';
                     
                     const snippetText = `File Path: ${file.path}. This HTML file is part of the '${file.category}' collection on the Stormwindsky-Website.`;
+                    
+                    // Display URL cleanup remains the same, ensuring 'https://' is visible
                     const displayUrl = file.url.replace('https://', '').replace(/\/$/, '');
                     
                     resultCard.innerHTML = `
                         <div class="result-link-url">
-                            ${displayUrl}
+                            https://${displayUrl} 
                             <span class="category-label">${file.category}</span>
                         </div>
                         <h2 class="result-title">
