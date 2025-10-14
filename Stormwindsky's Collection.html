@@ -38,6 +38,36 @@
             --halloween-link: #ffb703; /* Gold/yellowish */
             --halloween-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
             --halloween-gradient: linear-gradient(135deg, #ff6600 0%, #5e1a7b 100%);
+            
+            /* Christmas Theme Variables */
+            --christmas-primary: #b8001a; /* Deep Red */
+            --christmas-secondary: #008000; /* Forest Green */
+            --christmas-link: #e8e8e8; /* Off White */
+            --christmas-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 15px var(--christmas-primary);
+            --christmas-gradient: linear-gradient(135deg, var(--christmas-primary) 0%, var(--christmas-secondary) 100%);
+
+            /* End-of-Year Theme Variables (Subtle) */
+            --nye-primary: #0a0a50; /* Deep Blue */
+            --nye-secondary: #ffd700; /* Gold */
+            --nye-link: #ffc400; 
+            --nye-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            --nye-gradient: linear-gradient(135deg, var(--nye-primary) 0%, var(--nye-secondary) 100%);
+            
+            /* Public Domain Day Theme Variables */
+            --pdd-primary: #0077b6; /* Info Blue */
+            --pdd-secondary: #00b4d8; 
+
+            /* Albert Einstein Day Theme Variables (March 14) */
+            --aed-primary: #0081a7; /* Scientific Blue */
+            --aed-secondary: #fdfcdc; /* Cream White */
+            --aed-text: #1b4965; /* Dark Blue */
+            --aed-link: #49be25; /* Green */
+            --aed-shadow: 0 0 15px rgba(0, 129, 167, 0.8);
+            
+            /* Debug Panel Variables */
+            --debug-bg: rgba(0, 0, 0, 0.9);
+            --debug-text: #00ff00; /* Neon Green */
+            --debug-border: #008000;
         }
 
         /* --- Dark Mode Styles FIX APPLIED HERE --- */
@@ -178,6 +208,160 @@
             to {
                 text-shadow: 0 0 15px rgba(255, 102, 0, 0.8), 
                             0 0 20px rgba(94, 26, 123, 0.6);
+            }
+        }
+
+        /* --- Christmas Theme Overrides --- */
+        body.christmas-theme {
+            background-color: #004d00; /* Darker Green */
+            color: white;
+        }
+        
+        body.christmas-theme #search-results-screen {
+            background-color: #004d00;
+        }
+
+        body.christmas-theme .home-logo,
+        body.christmas-theme .logo {
+            color: var(--christmas-primary);
+        }
+        
+        body.christmas-theme .home-logo i,
+        body.christmas-theme .logo i {
+             animation: textGlowChristmas 3s ease-in-out infinite alternate;
+             text-shadow: var(--christmas-shadow);
+        }
+        
+        body.christmas-theme .search-header,
+        body.christmas-theme .search-result-card,
+        body.christmas-theme footer {
+            background-color: #1a1a1a;
+            color: var(--christmas-link);
+        }
+
+        body.christmas-theme .home-search-input,
+        body.christmas-theme .search-input {
+            background-color: #1a1a1a;
+            color: white;
+            border: 1px solid var(--christmas-secondary);
+        }
+        
+        body.christmas-theme .result-title a {
+            color: var(--christmas-link);
+        }
+
+        body.christmas-theme .category-label {
+            background-color: var(--christmas-secondary);
+            color: white;
+        }
+        
+        body.christmas-theme .filter-item label {
+            background-color: #3c4043;
+            color: var(--christmas-link);
+            border-color: var(--christmas-secondary);
+        }
+
+        body.christmas-theme .filter-item input[type="checkbox"]:checked + label {
+            background: var(--christmas-gradient);
+            border-color: var(--christmas-primary);
+        }
+        
+        @keyframes textGlowChristmas {
+            from {
+                text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            }
+            to {
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 
+                            0 0 20px rgba(184, 0, 26, 0.6);
+            }
+        }
+
+        /* --- End-of-Year Theme Overrides --- */
+        body.nye-theme {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+
+        body.nye-theme .home-logo,
+        body.nye-theme .logo {
+            color: var(--nye-secondary);
+        }
+        
+        body.nye-theme .home-logo i,
+        body.nye-theme .logo i {
+             animation: textGlowNye 3s ease-in-out infinite alternate;
+             text-shadow: var(--nye-shadow);
+        }
+        
+        body.nye-theme .search-header,
+        body.nye-theme .search-result-card,
+        body.nye-theme footer {
+            background-color: var(--dark-card);
+        }
+
+        body.nye-theme .result-title a {
+            color: var(--nye-link);
+        }
+        
+        body.nye-theme .filter-item input[type="checkbox"]:checked + label {
+            background: var(--nye-gradient);
+            border-color: var(--nye-primary);
+        }
+        
+        @keyframes textGlowNye {
+            from {
+                text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+            }
+            to {
+                text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 
+                            0 0 20px rgba(10, 10, 80, 0.6);
+            }
+        }
+        
+        /* --- Public Domain Day Theme Overrides (Minimal) --- */
+        body.pdd-theme .home-logo,
+        body.pdd-theme .logo {
+            color: var(--pdd-primary);
+        }
+        
+        body.pdd-theme .home-logo i,
+        body.pdd-theme .logo i {
+             text-shadow: 0 0 10px var(--pdd-secondary);
+        }
+
+        /* --- Albert Einstein Day Theme Overrides --- */
+        body.aed-theme {
+            background-color: var(--aed-secondary);
+            color: var(--aed-text);
+        }
+
+        body.aed-theme .home-logo,
+        body.aed-theme .logo {
+            color: var(--aed-primary);
+        }
+        
+        body.aed-theme .home-logo i,
+        body.aed-theme .logo i {
+            animation: textGlowAed 2s ease-in-out infinite alternate;
+            text-shadow: var(--aed-shadow);
+        }
+
+        body.aed-theme .search-header,
+        body.aed-theme .search-result-card,
+        body.aed-theme footer {
+            background-color: var(--aed-secondary);
+        }
+
+        body.aed-theme .result-title a {
+            color: var(--aed-link);
+        }
+        
+        @keyframes textGlowAed {
+            from {
+                text-shadow: 0 0 5px rgba(0, 129, 167, 0.5);
+            }
+            to {
+                text-shadow: 0 0 15px rgba(0, 129, 167, 0.8);
             }
         }
 
@@ -341,6 +525,13 @@
             animation: bounce 1s infinite alternate;
         }
 
+        .logo-text-extra {
+            margin-left: 10px;
+            font-size: 0.8em;
+            font-weight: normal;
+            color: inherit;
+        }
+
         /* Result Tabs */
         .result-tabs {
             border-bottom: 1px solid var(--border-color);
@@ -430,9 +621,104 @@
             background: var(--halloween-gradient);
             box-shadow: var(--halloween-shadow);
         }
+        
+        body.christmas-theme .theme-toggle {
+             background: var(--christmas-gradient);
+             box-shadow: var(--christmas-shadow);
+        }
+        
+        body.nye-theme .theme-toggle {
+             background: var(--nye-gradient);
+             box-shadow: var(--nye-shadow);
+        }
 
         .theme-toggle:hover {
             transform: scale(1.1);
+        }
+        
+        /* --- Debug Panel Styles --- */
+        #debug-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            padding: 20px;
+            background: var(--debug-bg);
+            color: var(--debug-text);
+            border: 2px solid var(--debug-border);
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            font-family: monospace;
+        }
+        
+        #debug-panel h3 {
+            border-bottom: 1px dashed var(--debug-border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        #debug-panel label, #debug-panel p {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        #debug-panel a {
+             color: var(--debug-text);
+             text-decoration: underline;
+        }
+
+        #debug-panel input[type="date"], #debug-panel button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--debug-border);
+            font-family: monospace;
+        }
+        
+        #debug-panel input[type="date"] {
+            background-color: #1a1a1a;
+            color: var(--debug-text);
+        }
+
+        #debug-panel button {
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        #force-date-btn {
+            background-color: var(--debug-border);
+            color: black;
+        }
+        
+        #force-date-btn:hover {
+            background-color: #00cc00;
+        }
+
+        #reset-date-btn {
+            background-color: #333;
+            color: white;
+        }
+        
+        #reset-date-btn:hover {
+            background-color: #555;
+        }
+
+        #close-debug-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: var(--debug-text);
+            font-size: 1.5rem;
+            cursor: pointer;
         }
         
         /* Media Queries (keep existing) */
@@ -450,7 +736,7 @@
 
     <div id="home-screen" class="screen active">
         <div class="home-logo">
-            <i class="fas fa-search"></i>StormExplorer <span id="halloween-emoji-header"></span>
+            <i class="fas fa-search"></i>StormExplorer <span id="special-emoji-header"></span>
         </div>
         <div class="home-search-container">
             <input type="text" id="home-search-input" class="home-search-input" placeholder="Just Explore ⛵..." autofocus>
@@ -462,8 +748,8 @@
         
         <div class="search-header">
             <div class="header-content">
-                <a href="#" class="logo" onclick="window.location.reload()">
-                    <i class="fas fa-search"></i>StormExplorer <span id="halloween-emoji-nav"></span>
+                <a href="#" class="logo" id="header-logo-link" onclick="handleLogoClick(event)">
+                    <i class="fas fa-search"></i>StormExplorer <span id="special-emoji-nav"></span><span id="logo-text-extra" class="logo-text-extra"></span>
                 </a>
                 <div class="search-form">
                     <input type="text" id="results-search-input" class="search-input" placeholder="Search files on Stormwindsky-Website...">
@@ -502,21 +788,86 @@
     
     <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 
+    <div id="debug-panel">
+        <button id="close-debug-btn">X</button>
+        <h3>Theme Debug Mode 🧪</h3>
+        <p>Current Date: <strong id="current-date-display"></strong></p>
+        <p>Current Theme: <strong id="current-theme-display"></strong></p>
+        <p id="pdd-link-display" style="display: none;">
+            <a href="https://en.wikipedia.org/wiki/Public_Domain_Day" target="_blank">What is Public Domain Day?</a>
+        </p>
+        <hr style="border-color: var(--debug-border); margin: 10px 0;">
+        <label for="force-date-input">Force Test Date (YYYY-MM-DD):</label>
+        <input type="date" id="force-date-input">
+        <button id="force-date-btn">Apply Theme Date</button>
+        <button id="reset-date-btn">Reset to Today</button>
+    </div>
+    
+
     <script>
-        // --- Theme Logic ---
+        // Store the forced date for debugging. Null by default.
+        let forcedDate = null; 
         
-        // Check if it's October (Month is 0-indexed, so 9 is October)
-        function isOctober() {
-            const now = new Date();
-            // Using a mock date for testing purposes - October 13, 2025
-            // Remove this line to use the real date:
-            // return now.getMonth() === 9;
-            return true; // FORCE HALLOWEEN FOR DEMO
+        // --- Date Check Functions (Updated) ---
+        
+        /**
+         * Returns the current date, using the forcedDate if set.
+         */
+        function getToday() {
+            if (forcedDate) {
+                // Return the forced date object
+                return forcedDate; 
+            }
+            return new Date();
         }
+        
+        /**
+         * Gets the name of the active theme based on the current date.
+         */
+        function getActiveThemeName() {
+             if (isPublicDomainDay()) return "Public Domain Day 📜";
+             if (isAlbertEinsteinDay()) return "Albert Einstein Day ⚛️"; // New Check
+             if (isDecember()) return "Christmas 🎄";
+             if (isEndOfYear()) return "End of Year 🥂";
+             if (isOctober()) return "Halloween 🎃";
+             
+             // Check saved preference before determining default
+             const savedTheme = localStorage.getItem('theme');
+             return savedTheme === 'dark' ? "Default (Dark)" : "Default (Light)";
+        }
+        
+        function isOctober() {
+            return getToday().getMonth() === 9; // Month is 0-indexed, so 9 is October
+        }
+        
+        function isDecember() {
+            const today = getToday();
+            // Month 11 is December. We use <= 25 for Christmas theme.
+            return today.getMonth() === 11 && today.getDate() <= 25; 
+        }
+        
+        function isEndOfYear() {
+            const today = getToday();
+            // Month 11 is December. Dates 26-31.
+            return today.getMonth() === 11 && today.getDate() >= 26; 
+        }
+        
+        function isPublicDomainDay() {
+            const today = getToday();
+            // Month 0 is January. Date 1.
+            return today.getMonth() === 0 && today.getDate() === 1; 
+        }
+        
+        function isAlbertEinsteinDay() {
+            const today = getToday();
+            // Month 2 is March. Date 14.
+            return today.getMonth() === 2 && today.getDate() === 14; 
+        }
+        
+        // --- Theme Application Logic (Updated) ---
         
         function createGhostParticles() {
             const bgElements = document.querySelector('.bg-elements');
-            // Clear existing elements first
             bgElements.innerHTML = '';
             const ghosts = ['👻', '🦇', '🕷️', '🕸️', '💀', '🎃']; 
             
@@ -541,66 +892,190 @@
             }
         }
         
-        function applyHalloweenTheme() {
-            if (isOctober()) {
-                document.body.classList.add('halloween-theme');
-                document.getElementById('halloween-emoji-header').textContent = '🎃';
-                document.getElementById('halloween-emoji-nav').textContent = '🎃';
-                document.querySelector('.theme-toggle').textContent = '🎃'; // Pumpkin icon for October
-                createGhostParticles();
+        function clearSpecialElements() {
+            // Only remove the theme classes, keep 'dark-mode' state intact
+            document.body.classList.remove('halloween-theme', 'christmas-theme', 'nye-theme', 'pdd-theme', 'aed-theme');
+            const bgElements = document.querySelector('.bg-elements');
+            bgElements.innerHTML = '';
+            document.getElementById('special-emoji-header').textContent = '';
+            document.getElementById('special-emoji-nav').textContent = '';
+            document.getElementById('logo-text-extra').textContent = ''; // Clear extra text
+            document.getElementById('pdd-link-display').style.display = 'none'; // Hide PDD link
+        }
+
+        function applySpecialTheme() {
+            clearSpecialElements();
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            const emojiHeader = document.getElementById('special-emoji-header');
+            const emojiNav = document.getElementById('special-emoji-nav');
+            const logoTextExtra = document.getElementById('logo-text-extra');
+            
+            let emoji = '🌙'; 
+            
+            // Default to sun icon in light mode, moon in dark mode
+            if (body.classList.contains('dark-mode')) {
+                emoji = '☀️';
             } else {
-                 // Ensure emojis are cleared if not October
-                if(document.getElementById('halloween-emoji-header')) {
-                    document.getElementById('halloween-emoji-header').textContent = '';
-                }
-                if(document.getElementById('halloween-emoji-nav')) {
-                    document.getElementById('halloween-emoji-nav').textContent = '';
-                }
-                // Clear any leftover ghost particles
-                document.querySelector('.bg-elements').innerHTML = '';
+                emoji = '🌙';
+            }
+            
+            themeToggle.textContent = emoji; // Set default first
+
+            if (isPublicDomainDay()) {
+                body.classList.add('pdd-theme');
+                emojiHeader.textContent = '📜';
+                emojiNav.textContent = '📜';
+                themeToggle.textContent = '📜';
+                document.getElementById('pdd-link-display').style.display = 'block';
+            } else if (isAlbertEinsteinDay()) {
+                body.classList.add('aed-theme');
+                emojiHeader.textContent = '⚛️';
+                emojiNav.textContent = '⚛️';
+                logoTextExtra.textContent = 'HAPPY BIRTHDAY Albert Einstein';
+                themeToggle.textContent = '🧠';
+            } else if (isDecember()) {
+                body.classList.add('christmas-theme');
+                emojiHeader.textContent = '🎄';
+                emojiNav.textContent = '🎄';
+                themeToggle.textContent = '🎅';
+            } else if (isEndOfYear()) {
+                body.classList.add('nye-theme');
+                emojiHeader.textContent = '🥂';
+                emojiNav.textContent = '🥂';
+                themeToggle.textContent = '🎉';
+            } else if (isOctober()) {
+                body.classList.add('halloween-theme');
+                emojiHeader.textContent = '🎃';
+                emojiNav.textContent = '🎃';
+                themeToggle.textContent = '🎃';
+                createGhostParticles();
+            }
+            
+            // Update debug display if panel is open
+            if (document.getElementById('debug-panel').style.display !== 'none') {
+                updateDebugDisplay();
             }
         }
         
+        function handleLogoClick(event) {
+            if (isPublicDomainDay()) {
+                event.preventDefault(); // Stop the default reload
+                window.open('https://en.wikipedia.org/wiki/Public_Domain_Day', '_blank');
+            } else {
+                // Allow default action (which is reload, set in HTML)
+            }
+        }
+
         function toggleTheme() {
             const body = document.body;
-            const themeToggle = document.querySelector('.theme-toggle');
+            
+            // Remove all theme classes first to ensure a clean switch
+            clearSpecialElements();
+
             if (body.classList.contains('dark-mode')) {
                 // Switch to Light Mode
                 body.classList.remove('dark-mode');
-                if (isOctober()) {
-                    themeToggle.textContent = '🎃'; 
-                } else {
-                    themeToggle.textContent = '🌙';
-                }
                 localStorage.setItem('theme', 'light');
             } else {
-                // Switch to Dark Mode
+                // Switch to Dark Mode 
                 body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
                 localStorage.setItem('theme', 'dark');
             }
+            
+            // Re-apply seasonal theme (it only applies the seasonal *styles* over the dark/light background)
+            applySpecialTheme();
         }
         
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
-            const themeToggle = document.querySelector('.theme-toggle');
             
+            // Check for saved dark mode preference first
             if (savedTheme === 'dark') {
                 body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
-            } else {
-                body.classList.remove('dark-mode');
-                // Check for October theme when loading light mode
-                if (isOctober()) {
-                    themeToggle.textContent = '🎃';
-                } else {
-                    themeToggle.textContent = '🌙';
-                }
+            }
+            
+            // Apply special theme logic based on date (this handles all other theme classes and button icons)
+            applySpecialTheme();
+        }
+        
+        // --- Debug Mode Logic (New) ---
+
+        function updateDebugDisplay() {
+            const today = getToday();
+            const dateString = forcedDate ? 
+                `FORCED: ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}` : 
+                `System: ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+            
+            document.getElementById('current-date-display').textContent = dateString;
+            document.getElementById('current-theme-display').textContent = getActiveThemeName();
+
+            // Re-check PDD link visibility
+            document.getElementById('pdd-link-display').style.display = isPublicDomainDay() ? 'block' : 'none';
+        }
+        
+        function openDebugPanel() {
+            const panel = document.getElementById('debug-panel');
+            panel.style.display = 'block';
+            
+            // Set the date input to the currently used date (forced or system date)
+            const dateInput = document.getElementById('force-date-input');
+            const today = getToday();
+            
+            // Format to YYYY-MM-DD
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+            
+            updateDebugDisplay();
+        }
+
+        function closeDebugPanel() {
+            document.getElementById('debug-panel').style.display = 'none';
+        }
+
+        function handleForceDate() {
+            const dateInput = document.getElementById('force-date-input').value;
+            if (dateInput) {
+                // Parse date string into a Date object
+                forcedDate = new Date(dateInput + 'T12:00:00'); // Use noon to avoid timezone issues
+                localStorage.setItem('forcedDate', dateInput);
+                
+                applySpecialTheme();
+                alert(`Theme date forced to: ${forcedDate.toLocaleDateString('en-US')}. Theme applied: ${getActiveThemeName()}`);
+            }
+        }
+
+        function handleResetDate() {
+            forcedDate = null;
+            localStorage.removeItem('forcedDate');
+            
+            applySpecialTheme();
+            updateDebugDisplay();
+            alert('Theme date reset to system date. Theme applied: ' + getActiveThemeName());
+        }
+
+        function checkDebugCommand(inputElement) {
+            const command = inputElement.value.toLowerCase().trim();
+            if (command === '/event') {
+                openDebugPanel();
+                inputElement.value = ''; // Clear the command after use
+                return true; // Command was handled
+            }
+            return false; // Not a command
+        }
+        
+        function loadForcedDate() {
+            const savedDate = localStorage.getItem('forcedDate');
+            if (savedDate) {
+                forcedDate = new Date(savedDate + 'T12:00:00'); // Load it back
+                console.log(`Debug: Loaded forced date ${forcedDate.toLocaleDateString('en-US')}`);
             }
         }
         
-        // --- End Theme Logic ---
+        // --- End Debug Mode Logic ---
         
         document.addEventListener('DOMContentLoaded', function() {
             // --- DOM Elements ---
@@ -612,10 +1087,14 @@
             const filesContainer = document.getElementById('files-container');
             const loadingElement = document.getElementById('loading');
             const errorContainer = document.getElementById('error-container');
-            const errorMessage = document.getElementById('error-message');
             const retryBtn = document.getElementById('retry-btn');
             const categoryFiltersContainer = document.getElementById('category-filters');
             const resultStats = document.getElementById('result-stats');
+            
+            // Debug elements
+            const forceDateBtn = document.getElementById('force-date-btn');
+            const resetDateBtn = document.getElementById('reset-date-btn');
+            const closeDebugBtn = document.getElementById('close-debug-btn');
             
             let allFiles = []; 
             let isDataLoaded = false;
@@ -651,7 +1130,7 @@
                 // 2. Transfer search term and update the results view after a short delay (for animation)
                 setTimeout(() => {
                     // Hide home screen completely
-                    homeScreen.classList.remove('active');
+                    homeScreen.classList.remove('active', 'fade-out-up');
 
                     // Show results screen
                     resultsScreen.classList.add('active');
@@ -738,7 +1217,7 @@
                     }
                     
                     homeSearchInput.placeholder = "ERROR loading files.";
-                    errorMessage.textContent = error.message || 'Error loading HTML files from GitHub.'; 
+                    document.getElementById('error-message').textContent = error.message || 'Error loading HTML files from GitHub.'; 
                     errorContainer.style.display = 'block';
                 }
             }
@@ -841,6 +1320,9 @@
             
             function homeSearchTrigger(event) {
                 if (event.type === 'click' || (event.type === 'keyup' && event.key === 'Enter')) {
+                    if (checkDebugCommand(homeSearchInput)) {
+                        return;
+                    }
                     if (isDataLoaded || homeSearchInput.value.trim() !== '') {
                         switchToResultsView();
                     }
@@ -854,14 +1336,22 @@
             
             resultsSearchInput.addEventListener('keyup', (event) => {
                  if (event.key === 'Enter') {
+                    if (checkDebugCommand(resultsSearchInput)) {
+                        return;
+                    }
                     handleSearchAndFilter();
                  }
             });
 
             retryBtn.addEventListener('click', fetchAllHtmlFiles);
             
+            // Debug Panel Listeners
+            forceDateBtn.addEventListener('click', handleForceDate);
+            resetDateBtn.addEventListener('click', handleResetDate);
+            closeDebugBtn.addEventListener('click', closeDebugPanel);
+            
             // --- Initialization ---
-            applyHalloweenTheme(); 
+            loadForcedDate(); // Must run before loadTheme
             loadTheme();
             fetchAllHtmlFiles();
         });
