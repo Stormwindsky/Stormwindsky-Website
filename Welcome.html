@@ -531,6 +531,15 @@
             animation: modalOpen 0.3s forwards 0.1s;
             border: 1px solid rgba(255,255,255,0.1);
         }
+        
+        /* === MODIFIED STYLE FOR COLLECTION MODAL (Full Page) === */
+        #collectionModal .modal-content {
+            max-width: 95vw; 
+            max-height: 95vh; 
+            width: 95vw; 
+            padding: 1.5rem; 
+        }
+        /* ========================================= */
 
         @keyframes modalOpen {
             to {
@@ -555,6 +564,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            z-index: 1; /* Ensure the button is above content like the iframe */
         }
         
         body.halloween-theme .close-modal {
@@ -610,7 +620,8 @@
         /* Collection Modal specific styles */
         .collection-iframe {
             width: 100%;
-            height: 70vh;
+            /* Modified height to fill remainder of large modal (95vh - padding - header height) */
+            height: calc(95vh - 100px); 
             border: none;
             border-radius: 10px;
             margin-top: 1rem;
@@ -661,13 +672,21 @@
             .modal-content {
                 padding: 2rem 1.5rem;
             }
+            
+            /* Responsive adjustments for collection modal */
+            #collectionModal .modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+                width: 95vw;
+                padding: 1rem;
+            }
 
             .card-container {
                 grid-template-columns: 1fr;
             }
 
             .collection-iframe {
-                height: 60vh;
+                height: calc(95vh - 80px); /* Adjust height for smaller screen padding/header */
             }
         }
 
@@ -683,9 +702,14 @@
             .modal-content {
                 padding: 1.5rem 1rem;
             }
+            
+            /* Responsive adjustments for collection modal */
+            #collectionModal .modal-content {
+                padding: 0.5rem;
+            }
 
             .collection-iframe {
-                height: 50vh;
+                height: calc(95vh - 70px);
             }
         }
     </style>
@@ -741,7 +765,7 @@
 
     <div id="aboutModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <button class="close-modal" aria-label="Close">&times;</button>
             <h2>ABOUT ME</h2>
             <p>Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.</p>
             
@@ -755,7 +779,7 @@
 
     <div id="originModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <button class="close-modal" aria-label="Close">&times;</button>
             <h2>ORIGIN OF MY USERNAME</h2>
             <p>The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊</p>
             <p>It's a unique identifier that has stuck with me across all my online adventures and represents my digital identity.</p>
@@ -764,7 +788,7 @@
 
     <div id="collectionModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <button class="close-modal" aria-label="Close">&times;</button>
             <h2>MY COLLECTION</h2>
             <iframe src="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" class="collection-iframe" title="Stormwindsky's Collection"></iframe>
         </div>
@@ -772,7 +796,7 @@
     
     <div id="darkWebModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" id="closeDarkWebModal">&times;</button>
+            <button class="close-modal" aria-label="Close">&times;</button>
             <h2 style="color: #FF0000;">!! YOU HACKED INTO THE DARK WEB !!</h2>
             <p style="text-align: center; font-weight: 700; color: #ff0000; font-size: 1.2rem;">ARE YOU SURE YOU WANT TO WATCH THIS VIDEO??</p>
             <p style="text-align: center; font-style: italic;">THIS IS A LOST MEDIA VIDEO from the DEEPEST parts of the INTERNET, it is EXTREMELY cursed and LIKELY to infect your COMPUTER with a TERRIBLE virus. DO NOT proceed unless you are a certified HACKER!!</p>
@@ -931,23 +955,18 @@
 
         // Modal functionality
         function setupModals() {
-            // About Me Modal
+            // Modal elements
             const aboutModal = document.getElementById('aboutModal');
-            const aboutBtn = document.getElementById('aboutLink');
-            
-            // Origin Modal
             const originModal = document.getElementById('originModal');
-            const originBtn = document.getElementById('originLink');
-            
-            // Collection Modal
             const collectionModal = document.getElementById('collectionModal');
+            const darkWebModal = document.getElementById('darkWebModal');
+
+            // Button elements
+            const aboutBtn = document.getElementById('aboutLink');
+            const originBtn = document.getElementById('originLink');
             const collectionBtn = document.getElementById('collectionLink');
             
-            // Dark Web Modal (Easter Egg)
-            const darkWebModal = document.getElementById('darkWebModal');
-            const closeDarkWebModalBtn = document.getElementById('closeDarkWebModal');
-            
-            // Close buttons (common)
+            // Close buttons (common class)
             const closeButtons = document.querySelectorAll('.close-modal');
 
             // Function to open a modal
@@ -967,13 +986,13 @@
             originBtn.onclick = () => openModal(originModal);
             collectionBtn.onclick = () => openModal(collectionModal);
             
-            // Close Modals
+            // Close Modals: One listener to close all (safe approach when only one is open)
             closeButtons.forEach(button => {
                 button.onclick = function() {
                     closeModal(aboutModal);
                     closeModal(originModal);
                     closeModal(collectionModal);
-                    closeModal(darkWebModal); // Also close the easter egg modal
+                    closeModal(darkWebModal);
                 }
             });
 
@@ -1021,8 +1040,7 @@
                 }
             });
             
-            // Ensure the specific close button for Dark Web Modal works too
-            closeDarkWebModalBtn.onclick = () => closeModal(darkWebModal);
+            // Removed redundant specific closeDarkWebModalBtn listener
         }
 
         // Initialize on load
