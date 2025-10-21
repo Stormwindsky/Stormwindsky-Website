@@ -3,24 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Paint</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Advanced Drawing Canvas</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #toolbar {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #drawingCanvas {
+            border: 2px solid #333;
+            background-color: white;
+            cursor: crosshair;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            touch-action: none; /* Prevents mobile scrolling while drawing */
+        }
+
+        .tool-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button.active {
+            background-color: #28a745; /* Green for active tool */
+        }
+
+        #eraseBtn.active {
+             background-color: #dc3545; /* Red for active eraser */
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        input[type="color"], input[type="range"] {
+            cursor: pointer;
+        }
+
+        /* Styling for the Rainbow Mode button */
+        #rainbowBtn.active {
+            background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+            color: black;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Simple Paint</h1>
-        <div class="tools">
-            <label for="colorPicker">Color:</label>
+    <h1>Advanced Digital Sketchpad 🎨</h1>
+
+    <div id="toolbar">
+        <div class="tool-group">
+            <label for="colorPicker">Color</label>
             <input type="color" id="colorPicker" value="#000000">
-            
-            <label for="brushSize">Brush Size:</label>
-            <input type="number" id="brushSize" min="1" max="50" value="5">
-            
-            <button id="clearCanvas">Clear Canvas</button>
-            <button id="saveCanvas">Save Drawing</button>
         </div>
-        <canvas id="paintCanvas" width="800" height="600"></canvas>
+
+        <div class="tool-group">
+            <label for="brushSize">Size</label>
+            <input type="range" id="brushSize" min="1" max="50" value="5">
+        </div>
+
+        <div class="tool-group">
+            <label>&nbsp;</label>
+            <button id="eraseBtn">🧽 Eraser</button>
+        </div>
+        
+        <div class="tool-group">
+            <label>&nbsp;</label> <button id="rainbowBtn">🌈 Rainbow Mode</button>
+        </div>
+
+        <div class="tool-group">
+            <label>&nbsp;</label>
+            <button id="pixelArtBtn">🖼️ Pixel Mode</button>
+        </div>
+
+        <div class="tool-group">
+            <label for="imageLoader">Load Image (.png/.svg)</label>
+            <input type="file" id="imageLoader" accept=".png, .svg" />
+        </div>
+
+        <div class="tool-group">
+            <label>&nbsp;</label>
+            <button id="downloadPng">Download PNG</button>
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const brushSizeInput = document.getElementById('brushSize');
+        const rainbowBtn = document.getElementById('rainbowBtn');
+        const pixelArtBtn = document.getElementById('pixelArtBtn');
+        const eraseBtn = document.getElementById('eraseBtn'); // New button reference
+        const imageLoader = document.getElementById('imageLoader');
+        const downloadPngBtn = document.getElementById('downloadPng');
+
+        let isDrawing = false;
+        let isRainbowMode = false;
+        let isPixelMode = false;
+        let isErasing = false; // New state variable
+        let lastX = 0;
+        let lastY = 0;
+        let hue = 0; 
+
+        // Set initial drawing styles
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = brushSizeInput.value;
+        ctx.strokeStyle = colorPicker.value;
+        ctx.globalCompositeOperation = 'source-over'; // Default drawing mode
+
+        // --- Core Drawing Functions ---
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            // Get coordinates relative to the canvas
+            const rect = canvas.getBoundingClientRect();
+            let currentX, currentY;
+
+            // Handle touch vs. mouse events
+            if (e.touches) {
+                currentX = e.touches[0].clientX - rect.left;
+                currentY = e.touches[0].clientY - rect.top;
+            } else {
+                currentX = e.clientX - rect.left;
+                currentY = e.clientY - rect.top;
+            }
+
+            // --- Set Context for Eraser or Drawing ---
+            if (isErasing) {
+                // 'destination-out' means that where we draw, the existing content is cleared/made transparent
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; // Color doesn't matter, only alpha
+            } else {
+                // 'source-over' is the default drawing mode (new shapes are drawn on top of existing ones)
+                ctx.globalCompositeOperation = 'source-over';
+                
+                if (isRainbowMode) {
+                    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+                    hue = (hue + 5) % 360; 
+                } else {
+                    ctx.strokeStyle = colorPicker.value;
+                }
+            }
+            
+            ctx.lineWidth = brushSizeInput.value;
+
+            // Apply Pixel Mode logic
+            if (isPixelMode) {
+                const pixelSize = 10;
+                const snappedX = Math.floor(currentX / pixelSize) * pixelSize;
+                const snappedY = Math.floor(currentY / pixelSize) * pixelSize;
+                
+                if (isErasing) {
+                    // Erasing in pixel mode clears a whole block
+                    ctx.clearRect(snappedX, snappedY, pixelSize, pixelSize);
+                } else {
+                    // Drawing in pixel mode
+                    ctx.fillStyle = ctx.strokeStyle; 
+                    ctx.fillRect(snappedX, snappedY, pixelSize, pixelSize);
+                }
+                [lastX, lastY] = [currentX, currentY]; // Keep tracking for continuous drawing
+                return;
+            }
+
+            // Normal Drawing/Erasing Logic
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+
+            // Update last position for the next line segment
+            [lastX, lastY] = [currentX, currentY];
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            // Set initial position for drawing
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches) {
+                lastX = e.touches[0].clientX - rect.left;
+                lastY = e.touches[0].clientY - rect.top;
+            } else {
+                [lastX, lastY] = [e.clientX - rect.left, e.clientY - rect.top];
+            }
+            
+            // Draw a single dot if it's just a click/tap (for better visual response)
+            if (!isPixelMode && !isErasing) {
+                ctx.beginPath();
+                ctx.fillStyle = ctx.strokeStyle; // Use current stroke style as fill
+                ctx.arc(lastX, lastY, ctx.lineWidth / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            draw(e); // Start drawing immediately
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            // Always reset globalCompositeOperation after a stroke is done if it was an erase
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        // --- Event Listeners for Drawing ---
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch support for mobile devices
+        canvas.addEventListener('touchstart', (e) => {
+             e.preventDefault(); 
+             startDrawing(e);
+        });
+        canvas.addEventListener('touchmove', (e) => {
+             e.preventDefault();
+             draw(e);
+        });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // --- Tool Logic ---
+
+        colorPicker.addEventListener('input', () => {
+            // Turning off eraser when color is picked
+            isErasing = false; 
+            eraseBtn.classList.remove('active');
+        });
+
+        brushSizeInput.addEventListener('input', () => {
+            // Size is shared between brush and eraser
+            ctx.lineWidth = brushSizeInput.value;
+        });
+        
+        // NEW ERASER LOGIC
+        eraseBtn.addEventListener('click', () => {
+            isErasing = !isErasing;
+            eraseBtn.classList.toggle('active', isErasing);
+            
+            // Disable other drawing modes when the eraser is active
+            if (isErasing) {
+                isRainbowMode = false;
+                rainbowBtn.classList.remove('active');
+            }
+        });
+
+        rainbowBtn.addEventListener('click', () => {
+            isRainbowMode = !isRainbowMode;
+            rainbowBtn.classList.toggle('active', isRainbowMode);
+            
+            // Disable eraser when rainbow is active
+            if (isRainbowMode) {
+                isErasing = false;
+                eraseBtn.classList.remove('active');
+            }
+        });
+
+        pixelArtBtn.addEventListener('click', () => {
+            isPixelMode = !isPixelMode;
+            pixelArtBtn.textContent = isPixelMode ? '✅ Pixel Mode ON' : '🖼️ Pixel Mode';
+        });
+
+        // --- Image Loading (PNG/SVG) and Download (PNG) logic remains the same ---
+
+        imageLoader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+
+                // SVG and PNG loading
+                if (file.type === 'image/svg+xml' || file.type === 'image/png') {
+                    img.src = event.target.result;
+                } else {
+                    alert("Unsupported file type. Please use .png or .svg.");
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        downloadPngBtn.addEventListener('click', () => {
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = 'sketchpad_drawing.png';
+            link.href = dataURL;
+            link.click();
+        });
+    </script>
 </body>
 </html>
