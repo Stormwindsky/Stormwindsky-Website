@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <style>
+        /* Basic Reset and Setup */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #0d1117; /* Dark background for modern look */
+            color: #c9d1d9; /* Light text color */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Prevent scrollbars from animation */
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* 404 Header Styling */
+        h1 {
+            font-size: 10em;
+            margin: 0;
+            line-height: 1;
+            position: relative;
+            color: #ff7b72; /* Error color */
+            text-shadow: 0 0 10px rgba(255, 123, 114, 0.5); /* Subtle glow */
+        }
+
+        /* Subtitle and Paragraph */
+        h2 {
+            font-size: 2em;
+            margin: 10px 0 20px;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        /* Button Styling */
+        .home-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #58a6ff; /* Primary color */
+            color: #0d1117;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .home-button:hover {
+            background-color: #79c0ff;
+            transform: translateY(-2px);
+        }
+
+        /* Animation Keyframes - Simple 'Glitch' Effect */
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+                opacity: 1;
+            }
+            20% {
+                transform: translate(-3px, 3px);
+                opacity: 0.8;
+            }
+            40% {
+                transform: translate(-3px, -3px);
+                opacity: 0.9;
+            }
+            60% {
+                transform: translate(3px, 3px);
+                opacity: 0.7;
+            }
+            80% {
+                transform: translate(3px, -3px);
+                opacity: 0.85;
+            }
+            100% {
+                transform: translate(0);
+                opacity: 1;
+            }
+        }
+
+        /* Apply Animation to the 404 text */
+        .glitch-text {
+            animation: glitch 0.5s infinite alternate steps(2, start);
+        }
+
+        /* Particle/Star Field Background Effect (Subtle) */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1; /* Keep behind content */
+        }
+        
+        /* JavaScript will create and style the individual particles */
+
+    </style>
+</head>
+<body>
+
+    <div class="stars" id="star-field"></div>
+    <div class="container">
+        <h1 class="glitch-text">404</h1>
+        <h2>Oops! Page Not Found.</h2>
+        <p>It seems you've lost your way in the digital void. The page you are looking for might be elsewhere.</p>
+        <a href="https://stormwindsky.com" class="home-button">Try to get back to Stormwindsky.com</a>
+    </div>
+
+    <script>
+        // --- JavaScript for the particle/star animation ---
+
+        const starField = document.getElementById('star-field');
+        const numStars = 50; // Number of 'stars'
+
+        // Function to create a single star
+        function createStar() {
+            const star = document.createElement('div');
+            star.style.position = 'absolute';
+            star.style.width = star.style.height = `${Math.random() * 2 + 1}px`; // Random size
+            star.style.backgroundColor = '#ffffff';
+            star.style.borderRadius = '50%';
+            star.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.8)';
+            
+            // Random position
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.left = `${Math.random() * 100}vw`;
+
+            // Random subtle twinkling animation
+            star.style.animation = `twinkle ${Math.random() * 5 + 3}s infinite alternate`;
+
+            starField.appendChild(star);
+        }
+
+        // Create the stars
+        for (let i = 0; i < numStars; i++) {
+            createStar();
+        }
+
+        // Define the twinkling animation keyframes in CSS (using JS to inject it, 
+        // as keyframes must be defined)
+        const styleSheet = document.createElement('style');
+        styleSheet.type = 'text/css';
+        styleSheet.innerText = `
+            @keyframes twinkle {
+                0% { opacity: 0.5; }
+                50% { opacity: 1; }
+                100% { opacity: 0.5; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        
+        // --- End of JS ---
+    </script>
+
+</body>
+</html>
