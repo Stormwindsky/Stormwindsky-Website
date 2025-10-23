@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mode Dynamic Tier List Maker</title>
+    <style>
+        /* --- Dark Mode Styles --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #1e1e1e; /* Dark background */
+            color: #f0f0f0; /* Light text */
+        }
+
+        /* Controls and Info Panel */
+        #controls, #shareSection {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            padding: 15px;
+            background-color: #252526; /* Slightly lighter dark panel */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1, p {
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+
+        button {
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #007acc; /* VS Code Blue */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0063a8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #4a4a4a; /* Darker gray */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5c5c5c;
+            transform: translateY(-1px);
+        }
+
+        /* --- Tier List Structure --- */
+        #tierListContainer {
+            max-width: 1000px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .tier-row {
+            display: flex;
+            min-height: 120px;
+            border-bottom: 1px solid #3c3c3c;
+            background-color: #333333; /* Tier background */
+        }
+
+        .tier-label {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            padding: 5px;
+            text-align: center;
+            border-right: 2px solid #3c3c3c;
+            cursor: grab;
+            position: relative;
+            background-color: #505050; /* Default neutral color */
+        }
+
+        .tier-label-text {
+            cursor: text;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.1s;
+        }
+
+        .tier-label-text:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .tier-controls {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            display: flex;
+            gap: 2px;
+        }
+
+        .tier-controls button {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1px 4px;
+            font-size: 10px;
+            line-height: 1;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+        }
+
+        .tier-items {
+            flex-grow: 1;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 10px;
+            align-content: flex-start;
+        }
+
+        /* --- Item (Block) Styles --- */
+        .item {
+            width: 100px;
+            height: 100px;
+            background-color: #4a4a4a; /* Item background */
+            border: 1px solid #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: grab;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s;
+        }
+
+        .item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .item-delete {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+            border: none;
+            padding: 1px 4px;
+            font-size: 10px;
+            line-height: 1;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .item:hover .item-delete {
+            opacity: 1;
+        }
+
+        .dragging {
+            opacity: 0.5;
+            z-index: 1000;
+            border: 2px dashed #007acc;
+        }
+
+        /* --- Share Section --- */
+        #shareUrlDisplay {
+            margin-top: 10px;
+            font-size: 14px;
+            padding: 8px;
+            background-color: #3c3c3c;
+            border: 1px solid #555;
+            word-break: break-all;
+            display: block;
+            border-radius: 4px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dynamic Tier List Maker</h1>
+    <p>Use the buttons below to create your Tiers and add your Image/GIF items. Drag items between the tiers to rank them.</p>
+
+    <div id="controls">
+        <button id="addTierButton" class="btn-primary">➕ Add New Tier</button>
+        <button id="addItemButton" class="btn-primary">🖼️ Add New Item (Image/GIF)</button>
+        <button id="shareButton" class="btn-secondary">🔗 Generate Share Link</button>
+    </div>
+
+    <div id="tierListContainer">
+        </div>
+
+    <div id="shareSection">
+        <span id="shareUrlDisplay">Your share link will appear here once you make changes.</span>
+    </div>
+
+    <script>
+        // --- Core Data Structures ---
+
+        let currentTiers = []; // Starts empty
+        let currentItems = []; // Starts empty
+        let nextItemId = 1;
+        let nextTierId = 1;
+
+        const container = document.getElementById('tierListContainer');
+        const UNRANKED_TIER_ID = 'Unranked';
+
+
+        // --- Utility Functions ---
+
+        /** Generates a unique ID for new tiers (e.g., 'tier1') */
+        function getNextTierId() {
+            return 'tier' + nextTierId++;
+        }
+
+        /** Generates a unique ID for new items (e.g., 'item1') */
+        function getNextItemId() {
+            return 'item' + nextItemId++;
+        }
+
+        /** Saves the current state of tiers and items */
+        function saveState() {
+            const state = {
+                tiers: currentTiers,
+                items: currentItems
+            };
+            return state;
+        }
+
+        // --- Tier Management ---
+
+        /**
+         * Adds a new tier (always placed before 'Unranked' if it exists).
+         */
+        function addTier() {
+            // Ensure Unranked tier is the last one
+            let unrankedTier = currentTiers.find(t => t.id === UNRANKED_TIER_ID);
+            if (!unrankedTier) {
+                unrankedTier = { id: UNRANKED_TIER_ID, label: 'Unranked', color: '#4a4a4a' };
+                currentTiers.push(unrankedTier);
+            }
+
+            const newTier = {
+                id: getNextTierId(),
+                label: `Tier ${nextTierId - 1}`,
+                color: '#808080' // Neutral gray default
+            };
+
+            const unrankedIndex = currentTiers.findIndex(t => t.id === UNRANKED_TIER_ID);
+
+            // Insert new tier just before 'Unranked'
+            if (unrankedIndex !== -1) {
+                currentTiers.splice(unrankedIndex, 0, newTier);
+            } else {
+                 currentTiers.push(newTier);
+            }
+
+            renderTierList();
+        }
+
+        /**
+         * Removes a custom tier and moves its items to Unranked.
+         * @param {string} tierId - ID of the tier to remove.
+         */
+        function removeTier(tierId) {
+            if (tierId === UNRANKED_TIER_ID) {
+                alert("The 'Unranked' tier cannot be deleted.");
+                return;
+            }
+
+            const tierIndex = currentTiers.findIndex(t => t.id === tierId);
+
+            if (tierIndex !== -1) {
+                if (!confirm(`Are you sure you want to delete the tier "${currentTiers[tierIndex].label}"? All its items will move to Unranked.`)) {
+                    return;
+                }
+                
+                // 1. Move all items from the deleted tier to 'Unranked'
+                currentItems.forEach(item => {
+                    if (item.tier === tierId) {
+                        item.tier = UNRANKED_TIER_ID;
+                    }
+                });
+
+                // 2. Remove the tier from the list
+                currentTiers.splice(tierIndex, 1);
+
+                renderTierList();
+            }
+        }
+
+        /**
+         * Handles the renaming and recoloring of a tier label.
+         * @param {string} tierId - ID of the tier to edit.
+         */
+        function editTierLabel(tierId) {
+            const tier = currentTiers.find(t => t.id === tierId);
+            if (!tier) return;
+
+            const newLabel = prompt(`Enter new label for ${tier.label}:`, tier.label);
+            if (newLabel !== null && newLabel.trim() !== "") {
+                tier.label = newLabel.trim();
+            }
+
+            const newColor = prompt(`Enter new color (e.g., #FF5733, red, or rgb(100,200,50)) for ${tier.label}:`, tier.color);
+            if (newColor !== null && newColor.trim() !== "") {
+                tier.color = newColor.trim();
+            }
+
+            renderTierList(); // Re-render to apply changes
+        }
+
+
+        // --- Item Management ---
+
+        /**
+         * Adds a new item based on user input (name and image URL).
+         */
+        function addItem() {
+            // Ensure Unranked tier exists before adding items
+            let unrankedTier = currentTiers.find(t => t.id === UNRANKED_TIER_ID);
+            if (!unrankedTier) {
+                if (confirm("The 'Unranked' tier does not exist. Do you want to create it now to add an item?")) {
+                    currentTiers.push({ id: UNRANKED_TIER_ID, label: 'Unranked', color: '#4a4a4a' });
+                    renderTierList();
+                } else {
+                    alert("Cannot add items without an 'Unranked' tier to place them in.");
+                    return;
+                }
+            }
+            
+            const itemName = prompt("Enter item name (e.g., 'New Character'):");
+            if (itemName === null || itemName.trim() === "") return;
+
+            const imageUrl = prompt("Enter Image/GIF URL (e.g., https://example.com/image.jpg):");
+            if (imageUrl === null || imageUrl.trim() === "") return;
+
+            const newItem = {
+                id: getNextItemId(),
+                name: itemName.trim(),
+                tier: UNRANKED_TIER_ID,
+                imageUrl: imageUrl.trim()
+            };
+
+            currentItems.push(newItem);
+            renderItems(); // Only re-render items for efficiency
+            saveToUrl();
+        }
+
+        /**
+         * Removes an item from the list.
+         * @param {string} itemId - ID of the item to remove.
+         */
+        function deleteItem(itemId) {
+            const itemIndex = currentItems.findIndex(item => item.id === itemId);
+            if (itemIndex > -1) {
+                if (confirm(`Are you sure you want to delete item "${currentItems[itemIndex].name}"?`)) {
+                    currentItems.splice(itemIndex, 1);
+                    renderItems();
+                    saveToUrl();
+                }
+            }
+        }
+
+
+        // --- Rendering and UI ---
+
+        /**
+         * Creates an item element (image/GIF block).
+         */
+        function createItemElement(itemData) {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'item';
+            itemElement.id = itemData.id;
+            itemElement.setAttribute('draggable', true);
+
+            // Delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'item-delete';
+            deleteButton.textContent = 'X';
+            deleteButton.title = `Delete ${itemData.name}`;
+            deleteButton.onclick = () => deleteItem(itemData.id);
+            itemElement.appendChild(deleteButton);
+
+            // Image/GIF
+            const imgElement = document.createElement('img');
+            imgElement.src = itemData.imageUrl;
+            imgElement.alt = itemData.name;
+            itemElement.appendChild(imgElement);
+
+            itemElement.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', itemElement.id);
+                itemElement.classList.add('dragging');
+            });
+
+            itemElement.addEventListener('dragend', () => {
+                itemElement.classList.remove('dragging');
+                saveToUrl(); // Save state on drag end
+            });
+
+            return itemElement;
+        }
+
+        /**
+         * Renders all item blocks into their current tiers.
+         */
+        function renderItems() {
+            // Clear all item containers
+            document.querySelectorAll('.tier-items').forEach(container => container.innerHTML = '');
+
+            // Place items into their respective tier containers
+            currentItems.forEach(itemData => {
+                const itemElement = createItemElement(itemData);
+                const tierContainer = document.querySelector(`.tier-items[data-tier-id="${itemData.tier}"]`);
+                if (tierContainer) {
+                    tierContainer.appendChild(itemElement);
+                } else {
+                    // Item assigned to a tier that no longer exists (shouldn't happen with proper cleanup)
+                    console.warn(`Item ${itemData.id} has invalid tier ${itemData.tier}`);
+                }
+            });
+        }
+
+        /**
+         * Renders the entire Tier List structure (tiers and items).
+         */
+        function renderTierList() {
+            container.innerHTML = ''; // Clear container
+
+            currentTiers.forEach(tier => {
+                const row = document.createElement('div');
+                row.className = 'tier-row';
+                row.id = `tier-${tier.id}`;
+
+                // Tier Label
+                const label = document.createElement('div');
+                label.className = 'tier-label';
+                label.style.backgroundColor = tier.color;
+                label.setAttribute('data-tier-id', tier.id);
+
+                const labelText = document.createElement('span');
+                labelText.className = 'tier-label-text';
+                labelText.textContent = tier.label;
+                labelText.title = 'Click to edit label and color';
+                labelText.onclick = () => editTierLabel(tier.id);
+                label.appendChild(labelText);
+
+                // Tier Controls (Delete, only for custom tiers)
+                if (tier.id !== UNRANKED_TIER_ID) {
+                    const controls = document.createElement('div');
+                    controls.className = 'tier-controls';
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'X';
+                    deleteBtn.title = 'Delete Tier (Items go to Unranked)';
+                    deleteBtn.onclick = () => removeTier(tier.id);
+                    controls.appendChild(deleteBtn);
+                    label.appendChild(controls);
+                }
+
+                row.appendChild(label);
+
+                // Tier Items Container
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'tier-items';
+                itemsContainer.setAttribute('data-tier-id', tier.id);
+                row.appendChild(itemsContainer);
+
+                container.appendChild(row);
+            });
+
+            setupDropZones();
+            renderItems();
+            saveToUrl(); // Save the new tier structure to URL
+        }
+
+        /**
+         * Sets up the Drag & Drop event listeners for all tier containers.
+         */
+        function setupDropZones() {
+            document.querySelectorAll('.tier-items').forEach(dropZone => {
+                // Remove existing listeners to prevent duplicates
+                dropZone.removeEventListener('dragover', handleDragOver);
+                dropZone.removeEventListener('drop', handleDrop);
+
+                // Add new listeners
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const itemId = e.dataTransfer.getData('text/plain');
+            const itemElement = document.getElementById(itemId);
+
+            if (itemElement) {
+                const newTierId = e.currentTarget.getAttribute('data-tier-id');
+                e.currentTarget.appendChild(itemElement);
+
+                // Update the state
+                const itemData = currentItems.find(item => item.id === itemId);
+                if (itemData) {
+                    itemData.tier = newTierId;
+                    saveToUrl();
+                }
+            }
+        }
+
+
+        // --- URL Sharing Logic ---
+
+        /**
+         * Serializes the entire application state into a string for the URL.
+         */
+        function serializeState() {
+            // We save the entire state, including next IDs to ensure consistency if loaded later
+            const state = {
+                tiers: currentTiers,
+                items: currentItems,
+                nextItemId: nextItemId,
+                nextTierId: nextTierId
+            };
+            const jsonString = JSON.stringify(state);
+            return encodeURIComponent(jsonString);
+        }
+
+        /**
+         * Generates the shareable URL and updates the display.
+         */
+        function saveToUrl() {
+            const encodedData = serializeState();
+            const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?save=${encodedData}`;
+
+            // Update the URL in the address bar without reloading the page
+            history.pushState(null, '', newUrl);
+
+            // Update the display for the user
+            const displayElement = document.getElementById('shareUrlDisplay');
+            displayElement.textContent = `Current Share Link: ${newUrl}`;
+
+            return newUrl;
+        }
+
+        /**
+         * Handles the click on the share button (copies the URL).
+         */
+        function handleShareClick() {
+            if (currentTiers.length === 0 && currentItems.length === 0) {
+                 alert("The list is empty. Please add at least one Tier or Item before sharing.");
+                 return;
+            }
+            const url = saveToUrl();
+            navigator.clipboard.writeText(url).then(() => {
+                const displayElement = document.getElementById('shareUrlDisplay');
+                displayElement.textContent = `Current Share Link: ${url} (COPIED!)`;
+            }).catch(err => {
+                console.error('Could not copy URL: ', err);
+            });
+        }
+
+        /**
+         * Loads the state from the 'save' parameter in the URL.
+         */
+        function loadFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedData = urlParams.get('save');
+
+            if (encodedData) {
+                try {
+                    const jsonString = decodeURIComponent(encodedData);
+                    const savedState = JSON.parse(jsonString);
+
+                    // 1. Load Tiers and Items
+                    currentTiers = savedState.tiers || [];
+                    currentItems = savedState.items || [];
+                    
+                    // 2. Restore next ID counters to prevent ID collisions
+                    nextItemId = savedState.nextItemId || 1;
+                    nextTierId = savedState.nextTierId || 1;
+
+                    console.log("Tier List state loaded from URL.");
+                    return true;
+                } catch (e) {
+                    console.error("Error loading state from URL:", e);
+                }
+            }
+            return false;
+        }
+
+        // --- Initialization ---
+
+        function init() {
+            // 1. Attempt to load from URL
+            loadFromUrl();
+
+            // 2. Render the UI
+            // We render even if the list is empty to attach the drop zones and controls.
+            renderTierList();
+
+            // 3. Attach Event Listeners to Controls
+            document.getElementById('addTierButton').addEventListener('click', addTier);
+            document.getElementById('addItemButton').addEventListener('click', addItem);
+            document.getElementById('shareButton').addEventListener('click', handleShareClick);
+
+            // 4. Ensure the URL is set (even if empty, it records the initial state)
+            saveToUrl();
+
+            console.log("Dark Mode Tier List Maker initialized.");
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
