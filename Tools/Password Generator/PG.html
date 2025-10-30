@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Generator</title>
+    <style>
+        /* CSS within a single <style> tag */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .output-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #passwordOutput {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 1.1em;
+            background-color: #eee;
+            cursor: copy;
+        }
+        #copyBtn {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #copyBtn:hover {
+            background-color: #0056b3;
+        }
+        .options div {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button#generateBtn {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+        button#generateBtn:hover {
+            background-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Password Generator</h1>
+
+        <div class="output-box">
+            <input type="text" id="passwordOutput" value="Click Generate" readonly>
+            <button id="copyBtn" onclick="copyPassword()">Copy</button>
+        </div>
+
+        <div class="options">
+            <div>
+                <label for="length">Password Length:</label>
+                <input type="number" id="length" value="12" min="4" max="32">
+            </div>
+            <div>
+                <label for="uppercase">Include Uppercase:</label>
+                <input type="checkbox" id="uppercase" checked>
+            </div>
+            <div>
+                <label for="lowercase">Include Lowercase:</label>
+                <input type="checkbox" id="lowercase" checked>
+            </div>
+            <div>
+                <label for="numbers">Include Numbers:</label>
+                <input type="checkbox" id="numbers" checked>
+            </div>
+            <div>
+                <label for="symbols">Include Symbols:</label>
+                <input type="checkbox" id="symbols">
+            </div>
+        </div>
+
+        <button id="generateBtn" onclick="generatePassword()">Generate Password</button>
+    </div>
+
+    <script>
+        // JavaScript within a single <script> tag
+        const charSets = {
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+~`|}{[]:;?><,./-='
+        };
+
+        function generatePassword() {
+            const length = document.getElementById('length').value;
+            const useUpper = document.getElementById('uppercase').checked;
+            const useLower = document.getElementById('lowercase').checked;
+            const useNumbers = document.getElementById('numbers').checked;
+            const useSymbols = document.getElementById('symbols').checked;
+            const output = document.getElementById('passwordOutput');
+
+            let allChars = '';
+            let password = '';
+            let mustInclude = [];
+
+            if (useUpper) {
+                allChars += charSets.uppercase;
+                mustInclude.push(getRandomChar(charSets.uppercase));
+            }
+            if (useLower) {
+                allChars += charSets.lowercase;
+                mustInclude.push(getRandomChar(charSets.lowercase));
+            }
+            if (useNumbers) {
+                allChars += charSets.numbers;
+                mustInclude.push(getRandomChar(charSets.numbers));
+            }
+            if (useSymbols) {
+                allChars += charSets.symbols;
+                mustInclude.push(getRandomChar(charSets.symbols));
+            }
+
+            // Ensure at least one set is selected
+            if (allChars.length === 0) {
+                output.value = "Select an option!";
+                return;
+            }
+
+            // Fill the rest of the password length randomly
+            for (let i = mustInclude.length; i < length; i++) {
+                password += getRandomChar(allChars);
+            }
+            
+            // Combine guaranteed characters and shuffle
+            password = mustInclude.join('') + password;
+            password = shuffleString(password);
+
+            // Truncate to the exact length, in case of small length and many options
+            output.value = password.substring(0, length);
+        }
+
+        function getRandomChar(charSet) {
+            const randomIndex = Math.floor(Math.random() * charSet.length);
+            return charSet[randomIndex];
+        }
+
+        function shuffleString(str) {
+            const array = str.split('');
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array.join('');
+        }
+
+        function copyPassword() {
+            const output = document.getElementById('passwordOutput');
+            output.select();
+            output.setSelectionRange(0, 99999); /* For mobile devices */
+            document.execCommand("copy");
+            alert("Password copied to clipboard!");
+        }
+
+        // Generate a password on page load
+        document.addEventListener('DOMContentLoaded', generatePassword);
+    </script>
+</body>
+</html>
