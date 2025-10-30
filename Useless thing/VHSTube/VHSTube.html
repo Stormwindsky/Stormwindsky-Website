@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VHSTube - YouTube VHS Viewer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📼</text></svg>">
+    <style>
+        :root {
+            --primary: #ff0000;
+            --primary-dark: #cc0000;
+            --secondary: #282828;
+            --light: #f9f9f9;
+            --dark: #212121;
+            --gray: #606060;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* --- Global Reset and Body Styling --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(40, 40, 40, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            transform: translateY(0);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 0, 0, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        button {
+            padding: 15px 30px;
+            margin-left: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(255, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        button:focus:not(:active)::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        /* --- End of General Styling --- */
+
+
+        /* --- VHS Effect Styling --- */
+        .video-container {
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            /* REMOVED: transform: scaleX(-1); (Mirror Effect) */
+            transition: var(--transition);
+            aspect-ratio: 16/9;
+            background: #000;
+            
+            /* Add VHS-like filter to the container */
+            filter: saturate(1.1) contrast(1.1) brightness(0.95);
+            
+            /* Apply color bleeding and slight distortion to mimic old CRT/VHS */
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5), 0 0 10px rgba(0, 255, 0, 0.5), 0 0 10px rgba(0, 0, 255, 0.5);
+        }
+
+        .video-container:hover {
+            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.25);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            
+            /* Minor additional effects directly on the iframe */
+            filter: sepia(0.2) hue-rotate(5deg);
+        }
+
+        /* Scanlines Overlay */
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                #00000010,
+                #00000010 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none; /* Allows clicks to pass through to the iframe */
+            z-index: 5;
+            opacity: 0.5;
+        }
+
+        /* Static/Noise/Glitch Overlay (Subtle) */
+        .video-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAYAAABWk5pHAAAAAXNSR0IArs4c6QAAACFJREFUGFdjVFJSOjo6/k9A/i9AAYc4fPjwgaGhoQATgAA0hR/w16hO1gAAAABJRU5ErkJggg==') repeat; /* A small, grainy texture */
+            pointer-events: none;
+            z-index: 4;
+            opacity: 0.05;
+            animation: static-shift 1s infinite alternate; /* Subtle position shift */
+        }
+        
+        @keyframes static-shift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(0.5px, 0.5px); }
+        }
+
+        /* VHS OSD (On-Screen Display) for Date/Time */
+        .vhs-osd {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #d8c222; /* Yellowish-green color typical of VCR displays */
+            font-size: 1.1em;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8), 1px 1px 0 #000;
+            z-index: 6;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        /* --- End of VHS Effect Styling --- */
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .loading.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .instructions {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+
+        .error {
+            color: #ff6b6b;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: var(--transition);
+        }
+
+        .error.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            button {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VHS Tube</h1>
+        <div class="input-group">
+            <input type="text" id="videoUrl" placeholder="Paste YouTube URL or Video ID">
+            <button id="loadBtn">Watch on VHS</button>
+        </div>
+        <div class="error" id="error"></div>
+        <div class="video-container">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+            </div>
+            <iframe id="youtubeVideo" allowfullscreen></iframe>
+            <div class="vhs-osd" id="vhsDate">01 JAN '88</div>
+        </div>
+        <div class="instructions">
+            Tip: You can paste either the full YouTube URL (like https://youtu.be/dQw4w9WgXcQ) or just the video ID (dQw4w9WgXcQ)
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoUrlInput = document.getElementById('videoUrl');
+            const loadBtn = document.getElementById('loadBtn');
+            const youtubeVideo = document.getElementById('youtubeVideo');
+            const loading = document.getElementById('loading');
+            const errorDisplay = document.getElementById('error');
+            const vhsDateDisplay = document.getElementById('vhsDate');
+
+            // Function to extract YouTube video ID from various URL formats
+            function extractVideoId(url) {
+                // Regular URL patterns
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                const match = url.match(regExp);
+                
+                // Short youtu.be URL
+                if (match && match[2].length === 11) {
+                    return match[2];
+                }
+                
+                // Direct video ID (if user pastes just the ID)
+                if (url.length === 11 && !url.includes('/') && !url.includes('=') && !url.includes('?')) {
+                    return url;
+                }
+                
+                return null;
+            }
+
+            // Function to generate a random 80s/90s date string
+            function generateRandomVHSDate() {
+                const startYear = 1980;
+                const endYear = 1999;
+                const date = new Date(startYear + Math.floor(Math.random() * (endYear - startYear + 1)), 
+                                      Math.floor(Math.random() * 12), 
+                                      Math.floor(Math.random() * 28) + 1);
+                
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = date.toLocaleString('en-us', { month: 'short' }).toUpperCase().replace('.', '');
+                const year = String(date.getFullYear()).slice(2);
+                
+                return `${day} ${month} '${year}`;
+            }
+
+            // Load video function with animations
+            function loadVideo() {
+                const videoUrl = videoUrlInput.value.trim();
+                
+                if (!videoUrl) {
+                    showError('Please enter a YouTube URL or Video ID');
+                    return;
+                }
+                
+                const videoId = extractVideoId(videoUrl);
+                
+                if (!videoId) {
+                    showError('Invalid YouTube URL or Video ID');
+                    return;
+                }
+                
+                // Show loading animation
+                loading.classList.add('active');
+                errorDisplay.classList.remove('show');
+
+                // Update the OSD date to a new random VHS date
+                vhsDateDisplay.textContent = generateRandomVHSDate();
+                
+                // Small delay to allow loading animation to show
+                setTimeout(() => {
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                    youtubeVideo.src = embedUrl;
+                    
+                    // Hide loading when video is ready
+                    youtubeVideo.onload = function() {
+                        loading.classList.remove('active');
+                    };
+                    
+                    // Fallback in case onload doesn't fire
+                    setTimeout(() => {
+                        loading.classList.remove('active');
+                    }, 3000);
+                }, 500);
+            }
+
+            // Show error message with animation
+            function showError(message) {
+                errorDisplay.textContent = message;
+                errorDisplay.classList.add('show');
+                
+                // Shake animation for input
+                videoUrlInput.style.animation = 'none';
+                void videoUrlInput.offsetWidth; // Trigger reflow
+                videoUrlInput.style.animation = 'shake 0.5s';
+            }
+            
+            // Set initial VHS date when page loads
+            vhsDateDisplay.textContent = generateRandomVHSDate();
+
+            // Event listeners
+            loadBtn.addEventListener('click', loadVideo);
+            
+            videoUrlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loadVideo();
+                }
+            });
+            
+            // Add shake animation to CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    20%, 60% { transform: translateX(-5px); }
+                    40%, 80% { transform: translateX(5px); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
