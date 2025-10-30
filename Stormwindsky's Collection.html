@@ -83,7 +83,8 @@
 
         body.dark-mode .search-header,
         body.dark-mode .search-result-card,
-        body.dark-mode footer {
+        body.dark-mode footer,
+        body.dark-mode .image-result-card { /* Dark mode for image cards */
             background-color: var(--dark-card);
             box-shadow: var(--box-shadow);
         }
@@ -112,13 +113,15 @@
             border-bottom-color: var(--dark-border);
         }
 
-        body.dark-mode .filter-item label {
+        body.dark-mode .filter-item label,
+        body.dark-mode .search-mode-tab { /* Dark mode for mode tabs */
             background-color: #3c4043;
             color: var(--dark-text);
             border-color: var(--dark-border);
         }
 
-        body.dark-mode .filter-item input[type="checkbox"]:checked + label {
+        body.dark-mode .filter-item input[type="checkbox"]:checked + label,
+        body.dark-mode .search-mode-tab.active { /* Dark mode for active mode tab */
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
@@ -155,6 +158,7 @@
 
         body.halloween-theme .search-header,
         body.halloween-theme .search-result-card,
+        body.halloween-theme .image-result-card, /* Halloween image cards */
         body.halloween-theme footer {
             background-color: #333333;
         }
@@ -163,7 +167,8 @@
             color: var(--halloween-link);
         }
 
-        body.halloween-theme .filter-item input[type="checkbox"]:checked + label {
+        body.halloween-theme .filter-item input[type="checkbox"]:checked + label,
+        body.halloween-theme .search-mode-tab.active { /* Halloween active mode tab */
             background: var(--halloween-gradient);
             border-color: var(--halloween-primary);
         }
@@ -234,6 +239,7 @@
         
         body.christmas-theme .search-header,
         body.christmas-theme .search-result-card,
+        body.christmas-theme .image-result-card, /* Christmas image cards */
         body.christmas-theme footer {
             background-color: #1a1a1a;
             color: var(--christmas-link);
@@ -255,13 +261,15 @@
             color: white;
         }
         
-        body.christmas-theme .filter-item label {
+        body.christmas-theme .filter-item label,
+        body.christmas-theme .search-mode-tab { /* Christmas mode tabs */
             background-color: #3c4043;
             color: var(--christmas-link);
             border-color: var(--christmas-secondary);
         }
 
-        body.christmas-theme .filter-item input[type="checkbox"]:checked + label {
+        body.christmas-theme .filter-item input[type="checkbox"]:checked + label,
+        body.christmas-theme .search-mode-tab.active { /* Christmas active mode tab */
             background: var(--christmas-gradient);
             border-color: var(--christmas-primary);
         }
@@ -295,6 +303,7 @@
         
         body.nye-theme .search-header,
         body.nye-theme .search-result-card,
+        body.nye-theme .image-result-card, /* NYE image cards */
         body.nye-theme footer {
             background-color: var(--dark-card);
         }
@@ -303,7 +312,8 @@
             color: var(--nye-link);
         }
         
-        body.nye-theme .filter-item input[type="checkbox"]:checked + label {
+        body.nye-theme .filter-item input[type="checkbox"]:checked + label,
+        body.nye-theme .search-mode-tab.active { /* NYE active mode tab */
             background: var(--nye-gradient);
             border-color: var(--nye-primary);
         }
@@ -329,7 +339,7 @@
              text-shadow: 0 0 10px var(--pdd-secondary);
         }
 
-        /* --- Albert Einstein Day Theme Overrides --- */
+        /* --- Albert Einstein Day Theme Overrides (March 14) --- */
         body.aed-theme {
             background-color: var(--aed-secondary);
             color: var(--aed-text);
@@ -348,6 +358,7 @@
 
         body.aed-theme .search-header,
         body.aed-theme .search-result-card,
+        body.aed-theme .image-result-card, /* AED image cards */
         body.aed-theme footer {
             background-color: var(--aed-secondary);
         }
@@ -532,7 +543,7 @@
             color: inherit;
         }
 
-        /* Result Tabs */
+        /* Result Tabs (Mode Selector) */
         .result-tabs {
             border-bottom: 1px solid var(--border-color);
             padding: 0 0 5px 0;
@@ -540,10 +551,47 @@
             margin: 0 auto;
             padding: 0 20px;
         }
+        
+        .search-mode-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            overflow-x: auto; /* Allow scrolling on small screens */
+            padding-bottom: 5px;
+        }
+        
+        .search-mode-tab {
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background-color: #f8f9fa;
+            color: #5f6368;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.2s, color 0.2s;
+            font-size: 14px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        .search-mode-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
 
+        /* Category Filters */
         .category-filters {
             display: inline-flex;
             gap: 15px;
+            padding-bottom: 5px;
+        }
+        
+        .category-filters-container {
+            display: none; /* Hidden by default for media modes */
+        }
+        
+        .category-filters-container.active {
+            display: block;
         }
 
         .filter-item input[type="checkbox"] {
@@ -569,7 +617,20 @@
             font-weight: 500;
         }
 
-        /* Search Results List */
+        /* Search Results List (Files & Audio) */
+        .search-results-list {
+            padding-top: 20px;
+            min-height: 40vh; /* Ensure space for loading spinner */
+        }
+        
+        #files-container, #audios-container {
+            display: none; 
+        }
+        
+        #files-container.active, #audios-container.active {
+            display: block;
+        }
+        
         .search-result-card {
             background-color: var(--card-color);
             padding: 20px;
@@ -577,12 +638,211 @@
             margin-bottom: 25px;
             box-shadow: var(--box-shadow);
         }
+        
+        .search-result-card audio {
+            width: 100%;
+            max-width: 400px; /* Constrain audio player width */
+            display: block;
+            margin: 10px 0;
+        }
+
 
         .result-title a {
             font-size: 20px;
             color: var(--link-color);
             text-decoration: none;
         }
+        
+        /* Image Results Grid (New) */
+        #images-container {
+            display: none; /* Default is hidden for images */
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        
+        #images-container.active {
+            display: grid;
+        }
+
+        .image-result-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: transform 0.2s;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .image-result-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-result-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .image-thumbnail-container {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .image-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .image-result-card:hover .image-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .image-filename {
+            font-size: 13px;
+            color: var(--text-color);
+            word-break: break-all;
+            display: block;
+            padding: 5px 0;
+            font-weight: 500;
+        }
+        
+        /* --- NEW MODAL STYLES (CC0 POPUP) --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1050; /* Above header */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); /* Softer overlay */
+            backdrop-filter: blur(2px); /* Softer blur */
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            margin: 10% auto; /* Slightly higher placement */
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 550px; /* Slightly wider */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Softer shadow */
+            position: relative;
+            text-align: center;
+            animation: slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother animation */
+            border: 1px solid var(--border-color); /* Subtle border */
+        }
+        
+        .modal-content.dark-mode-override {
+             background-color: var(--dark-card);
+             color: var(--dark-text);
+        }
+
+        .modal-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 18px; /* More space */
+            font-size: 1.6rem; /* Slightly larger title */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .modal-content h3 .fas {
+             font-size: 1.8rem; /* Larger icon */
+        }
+
+        .modal-content p {
+            font-size: 1.05rem; /* Slightly larger text */
+            margin-bottom: 25px; /* More space */
+            color: #333; /* Darker text for better contrast in light mode */
+            line-height: 1.6;
+        }
+        
+        .modal-content.dark-mode-override p {
+             color: var(--dark-text); /* Ensure dark mode text is light */
+        }
+        
+
+        .modal-content a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        
+        .modal-content.dark-mode-override a {
+             color: var(--dark-link);
+        }
+
+        .modal-content a:hover {
+            text-decoration: underline;
+            color: var(--secondary-color); /* Slightly change color on hover */
+        }
+        
+        .modal-content.dark-mode-override a:hover {
+            color: var(--dark-link); /* Maintain dark link color */
+        }
+
+
+        .modal-close-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px; /* Larger button */
+            border-radius: 25px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-close-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+        
+        /* Smaller font size for modal on small screens */
+        @media (max-width: 600px) {
+            .modal-content {
+                margin: 5% auto;
+                padding: 20px;
+            }
+            .modal-content h3 {
+                font-size: 1.3rem;
+            }
+            .modal-content h3 .fas {
+                font-size: 1.5rem;
+            }
+            .modal-content p {
+                font-size: 0.95rem;
+            }
+            .modal-close-btn {
+                padding: 10px 20px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        /* --- END NEW MODAL STYLES --- */
         
         /* Footer */
         footer {
@@ -757,9 +1017,23 @@
             </div>
 
             <div class="result-tabs">
-                <span class="filter-header">Exclude Categories:</span>
-                <div id="category-filters" class="category-filters">
+                <div class="search-mode-container">
+                    <div id="mode-files" class="search-mode-tab active" data-mode="files">
+                        <i class="fas fa-file-alt"></i> Files
                     </div>
+                    <div id="mode-images" class="search-mode-tab" data-mode="images">
+                        <i class="fas fa-images"></i> CC0 Images
+                    </div>
+                    <div id="mode-audios" class="search-mode-tab" data-mode="audios"> 
+                        <i class="fas fa-music"></i> CC0 Audios
+                    </div>
+                </div>
+
+                <div id="category-filters-container" class="category-filters-container active">
+                    <span class="filter-header">Exclude Categories:</span>
+                    <div id="category-filters" class="category-filters">
+                        </div>
+                </div>
             </div>
         </div>
         
@@ -775,19 +1049,37 @@
                 </div>
                 
                 <div id="result-stats" class="result-stats" style="display: none;"></div>
-
-                <div id="files-container">
+                
+                <div id="files-container" class="active">
                     </div>
+                    
+                <div id="images-container">
+                    </div>
+                <div id="audios-container">
+                </div>
             </div>
         </div>
 
         <footer>
-            <p>Data retrieved from the <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" style="color: inherit;">Stormwindsky/Stormwindsky-Website GitHub API</a>.</p>
+            <p>Data retrieved from the <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" style="color: inherit;">Stormwindsky/Stormwindsky-Website GitHub API</a> (Files) and <a href="https://github.com/Stormwindsky/ArtLibre/" target="_blank" style="color: inherit;">Stormwindsky/ArtLibre GitHub API</a> (CC0 Media).</p>
         </footer>
     </div>
     
     <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-
+    
+    <div id="cc0-modal" class="modal-overlay" style="display: none;">
+        <div id="cc0-modal-content" class="modal-content">
+            <h3><i class="fas fa-creative-commons"></i> CC0 Media Disclaimer</h3>
+            <p>
+                **Attention!** All content (images and audios) displayed in the CC0 categories comes from the ArtLibre repository and is published under the **CC0 (Public Domain)** license.
+            </p>
+            <p>
+                This means you are free to copy, modify, and distribute these works, even for commercial purposes, without asking for permission.
+                <br><a href="https://stormwindsky.github.io/ArtLibre" target="_blank">Visit the ArtLibre website for more details.</a>
+            </p>
+            <button class="modal-close-btn" onclick="closeCC0Modal()">Got It</button>
+        </div>
+    </div>
     <div id="debug-panel">
         <button id="close-debug-btn">X</button>
         <h3>Theme Debug Mode 🧪</h3>
@@ -910,14 +1202,17 @@
             const emojiHeader = document.getElementById('special-emoji-header');
             const emojiNav = document.getElementById('special-emoji-nav');
             const logoTextExtra = document.getElementById('logo-text-extra');
+            const modalContent = document.getElementById('cc0-modal-content'); 
             
             let emoji = '🌙'; 
             
             // Default to sun icon in light mode, moon in dark mode
             if (body.classList.contains('dark-mode')) {
                 emoji = '☀️';
+                modalContent.classList.add('dark-mode-override'); 
             } else {
                 emoji = '🌙';
+                modalContent.classList.remove('dark-mode-override'); 
             }
             
             themeToggle.textContent = emoji; // Set default first
@@ -1000,6 +1295,27 @@
             applySpecialTheme();
         }
         
+        // --- CC0 Modal Logic (NEW) ---
+        
+        function showCC0Modal() {
+            const modal = document.getElementById('cc0-modal');
+            const modalContent = document.getElementById('cc0-modal-content');
+
+            // Apply dark mode override if needed
+            if (document.body.classList.contains('dark-mode')) {
+                modalContent.classList.add('dark-mode-override');
+            } else {
+                modalContent.classList.remove('dark-mode-override');
+            }
+            
+            modal.style.display = 'block';
+            sessionStorage.setItem('CC0_MODAL_SHOWN', 'true');
+        }
+
+        function closeCC0Modal() {
+            document.getElementById('cc0-modal').style.display = 'none';
+        }
+
         // --- Debug Mode Logic (New) ---
 
         function updateDebugDisplay() {
@@ -1085,26 +1401,47 @@
             const homeSearchButton = document.getElementById('home-search-button');
             const resultsSearchInput = document.getElementById('results-search-input');
             const filesContainer = document.getElementById('files-container');
+            const imagesContainer = document.getElementById('images-container'); 
+            const audiosContainer = document.getElementById('audios-container'); 
             const loadingElement = document.getElementById('loading');
             const errorContainer = document.getElementById('error-container');
             const retryBtn = document.getElementById('retry-btn');
             const categoryFiltersContainer = document.getElementById('category-filters');
+            const categoryFiltersParent = document.getElementById('category-filters-container'); 
             const resultStats = document.getElementById('result-stats');
             
-            // Debug elements
+            const modeFilesTab = document.getElementById('mode-files'); 
+            const modeImagesTab = document.getElementById('mode-images'); 
+            const modeAudiosTab = document.getElementById('mode-audios'); 
+            
+            // FIX: Déclarations manquantes pour les boutons du panneau de débogage
             const forceDateBtn = document.getElementById('force-date-btn');
             const resetDateBtn = document.getElementById('reset-date-btn');
             const closeDebugBtn = document.getElementById('close-debug-btn');
-            
+
             let allFiles = []; 
+            let allImages = []; 
+            let allAudios = []; 
             let isDataLoaded = false;
+            let isImagesLoaded = false; 
+            let isAudiosLoaded = false; 
+            let searchMode = 'files'; // Default mode
 
             // --- Configuration ---
             const repoOwner = 'Stormwindsky';
             const repoName = 'Stormwindsky-Website';
             const targetFolders = ['Games', 'Tools', 'Useless thing', 'Countdowns', 'Archives', 'Others']; 
-            // MODIFICATION: Using the custom domain provided by the user and forcing HTTPS.
             const baseUrl = `https://www.stormwindsky.com/`; 
+            
+            // CC0 Media Configuration (ArtLibre)
+            const imageRepoOwner = 'Stormwindsky';
+            const imageRepoName = 'ArtLibre';
+            const imageRepoPath = 'ArtLibre/ArtLibre/files';
+            // FIX: Define the missing imageBaseUrl for raw access
+            const imageBaseUrl = `https://raw.githubusercontent.com/${imageRepoOwner}/${imageRepoName}/main/${imageRepoPath}/`;
+            const imageRawSuffix = `?raw=true`; 
+            const supportedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg']; 
+            const supportedAudioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.aiff', '.m4a']; 
             // --- End Configuration ---
 
             // --- Utility Functions ---
@@ -1112,6 +1449,13 @@
             function generateVisitUrl(path) {
                 // Generates URL using the new baseUrl (https://www.stormwindsky.com/)
                 return baseUrl + path.split(' ').join('%20'); 
+            }
+            
+            function generateImageUrl(relativePath) { 
+                // Génère l'URL d'accès brut à l'image/audio
+                // FIX: Uses the now defined imageBaseUrl
+                const fullPath = imageBaseUrl + relativePath.split(' ').join('%20') + imageRawSuffix;
+                return fullPath; 
             }
 
             function getCategoryFromPath(path) {
@@ -1138,8 +1482,14 @@
                     // Transfer search input value
                     resultsSearchInput.value = homeSearchInput.value;
                     
-                    // Run the search logic to display results
-                    handleSearchAndFilter();
+                    // Run the search logic to display results based on current mode
+                    if (searchMode === 'files') {
+                        handleSearchAndFilter();
+                    } else if (searchMode === 'images') {
+                        handleImageSearchAndFilter();
+                    } else if (searchMode === 'audios') { 
+                        handleAudioSearchAndFilter();
+                    }
 
                     // Focus on the results search bar
                     resultsSearchInput.focus();
@@ -1154,14 +1504,13 @@
                     errorContainer.style.display = 'none';
                     homeSearchInput.placeholder = "Loading files...";
 
-                    if(resultsScreen.classList.contains('active')) {
+                    if(resultsScreen.classList.contains('active') && searchMode === 'files') {
                         filesContainer.innerHTML = '';
                         resultStats.style.display = 'none';
                         loadingElement.style.display = 'block';
                     }
                     
                     const startTime = Date.now();
-                    // The API endpoint remains GitHub's, as that's where the file list is retrieved from
                     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/main?recursive=1`;
                     
                     const response = await fetch(apiUrl);
@@ -1186,7 +1535,7 @@
                         name: file.path.substring(file.path.lastIndexOf('/') + 1),
                         path: file.path, 
                         category: getCategoryFromPath(file.path),
-                        url: generateVisitUrl(file.path) // Uses the custom HTTPS baseUrl
+                        url: generateVisitUrl(file.path) 
                     }));
                     
                     allFiles.sort((a, b) => a.name.localeCompare(b.name));
@@ -1203,12 +1552,12 @@
                     
                     updateCategoryFilters(); 
                     
-                    if(resultsScreen.classList.contains('active')) {
+                    if(resultsScreen.classList.contains('active') && searchMode === 'files') {
                         handleSearchAndFilter();
                     }
                     
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('Error (Files):', error);
                     loadingElement.style.display = 'none';
                     
                     if (!resultsScreen.classList.contains('active')) {
@@ -1219,6 +1568,146 @@
                     homeSearchInput.placeholder = "ERROR loading files.";
                     document.getElementById('error-message').textContent = error.message || 'Error loading HTML files from GitHub.'; 
                     errorContainer.style.display = 'block';
+                }
+            }
+
+            async function fetchArtLibreImages() { 
+                if (isImagesLoaded) return; 
+                
+                try {
+                    isImagesLoaded = false;
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'images') {
+                        imagesContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                        loadingElement.style.display = 'block';
+                    }
+                    
+                    const startTime = Date.now();
+                    const apiUrl = `https://api.github.com/repos/${imageRepoOwner}/${imageRepoName}/git/trees/main?recursive=1`;
+                    
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ArtLibre tree (HTTP ${response.status})`);
+                    }
+                    
+                    const treeData = await response.json();
+                    
+                    const imageFiles = treeData.tree.filter(item => {
+                        if (item.type !== 'blob' || !item.path.startsWith(imageRepoPath + '/')) {
+                            return false; 
+                        }
+                        const extension = item.path.substring(item.path.lastIndexOf('.')).toLowerCase();
+                        return supportedImageExtensions.includes(extension);
+                    });
+
+                    if (imageFiles.length === 0) {
+                        // Don't throw error if some media is loaded
+                        if (!isAudiosLoaded) {
+                            throw new Error(`No image files found in the specified ArtLibre path.`);
+                        }
+                    }
+                    
+                    allImages = imageFiles.map(file => ({
+                        name: file.path.substring(file.path.lastIndexOf('/') + 1),
+                        path: file.path.substring(imageRepoPath.length + 1), 
+                        url: generateImageUrl(file.path.substring(imageRepoPath.length + 1)) 
+                    }));
+                    
+                    allImages.sort((a, b) => a.name.localeCompare(b.name));
+                    
+                    isImagesLoaded = true;
+                    
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 500) {
+                        await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
+                    }
+                    
+                    loadingElement.style.display = 'none';
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'images') {
+                        handleImageSearchAndFilter();
+                    }
+                    
+                } catch (error) {
+                    console.error('Error (Images):', error);
+                    loadingElement.style.display = 'none';
+                    
+                    if (searchMode === 'images') {
+                        document.getElementById('error-message').textContent = error.message || 'Error loading images from ArtLibre GitHub.'; 
+                        errorContainer.style.display = 'block';
+                    }
+                }
+            }
+
+            async function fetchArtLibreAudios() { 
+                if (isAudiosLoaded) return; 
+                
+                try {
+                    isAudiosLoaded = false;
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'audios') {
+                        audiosContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                        loadingElement.style.display = 'block';
+                    }
+                    
+                    const startTime = Date.now();
+                    const apiUrl = `https://api.github.com/repos/${imageRepoOwner}/${imageRepoName}/git/trees/main?recursive=1`;
+                    
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ArtLibre Audios tree (HTTP ${response.status})`);
+                    }
+                    
+                    const treeData = await response.json();
+                    
+                    const audioFiles = treeData.tree.filter(item => {
+                        if (item.type !== 'blob' || !item.path.startsWith(imageRepoPath + '/')) {
+                            return false; 
+                        }
+                        const extension = item.path.substring(item.path.lastIndexOf('.')).toLowerCase();
+                        return supportedAudioExtensions.includes(extension); 
+                    });
+
+                    if (audioFiles.length === 0) {
+                         // Don't throw error if some media is loaded
+                        if (!isImagesLoaded) {
+                            throw new Error(`No audio files found in the specified ArtLibre path.`);
+                        }
+                    }
+                    
+                    allAudios = audioFiles.map(file => ({
+                        name: file.path.substring(file.path.lastIndexOf('/') + 1),
+                        path: file.path.substring(imageRepoPath.length + 1), 
+                        url: generateImageUrl(file.path.substring(imageRepoPath.length + 1)) 
+                    }));
+                    
+                    allAudios.sort((a, b) => a.name.localeCompare(b.name));
+                    
+                    isAudiosLoaded = true;
+                    
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 500) {
+                        await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
+                    }
+                    
+                    loadingElement.style.display = 'none';
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'audios') {
+                        handleAudioSearchAndFilter();
+                    }
+                    
+                } catch (error) {
+                    console.error('Error (Audios):', error);
+                    loadingElement.style.display = 'none';
+                    
+                    if (searchMode === 'audios') {
+                        document.getElementById('error-message').textContent = error.message || 'Error loading audios from ArtLibre GitHub.'; 
+                        errorContainer.style.display = 'block';
+                    }
                 }
             }
 
@@ -1279,15 +1768,83 @@
                 });
             }
             
+            function displayImages(images, timeTaken) { 
+                imagesContainer.innerHTML = '';
+                
+                resultStats.style.display = 'block';
+                const timeString = timeTaken ? ` (${timeTaken.toFixed(2)} seconds)` : '';
+                resultStats.innerHTML = `About ${images.length} image results found${timeString}`;
+
+                if (images.length === 0) {
+                    imagesContainer.innerHTML = '<div class="no-results">No image results found matching your search. Try refining your search term.</div>';
+                    return;
+                }
+                
+                images.forEach(image => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'image-result-card';
+                    
+                    resultCard.innerHTML = `
+                        <a href="${image.url}" target="_blank" title="${image.name}">
+                            <div class="image-thumbnail-container">
+                                <img src="${image.url}" alt="${image.name}" class="image-thumbnail" loading="lazy">
+                            </div>
+                            <span class="image-filename">${image.name}</span>
+                        </a>
+                    `;
+                    
+                    imagesContainer.appendChild(resultCard);
+                });
+            }
+            
+            function displayAudios(audios, timeTaken) { 
+                audiosContainer.innerHTML = '';
+                
+                resultStats.style.display = 'block';
+                const timeString = timeTaken ? ` (${timeTaken.toFixed(2)} seconds)` : '';
+                resultStats.innerHTML = `About ${audios.length} audio results found${timeString}`;
+
+                if (audios.length === 0) {
+                    audiosContainer.innerHTML = '<div class="no-results">No audio results found matching your search. Try refining your search term.</div>';
+                    return;
+                }
+                
+                audios.forEach(audio => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'search-result-card'; 
+                    
+                    const fileExtension = audio.name.substring(audio.name.lastIndexOf('.') + 1);
+
+                    resultCard.innerHTML = `
+                        <h3 class="result-title" style="margin-bottom: 10px;">
+                            <i class="fas fa-headphones" style="margin-right: 8px; color: var(--primary-color);"></i>
+                            <a href="${audio.url}" target="_blank" style="font-size: 18px;">${audio.name}</a>
+                        </h3>
+                        <audio controls style="width: 100%; max-width: 400px; margin-top: 10px;">
+                            <source src="${audio.url}" type="audio/${fileExtension}">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <div class="result-link-url" style="margin-top: 10px;">
+                            Source: <a href="${audio.url}" target="_blank">${audio.name}</a>
+                        </div>
+                    `;
+                    
+                    audiosContainer.appendChild(resultCard);
+                });
+            }
+
+
             function handleSearchAndFilter() {
                 const searchStartTime = Date.now();
                 const searchTerm = resultsSearchInput.value.toLowerCase().trim();
                 
                 if (!isDataLoaded) {
-                    loadingElement.style.display = 'block';
-                    errorContainer.style.display = 'none';
-                    filesContainer.innerHTML = '';
-                    resultStats.style.display = 'none';
+                    if (searchMode === 'files') {
+                        loadingElement.style.display = 'block';
+                        errorContainer.style.display = 'none';
+                        filesContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                    }
                     return;
                 }
                 
@@ -1315,6 +1872,124 @@
                 
                 displayFiles(filteredFiles, timeTaken);
             }
+            
+            function handleImageSearchAndFilter() { 
+                const searchStartTime = Date.now();
+                const searchTerm = resultsSearchInput.value.toLowerCase().trim();
+                
+                if (!isImagesLoaded) {
+                    if (searchMode === 'images') {
+                        loadingElement.style.display = 'block';
+                        errorContainer.style.display = 'none';
+                        imagesContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                    }
+                    return;
+                }
+                
+                loadingElement.style.display = 'none';
+                errorContainer.style.display = 'none';
+                
+                let filteredImages = allImages;
+                
+                if (searchTerm !== '') {
+                    filteredImages = filteredImages.filter(image => 
+                        image.name.toLowerCase().includes(searchTerm) || 
+                        image.path.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                const searchEndTime = Date.now();
+                const timeTaken = (searchEndTime - searchStartTime) / 1000;
+                
+                displayImages(filteredImages, timeTaken);
+            }
+
+            function handleAudioSearchAndFilter() { 
+                const searchStartTime = Date.now();
+                const searchTerm = resultsSearchInput.value.toLowerCase().trim();
+                
+                if (!isAudiosLoaded) {
+                    if (searchMode === 'audios') {
+                        loadingElement.style.display = 'block';
+                        errorContainer.style.display = 'none';
+                        audiosContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                    }
+                    return;
+                }
+                
+                loadingElement.style.display = 'none';
+                errorContainer.style.display = 'none';
+                
+                let filteredAudios = allAudios;
+                
+                if (searchTerm !== '') {
+                    filteredAudios = filteredAudios.filter(audio => 
+                        audio.name.toLowerCase().includes(searchTerm) || 
+                        audio.path.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                const searchEndTime = Date.now();
+                const timeTaken = (searchEndTime - searchStartTime) / 1000;
+                
+                displayAudios(filteredAudios, timeTaken);
+            }
+
+
+            // --- Mode Switching Logic (UPDATED) ---
+            
+            function switchSearchMode(mode) {
+                if (searchMode === mode) return; 
+                searchMode = mode;
+                
+                // Update active tab style
+                document.querySelectorAll('.search-mode-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.getElementById(`mode-${mode}`).classList.add('active');
+                
+                // Toggle containers visibility
+                filesContainer.classList.remove('active');
+                imagesContainer.classList.remove('active');
+                audiosContainer.classList.remove('active');
+
+                if (mode === 'files') {
+                    filesContainer.classList.add('active');
+                    categoryFiltersParent.classList.add('active');
+                    resultsSearchInput.placeholder = 'Search files on Stormwindsky-Website...';
+                    handleSearchAndFilter(); 
+                } else if (mode === 'images') {
+                    imagesContainer.classList.add('active');
+                    categoryFiltersParent.classList.remove('active');
+                    resultsSearchInput.placeholder = 'Search images on ArtLibre...';
+                    
+                    if (!sessionStorage.getItem('CC0_MODAL_SHOWN')) {
+                        showCC0Modal();
+                    }
+                    
+                    if (!isImagesLoaded) {
+                        fetchArtLibreImages();
+                    } else {
+                        handleImageSearchAndFilter();
+                    }
+                } else if (mode === 'audios') { 
+                    audiosContainer.classList.add('active'); 
+                    categoryFiltersParent.classList.remove('active');
+                    resultsSearchInput.placeholder = 'Search audios on ArtLibre...';
+                    
+                    if (!sessionStorage.getItem('CC0_MODAL_SHOWN')) {
+                        showCC0Modal();
+                    }
+                    
+                    if (!isAudiosLoaded) {
+                        fetchArtLibreAudios();
+                    } else {
+                        handleAudioSearchAndFilter();
+                    }
+                }
+            }
 
             // --- Event Listeners ---
             
@@ -1323,7 +1998,19 @@
                     if (checkDebugCommand(homeSearchInput)) {
                         return;
                     }
-                    if (isDataLoaded || homeSearchInput.value.trim() !== '') {
+                    
+                    // Only switch if data is loaded OR input isn't empty
+                    if (isDataLoaded || isImagesLoaded || isAudiosLoaded || homeSearchInput.value.trim() !== '') {
+                        
+                        // Set the initial search mode before switching
+                        if (!isDataLoaded && isImagesLoaded) {
+                            searchMode = 'images';
+                        } else if (!isDataLoaded && !isImagesLoaded && isAudiosLoaded) {
+                            searchMode = 'audios';
+                        } else {
+                            searchMode = 'files'; // Default to files
+                        }
+                        
                         switchToResultsView();
                     }
                 }
@@ -1331,19 +2018,48 @@
             
             homeSearchInput.addEventListener('keyup', homeSearchTrigger);
             homeSearchButton.addEventListener('click', homeSearchTrigger);
-
-            resultsSearchInput.addEventListener('input', handleSearchAndFilter);
+            
+            // Search input listener adapted for all modes
+            resultsSearchInput.addEventListener('input', () => {
+                if (searchMode === 'files') {
+                    handleSearchAndFilter();
+                } else if (searchMode === 'images') {
+                    handleImageSearchAndFilter();
+                } else if (searchMode === 'audios') { 
+                    handleAudioSearchAndFilter();
+                }
+            });
             
             resultsSearchInput.addEventListener('keyup', (event) => {
                  if (event.key === 'Enter') {
                     if (checkDebugCommand(resultsSearchInput)) {
                         return;
                     }
-                    handleSearchAndFilter();
+                    if (searchMode === 'files') {
+                        handleSearchAndFilter();
+                    } else if (searchMode === 'images') {
+                        handleImageSearchAndFilter();
+                    } else if (searchMode === 'audios') { 
+                        handleAudioSearchAndFilter();
+                    }
                  }
             });
 
-            retryBtn.addEventListener('click', fetchAllHtmlFiles);
+            retryBtn.addEventListener('click', () => {
+                if (searchMode === 'files') {
+                    fetchAllHtmlFiles();
+                } else if (searchMode === 'images') {
+                    fetchArtLibreImages();
+                } else if (searchMode === 'audios') { 
+                    fetchArtLibreAudios();
+                }
+            });
+            
+            // Mode Switch Listeners
+            modeFilesTab.addEventListener('click', () => switchSearchMode('files'));
+            modeImagesTab.addEventListener('click', () => switchSearchMode('images'));
+            modeAudiosTab.addEventListener('click', () => switchSearchMode('audios')); 
+
             
             // Debug Panel Listeners
             forceDateBtn.addEventListener('click', handleForceDate);
@@ -1351,9 +2067,11 @@
             closeDebugBtn.addEventListener('click', closeDebugPanel);
             
             // --- Initialization ---
-            loadForcedDate(); // Must run before loadTheme
+            loadForcedDate(); 
             loadTheme();
-            fetchAllHtmlFiles();
+            fetchAllHtmlFiles(); 
+            fetchArtLibreImages(); 
+            fetchArtLibreAudios(); 
         });
     </script>
 </body>
