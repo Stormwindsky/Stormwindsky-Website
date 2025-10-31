@@ -281,6 +281,7 @@
             background-color: rgba(255,255,255,0.1);
         }
 
+        /* --- Nav styles for desktop (not used on mobile) --- */
         nav a::before {
             content: '';
             position: absolute;
@@ -306,6 +307,7 @@
             transform: translateY(-3px);
             box-shadow: var(--shadow-md);
         }
+        /* ---------------------------------------------------- */
 
         .content {
             padding: 3rem 2rem;
@@ -322,7 +324,16 @@
             gap: 2rem;
             margin-top: 2rem;
         }
-
+        
+        /* Mobile Link Card specific styles (flex layout for buttons) */
+        .mobile-links-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* General Card styles */
         .card {
             background-color: var(--card-bg);
             border-radius: 15px;
@@ -374,8 +385,10 @@
             margin-bottom: 1.5rem;
         }
 
-        .card a {
-            display: inline-block;
+        .card a, .card button {
+            display: inline-flex; /* Use inline-flex for button centering */
+            align-items: center;
+            justify-content: center;
             margin-top: 1rem;
             padding: 0.75rem 2rem;
             background: var(--gradient-primary);
@@ -387,15 +400,17 @@
             box-shadow: var(--shadow-sm);
             position: relative;
             overflow: hidden;
+            border: none;
+            cursor: pointer;
         }
 
-        .card a:hover {
+        .card a:hover, .card button:hover {
             background: var(--gradient-secondary);
             transform: translateY(-3px);
             box-shadow: var(--shadow-md);
         }
 
-        .card a::before {
+        .card a::before, .card button::before {
             content: '';
             position: absolute;
             top: 0;
@@ -406,8 +421,12 @@
             transition: 0.5s;
         }
 
-        .card a:hover::before {
+        .card a:hover::before, .card button:hover::before {
             left: 100%;
+        }
+        
+        .card button i {
+            margin-right: 8px;
         }
 
         footer {
@@ -495,7 +514,7 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
-        /* Modal Styles */
+        /* Modal Styles (Popup) */
         .modal {
             display: none;
             position: fixed;
@@ -532,47 +551,36 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
         
-        /* === MODIFIED STYLE FOR COLLECTION MODAL (Full Page) === */
+        /* --- Desktop-only Modal/Window styles (Collection, Dark Web, RoleChat Window) --- */
         #collectionModal .modal-content {
             max-width: 95vw; 
             max-height: 95vh; 
             width: 95vw; 
             padding: 1.5rem; 
         }
-        /* ========================================= */
         
-        /* --- RoleChat Modal specific styles --- */
         #roleChatWindowModal {
-            /* Full screen backdrop, but the modal-content is the "window" */
-            align-items: flex-start; /* Start at top left */
+            align-items: flex-start; 
             justify-content: flex-start;
         }
 
         #roleChatWindowModal .modal-content {
-            background-color: var(--card-bg);
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(0,0,0,0.1);
-            /* Remove default modal animations/transformations */
+            /* Desktop window style */
             animation: none; 
-            /* Initial position for the desktop-like window (handled by JS for better control) */
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%); 
         }
-
-        body.dark-mode #roleChatWindowModal .modal-content {
-            background-color: #16213e;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        
+        .collection-iframe, .darkweb-iframe, .rolechat-iframe {
+            /* Styles for the iframes (Desktop only) */
+            width: 100%;
+            height: calc(95vh - 100px); 
+            border: none;
+            border-radius: 10px;
+            margin-top: 1rem;
         }
-
-        body.dark-mode #roleChatHeader {
-            background-color: #0f3460;
-        }
-
-        body.halloween-theme #roleChatHeader {
-            background: var(--halloween-gradient);
-        }
-        /* === End RoleChat Modal specific styles === */
+        /* --------------------------------------------------------------------------------- */
 
         @keyframes modalOpen {
             to {
@@ -597,7 +605,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            z-index: 1; /* Ensure the button is above content like the iframe */
+            z-index: 1; 
         }
         
         body.halloween-theme .close-modal {
@@ -630,74 +638,13 @@
             border-radius: 2px;
         }
         
-        body.halloween-theme .modal-content h2 {
-            color: var(--halloween-primary);
-        }
-
-        body.halloween-theme .modal-content h2::after {
-            background: var(--halloween-gradient);
-        }
-
-        .modal-content p {
-            text-align: left;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-        }
-
         body.dark-mode .modal-content {
             background-color: #16213e;
             color: var(--text-light);
         }
-
-        /* Collection Modal specific styles */
-        .collection-iframe {
-            width: 100%;
-            /* Modified height to fill remainder of large modal (95vh - padding - header height) */
-            height: calc(95vh - 100px); 
-            border: none;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
-
-        /* Dark Web Modal specific styles */
-        .darkweb-iframe {
-            width: 100%;
-            /* 16:9 aspect ratio */
-            aspect-ratio: 16 / 9; 
-            height: auto;
-            border: none;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
-
-        /* Floating particles */
-        @keyframes floatParticle {
-            0% {
-                transform: translateY(0) translateX(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-100px) translateX(50px) rotate(180deg);
-            }
-            100% {
-                transform: translateY(0) translateX(0) rotate(360deg);
-            }
-        }
-
+        
         /* Responsive styles */
         @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            nav a {
-                margin: 0.5rem 0;
-                width: 100%;
-                text-align: center;
-                justify-content: center;
-            }
-
             header h1 {
                 font-size: 2rem;
             }
@@ -706,20 +653,12 @@
                 padding: 2rem 1.5rem;
             }
             
-            /* Responsive adjustments for collection modal */
-            #collectionModal .modal-content {
-                max-width: 95vw;
-                max-height: 95vh;
-                width: 95vw;
-                padding: 1rem;
-            }
-
             .card-container {
                 grid-template-columns: 1fr;
             }
-
-            .collection-iframe {
-                height: calc(95vh - 80px); /* Adjust height for smaller screen padding/header */
+            
+            .card a, .card button {
+                padding: 0.75rem 1rem;
             }
         }
 
@@ -736,13 +675,12 @@
                 padding: 1.5rem 1rem;
             }
             
-            /* Responsive adjustments for collection modal */
-            #collectionModal .modal-content {
-                padding: 0.5rem;
+            .mobile-links-content {
+                gap: 8px;
             }
-
-            .collection-iframe {
-                height: calc(95vh - 70px);
+            
+            .mobile-links-content button {
+                flex-basis: calc(50% - 8px); /* Two buttons per row */
             }
         }
     </style>
@@ -752,13 +690,13 @@
         <div class="bg-element" style="width: 200px; height: 200px; background: var(--primary-color); top: 10%; left: 5%; animation-delay: 0s;"></div>
         <div class="bg-element" style="width: 150px; height: 150px; background: var(--accent-color); top: 60%; left: 80%; animation-delay: 2s;"></div>
         <div class="bg-element" style="width: 100px; height: 100px; background: #f72585; top: 30%; left: 50%; animation-delay: 4s;"></div>
-        </div>
+    </div>
 
     <header>
         <h1>Stormwindsky <span id="halloween-emoji-header"></span></h1>
     </header>
 
-    <nav>
+    <nav id="mainNav">
         <div class="nav-container">
             <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">
                 <i class="fas fa-home"></i> Home
@@ -769,10 +707,10 @@
             <a id="originLink">
                 <i class="fas fa-signature"></i> Username Origin
             </a>
-            <a id="collectionLink">
+            <a id="collectionLink" href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank">
                 <i class="fas fa-folder"></i> Collection
             </a>
-            <a id="roleChatLink">
+            <a id="roleChatLink" href="https://stormwindsky.github.io/RoleChat/" target="_blank">
                 <i class="fas fa-comments"></i> RoleChat
             </a>
             <a href="https://www.roblox.com/games/12983740104/" target="_blank">
@@ -783,6 +721,31 @@
 
     <div class="content">
         <div class="card-container">
+            
+            <div id="mobileLinksCard" class="card mobile-only" style="display: none;">
+                <h2>Navigation</h2>
+                <div class="mobile-links-content">
+                    <button id="mobileAboutBtn">
+                        <i class="fas fa-user"></i> About Me
+                    </button>
+                    <button id="mobileOriginBtn">
+                        <i class="fas fa-signature"></i> Username Origin
+                    </button>
+                    <button id="mobileCollectionBtn">
+                        <i class="fas fa-folder"></i> Collection
+                    </button>
+                    <button id="mobileRoleChatBtn">
+                        <i class="fas fa-comments"></i> RoleChat
+                    </button>
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="https://www.roblox.com/games/12983740104/" target="_blank">
+                        <i class="fas fa-heart"></i> Donate
+                    </a>
+                </div>
+            </div>
+            
             <div class="card">
                 <h2>Find Me Online</h2>
                 <p>Check out my presence across different platforms and connect with me on various social networks.</p>
@@ -821,8 +784,33 @@
             <p>It's a unique identifier that has stuck with me across all my online adventures and represents my digital identity.</p>
         </div>
     </div>
+    
+    <div id="collectionMobileModal" class="modal mobile-only-modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close">&times;</button>
+            <h2>COLLECTION (Mobile Version)</h2>
+            <p>Due to performance limitations, the Collection is not embedded on mobile devices.</p>
+            <p style="text-align: center;">You can access the full Collection on a new tab:</p>
+            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" style="margin: 0 auto;">
+                <i class="fas fa-external-link-alt"></i> Go to Collection
+            </a>
+        </div>
+    </div>
+    
+    <div id="roleChatMobileModal" class="modal mobile-only-modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close">&times;</button>
+            <h2>ROLECHAT (Mobile Version)</h2>
+            <p>The RoleChat application is optimized for desktop and cannot be displayed in a movable window on mobile devices.</p>
+            <p style="text-align: center;">You can access the RoleChat website directly:</p>
+            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" style="margin: 0 auto;">
+                <i class="fas fa-external-link-alt"></i> Go to RoleChat
+            </a>
+        </div>
+    </div>
 
-    <div id="collectionModal" class="modal">
+
+    <div id="collectionModal" class="modal desktop-only">
         <div class="modal-content">
             <button class="close-modal" aria-label="Close">&times;</button>
             <h2>MY COLLECTION</h2>
@@ -830,7 +818,7 @@
         </div>
     </div>
     
-    <div id="darkWebModal" class="modal">
+    <div id="darkWebModal" class="modal desktop-only">
         <div class="modal-content">
             <button class="close-modal" aria-label="Close">&times;</button>
             <h2 style="color: #FF0000;">!! YOU HACKED INTO THE DARK WEB !!</h2>
@@ -851,7 +839,7 @@
         </div>
     </div>
     
-    <div id="roleChatWindowModal" class="modal" style="display: none;">
+    <div id="roleChatWindowModal" class="modal desktop-only" style="display: none;">
         <div class="modal-content" id="roleChatModalContent" style="width: 600px; height: 400px; min-width: 300px; min-height: 200px; padding: 0; overflow: hidden; transform: none; opacity: 1; border-radius: 10px; position: absolute;">
             
             <div id="roleChatHeader" style="cursor: move; background-color: var(--nav-bg); color: var(--text-light); padding: 8px 15px; border-top-left-radius: 10px; border-top-right-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
@@ -891,6 +879,12 @@
     <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 
     <script>
+        // Check if the current environment should load the lightweight version (Mobile detection)
+        function isLightweightVersion() {
+            // Consider lightweight if window width is <= 768px
+            return window.innerWidth <= 768;
+        }
+
         // Theme toggle function
         function toggleTheme() {
             const body = document.body;
@@ -1010,101 +1004,146 @@
         }
 
 
-        // Modal functionality
+        // Modal functionality for both versions
         function setupModals() {
-            // Modal elements
+            // Standard Modals (Always present)
             const aboutModal = document.getElementById('aboutModal');
             const originModal = document.getElementById('originModal');
-            const collectionModal = document.getElementById('collectionModal');
-            const darkWebModal = document.getElementById('darkWebModal');
-            const roleChatWindowModal = document.getElementById('roleChatWindowModal'); // NEW
 
-            // Button elements
-            const aboutBtn = document.getElementById('aboutLink');
-            const originBtn = document.getElementById('originLink');
-            const collectionBtn = document.getElementById('collectionLink');
-            const roleChatBtn = document.getElementById('roleChatLink'); // NEW
+            // Desktop Modals (Removed on mobile)
+            const collectionModalDesktop = document.getElementById('collectionModal');
+            const darkWebModal = document.getElementById('darkWebModal');
+            const roleChatWindowModalDesktop = document.getElementById('roleChatWindowModal');
+
+            // Mobile Modals (Always present, but hidden on desktop)
+            const collectionModalMobile = document.getElementById('collectionMobileModal');
+            const roleChatModalMobile = document.getElementById('roleChatMobileModal');
+
+
+            // Desktop Buttons (for Desktop version)
+            const aboutBtnDesktop = document.getElementById('aboutLink');
+            const originBtnDesktop = document.getElementById('originLink');
+            const collectionBtnDesktop = document.getElementById('collectionLink');
+            const roleChatBtnDesktop = document.getElementById('roleChatLink');
+            
+            // Mobile Buttons (for Mobile version)
+            const mobileAboutBtn = document.getElementById('mobileAboutBtn');
+            const mobileOriginBtn = document.getElementById('mobileOriginBtn');
+            const mobileCollectionBtn = document.getElementById('mobileCollectionBtn');
+            const mobileRoleChatBtn = document.getElementById('mobileRoleChatBtn');
             
             // Close buttons (common class)
             const closeButtons = document.querySelectorAll('.close-modal');
-
+            
             // Function to open a modal
             function openModal(modal) {
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+                if (modal) {
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
             }
             
             // Function to close a modal
             function closeModal(modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
+                if (modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
             }
-            
-            // Open Modals
-            aboutBtn.onclick = () => openModal(aboutModal);
-            originBtn.onclick = () => openModal(originModal);
-            collectionBtn.onclick = () => openModal(collectionModal);
-            roleChatBtn.onclick = () => openModal(roleChatWindowModal); // NEW
             
             // Close Modals: One listener to close all (safe approach when only one is open)
             closeButtons.forEach(button => {
                 button.onclick = function() {
+                    // Close all possible modals
                     closeModal(aboutModal);
                     closeModal(originModal);
-                    closeModal(collectionModal);
+                    closeModal(collectionModalDesktop);
                     closeModal(darkWebModal);
-                    closeModal(roleChatWindowModal); // NEW
+                    closeModal(roleChatWindowModalDesktop);
+                    closeModal(collectionModalMobile);
+                    closeModal(roleChatModalMobile);
                 }
             });
 
             // Close when clicking outside modal
             window.onclick = function(event) {
-                if (event.target == aboutModal) {
-                    closeModal(aboutModal);
-                }
-                if (event.target == originModal) {
-                    closeModal(originModal);
-                }
-                if (event.target == collectionModal) {
-                    closeModal(collectionModal);
-                }
-                if (event.target == darkWebModal) {
-                    closeModal(darkWebModal);
-                }
-                // We will NOT close the RoleChat window when clicking outside, it acts like a desktop app.
+                if (event.target == aboutModal) closeModal(aboutModal);
+                if (event.target == originModal) closeModal(originModal);
+                if (event.target == collectionModalDesktop) closeModal(collectionModalDesktop);
+                if (event.target == darkWebModal) closeModal(darkWebModal);
+                if (event.target == collectionModalMobile) closeModal(collectionModalMobile);
+                if (event.target == roleChatModalMobile) closeModal(roleChatModalMobile);
+                // RoleChat Desktop Window is managed by the drag/resize logic and should not close on outside click.
             }
             
-            // Easter Egg Logic (Key Sequence 666)
-            const konamiCode = '666';
-            let keySequence = '';
+            if (!isLightweightVersion()) {
+                // DESKTOP VERSION LOGIC
+                
+                // Navigation Links (open iframes/window)
+                aboutBtnDesktop.onclick = () => openModal(aboutModal);
+                originBtnDesktop.onclick = () => openModal(originModal);
+                
+                // Prevent default href for iframes/windows and open modals instead
+                collectionBtnDesktop.onclick = (e) => { 
+                    e.preventDefault(); 
+                    openModal(collectionModalDesktop);
+                };
+                roleChatBtnDesktop.onclick = (e) => { 
+                    e.preventDefault(); 
+                    openModal(roleChatWindowModalDesktop);
+                };
 
-            document.addEventListener('keydown', (e) => {
-                const key = e.key;
+                // Easter Egg Logic (Key Sequence 666) - DESKTOP ONLY
+                const konamiCode = '666';
+                let keySequence = '';
 
-                // Check if the key is a number (to support both number row and numpad)
-                if (key >= '0' && key <= '9') {
-                    keySequence += key;
-                    
-                    // Keep only the last 3 characters
-                    if (keySequence.length > 3) {
-                        keySequence = keySequence.slice(-3);
+                document.addEventListener('keydown', (e) => {
+                    const key = e.key;
+                    if (key >= '0' && key <= '9') {
+                        keySequence += key;
+                        if (keySequence.length > 3) {
+                            keySequence = keySequence.slice(-3);
+                        }
+                        if (keySequence === konamiCode) {
+                            keySequence = ''; 
+                            openModal(darkWebModal);
+                        }
+                    } else {
+                        keySequence = '';
                     }
-                    
-                    // Check for the '666' sequence
-                    if (keySequence === konamiCode) {
-                        // Reset sequence to prevent repeated trigger without user clicking
-                        keySequence = ''; 
-                        openModal(darkWebModal);
-                    }
-                } else {
-                    // Reset sequence if a non-number key is pressed
-                    keySequence = '';
-                }
-            });
+                });
+                
+            } else {
+                // MOBILE LIGHTWEIGHT VERSION LOGIC
+                
+                // Card Buttons (open simple popups)
+                if (mobileAboutBtn) mobileAboutBtn.onclick = () => openModal(aboutModal);
+                if (mobileOriginBtn) mobileOriginBtn.onclick = () => openModal(originModal);
+                if (mobileCollectionBtn) mobileCollectionBtn.onclick = () => openModal(collectionModalMobile);
+                if (mobileRoleChatBtn) mobileRoleChatBtn.onclick = () => openModal(roleChatModalMobile);
+                
+                // Remove desktop-specific elements
+                document.querySelectorAll('.desktop-only').forEach(el => {
+                    el.remove();
+                });
+                
+                // Show mobile-specific card
+                const mobileLinksCard = document.getElementById('mobileLinksCard');
+                if (mobileLinksCard) mobileLinksCard.style.display = 'block';
+
+                // Remove mobile-only-modal class elements too (optional, but ensures only specific modals are used)
+                document.querySelectorAll('.mobile-only-modal').forEach(el => {
+                    // We only remove the classes used for the Desktop links, as the modals themselves are needed.
+                    // Instead of removing, we just make sure they are included in the DOM for mobile.
+                    el.classList.remove('mobile-only-modal'); // Keep the modals, but ensure they are not hidden by desktop-only styles if any.
+                });
+            }
         }
         
-        // Window Modal Logic (Draggable, Resizable, Maximizable)
+        // Window Modal Logic (Draggable, Resizable, Maximizable) - DESKTOP ONLY
         function setupWindowModal(modalId, headerId, resizerId, closeBtnId, maximizeBtnId) {
+            if (isLightweightVersion()) return; // Skip setup in lightweight mode
+            
             const modal = document.getElementById(modalId);
             const content = document.getElementById(modalId.replace('WindowModal', 'ModalContent'));
             const header = document.getElementById(headerId);
@@ -1114,7 +1153,7 @@
 
             let isDragging = false;
             let isResizing = false;
-            let currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+            let initialX, initialY, xOffset = 0, yOffset = 0;
             let initialWidth, initialHeight;
             let isMaximized = false;
             // Set initial position and size
@@ -1230,12 +1269,10 @@
                     resizer.style.display = 'block';
                 } else {
                     // Maximize: Save current position/size before maximizing
-                    // Only store if not centered (meaning it has been dragged)
                     if (content.style.transform === 'none') {
                         storedPosition.left = content.style.left;
                         storedPosition.top = content.style.top;
                     } else {
-                        // If centered, use the current size but fake position
                         storedPosition.left = '50%'; 
                         storedPosition.top = '50%';
                     }
@@ -1255,19 +1292,12 @@
             }
             
             // CLOSE
-            function closeModal(modalToClose) {
-                modalToClose.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-            
             closeBtn.onclick = () => {
                 if (isMaximized) {
-                    // Restore state before closing (for better re-open experience)
                     isMaximized = false;
                     content.style.width = storedPosition.width;
                     content.style.height = storedPosition.height;
                     
-                    // Re-apply center if it was centered when opened
                     if (storedPosition.left === '50%' && storedPosition.top === '50%') {
                         content.style.left = '50%';
                         content.style.top = '50%';
@@ -1281,19 +1311,36 @@
                     maximizeBtn.innerHTML = '<i class="far fa-window-maximize"></i>';
                     resizer.style.display = 'block';
                 }
-                closeModal(modal); // Use the local closeModal function
+                // Close the modal using the local close function
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
             }
         }
 
 
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
-            applyHalloweenTheme(); // Apply theme before loading others
+            // 1. REMOVE NAV IF MOBILE
+            if (isLightweightVersion()) {
+                const navElement = document.getElementById('mainNav');
+                if (navElement) {
+                    navElement.remove();
+                }
+            }
+            
+            // 2. General Initialization
+            applyHalloweenTheme(); 
             loadTheme();
             setCurrentYear();
             createParticles();
+            
+            // 3. Setup Modals (handles both versions)
             setupModals();
-            setupWindowModal('roleChatWindowModal', 'roleChatHeader', 'roleChatResizer', 'roleChatClose', 'roleChatMaximize'); // INITIALIZE WINDOW LOGIC
+            
+            // 4. Setup RoleChat Window (Desktop Only)
+            if (!isLightweightVersion()) {
+                setupWindowModal('roleChatWindowModal', 'roleChatHeader', 'roleChatResizer', 'roleChatClose', 'roleChatMaximize');
+            }
         });
     </script>
 </body>
