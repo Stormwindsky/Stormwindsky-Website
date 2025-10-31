@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enigma M3 Emulator</title>
+    <style>
+        /* CSS is kept minimal and standard */
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .config-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .config-item {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2980b9;
+        }
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            min-height: 50px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .rotor-select-group {
+            display: flex;
+            gap: 5px;
+        }
+        .rotor-select-group select {
+            flex: 1;
+        }
+        .settings {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+            align-items: center;
+            gap: 10px;
+        }
+        #notes-credits {
+            margin-top: 30px;
+            padding: 15px;
+            border-top: 1px solid #ccc;
+            font-size: 0.9em;
+            color: #666;
+        }
+        #notes-credits p {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="settings">
+            <label for="language-select" data-lang-key="language">Language:</label>
+            <select id="language-select" onchange="setLanguage(this.value)">
+                <option value="en" selected>English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+            </select>
+        </div>
+        
+        <h1 id="main-title">Enigma M3 Machine Emulator</h1>
+
+        <div class="config-group">
+            <div class="config-item">
+                <label for="rotors" data-lang-key="rotors_label">Rotors (Left to Right)</label>
+                <div class="rotor-select-group">
+                    <select id="rotor1">
+                        <option value="I">I</option>
+                        <option value="II">II</option>
+                        <option value="III" selected>III</option>
+                        <option value="IV">IV</option>
+                        <option value="V">V</option>
+                    </select>
+                    <select id="rotor2">
+                        <option value="I">I</option>
+                        <option value="II" selected>II</option>
+                        <option value="III">III</option>
+                        <option value="IV">IV</option>
+                        <option value="V">V</option>
+                    </select>
+                    <select id="rotor3">
+                        <option value="I" selected>I</option>
+                        <option value="II">II</option>
+                        <option value="III">III</option>
+                        <option value="IV">IV</option>
+                        <option value="V">V</option>
+                    </select>
+                </div>
+            </div>
+            <div class="config-item">
+                <label for="reflector" data-lang-key="reflector_label">Reflector</label>
+                <select id="reflector">
+                    <option value="B" selected>B</option>
+                    <option value="C">C</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="config-group">
+            <div class="config-item">
+                <label for="positions" data-lang-key="positions_label">Initial Positions (A-Z)</label>
+                <input type="text" id="positions" value="A,A,A" placeholder="Ex: A,B,C">
+            </div>
+            <div class="config-item">
+                <label for="steckerboard" data-lang-key="steckerboard_label">Steckerboard (Pairs)</label>
+                <input type="text" id="steckerboard" value="" placeholder="Ex: AB,CD,EF (max 10 pairs)">
+            </div>
+        </div>
+
+        <label for="input-text" data-lang-key="input_label">Text to Encrypt / Decrypt</label>
+        <textarea id="input-text" rows="5" placeholder="Enter your message here. Only A-Z letters will be processed. Spaces are converted to X."></textarea>
+
+        <button onclick="runEnigma()" id="encrypt-button">Encrypt / Decrypt</button>
+
+        <h2 id="result-title">Result</h2>
+        <div id="output"></div>
+
+        <div id="notes-credits">
+            </div>
+    </div>
+
+    <script>
+        // --- ENGLISH NOTES FOR SCRIPT DEVELOPER ---
+        // 1. The core Enigma logic (Rotor, Enigma class, encrypt methods) remains the same.
+        // 2. Multilingual support is provided via the 'translations' object and the 'setLanguage' function.
+        // 3. English is set as the default language.
+        // 4. Notes & Credits section is dynamically generated and translated.
+
+        // --- CORE ENIGMA LOGIC ---
+
+        const LETTERS_IN_ALPHABET = 26;
+        const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        function Rotor(letters, notch) {
+            this.letters = letters;
+            this.notch = notch;
+        }
+
+        const rotorI = new Rotor('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'R');
+        const rotorII = new Rotor('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'F');
+        const rotorIII = new Rotor('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'W');
+        const rotorIV = new Rotor('ESOVPZJAYQUIRHXONFTGKDCMLW', 'K');
+        const rotorV = new Rotor('VZBRGITYUPSDNHLXAWMJQOFECG', 'A'); // V corrected to 26 letters
+        const reflectorB = new Rotor('YRUHQSLDPXNGOKMIEBFZCWVJAT', '0');
+        const reflectorC = new Rotor('FVPJIAOYEDRZXWNGCTKUQSBMHL', '0');
+
+        const availableRotors = {
+            'I': rotorI, 'II': rotorII, 'III': rotorIII, 'IV': rotorIV, 'V': rotorV
+        };
+        const availableReflectors = {
+            'B': reflectorB, 'C': reflectorC
+        };
+
+        function charToIndex(char) {
+            return char.charCodeAt(0) - 'A'.charCodeAt(0);
+        }
+
+        function indexToChar(index) {
+            return ALPHABET[index];
+        }
+
+        function normalizeMessage(msg) {
+            return msg.toUpperCase().replace(/[^A-Z]/g, '').replace(/ /g, 'X');
+        }
+
+        function parseSteckerboard(steckerInput) {
+            const plugs = {};
+            const pairs = steckerInput.toUpperCase().split(',').filter(p => p.length === 2 && /^[A-Z]{2}$/.test(p));
+            
+            for (const pair of pairs) {
+                const a = pair[0];
+                const b = pair[1];
+                if (plugs[a] || plugs[b] || a === b) continue;
+                plugs[a] = b;
+                plugs[b] = a;
+            }
+            return plugs;
+        }
+
+        function steckerboardEncrypt(letter, plugs) {
+            return plugs[letter] || letter;
+        }
+
+        class Enigma {
+            constructor(rotorIDs, reflectorID, positionsStr, steckerboardStr) {
+                this.rotors = rotorIDs.map(id => ({ rotor: availableRotors[id], id: id }));
+                this.reflector = availableReflectors[reflectorID];
+                this.positions = positionsStr.toUpperCase().split(',').map(c => charToIndex(c[0]));
+                this.steckerboard = parseSteckerboard(steckerboardStr);
+            }
+
+            rotorsMovement() {
+                // Simplified Double Stepping Mechanism based on standard Enigma M3
+                const notch1 = charToIndex(this.rotors[1].rotor.notch);
+                const notch2 = charToIndex(this.rotors[2].rotor.notch);
+                const pos1 = this.positions[1];
+                const pos2 = this.positions[2];
+
+                // Rotor 1 (Left) moves when Rotor 2 (Middle) is on its notch
+                if (pos1 === notch1) {
+                    this.positions[0] = (this.positions[0] + 1) % LETTERS_IN_ALPHABET;
+                }
+                
+                // Rotor 2 (Middle) moves when Rotor 3 (Right) is on its notch OR due to double step from Rotor 2's notch (turnover)
+                if (pos2 === notch2 || pos1 === notch1) {
+                    this.positions[1] = (this.positions[1] + 1) % LETTERS_IN_ALPHABET;
+                }
+
+                // Rotor 3 (Right) always steps
+                this.positions[2] = (this.positions[2] + 1) % LETTERS_IN_ALPHABET;
+            }
+
+
+            encryptLetter(inputLetter) {
+                this.rotorsMovement();
+                let char = inputLetter;
+
+                // 1. Steckerboard (Forward)
+                char = steckerboardEncrypt(char, this.steckerboard);
+                let signal = charToIndex(char);
+
+                // 2. Rotors (Forward: R->M, M->L)
+                for (let i = 2; i >= 0; i--) {
+                    const rotor = this.rotors[i].rotor;
+                    const pos = this.positions[i];
+                    let entryIndex = (signal + pos) % LETTERS_IN_ALPHABET;
+                    let exitIndex = charToIndex(rotor.letters[entryIndex]);
+                    signal = (exitIndex - pos + LETTERS_IN_ALPHABET) % LETTERS_IN_ALPHABET;
+                }
+
+                // 3. Reflector
+                signal = charToIndex(this.reflector.letters[signal]);
+
+                // 4. Rotors (Backward: L->M, M->R)
+                for (let i = 0; i <= 2; i++) {
+                    const rotor = this.rotors[i].rotor;
+                    const pos = this.positions[i];
+                    let indexWithPos = (signal + pos) % LETTERS_IN_ALPHABET;
+                    let inverseEntryIndex = rotor.letters.indexOf(indexToChar(indexWithPos));
+                    signal = (inverseEntryIndex - pos + LETTERS_IN_ALPHABET) % LETTERS_IN_ALPHABET;
+                }
+
+                // Convert to character
+                char = indexToChar(signal);
+
+                // 5. Steckerboard (Backward)
+                char = steckerboardEncrypt(char, this.steckerboard);
+
+                return char;
+            }
+
+            encrypt(message) {
+                let result = '';
+                for (const char of message) {
+                    if (char >= 'A' && char <= 'Z') {
+                        result += this.encryptLetter(char);
+                    }
+                }
+                return result;
+            }
+        }
+
+        // --- MULTILINGUAL SUPPORT ---
+
+        const translations = {
+            // ENGLISH (Default)
+            en: {
+                main_title: "Enigma M3 Machine Emulator",
+                language: "Language:",
+                rotors_label: "Rotors (Left to Right)",
+                reflector_label: "Reflector",
+                positions_label: "Initial Positions (A-Z)",
+                positions_placeholder: "Ex: A,B,C",
+                steckerboard_label: "Steckerboard (Pairs)",
+                steckerboard_placeholder: "Ex: AB,CD,EF (max 10 pairs)",
+                input_label: "Text to Encrypt / Decrypt",
+                input_placeholder: "Enter your message here. Only A-Z letters will be processed. Spaces are converted to X.",
+                encrypt_button: "Encrypt / Decrypt",
+                result_title: "Result",
+                error_positions: "Error: Initial positions must be 3 comma-separated letters (e.g., A,B,C).",
+                error_empty: "Please enter a message containing letters.",
+                error_general: "An error occurred:",
+                notes_credits: `
+                    <h3 style="margin-top:0;">Notes & Credits (MIT License)</h3>
+                    <p>This Enigma M3 emulator is based on the Go project by **mirkoperillo** under the **CC0 Public Domain Dedication** license.</p>
+                    <p>Original Project Source: <a href="https://github.com/mirkoperillo/enigma" target="_blank">https://github.com/mirkoperillo/enigma</a></p>
+                    <p>The web-ported version on this site is distributed under the **MIT License**.</p>
+                    <p>Learn more about the Enigma machine: <a href="https://en.wikipedia.org/wiki/Enigma_machine" target="_blank">Enigma Machine on Wikipedia</a></p>
+                `
+            },
+            // FRANÇAIS
+            fr: {
+                main_title: "Émulateur de Machine Enigma M3",
+                language: "Langue :",
+                rotors_label: "Rotors (De Gauche à Droite)",
+                reflector_label: "Réflecteur",
+                positions_label: "Positions Initiales (A-Z)",
+                positions_placeholder: "Ex : A,B,C",
+                steckerboard_label: "Tableau de Fiches (Paires)",
+                steckerboard_placeholder: "Ex : AB,CD,EF (max 10 paires)",
+                input_label: "Texte à Crypter / Décrypter",
+                input_placeholder: "Entrez votre message ici. Seules les lettres A-Z seront traitées. Les espaces sont convertis en X.",
+                encrypt_button: "Crypter / Décrypter",
+                result_title: "Résultat",
+                error_positions: "Erreur : Les positions initiales doivent être 3 lettres séparées par des virgules (ex : A,B,C).",
+                error_empty: "Veuillez entrer un message contenant des lettres.",
+                error_general: "Une erreur s'est produite :",
+                notes_credits: `
+                    <h3 style="margin-top:0;">Notes et Crédits (Licence MIT)</h3>
+                    <p>Cet émulateur Enigma M3 est basé sur le projet Go de **mirkoperillo** sous la licence **CC0 Public Domain Dedication**.</p>
+                    <p>Source du projet original : <a href="https://github.com/mirkoperillo/enigma" target="_blank">https://github.com/mirkoperillo/enigma</a></p>
+                    <p>La version portée sur le web sur ce site est distribuée sous la **Licence MIT**.</p>
+                    <p>Pour en savoir plus sur la machine Enigma : <a href="https://en.wikipedia.org/wiki/Enigma_machine" target="_blank">La machine Enigma sur Wikipédia</a></p>
+                `
+            },
+            // ESPAÑOL
+            es: {
+                main_title: "Emulador de Máquina Enigma M3",
+                language: "Idioma :",
+                rotors_label: "Rotores (De Izquierda a Derecha)",
+                reflector_label: "Reflector",
+                positions_label: "Posiciones Iniciales (A-Z)",
+                positions_placeholder: "Ej: A,B,C",
+                steckerboard_label: "Steckerboard (Pares)",
+                steckerboard_placeholder: "Ej: AB,CD,EF (máx. 10 pares)",
+                input_label: "Texto a Cifrar / Descifrar",
+                input_placeholder: "Ingrese su mensaje aquí. Solo se procesarán las letras A-Z. Los espacios se convierten a X.",
+                encrypt_button: "Cifrar / Descifrar",
+                result_title: "Resultado",
+                error_positions: "Error: Las posiciones iniciales deben ser 3 letras separadas por comas (ej: A,B,C).",
+                error_empty: "Por favor, introduzca un mensaje que contenga letras.",
+                error_general: "Ha ocurrido un error:",
+                notes_credits: `
+                    <h3 style="margin-top:0;">Notas y Créditos (Licencia MIT)</h3>
+                    <p>Este emulador Enigma M3 se basa en el proyecto Go de **mirkoperillo** bajo la licencia **CC0 Public Domain Dedication**.</p>
+                    <p>Fuente del proyecto original: <a href="https://github.com/mirkoperillo/enigma" target="_blank">https://github.com/mirkoperillo/enigma</a></p>
+                    <p>La versión portada a la web en este sitio se distribuye bajo la **Licencia MIT**.</p>
+                    <p>Más información sobre la máquina Enigma: <a href="https://en.wikipedia.org/wiki/Enigma_machine" target="_blank">Máquina Enigma en Wikipedia</a></p>
+                `
+            },
+            // DEUTSCH
+            de: {
+                main_title: "Enigma M3 Maschinen-Emulator",
+                language: "Sprache:",
+                rotors_label: "Rotoren (von Links nach Rechts)",
+                reflector_label: "Reflektor",
+                positions_label: "Anfangspositionen (A-Z)",
+                positions_placeholder: "Z.B.: A,B,C",
+                steckerboard_label: "Steckerbrett (Paare)",
+                steckerboard_placeholder: "Z.B.: AB,CD,EF (max. 10 Paare)",
+                input_label: "Text zum Ver-/Entschlüsseln",
+                input_placeholder: "Geben Sie Ihre Nachricht hier ein. Es werden nur A-Z Buchstaben verarbeitet. Leerzeichen werden in X umgewandelt.",
+                encrypt_button: "Ver-/Entschlüsseln",
+                result_title: "Ergebnis",
+                error_positions: "Fehler: Die Anfangspositionen müssen 3 durch Kommas getrennte Buchstaben sein (z.B. A,B,C).",
+                error_empty: "Bitte geben Sie eine Nachricht mit Buchstaben ein.",
+                error_general: "Ein Fehler ist aufgetreten:",
+                notes_credits: `
+                    <h3 style="margin-top:0;">Hinweise & Credits (MIT-Lizenz)</h3>
+                    <p>Dieser Enigma M3 Emulator basiert auf dem Go-Projekt von **mirkoperillo** unter der **CC0 Public Domain Dedication** Lizenz.</p>
+                    <p>Original-Projektquelle: <a href="https://github.com/mirkoperillo/enigma" target="_blank">https://github.com/mirkoperillo/enigma</a></p>
+                    <p>Die web-portierte Version auf dieser Seite wird unter der **MIT-Lizenz** vertrieben.</p>
+                    <p>Erfahren Sie mehr über die Enigma-Maschine: <a href="https://en.wikipedia.org/wiki/Enigma_machine" target="_blank">Enigma-Maschine auf Wikipedia</a></p>
+                `
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Function to update all text elements based on the selected language
+        function updateUI(lang) {
+            const t = translations[lang];
+
+            // 1. Update static texts and titles
+            document.getElementById('main-title').innerText = t.main_title;
+            document.getElementById('encrypt-button').innerText = t.encrypt_button;
+            document.getElementById('result-title').innerText = t.result_title;
+            
+            // 2. Update all labels and placeholders
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (t[key]) {
+                    el.innerText = t[key];
+                }
+            });
+
+            // Update placeholders (requires checking specific IDs)
+            document.getElementById('positions').placeholder = t.positions_placeholder;
+            document.getElementById('steckerboard').placeholder = t.steckerboard_placeholder;
+            document.getElementById('input-text').placeholder = t.input_placeholder;
+            
+            // 3. Update Notes & Credits
+            document.getElementById('notes-credits').innerHTML = t.notes_credits;
+
+            // 4. Update error messages in runEnigma (will use the current language stored in `currentLang`)
+            currentLang = lang;
+            
+            // 5. Update HTML lang attribute
+            document.documentElement.lang = lang;
+        }
+
+        // Language selection handler
+        function setLanguage(lang) {
+            if (translations[lang]) {
+                updateUI(lang);
+            }
+        }
+
+        function runEnigma() {
+            try {
+                const t = translations[currentLang]; // Use current language for messages
+                const rotorIDs = [
+                    document.getElementById('rotor1').value,
+                    document.getElementById('rotor2').value,
+                    document.getElementById('rotor3').value
+                ];
+                const reflectorID = document.getElementById('reflector').value;
+                const positionsStr = document.getElementById('positions').value.toUpperCase().replace(/[^A-Z,]/g, '');
+                const steckerboardStr = document.getElementById('steckerboard').value.toUpperCase().replace(/[^A-Z,]/g, '');
+                const inputText = document.getElementById('input-text').value;
+
+                if (positionsStr.split(',').length !== 3 || positionsStr.match(/[A-Z]/g).length !== 3) {
+                    document.getElementById('output').innerHTML = t.error_positions;
+                    return;
+                }
+
+                const normalizedMessage = normalizeMessage(inputText);
+                
+                if (normalizedMessage.length === 0) {
+                     document.getElementById('output').innerHTML = t.error_empty;
+                     return;
+                }
+
+                const enigma = new Enigma(rotorIDs, reflectorID, positionsStr, steckerboardStr);
+                const encryptedMessage = enigma.encrypt(normalizedMessage);
+
+                document.getElementById('output').innerText = encryptedMessage;
+            } catch (e) {
+                document.getElementById('output').innerHTML = `${translations[currentLang].error_general} ${e.message}`;
+                console.error(e);
+            }
+        }
+
+        // Set default language (English) on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI('en');
+        });
+    </script>
+</body>
+</html>
