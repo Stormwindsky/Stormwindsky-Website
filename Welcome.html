@@ -540,6 +540,39 @@
             padding: 1.5rem; 
         }
         /* ========================================= */
+        
+        /* --- RoleChat Modal specific styles --- */
+        #roleChatWindowModal {
+            /* Full screen backdrop, but the modal-content is the "window" */
+            align-items: flex-start; /* Start at top left */
+            justify-content: flex-start;
+        }
+
+        #roleChatWindowModal .modal-content {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(0,0,0,0.1);
+            /* Remove default modal animations/transformations */
+            animation: none; 
+            /* Initial position for the desktop-like window (handled by JS for better control) */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+        }
+
+        body.dark-mode #roleChatWindowModal .modal-content {
+            background-color: #16213e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode #roleChatHeader {
+            background-color: #0f3460;
+        }
+
+        body.halloween-theme #roleChatHeader {
+            background: var(--halloween-gradient);
+        }
+        /* === End RoleChat Modal specific styles === */
 
         @keyframes modalOpen {
             to {
@@ -739,6 +772,9 @@
             <a id="collectionLink">
                 <i class="fas fa-folder"></i> Collection
             </a>
+            <a id="roleChatLink">
+                <i class="fas fa-comments"></i> RoleChat
+            </a>
             <a href="https://www.roblox.com/games/12983740104/" target="_blank">
                 <i class="fas fa-heart"></i> Donate on Roblox
             </a>
@@ -812,6 +848,27 @@
                 allowfullscreen>
             </iframe>
             <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;">(Disclaimer: This is just a fun Halloween/Troll Easter Egg, the video is safe and the 'Dark Web' warning is fake!)</p>
+        </div>
+    </div>
+    
+    <div id="roleChatWindowModal" class="modal" style="display: none;">
+        <div class="modal-content" id="roleChatModalContent" style="width: 600px; height: 400px; min-width: 300px; min-height: 200px; padding: 0; overflow: hidden; transform: none; opacity: 1; border-radius: 10px; position: absolute;">
+            
+            <div id="roleChatHeader" style="cursor: move; background-color: var(--nav-bg); color: var(--text-light); padding: 8px 15px; border-top-left-radius: 10px; border-top-right-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                <span style="font-weight: 600; font-size: 1rem;"><i class="fas fa-comments"></i> RoleChat</span>
+                <div>
+                    <button id="roleChatMaximize" style="background: none; border: none; color: var(--text-light); font-size: 1.2rem; margin-right: 10px; cursor: pointer;">
+                        <i class="far fa-window-maximize"></i>
+                    </button>
+                    <button id="roleChatClose" style="background: none; border: none; color: var(--text-light); font-size: 1.2rem; cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <iframe src="https://stormwindsky.github.io/RoleChat/" class="rolechat-iframe" title="RoleChat Application" style="width: 100%; height: calc(100% - 40px); border: none; display: block;"></iframe>
+
+            <div id="roleChatResizer" style="position: absolute; width: 15px; height: 15px; right: 0; bottom: 0; cursor: nwse-resize; background-color: rgba(255, 255, 255, 0.3); border-bottom-right-radius: 10px;"></div>
         </div>
     </div>
     
@@ -960,11 +1017,13 @@
             const originModal = document.getElementById('originModal');
             const collectionModal = document.getElementById('collectionModal');
             const darkWebModal = document.getElementById('darkWebModal');
+            const roleChatWindowModal = document.getElementById('roleChatWindowModal'); // NEW
 
             // Button elements
             const aboutBtn = document.getElementById('aboutLink');
             const originBtn = document.getElementById('originLink');
             const collectionBtn = document.getElementById('collectionLink');
+            const roleChatBtn = document.getElementById('roleChatLink'); // NEW
             
             // Close buttons (common class)
             const closeButtons = document.querySelectorAll('.close-modal');
@@ -985,6 +1044,7 @@
             aboutBtn.onclick = () => openModal(aboutModal);
             originBtn.onclick = () => openModal(originModal);
             collectionBtn.onclick = () => openModal(collectionModal);
+            roleChatBtn.onclick = () => openModal(roleChatWindowModal); // NEW
             
             // Close Modals: One listener to close all (safe approach when only one is open)
             closeButtons.forEach(button => {
@@ -993,6 +1053,7 @@
                     closeModal(originModal);
                     closeModal(collectionModal);
                     closeModal(darkWebModal);
+                    closeModal(roleChatWindowModal); // NEW
                 }
             });
 
@@ -1010,6 +1071,7 @@
                 if (event.target == darkWebModal) {
                     closeModal(darkWebModal);
                 }
+                // We will NOT close the RoleChat window when clicking outside, it acts like a desktop app.
             }
             
             // Easter Egg Logic (Key Sequence 666)
@@ -1039,9 +1101,190 @@
                     keySequence = '';
                 }
             });
-            
-            // Removed redundant specific closeDarkWebModalBtn listener
         }
+        
+        // Window Modal Logic (Draggable, Resizable, Maximizable)
+        function setupWindowModal(modalId, headerId, resizerId, closeBtnId, maximizeBtnId) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(modalId.replace('WindowModal', 'ModalContent'));
+            const header = document.getElementById(headerId);
+            const resizer = document.getElementById(resizerId);
+            const closeBtn = document.getElementById(closeBtnId);
+            const maximizeBtn = document.getElementById(maximizeBtnId);
+
+            let isDragging = false;
+            let isResizing = false;
+            let currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+            let initialWidth, initialHeight;
+            let isMaximized = false;
+            // Set initial position and size
+            let storedPosition = { 
+                top: '50%', 
+                left: '50%', 
+                width: content.style.width || '600px', 
+                height: content.style.height || '400px' 
+            };
+
+            // Set initial position and size for the window
+            content.style.position = 'absolute';
+            content.style.left = storedPosition.left;
+            content.style.top = storedPosition.top;
+            content.style.width = storedPosition.width;
+            content.style.height = storedPosition.height;
+            content.style.transform = 'translate(-50%, -50%)'; // Center it initially
+
+            // DRAGGING
+            header.addEventListener('mousedown', dragStart);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('mousemove', drag);
+
+            function dragStart(e) {
+                if (isMaximized) return; // Prevent dragging when maximized
+                
+                initialX = e.clientX;
+                initialY = e.clientY;
+
+                if (e.target === header || header.contains(e.target)) {
+                    // Calculate offsets based on current position relative to top/left (not transformed)
+                    const rect = content.getBoundingClientRect();
+                    xOffset = e.clientX - rect.left;
+                    yOffset = e.clientY - rect.top;
+                    
+                    isDragging = true;
+                    content.style.transition = 'none'; // Disable transition during drag
+                    content.style.transform = 'none'; // Remove centering transform for absolute positioning
+                    content.style.zIndex = 2001; // Bring to front
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    
+                    content.style.left = (e.clientX - xOffset) + 'px';
+                    content.style.top = (e.clientY - yOffset) + 'px';
+                }
+            }
+
+            function dragEnd() {
+                isDragging = false;
+                content.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'; // Re-enable transition
+                
+                // Store the final position (important for maximize/restore)
+                storedPosition.left = content.style.left;
+                storedPosition.top = content.style.top;
+                content.style.zIndex = ''; // Reset z-index
+            }
+
+            // RESIZING
+            resizer.addEventListener('mousedown', resizeStart);
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', resizeEnd);
+
+            function resizeStart(e) {
+                if (isMaximized) return; // Prevent resizing when maximized
+
+                isResizing = true;
+                initialX = e.clientX;
+                initialY = e.clientY;
+                initialWidth = content.offsetWidth;
+                initialHeight = content.offsetHeight;
+                content.style.transition = 'none'; // Disable transition during resize
+                content.style.zIndex = 2001; // Bring to front
+            }
+
+            function resize(e) {
+                if (!isResizing) return;
+                
+                const dx = e.clientX - initialX;
+                const dy = e.clientY - initialY;
+                
+                // Calculate new width and height, respecting min values
+                const newWidth = Math.max(initialWidth + dx, 300); // 300px min-width
+                const newHeight = Math.max(initialHeight + dy, 200); // 200px min-height
+
+                content.style.width = newWidth + 'px';
+                content.style.height = newHeight + 'px';
+            }
+
+            function resizeEnd() {
+                isResizing = false;
+                content.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'; // Re-enable transition
+                
+                // Store the final size
+                storedPosition.width = content.style.width;
+                storedPosition.height = content.style.height;
+                content.style.zIndex = ''; // Reset z-index
+            }
+            
+            // MAXIMIZE / RESTORE
+            maximizeBtn.onclick = function() {
+                if (isMaximized) {
+                    // Restore
+                    content.style.width = storedPosition.width;
+                    content.style.height = storedPosition.height;
+                    content.style.left = storedPosition.left;
+                    content.style.top = storedPosition.top;
+                    content.style.transform = 'none';
+                    maximizeBtn.innerHTML = '<i class="far fa-window-maximize"></i>';
+                    resizer.style.display = 'block';
+                } else {
+                    // Maximize: Save current position/size before maximizing
+                    // Only store if not centered (meaning it has been dragged)
+                    if (content.style.transform === 'none') {
+                        storedPosition.left = content.style.left;
+                        storedPosition.top = content.style.top;
+                    } else {
+                        // If centered, use the current size but fake position
+                        storedPosition.left = '50%'; 
+                        storedPosition.top = '50%';
+                    }
+                    storedPosition.width = content.style.width;
+                    storedPosition.height = content.style.height;
+
+                    // Apply maximized state
+                    content.style.width = '100vw';
+                    content.style.height = '100vh';
+                    content.style.left = '0';
+                    content.style.top = '0';
+                    content.style.transform = 'none';
+                    maximizeBtn.innerHTML = '<i class="far fa-window-restore"></i>';
+                    resizer.style.display = 'none';
+                }
+                isMaximized = !isMaximized;
+            }
+            
+            // CLOSE
+            function closeModal(modalToClose) {
+                modalToClose.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            
+            closeBtn.onclick = () => {
+                if (isMaximized) {
+                    // Restore state before closing (for better re-open experience)
+                    isMaximized = false;
+                    content.style.width = storedPosition.width;
+                    content.style.height = storedPosition.height;
+                    
+                    // Re-apply center if it was centered when opened
+                    if (storedPosition.left === '50%' && storedPosition.top === '50%') {
+                        content.style.left = '50%';
+                        content.style.top = '50%';
+                        content.style.transform = 'translate(-50%, -50%)'; 
+                    } else {
+                        content.style.left = storedPosition.left;
+                        content.style.top = storedPosition.top;
+                        content.style.transform = 'none';
+                    }
+                    
+                    maximizeBtn.innerHTML = '<i class="far fa-window-maximize"></i>';
+                    resizer.style.display = 'block';
+                }
+                closeModal(modal); // Use the local closeModal function
+            }
+        }
+
 
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
@@ -1050,6 +1293,7 @@
             setCurrentYear();
             createParticles();
             setupModals();
+            setupWindowModal('roleChatWindowModal', 'roleChatHeader', 'roleChatResizer', 'roleChatClose', 'roleChatMaximize'); // INITIALIZE WINDOW LOGIC
         });
     </script>
 </body>
