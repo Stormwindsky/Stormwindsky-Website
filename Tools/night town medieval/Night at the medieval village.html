@@ -1,1 +1,326 @@
-coming soon :)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medieval Night Village Ambience</title>
+    <style>
+        :root {
+            /* Variables for night effect */
+            --night-overlay-color: rgba(0, 10, 30, 0.7); /* Dark blue overlay */
+            --night-filter: brightness(0.6) contrast(1.1) sepia(0.2) hue-rotate(220deg);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden; /* Hide scrollbars, as the content is just the ambience */
+            font-family: 'Times New Roman', Times, serif;
+            color: #ccc;
+            background-color: #000;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Background Image with Night Effect */
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-website-the-part-under-license-CC-BY-4.0/main/Images/David%20Revoy/night%20town%20medieval/town%20night.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: var(--night-filter);
+            transition: filter 2s ease-in-out;
+        }
+
+        /* Dark Overlay for more 'night' feeling */
+        .night-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--night-overlay-color);
+        }
+
+        /* Firefly (luciole) effect container */
+        .firefly-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allows clicks to pass through */
+        }
+
+        /* Firefly animation style */
+        .firefly {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 150, 0.8); /* Faint yellow light */
+            border-radius: 50%;
+            box-shadow: 0 0 5px 2px rgba(255, 255, 150, 0.9);
+            opacity: 0;
+            animation: move-firefly 10s infinite alternate, glow-firefly 1.5s infinite alternate;
+        }
+
+        /* Keyframes for firefly movement and glow */
+        @keyframes move-firefly {
+            0% { transform: translate(0, 0) scale(1); opacity: 0; }
+            50% { transform: translate(var(--dx), var(--dy)) scale(1.5); opacity: 0.7; }
+            100% { transform: translate(var(--dx2), var(--dy2)) scale(1); opacity: 0; }
+        }
+
+        @keyframes glow-firefly {
+            0% { box-shadow: 0 0 5px 2px rgba(255, 255, 150, 0.9); }
+            100% { box-shadow: 0 0 8px 4px rgba(255, 255, 100, 1); }
+        }
+
+        /* Content area for the button */
+        .content {
+            position: relative;
+            z-index: 10; /* Above the background and overlay */
+            padding: 20px;
+        }
+
+        /* Notes & Credits Button and Modal */
+        #credits-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: rgba(50, 50, 50, 0.7);
+            color: white;
+            border: 1px solid #777;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 20;
+            transition: background-color 0.3s;
+        }
+
+        #credits-button:hover {
+            background-color: rgba(80, 80, 80, 0.9);
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 30;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: #222;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .credits-section h3 {
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+            color: #eee;
+        }
+
+        .credits-item p {
+            margin: 5px 0;
+        }
+
+        .cc-by-note {
+            background-color: #333;
+            padding: 10px;
+            border-left: 5px solid gold;
+            margin-top: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="ambience-audio" loop autoplay>
+        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/Deep%20wind%20night%20ambience%20in%20village.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <audio id="random-audio-1">
+        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/Howling.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <audio id="random-audio-2">
+        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/owlsfx.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="background-image"></div>
+    <div class="night-overlay"></div>
+    <div class="firefly-container" id="firefly-container"></div>
+
+    <div class="content">
+        </div>
+
+    <button id="credits-button">Notes & Credits</button>
+
+    <div id="credits-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Notes & Credits</h2>
+
+            <div class="credits-section">
+                <h3>Background Image - Licensed under CC BY 4.0</h3>
+                <div class="credits-item">
+                    <p><strong>Title:</strong> Starry night</p>
+                    <p><strong>Artist:</strong> David Revoy</p>
+                    <p><strong>License:</strong> Creative Commons Attribution 4.0 (CC BY 4.0)</p>
+                    <p><strong>Source:</strong> <a href="https://www.davidrevoy.com/article725/starry-night" target="_blank" style="color: lightblue;">https://www.davidrevoy.com/article725/starry-night</a></p>
+                    <div class="cc-by-note">
+                        This original artwork, titled "A Dreamer's Lake," was created by David Revoy and is available under the CC BY 4.0 license. (Note: The provided source URL links to an image named "Starry night", but the accompanying text mentions "A Dreamer's Lake". The attribution is kept as provided.)
+                    </div>
+                </div>
+            </div>
+
+            <div class="credits-section">
+                <h3>Sound Effects - Licensed under Creative Commons 0 (CC0)</h3>
+                <p>The following sound effects were sourced from Freesound and are licensed under Creative Commons 0 (CC0), which allows for copying, modification, distribution, and performance of the work, even for commercial purposes, without asking permission from the author.</p>
+
+                <hr style="border-color: #444;">
+
+                <div class="credits-item">
+                    <p><strong>Sound:</strong> Deep wind night ambience in village</p>
+                    <p><strong>Credit/Username:</strong> eniru</p>
+                    <p><strong>Source URL:</strong> <a href="https://freesound.org/people/eniru/sounds/640219/" target="_blank" style="color: lightblue;">https://freesound.org/people/eniru/sounds/640219/</a></p>
+                </div>
+
+                <hr style="border-color: #444;">
+
+                <div class="credits-item">
+                    <p><strong>Sound:</strong> Wolf howl</p>
+                    <p><strong>Credit/Username:</strong> NaturesTemper</p>
+                    <p><strong>Source URL:</strong> <a href="https://freesound.org/people/NaturesTemper/sounds/398430/" target="_blank" style="color: lightblue;">https://freesound.org/people/NaturesTemper/sounds/398430/</a></p>
+                </div>
+
+                <hr style="border-color: #444;">
+
+                <div class="credits-item">
+                    <p><strong>Sound:</strong> Tawny owl hooting</p>
+                    <p><strong>Credit/Username:</strong> Patrick Corrà (Freesound Username: Patrick_Corra)</p>
+                    <p><strong>Source URL:</strong> <a href="https://freesound.org/people/Patrick_Corra/sounds/745208/" target="_blank" style="color: lightblue;">https://freesound.org/people/Patrick_Corra/sounds/745208/</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Audio Control ---
+            const randomSounds = [
+                document.getElementById('random-audio-1'), // Howling
+                document.getElementById('random-audio-2')  // Owls
+            ];
+
+            // NOTE: Autoplay of the ambience sound might be blocked by some browsers.
+            // A user interaction (like a click) might be required to start it.
+            // The 'autoplay' attribute is still included in the <audio> tag.
+
+            function playRandomSound() {
+                // Select a random sound from the array
+                const randomIndex = Math.floor(Math.random() * randomSounds.length);
+                const sound = randomSounds[randomIndex];
+
+                // Play the sound. A check ensures it's not already playing or paused mid-playback.
+                if (sound.paused || sound.ended) {
+                    sound.currentTime = 0; // Rewind to the start
+                    sound.play().catch(error => {
+                        console.log("Audio play failed (user interaction might be needed):", error);
+                    });
+                }
+
+                // Calculate the next interval (e.g., between 60 and 180 seconds)
+                const minDelay = 60000; // 60 seconds
+                const maxDelay = 180000; // 180 seconds
+                const randomDelay = Math.random() * (maxDelay - minDelay) + minDelay;
+
+                // Schedule the next random sound
+                setTimeout(playRandomSound, randomDelay);
+            }
+
+            // Start the random sound loop after a short initial delay
+            setTimeout(playRandomSound, 10000); // Start after 10 seconds
+
+
+            // --- Firefly Effect (Lucioles) ---
+            const fireflyContainer = document.getElementById('firefly-container');
+            const numberOfFireflies = 30;
+
+            for (let i = 0; i < numberOfFireflies; i++) {
+                const firefly = document.createElement('div');
+                firefly.className = 'firefly';
+
+                // Initial random position
+                firefly.style.left = `${Math.random() * 100}vw`;
+                firefly.style.top = `${Math.random() * 100}vh`;
+
+                // Set random animation properties (duration, delay, and movement variables)
+                firefly.style.animationDuration = `${10 + Math.random() * 10}s`; // 10s to 20s
+                firefly.style.animationDelay = `${Math.random() * 10}s`; // 0s to 10s delay
+
+                // CSS Variables for movement (defined in style block)
+                firefly.style.setProperty('--dx', `${Math.random() * 200 - 100}px`); // -100px to 100px
+                firefly.style.setProperty('--dy', `${Math.random() * 200 - 100}px`); // -100px to 100px
+                firefly.style.setProperty('--dx2', `${Math.random() * 200 - 100}px`);
+                firefly.style.setProperty('--dy2', `${Math.random() * 200 - 100}px`);
+
+                fireflyContainer.appendChild(firefly);
+            }
+
+            // --- Notes & Credits Modal ---
+            const modal = document.getElementById("credits-modal");
+            const btn = document.getElementById("credits-button");
+            const span = document.getElementsByClassName("close-button")[0];
+
+            // Open modal when button is clicked
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            // Close modal when (x) is clicked
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            // Close modal when user clicks anywhere outside of it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
