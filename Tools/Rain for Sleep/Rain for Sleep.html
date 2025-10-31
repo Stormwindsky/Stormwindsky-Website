@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rain for Sleep</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide scrollbar caused by the rain effect */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Rain Effect Container */
+        .rain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* Simple, subtle rain effect using a linear gradient */
+            background-image: linear-gradient(
+                to bottom,
+                rgba(173, 216, 230, 0.1) 1px,
+                transparent 1px
+            );
+            background-size: 100% 50px;
+            animation: rain-fall 0.3s linear infinite;
+        }
+
+        @keyframes rain-fall {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 0 50px;
+            }
+        }
+
+        /* Controls Section Styling */
+        .controls {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        /* Volume Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            background: #555;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        input[type=range]:hover {
+            opacity: 1;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+        }
+
+        /* Toggle Switch Styling */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        /* Credits Section */
+        .credits {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            max-width: 90%;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            font-size: 0.8em;
+            text-align: left;
+            opacity: 0.8;
+            z-index: 10;
+        }
+
+        .credits h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .credits a {
+            color: lightskyblue;
+        }
+
+        /* Hide audio players */
+        audio {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="rainAudio" src="https://opengameart.org/sites/default/files/audio_preview/1_7.mp3.ogg" loop preload="auto"></audio>
+    <audio id="thunderAudio" src="https://github.com/Stormwindsky/Stormwindsky-website-the-part-under-license-by-sa-4.0/raw/main/sfx/Thunder/Thunder.wav" loop preload="auto"></audio>
+
+    <div class="rain-container"></div>
+
+    <h1>Rain for Sleep</h1>
+
+    <div class="controls">
+        <p>Click or tap anywhere to start the main rain sound.</p>
+        
+        <div class="control-group">
+            <label for="rainVolume" class="control-label">Rain Volume</label>
+            <input type="range" id="rainVolume" min="0" max="1" step="0.01" value="0.7">
+        </div>
+
+        <div class="control-group">
+            <label for="thunderToggle" class="control-label">
+                Thunder Sounds 
+                <div class="switch">
+                    <input type="checkbox" id="thunderToggle">
+                    <span class="slider"></span>
+                </div>
+            </label>
+            <input type="range" id="thunderVolume" min="0" max="1" step="0.01" value="0.5" disabled>
+        </div>
+    </div>
+
+    <div class="credits">
+        <h3>AUDIO NOTES AND CREDITS</h3>
+
+        <h4>Rain Audio (Loopable)</h4>
+        <p>
+            **License:** CC0 - Public Domain.<br>
+            **Creator:** Ylmir (<a href="https://opengameart.org/users/ylmir" target="_blank">opengameart.org/users/ylmir</a>).<br>
+            **Source:** <a href="https://opengameart.org/content/rain-loopable" target="_blank">opengameart.org/content/rain-loopable</a>
+        </p>
+
+        <h4>Thunder Audio (Extract)</h4>
+        <p>
+            **Original Creator:** Wikimedia user: Спасимир.<br>
+            **License:** Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
+            **Details:** <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank">CC BY-SA 4.0</a><br>
+            **Source of Original Material:** Modified version of an extract from a video file (<a href="https://commons.wikimedia.org/wiki/File:Thunder_in_Sofia,_07.06.2017.webm" target="_blank">Source on Wikimedia Commons</a>).
+        </p>
+    </div>
+
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const rainAudio = document.getElementById('rainAudio');
+            const thunderAudio = document.getElementById('thunderAudio');
+            
+            const rainVolumeSlider = document.getElementById('rainVolume');
+            const thunderToggle = document.getElementById('thunderToggle');
+            const thunderVolumeSlider = document.getElementById('thunderVolume');
+            
+            // --- 1. Initial Volume Setup ---
+            // Set initial volume based on slider values (0.7 for rain, 0.5 for thunder)
+            rainAudio.volume = parseFloat(rainVolumeSlider.value);
+            thunderAudio.volume = parseFloat(thunderVolumeSlider.value);
+
+
+            // --- 2. Autoplay Handler (Required by most browsers) ---
+            function startRainSound() {
+                const playPromise = rainAudio.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log("Rain sound playing.");
+                    }).catch(error => {
+                        console.log("Autoplay blocked. Retrying on interaction...");
+                    });
+                }
+                // Remove listeners after the first interaction attempt
+                document.body.removeEventListener('click', startRainSound);
+                document.body.removeEventListener('keydown', startRainSound);
+            }
+            // Attach a listener to start the audio on the first detected user action
+            document.body.addEventListener('click', startRainSound, { once: true });
+            document.body.addEventListener('keydown', startRainSound, { once: true });
+
+
+            // --- 3. Volume Slider Handlers ---
+            
+            // Rain Volume
+            rainVolumeSlider.addEventListener('input', (event) => {
+                rainAudio.volume = parseFloat(event.target.value);
+            });
+
+            // Thunder Volume
+            thunderVolumeSlider.addEventListener('input', (event) => {
+                thunderAudio.volume = parseFloat(event.target.value);
+            });
+
+
+            // --- 4. Thunder Toggle Handler ---
+            thunderToggle.addEventListener('change', (event) => {
+                const isChecked = event.target.checked;
+                
+                // Toggle Thunder Audio Playback
+                if (isChecked) {
+                    thunderAudio.play().catch(e => {
+                        console.error("Error playing thunder audio:", e);
+                    });
+                    console.log("Thunder sound ON.");
+                    
+                } else {
+                    thunderAudio.pause();
+                    thunderAudio.currentTime = 0; // Reset for next play
+                    console.log("Thunder sound OFF.");
+                }
+
+                // Toggle Thunder Volume Slider availability
+                thunderVolumeSlider.disabled = !isChecked;
+                // If turning off, set the slider opacity low; if turning on, let CSS handle it.
+                thunderVolumeSlider.style.opacity = isChecked ? '1' : '0.5';
+            });
+            
+            // Initially set thunder volume slider to disabled and low opacity
+            thunderVolumeSlider.disabled = true;
+            thunderVolumeSlider.style.opacity = '0.5';
+
+        });
+
+    </script>
+</body>
+</html>
