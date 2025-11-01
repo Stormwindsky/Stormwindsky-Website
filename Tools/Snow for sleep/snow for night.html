@@ -1,1 +1,304 @@
-Coming soon ^^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow for Sleep</title>
+    <style>
+        /* CSS intégré */
+        :root {
+            --image-url: url('https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/refs/heads/main/Tools/Snow%20for%20sleep/Snow.jpg');
+            --snow-color: rgba(255, 255, 255, 0.8);
+            --volume-range-color: #007bff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            position: relative;
+            background-image: var(--image-url);
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Effet d'assombrissement (nuit) */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Opacité pour assombrir */
+            z-index: 1;
+        }
+
+        /* Conteneur principal et réglages */
+        .main-container {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px black;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        #volume-range {
+            width: 80%;
+            max-width: 300px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        #volume-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--volume-range-color);
+            cursor: pointer;
+        }
+
+        #volume-range::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--volume-range-color);
+            cursor: pointer;
+        }
+
+        .credits-button {
+            padding: 10px 20px;
+            background-color: var(--volume-range-color);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .credits-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Particules de neige (CSS pour l'animation) */
+        .snowflake {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: var(--snow-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        /* Notes et Crédits (fenêtre modale) */
+        .modal {
+            display: none; /* Caché par défaut */
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding-top: 50px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            color: black;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <audio id="snow-audio" loop>
+        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/Snow%20for%20sleep/whiter.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="main-container">
+        <h1>Winter Storm Ambience</h1>
+        <p>A relaxing winter scene for sleep.</p>
+
+        <div class="controls">
+            <label for="volume-range">Volume Control</label>
+            <input type="range" id="volume-range" min="0" max="1" step="0.01" value="0.5">
+        </div>
+
+        <button class="credits-button" onclick="openModal()">Notes & Credits</button>
+    </div>
+
+    <div id="credits-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2>Notes & Credits</h2>
+
+            <h3>I. Visual Artwork</h3>
+            <p><strong>Artwork Title:</strong> Snow on the Sumida River (Sumida), from the series, Snow, Moon, and Flowers (Setsugekka)<br>
+            <strong>Artist:</strong> Katsushika Hokusai (Japanese, 1760–1849)<br>
+            <strong>Status:</strong> Public Domain (CC0)<br>
+            <strong>Source of Download:</strong> <a href="https://commons.wikimedia.org/wiki/File:%E9%9B%AA%E6%9C%88%E8%8A%B1_%E9%9A%85%E7%94%B0-Snow_on_the_Sumida_River_(Sumida),_from_the_series,_Snow,_Moon,_and_Flowers_(Setsugekka)_MET_DP141240.jpg#/media/File:%E9%9B%AA%E6%9C%88%E8%8A%B1_%E9%9A%85%E7%94%B0-Snow_on_the_Sumida_River_(Sumida),_from_the_series,_Snow,_Moon,_and_Flowers_(Setsugekka)_MET_DP141240.jpg/2" target="_blank">Wikimedia Commons</a><br>
+            <strong>Credit (Recommended):</strong> Katsushika Hokusai, Snow on the Sumida River (Sumida), from the series, Snow, Moon, and Flowers (Setsugekka). Public Domain (CC0).</p>
+
+            <h3>II. Audio Source</h3>
+            <p><strong>Sound Title:</strong> Howling winter storm ambient sounds<br>
+            <strong>Artist:</strong> DBlover<br>
+            <strong>Status:</strong> Public Domain (CC0)<br>
+            <strong>Source of Download:</strong> <a href="https://freesound.org/people/DBlover/sounds/505999/" target="_blank">Freesound</a><br>
+            <strong>Credit (Recommended):</strong> Howling winter storm ambient sounds (505999) by DBlover, licensed under Creative Commons Zero (CC0) on Freesound.</p>
+
+            <h3>III. License Summary: CC0 1.0 Universal Public Domain Dedication</h3>
+            <p>Both the visual artwork reproduction and the sound file are dedicated to the public domain under the CC0 license. This means you are free to: Copy, modify, distribute, and perform the work, even for commercial purposes, all without asking permission.</p>
+
+            <h3>IV. Webpage License</h3>
+            <p>The **Webpage Code** is licensed under the **MIT License**.</p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript intégré
+
+        const audio = document.getElementById('snow-audio');
+        const volumeRange = document.getElementById('volume-range');
+        const modal = document.getElementById('credits-modal');
+
+        // 1. Contrôle du volume
+        volumeRange.addEventListener('input', () => {
+            audio.volume = volumeRange.value;
+        });
+
+        // Régler le volume initial
+        audio.volume = volumeRange.value;
+
+        // Tenter de jouer l'audio après une interaction de l'utilisateur (requis par les navigateurs)
+        document.addEventListener('click', function attemptPlay() {
+            audio.play().catch(error => {
+                console.log("Audio play failed, waiting for user interaction:", error);
+            });
+            // Supprimer l'écouteur après la première tentative pour éviter les tentatives multiples
+            document.removeEventListener('click', attemptPlay);
+        });
+
+        // 2. Particules de neige
+        const body = document.body;
+        const numberOfSnowflakes = 100; // Tempête forte
+
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+
+            // Positionnement aléatoire en X
+            const startX = Math.random() * 100;
+            snowflake.style.left = `${startX}vw`;
+
+            // Taille et opacité aléatoires
+            const size = Math.random() * 5 + 3; // entre 3px et 8px
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            snowflake.style.opacity = Math.random();
+
+            // Vitesse de chute et vent (durée d'animation)
+            const duration = Math.random() * 10 + 5; // entre 5s et 15s
+            snowflake.style.animation = `fall ${duration}s linear infinite`;
+            
+            // Délai de démarrage aléatoire
+            const delay = Math.random() * -duration;
+            snowflake.style.animationDelay = `${delay}s`;
+
+            // Animation de vent (légère oscillation horizontale)
+            const windStrength = Math.random() * 10 - 5; // entre -5px et 5px d'oscillation
+            snowflake.style.transform = `translateX(${windStrength}px)`;
+
+
+            body.appendChild(snowflake);
+
+            // Retirer le flocon de neige après une certaine durée pour la gestion de la mémoire (même s'il est infini, c'est une bonne pratique si l'animation était finie)
+            /*
+            setTimeout(() => {
+                snowflake.remove();
+            }, duration * 1000);
+            */
+        }
+
+        // Générer les flocons de neige
+        for (let i = 0; i < numberOfSnowflakes; i++) {
+            createSnowflake();
+        }
+
+        // 3. Fenêtre modale des Crédits
+        function openModal() {
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Fermer la modale si l'utilisateur clique en dehors de la fenêtre
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
