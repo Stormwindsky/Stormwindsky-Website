@@ -623,11 +623,11 @@
             min-height: 40vh; /* Ensure space for loading spinner */
         }
         
-        #files-container, #audios-container {
+        #files-container, #audios-container, #soundfonts-container, #videos-container {
             display: none; 
         }
         
-        #files-container.active, #audios-container.active {
+        #files-container.active, #audios-container.active, #soundfonts-container.active, #videos-container.active {
             display: block;
         }
         
@@ -639,9 +639,9 @@
             box-shadow: var(--box-shadow);
         }
         
-        .search-result-card audio {
+        .search-result-card audio, .search-result-card video {
             width: 100%;
-            max-width: 400px; /* Constrain audio player width */
+            max-width: 400px; /* Constrain audio/video player width */
             display: block;
             margin: 10px 0;
         }
@@ -1027,6 +1027,12 @@
                     <div id="mode-audios" class="search-mode-tab" data-mode="audios"> 
                         <i class="fas fa-music"></i> CC0 Audios
                     </div>
+                    <div id="mode-soundfonts" class="search-mode-tab" data-mode="soundfonts"> 
+                        <i class="fas fa-keyboard"></i> CC0 SoundFonts
+                    </div>
+                    <div id="mode-videos" class="search-mode-tab" data-mode="videos"> 
+                        <i class="fas fa-video"></i> CC0 Videos
+                    </div>
                 </div>
 
                 <div id="category-filters-container" class="category-filters-container active">
@@ -1056,6 +1062,10 @@
                 <div id="images-container">
                     </div>
                 <div id="audios-container">
+                </div>
+                <div id="soundfonts-container">
+                </div>
+                <div id="videos-container">
                 </div>
             </div>
         </div>
@@ -1403,6 +1413,10 @@
             const filesContainer = document.getElementById('files-container');
             const imagesContainer = document.getElementById('images-container'); 
             const audiosContainer = document.getElementById('audios-container'); 
+            // NOUVEAU: Conteneurs pour SoundFonts et Videos
+            const soundfontsContainer = document.getElementById('soundfonts-container');
+            const videosContainer = document.getElementById('videos-container');
+            
             const loadingElement = document.getElementById('loading');
             const errorContainer = document.getElementById('error-container');
             const retryBtn = document.getElementById('retry-btn');
@@ -1413,7 +1427,10 @@
             const modeFilesTab = document.getElementById('mode-files'); 
             const modeImagesTab = document.getElementById('mode-images'); 
             const modeAudiosTab = document.getElementById('mode-audios'); 
-            
+            // NOUVEAU: Onglets pour SoundFonts et Videos
+            const modeSoundFontsTab = document.getElementById('mode-soundfonts');
+            const modeVideosTab = document.getElementById('mode-videos');
+
             // FIX: Déclarations manquantes pour les boutons du panneau de débogage
             const forceDateBtn = document.getElementById('force-date-btn');
             const resetDateBtn = document.getElementById('reset-date-btn');
@@ -1422,9 +1439,17 @@
             let allFiles = []; 
             let allImages = []; 
             let allAudios = []; 
+            // NOUVEAU: Listes de données pour SoundFonts et Videos
+            let allSoundFonts = [];
+            let allVideos = [];
+            
             let isDataLoaded = false;
             let isImagesLoaded = false; 
             let isAudiosLoaded = false; 
+            // NOUVEAU: Statuts de chargement pour SoundFonts et Videos
+            let isSoundFontsLoaded = false;
+            let isVideosLoaded = false;
+            
             let searchMode = 'files'; // Default mode
 
             // --- Configuration ---
@@ -1442,6 +1467,9 @@
             const imageRawSuffix = `?raw=true`; 
             const supportedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg']; 
             const supportedAudioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.aiff', '.m4a']; 
+            // NOUVEAU: Extensions pour SoundFonts et Videos
+            const supportedSoundFontExtensions = ['.sf2'];
+            const supportedVideoExtensions = ['.mp4', '.webm', '.mov', '.avi'];
             // --- End Configuration ---
 
             // --- Utility Functions ---
@@ -1452,7 +1480,7 @@
             }
             
             function generateImageUrl(relativePath) { 
-                // Génère l'URL d'accès brut à l'image/audio
+                // Génère l'URL d'accès brut à l'image/audio/soundfont/video
                 // FIX: Uses the now defined imageBaseUrl
                 const fullPath = imageBaseUrl + relativePath.split(' ').join('%20') + imageRawSuffix;
                 return fullPath; 
@@ -1489,6 +1517,10 @@
                         handleImageSearchAndFilter();
                     } else if (searchMode === 'audios') { 
                         handleAudioSearchAndFilter();
+                    } else if (searchMode === 'soundfonts') { // NOUVEAU
+                        handleSoundFontsSearchAndFilter();
+                    } else if (searchMode === 'videos') { // NOUVEAU
+                        handleVideoSearchAndFilter();
                     }
 
                     // Focus on the results search bar
@@ -1604,7 +1636,7 @@
 
                     if (imageFiles.length === 0) {
                         // Don't throw error if some media is loaded
-                        if (!isAudiosLoaded) {
+                        if (!isAudiosLoaded && !isSoundFontsLoaded && !isVideosLoaded) {
                             throw new Error(`No image files found in the specified ArtLibre path.`);
                         }
                     }
@@ -1674,7 +1706,7 @@
 
                     if (audioFiles.length === 0) {
                          // Don't throw error if some media is loaded
-                        if (!isImagesLoaded) {
+                        if (!isImagesLoaded && !isSoundFontsLoaded && !isVideosLoaded) {
                             throw new Error(`No audio files found in the specified ArtLibre path.`);
                         }
                     }
@@ -1710,6 +1742,141 @@
                     }
                 }
             }
+            
+            // NOUVEAU: Fetch SoundFonts
+            async function fetchArtLibreSoundFonts() { 
+                if (isSoundFontsLoaded) return; 
+                
+                try {
+                    isSoundFontsLoaded = false;
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'soundfonts') {
+                        soundfontsContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                        loadingElement.style.display = 'block';
+                    }
+                    
+                    const startTime = Date.now();
+                    const apiUrl = `https://api.github.com/repos/${imageRepoOwner}/${imageRepoName}/git/trees/main?recursive=1`;
+                    
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ArtLibre SoundFonts tree (HTTP ${response.status})`);
+                    }
+                    const treeData = await response.json();
+                    
+                    const soundfontFiles = treeData.tree.filter(item => {
+                        if (item.type !== 'blob' || !item.path.startsWith(imageRepoPath + '/')) {
+                            return false; 
+                        }
+                        const extension = item.path.substring(item.path.lastIndexOf('.')).toLowerCase();
+                        return supportedSoundFontExtensions.includes(extension); 
+                    });
+
+                    if (soundfontFiles.length === 0) {
+                        if (!isImagesLoaded && !isAudiosLoaded && !isVideosLoaded) {
+                            throw new Error(`No SoundFont files found in the specified ArtLibre path.`);
+                        }
+                    }
+                    
+                    allSoundFonts = soundfontFiles.map(file => ({
+                        name: file.path.substring(file.path.lastIndexOf('/') + 1),
+                        path: file.path.substring(imageRepoPath.length + 1), 
+                        url: generateImageUrl(file.path.substring(imageRepoPath.length + 1)) 
+                    }));
+                    
+                    allSoundFonts.sort((a, b) => a.name.localeCompare(b.name));
+                    isSoundFontsLoaded = true;
+                    
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 500) {
+                        await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
+                    }
+                    
+                    loadingElement.style.display = 'none';
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'soundfonts') {
+                        handleSoundFontsSearchAndFilter();
+                    }
+                    
+                } catch (error) {
+                    console.error('Error (SoundFonts):', error);
+                    loadingElement.style.display = 'none';
+                    
+                    if (searchMode === 'soundfonts') {
+                        document.getElementById('error-message').textContent = error.message || 'Error loading SoundFonts from ArtLibre GitHub.'; 
+                        errorContainer.style.display = 'block';
+                    }
+                }
+            }
+            
+            // NOUVEAU: Fetch Videos
+            async function fetchArtLibreVideos() { 
+                if (isVideosLoaded) return; 
+                
+                try {
+                    isVideosLoaded = false;
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'videos') {
+                        videosContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                        loadingElement.style.display = 'block';
+                    }
+                    
+                    const startTime = Date.now();
+                    const apiUrl = `https://api.github.com/repos/${imageRepoOwner}/${imageRepoName}/git/trees/main?recursive=1`;
+                    
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ArtLibre Videos tree (HTTP ${response.status})`);
+                    }
+                    const treeData = await response.json();
+                    
+                    const videoFiles = treeData.tree.filter(item => {
+                        if (item.type !== 'blob' || !item.path.startsWith(imageRepoPath + '/')) {
+                            return false; 
+                        }
+                        const extension = item.path.substring(item.path.lastIndexOf('.')).toLowerCase();
+                        return supportedVideoExtensions.includes(extension); 
+                    });
+
+                    if (videoFiles.length === 0) {
+                        if (!isImagesLoaded && !isAudiosLoaded && !isSoundFontsLoaded) {
+                            throw new Error(`No video files found in the specified ArtLibre path.`);
+                        }
+                    }
+                    
+                    allVideos = videoFiles.map(file => ({
+                        name: file.path.substring(file.path.lastIndexOf('/') + 1),
+                        path: file.path.substring(imageRepoPath.length + 1), 
+                        url: generateImageUrl(file.path.substring(imageRepoPath.length + 1)) 
+                    }));
+                    
+                    allVideos.sort((a, b) => a.name.localeCompare(b.name));
+                    isVideosLoaded = true;
+                    
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 500) {
+                        await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
+                    }
+                    
+                    loadingElement.style.display = 'none';
+                    
+                    if(resultsScreen.classList.contains('active') && searchMode === 'videos') {
+                        handleVideoSearchAndFilter();
+                    }
+                    
+                } catch (error) {
+                    console.error('Error (Videos):', error);
+                    loadingElement.style.display = 'none';
+                    
+                    if (searchMode === 'videos') {
+                        document.getElementById('error-message').textContent = error.message || 'Error loading videos from ArtLibre GitHub.'; 
+                        errorContainer.style.display = 'block';
+                    }
+                }
+            }
+
 
             // --- Filter and Display Logic ---
 
@@ -1832,6 +1999,77 @@
                     audiosContainer.appendChild(resultCard);
                 });
             }
+            
+            // NOUVEAU: Display SoundFonts
+            function displaySoundFonts(soundfonts, timeTaken) { 
+                soundfontsContainer.innerHTML = '';
+                
+                resultStats.style.display = 'block';
+                const timeString = timeTaken ? ` (${timeTaken.toFixed(2)} seconds)` : '';
+                resultStats.innerHTML = `About ${soundfonts.length} SoundFont results found${timeString}`;
+
+                if (soundfonts.length === 0) {
+                    soundfontsContainer.innerHTML = '<div class="no-results">No SoundFont results found matching your search. Try refining your search term.</div>';
+                    return;
+                }
+                
+                soundfonts.forEach(soundfont => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'search-result-card'; 
+                    
+                    resultCard.innerHTML = `
+                        <h3 class="result-title" style="margin-bottom: 10px;">
+                            <i class="fas fa-file-audio" style="margin-right: 8px; color: var(--primary-color);"></i>
+                            <a href="${soundfont.url}" target="_blank" style="font-size: 18px;">${soundfont.name}</a>
+                        </h3>
+                        <div class="result-snippet">
+                            This is a **SoundFont** file (.sf2). It contains digital instrument sounds for music synthesis.
+                        </div>
+                        <div class="result-link-url" style="margin-top: 10px;">
+                            Download: <a href="${soundfont.url}" target="_blank">${soundfont.name}</a>
+                        </div>
+                    `;
+                    
+                    soundfontsContainer.appendChild(resultCard);
+                });
+            }
+            
+            // NOUVEAU: Display Videos
+            function displayVideos(videos, timeTaken) { 
+                videosContainer.innerHTML = '';
+                
+                resultStats.style.display = 'block';
+                const timeString = timeTaken ? ` (${timeTaken.toFixed(2)} seconds)` : '';
+                resultStats.innerHTML = `About ${videos.length} video results found${timeString}`;
+
+                if (videos.length === 0) {
+                    videosContainer.innerHTML = '<div class="no-results">No video results found matching your search. Try refining your search term.</div>';
+                    return;
+                }
+                
+                videos.forEach(video => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'search-result-card'; 
+                    
+                    const fileExtension = video.name.substring(video.name.lastIndexOf('.') + 1);
+
+                    resultCard.innerHTML = `
+                        <h3 class="result-title" style="margin-bottom: 10px;">
+                            <i class="fas fa-film" style="margin-right: 8px; color: var(--primary-color);"></i>
+                            <a href="${video.url}" target="_blank" style="font-size: 18px;">${video.name}</a>
+                        </h3>
+                        <video controls style="width: 100%; max-width: 400px; margin-top: 10px;">
+                            <source src="${video.url}" type="video/${fileExtension}">
+                            Your browser does not support the video element.
+                        </video>
+                        <div class="result-link-url" style="margin-top: 10px;">
+                            Source: <a href="${video.url}" target="_blank">${video.name}</a>
+                        </div>
+                    `;
+                    
+                    videosContainer.appendChild(resultCard);
+                });
+            }
 
 
             function handleSearchAndFilter() {
@@ -1936,6 +2174,72 @@
                 
                 displayAudios(filteredAudios, timeTaken);
             }
+            
+            // NOUVEAU: Handle SoundFonts Search
+            function handleSoundFontsSearchAndFilter() { 
+                const searchStartTime = Date.now();
+                const searchTerm = resultsSearchInput.value.toLowerCase().trim();
+                
+                if (!isSoundFontsLoaded) {
+                    if (searchMode === 'soundfonts') {
+                        loadingElement.style.display = 'block';
+                        errorContainer.style.display = 'none';
+                        soundfontsContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                    }
+                    return;
+                }
+                
+                loadingElement.style.display = 'none';
+                errorContainer.style.display = 'none';
+                
+                let filteredSoundFonts = allSoundFonts;
+                
+                if (searchTerm !== '') {
+                    filteredSoundFonts = filteredSoundFonts.filter(soundfont => 
+                        soundfont.name.toLowerCase().includes(searchTerm) || 
+                        soundfont.path.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                const searchEndTime = Date.now();
+                const timeTaken = (searchEndTime - searchStartTime) / 1000;
+                
+                displaySoundFonts(filteredSoundFonts, timeTaken);
+            }
+            
+            // NOUVEAU: Handle Videos Search
+            function handleVideoSearchAndFilter() { 
+                const searchStartTime = Date.now();
+                const searchTerm = resultsSearchInput.value.toLowerCase().trim();
+                
+                if (!isVideosLoaded) {
+                    if (searchMode === 'videos') {
+                        loadingElement.style.display = 'block';
+                        errorContainer.style.display = 'none';
+                        videosContainer.innerHTML = '';
+                        resultStats.style.display = 'none';
+                    }
+                    return;
+                }
+                
+                loadingElement.style.display = 'none';
+                errorContainer.style.display = 'none';
+                
+                let filteredVideos = allVideos;
+                
+                if (searchTerm !== '') {
+                    filteredVideos = filteredVideos.filter(video => 
+                        video.name.toLowerCase().includes(searchTerm) || 
+                        video.path.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                const searchEndTime = Date.now();
+                const timeTaken = (searchEndTime - searchStartTime) / 1000;
+                
+                displayVideos(filteredVideos, timeTaken);
+            }
 
 
             // --- Mode Switching Logic (UPDATED) ---
@@ -1954,6 +2258,8 @@
                 filesContainer.classList.remove('active');
                 imagesContainer.classList.remove('active');
                 audiosContainer.classList.remove('active');
+                soundfontsContainer.classList.remove('active'); // NOUVEAU
+                videosContainer.classList.remove('active'); // NOUVEAU
 
                 if (mode === 'files') {
                     filesContainer.classList.add('active');
@@ -1988,6 +2294,34 @@
                     } else {
                         handleAudioSearchAndFilter();
                     }
+                } else if (mode === 'soundfonts') { // NOUVEAU
+                    soundfontsContainer.classList.add('active'); 
+                    categoryFiltersParent.classList.remove('active');
+                    resultsSearchInput.placeholder = 'Search SoundFonts on ArtLibre...';
+                    
+                    if (!sessionStorage.getItem('CC0_MODAL_SHOWN')) {
+                        showCC0Modal();
+                    }
+                    
+                    if (!isSoundFontsLoaded) {
+                        fetchArtLibreSoundFonts();
+                    } else {
+                        handleSoundFontsSearchAndFilter();
+                    }
+                } else if (mode === 'videos') { // NOUVEAU
+                    videosContainer.classList.add('active'); 
+                    categoryFiltersParent.classList.remove('active');
+                    resultsSearchInput.placeholder = 'Search videos on ArtLibre...';
+                    
+                    if (!sessionStorage.getItem('CC0_MODAL_SHOWN')) {
+                        showCC0Modal();
+                    }
+                    
+                    if (!isVideosLoaded) {
+                        fetchArtLibreVideos();
+                    } else {
+                        handleVideoSearchAndFilter();
+                    }
                 }
             }
 
@@ -2000,13 +2334,17 @@
                     }
                     
                     // Only switch if data is loaded OR input isn't empty
-                    if (isDataLoaded || isImagesLoaded || isAudiosLoaded || homeSearchInput.value.trim() !== '') {
+                    if (isDataLoaded || isImagesLoaded || isAudiosLoaded || isSoundFontsLoaded || isVideosLoaded || homeSearchInput.value.trim() !== '') {
                         
                         // Set the initial search mode before switching
                         if (!isDataLoaded && isImagesLoaded) {
                             searchMode = 'images';
                         } else if (!isDataLoaded && !isImagesLoaded && isAudiosLoaded) {
                             searchMode = 'audios';
+                        } else if (!isDataLoaded && !isImagesLoaded && !isAudiosLoaded && isSoundFontsLoaded) { // NOUVEAU
+                            searchMode = 'soundfonts';
+                        } else if (!isDataLoaded && !isImagesLoaded && !isAudiosLoaded && !isSoundFontsLoaded && isVideosLoaded) { // NOUVEAU
+                            searchMode = 'videos';
                         } else {
                             searchMode = 'files'; // Default to files
                         }
@@ -2027,6 +2365,10 @@
                     handleImageSearchAndFilter();
                 } else if (searchMode === 'audios') { 
                     handleAudioSearchAndFilter();
+                } else if (searchMode === 'soundfonts') { // NOUVEAU
+                    handleSoundFontsSearchAndFilter();
+                } else if (searchMode === 'videos') { // NOUVEAU
+                    handleVideoSearchAndFilter();
                 }
             });
             
@@ -2041,6 +2383,10 @@
                         handleImageSearchAndFilter();
                     } else if (searchMode === 'audios') { 
                         handleAudioSearchAndFilter();
+                    } else if (searchMode === 'soundfonts') { // NOUVEAU
+                        handleSoundFontsSearchAndFilter();
+                    } else if (searchMode === 'videos') { // NOUVEAU
+                        handleVideoSearchAndFilter();
                     }
                  }
             });
@@ -2052,6 +2398,10 @@
                     fetchArtLibreImages();
                 } else if (searchMode === 'audios') { 
                     fetchArtLibreAudios();
+                } else if (searchMode === 'soundfonts') { // NOUVEAU
+                    fetchArtLibreSoundFonts();
+                } else if (searchMode === 'videos') { // NOUVEAU
+                    fetchArtLibreVideos();
                 }
             });
             
@@ -2059,6 +2409,8 @@
             modeFilesTab.addEventListener('click', () => switchSearchMode('files'));
             modeImagesTab.addEventListener('click', () => switchSearchMode('images'));
             modeAudiosTab.addEventListener('click', () => switchSearchMode('audios')); 
+            modeSoundFontsTab.addEventListener('click', () => switchSearchMode('soundfonts')); // NOUVEAU
+            modeVideosTab.addEventListener('click', () => switchSearchMode('videos')); // NOUVEAU
 
             
             // Debug Panel Listeners
@@ -2072,6 +2424,8 @@
             fetchAllHtmlFiles(); 
             fetchArtLibreImages(); 
             fetchArtLibreAudios(); 
+            fetchArtLibreSoundFonts(); // NOUVEAU
+            fetchArtLibreVideos(); // NOUVEAU
         });
     </script>
 </body>
