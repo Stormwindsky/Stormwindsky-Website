@@ -12,7 +12,7 @@
             font-family: sans-serif;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Hide scrollbar caused by the rain effect */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -154,28 +154,75 @@
             transform: translateX(26px);
         }
 
-        /* Credits Section */
-        .credits {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            max-width: 90%;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
+        /* Credits Button */
+        #showCreditsButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border: none;
             border-radius: 5px;
-            font-size: 0.8em;
-            text-align: left;
-            opacity: 0.8;
-            z-index: 10;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
         }
 
-        .credits h3 {
-            margin-top: 0;
-            margin-bottom: 5px;
+        #showCreditsButton:hover {
+            background-color: #45a049;
         }
 
-        .credits a {
+        /* Modal/Popup Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 100; /* Above everything else */
+        }
+
+        .credits-modal {
+            background-color: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            color: #fff;
+        }
+
+        .credits-modal h3, .credits-modal h4 {
             color: lightskyblue;
+            margin-top: 0;
+        }
+
+        .credits-modal a {
+            color: lightgreen;
+        }
+        
+        /* Close Button Styling */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #ccc;
+            text-decoration: none;
         }
 
         /* Hide audio players */
@@ -212,25 +259,31 @@
             </label>
             <input type="range" id="thunderVolume" min="0" max="1" step="0.01" value="0.5" disabled>
         </div>
+
+        <button id="showCreditsButton">Show Audio Notes & Credits</button>
     </div>
 
-    <div class="credits">
-        <h3>AUDIO NOTES AND CREDITS</h3>
+    <div id="creditsModalOverlay" class="modal-overlay">
+        <div class="credits-modal">
+            <span class="close-button" id="closeCreditsButton">&times;</span>
+            
+            <h3>AUDIO NOTES AND CREDITS</h3>
 
-        <h4>Rain Audio (Loopable)</h4>
-        <p>
-            **License:** CC0 - Public Domain.<br>
-            **Creator:** Ylmir (<a href="https://opengameart.org/users/ylmir" target="_blank">opengameart.org/users/ylmir</a>).<br>
-            **Source:** <a href="https://opengameart.org/content/rain-loopable" target="_blank">opengameart.org/content/rain-loopable</a>
-        </p>
+            <h4>Rain Audio (Loopable)</h4>
+            <p>
+                **License:** CC0 - Public Domain.<br>
+                **Creator:** Ylmir (<a href="https://opengameart.org/users/ylmir" target="_blank">opengameart.org/users/ylmir</a>).<br>
+                **Source:** <a href="https://opengameart.org/content/rain-loopable" target="_blank">opengameart.org/content/rain-loopable</a>
+            </p>
 
-        <h4>Thunder Audio (Extract)</h4>
-        <p>
-            **Original Creator:** Wikimedia user: Спасимир.<br>
-            **License:** Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
-            **Details:** <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank">CC BY-SA 4.0</a><br>
-            **Source of Original Material:** Modified version of an extract from a video file (<a href="https://commons.wikimedia.org/wiki/File:Thunder_in_Sofia,_07.06.2017.webm" target="_blank">Source on Wikimedia Commons</a>).
-        </p>
+            <h4>Thunder Audio (Extract)</h4>
+            <p>
+                **Original Creator:** Wikimedia user: Спасимир.<br>
+                **License:** Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
+                **Details:** <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank">CC BY-SA 4.0</a><br>
+                **Source of Original Material:** Modified version of an extract from a video file (<a href="https://commons.wikimedia.org/wiki/File:Thunder_in_Sofia,_07.06.2017.webm" target="_blank">Source on Wikimedia Commons</a>).
+            </p>
+        </div>
     </div>
 
 
@@ -243,6 +296,11 @@
             const rainVolumeSlider = document.getElementById('rainVolume');
             const thunderToggle = document.getElementById('thunderToggle');
             const thunderVolumeSlider = document.getElementById('thunderVolume');
+            
+            // Modal Elements
+            const showCreditsButton = document.getElementById('showCreditsButton');
+            const closeCreditsButton = document.getElementById('closeCreditsButton');
+            const creditsModalOverlay = document.getElementById('creditsModalOverlay');
             
             // --- 1. Initial Volume Setup ---
             // Set initial volume based on slider values (0.7 for rain, 0.5 for thunder)
@@ -310,6 +368,25 @@
             thunderVolumeSlider.disabled = true;
             thunderVolumeSlider.style.opacity = '0.5';
 
+            // --- 5. Credits Modal Handlers ---
+            
+            // Function to open the modal
+            showCreditsButton.addEventListener('click', () => {
+                creditsModalOverlay.style.display = 'flex';
+            });
+            
+            // Function to close the modal
+            closeCreditsButton.addEventListener('click', () => {
+                creditsModalOverlay.style.display = 'none';
+            });
+
+            // Close the modal if the user clicks outside of the modal content
+            creditsModalOverlay.addEventListener('click', (event) => {
+                if (event.target === creditsModalOverlay) {
+                    creditsModalOverlay.style.display = 'none';
+                }
+            });
+            
         });
 
     </script>
