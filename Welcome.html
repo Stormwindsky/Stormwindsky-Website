@@ -513,6 +513,36 @@
             transform: scale(1.1) rotate(30deg);
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
+        
+        /* Language Toggle Button Style */
+        #language-toggle {
+            position: fixed;
+            bottom: 90px; /* Position above theme toggle */
+            right: 20px;
+            background: linear-gradient(135deg, #1b0088 0%, #4361ee 100%);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: var(--shadow-xl);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+        
+        #language-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        body.halloween-theme #language-toggle {
+            background: linear-gradient(135deg, #5e1a7b 0%, #ff6600 100%);
+        }
 
         /* Modal Styles (Popup) */
         .modal {
@@ -643,6 +673,41 @@
             color: var(--text-light);
         }
         
+        /* Language Modal Specific Styles */
+        #languageModal .language-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+        
+        #languageModal .language-options button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #languageModal .language-options button:hover {
+            background: var(--gradient-secondary);
+            transform: translateX(5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        #languageModal .language-options button.active {
+            border: 2px solid #fff;
+            box-shadow: var(--shadow-xl);
+            background: var(--gradient-secondary);
+        }
+        
         /* Responsive styles */
         @media (max-width: 768px) {
             header h1 {
@@ -659,6 +724,22 @@
             
             .card a, .card button {
                 padding: 0.75rem 1rem;
+            }
+            
+            #language-toggle {
+                bottom: 80px; 
+                right: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .theme-toggle {
+                bottom: 15px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
             }
         }
 
@@ -685,7 +766,7 @@
         }
     </style>
 </head>
-<body>
+<body lang="en">
     <div class="bg-elements">
         <div class="bg-element" style="width: 200px; height: 200px; background: var(--primary-color); top: 10%; left: 5%; animation-delay: 0s;"></div>
         <div class="bg-element" style="width: 150px; height: 150px; background: var(--accent-color); top: 60%; left: 80%; animation-delay: 2s;"></div>
@@ -698,22 +779,22 @@
 
     <nav id="mainNav">
         <div class="nav-container">
-            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank" data-i18n="nav.home">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a id="aboutLink">
+            <a id="aboutLink" data-i18n="nav.about">
                 <i class="fas fa-user"></i> About Me
             </a>
-            <a id="originLink">
+            <a id="originLink" data-i18n="nav.origin">
                 <i class="fas fa-signature"></i> Username Origin
             </a>
-            <a id="collectionLink" href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank">
+            <a id="collectionLink" href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" data-i18n="nav.collection">
                 <i class="fas fa-folder"></i> Collection
             </a>
-            <a id="roleChatLink" href="https://stormwindsky.github.io/RoleChat/" target="_blank">
+            <a id="roleChatLink" href="https://stormwindsky.github.io/RoleChat/" target="_blank" data-i18n="nav.rolechat">
                 <i class="fas fa-comments"></i> RoleChat
             </a>
-            <a href="https://www.roblox.com/games/12983740104/" target="_blank">
+            <a href="https://www.roblox.com/games/12983740104/" target="_blank" data-i18n="nav.donate">
                 <i class="fas fa-heart"></i> Donate on Roblox
             </a>
         </div>
@@ -723,75 +804,75 @@
         <div class="card-container">
             
             <div id="mobileLinksCard" class="card mobile-only" style="display: none;">
-                <h2>Navigation</h2>
+                <h2 data-i18n="card.mobile.title">Navigation</h2>
                 <div class="mobile-links-content">
-                    <button id="mobileAboutBtn">
+                    <button id="mobileAboutBtn" data-i18n="nav.about">
                         <i class="fas fa-user"></i> About Me
                     </button>
-                    <button id="mobileOriginBtn">
+                    <button id="mobileOriginBtn" data-i18n="nav.origin">
                         <i class="fas fa-signature"></i> Username Origin
                     </button>
-                    <button id="mobileCollectionBtn">
+                    <button id="mobileCollectionBtn" data-i18n="nav.collection">
                         <i class="fas fa-folder"></i> Collection
                     </button>
-                    <button id="mobileRoleChatBtn">
+                    <button id="mobileRoleChatBtn" data-i18n="nav.rolechat">
                         <i class="fas fa-comments"></i> RoleChat
                     </button>
-                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank">
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank" data-i18n="nav.home">
                         <i class="fas fa-home"></i> Home
                     </a>
-                    <a href="https://www.roblox.com/games/12983740104/" target="_blank">
+                    <a href="https://www.roblox.com/games/12983740104/" target="_blank" data-i18n="nav.donate">
                         <i class="fas fa-heart"></i> Donate
                     </a>
                 </div>
             </div>
             
             <div class="card">
-                <h2>Find Me Online</h2>
-                <p>Check out my presence across different platforms and connect with me on various social networks.</p>
-                <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=W3sidGV4dCI6Ik15IFlvdVR1YmUiLCJ1cmwiOiJodHRwczovL3d3dy55b3V0dWJlLmNvbS9AU3Rvcm13aW5kc2t5In0seyJ0ZXh0IjoiU2NyYXRjaCIsInVybCI6Imh0dHBzOi8vc2NyYXRjaC5taXQuZWR1L3VzZXJzL3N0b3Jtd2luZHNreS8ifSx7InRleHQiOiJHYW1lSm9sdCIsInVybCI6Imh0dHBzOi8vZ2FtZWpvbHQuY29tL0BTdG9ybXdpbmRza3kifV0=" target="_blank">
+                <h2 data-i18n="card.links.title">Find Me Online</h2>
+                <p data-i18n="card.links.desc">Check out my presence across different platforms and connect with me on various social networks.</p>
+                <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=W3sidGV4dCI6Ik15IFlvdVR1YmUiLCJ1cmwiOiJodHRwczovL3d3dy55b3V0dWJlLmNvbS9AU3Rvcm13aW5kc2t5In0seyJ0ZXh0IjoiU2NyYXRjaCIsInVybCI6Imh0dHBzOi8vc2NyYXRjaC5taXQuZWR1L3VzZXJzL3N0b3Jtd2luZHNreS8ifSx7InRleHQiOiJHYW1lSm9sdCIsInVybCI6Imh0dHBzOi8vZ2FtZWpvbHQuY29tL0BTdG9ybXdpbmRza3kifV0=" target="_blank" data-i18n="card.links.button">
                     View All Links
                 </a>
             </div>
             
             <div class="card">
-                <h2>About This Site</h2>
-                <p>A creative playground for coding experiments and projects. This is where I share my passion for web development, gaming, and digital preservation.</p>
-                <p>Simple but fun - just like me! Expect to find tools, games, and various experiments here.</p>
+                <h2 data-i18n="card.aboutsite.title">About This Site</h2>
+                <p data-i18n="card.aboutsite.desc1">A creative playground for coding experiments and projects. This is where I share my passion for web development, gaming, and digital preservation.</p>
+                <p data-i18n="card.aboutsite.desc2">Simple but fun - just like me! Expect to find tools, games, and various experiments here.</p>
             </div>
         </div>
     </div>
 
     <div id="aboutModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close">&times;</button>
-            <h2>ABOUT ME</h2>
-            <p>Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.</p>
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.about.title">ABOUT ME</h2>
+            <p data-i18n="modal.about.p1">Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.</p>
             
-            <p>In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.</p>
+            <p data-i18n="modal.about.p2">In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.</p>
             
-            <p>In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.</p>
+            <p data-i18n="modal.about.p3">In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.</p>
             
-            <p>With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.</p>
+            <p data-i18n="modal.about.p4">With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.</p>
         </div>
     </div>
 
     <div id="originModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close">&times;</button>
-            <h2>ORIGIN OF MY USERNAME</h2>
-            <p>The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊</p>
-            <p>It's a unique identifier that has stuck with me across all my online adventures and represents my digital identity.</p>
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.origin.title">ORIGIN OF MY USERNAME</h2>
+            <p data-i18n="modal.origin.p1">The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊</p>
+            <p data-i18n="modal.origin.p2">It's a unique identifier that has stuck with me across all my online adventures and represents my digital identity.</p>
         </div>
     </div>
     
     <div id="collectionMobileModal" class="modal mobile-only-modal">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close">&times;</button>
-            <h2>COLLECTION (Mobile Version)</h2>
-            <p>Due to performance limitations, the Collection is not embedded on mobile devices.</p>
-            <p style="text-align: center;">You can access the full Collection on a new tab:</p>
-            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" style="margin: 0 auto;">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.mobile_collection.title">COLLECTION (Mobile Version)</h2>
+            <p data-i18n="modal.mobile_collection.p1">Due to performance limitations, the Collection is not embedded on mobile devices.</p>
+            <p style="text-align: center;" data-i18n="modal.mobile_collection.p2">You can access the full Collection on a new tab:</p>
+            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" style="margin: 0 auto;" data-i18n="modal.mobile_collection.button">
                 <i class="fas fa-external-link-alt"></i> Go to Collection
             </a>
         </div>
@@ -799,31 +880,54 @@
     
     <div id="roleChatMobileModal" class="modal mobile-only-modal">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close">&times;</button>
-            <h2>ROLECHAT (Mobile Version)</h2>
-            <p>The RoleChat application is optimized for desktop and cannot be displayed in a movable window on mobile devices.</p>
-            <p style="text-align: center;">You can access the RoleChat website directly:</p>
-            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" style="margin: 0 auto;">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.mobile_rolechat.title">ROLECHAT (Mobile Version)</h2>
+            <p data-i18n="modal.mobile_rolechat.p1">The RoleChat application is optimized for desktop and cannot be displayed in a movable window on mobile devices.</p>
+            <p style="text-align: center;" data-i18n="modal.mobile_rolechat.p2">You can access the RoleChat website directly:</p>
+            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" style="margin: 0 auto;" data-i18n="modal.mobile_rolechat.button">
                 <i class="fas fa-external-link-alt"></i> Go to RoleChat
             </a>
         </div>
     </div>
-
-
+    
+    <div id="languageModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.language.title">LANGUAGE / LANGUE / IDIOMA</h2>
+            <div class="language-options">
+                <button onclick="switchLanguage('en-us')">
+                    <i class="fas fa-globe"></i> <span data-i18n-display="en-us">English (Default)</span>
+                </button>
+                <button onclick="switchLanguage('fr-fr')">
+                    <i class="fas fa-flag"></i> <span data-i18n-display="fr-fr">Français (France)</span>
+                </button>
+                <button onclick="switchLanguage('fr-ca')">
+                    <i class="fas fa-flag"></i> <span data-i18n-display="fr-ca">Français (Canadien Professionnel)</span>
+                </button>
+                <button onclick="switchLanguage('es-es')">
+                    <i class="fas fa-flag"></i> <span data-i18n-display="es-es">Español (España)</span>
+                </button>
+                <button onclick="switchLanguage('es-la')">
+                    <i class="fas fa-flag"></i> <span data-i18n-display="es-la">Español (América)</span>
+                </button>
+            </div>
+            <p style="margin-top: 1.5rem; text-align: center; font-style: italic;" data-i18n="modal.language.note">Note: This is a professional and non-binding language selection button.</p>
+        </div>
+    </div>
     <div id="collectionModal" class="modal desktop-only">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close">&times;</button>
-            <h2>MY COLLECTION</h2>
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.desktop_collection.title">MY COLLECTION</h2>
             <iframe src="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" class="collection-iframe" title="Stormwindsky's Collection"></iframe>
         </div>
     </div>
     
     <div id="darkWebModal" class="modal desktop-only">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close">&times;</button>
-            <h2 style="color: #FF0000;">!! YOU HACKED INTO THE DARK WEB !!</h2>
-            <p style="text-align: center; font-weight: 700; color: #ff0000; font-size: 1.2rem;">ARE YOU SURE YOU WANT TO WATCH THIS VIDEO??</p>
-            <p style="text-align: center; font-style: italic;">THIS IS A LOST MEDIA VIDEO from the DEEPEST parts of the INTERNET, it is EXTREMELY cursed and LIKELY to infect your COMPUTER with a TERRIBLE virus. DO NOT proceed unless you are a certified HACKER!!</p>
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 style="color: #FF0000;" data-i18n="modal.darkweb.title">!! YOU HACKED INTO THE DARK WEB !!</h2>
+            <p style="text-align: center; font-weight: 700; color: #ff0000; font-size: 1.2rem;" data-i18n="modal.darkweb.warning1">ARE YOU SURE YOU WANT TO WATCH THIS VIDEO??</p>
+            <p style="text-align: center; font-style: italic;" data-i18n="modal.darkweb.warning2">THIS IS A LOST MEDIA VIDEO from the DEEPEST parts of the INTERNET, it is EXTREMELY cursed and LIKELY to infect your COMPUTER with a TERRIBLE virus. DO NOT proceed unless you are a certified HACKER!!</p>
             
             <iframe 
                 width="560" 
@@ -835,7 +939,7 @@
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 allowfullscreen>
             </iframe>
-            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;">(Disclaimer: This is just a fun Halloween/Troll Easter Egg, the video is safe and the 'Dark Web' warning is fake!)</p>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;" data-i18n="modal.darkweb.disclaimer">(Disclaimer: This is just a fun Halloween/Troll Easter Egg, the video is safe and the 'Dark Web' warning is fake!)</p>
         </div>
     </div>
     
@@ -843,7 +947,7 @@
         <div class="modal-content" id="roleChatModalContent" style="width: 600px; height: 400px; min-width: 300px; min-height: 200px; padding: 0; overflow: hidden; transform: none; opacity: 1; border-radius: 10px; position: absolute;">
             
             <div id="roleChatHeader" style="cursor: move; background-color: var(--nav-bg); color: var(--text-light); padding: 8px 15px; border-top-left-radius: 10px; border-top-right-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                <span style="font-weight: 600; font-size: 1rem;"><i class="fas fa-comments"></i> RoleChat</span>
+                <span style="font-weight: 600; font-size: 1rem;" data-i18n="modal.rolechat_window.title"><i class="fas fa-comments"></i> RoleChat</span>
                 <div>
                     <button id="roleChatMaximize" style="background: none; border: none; color: var(--text-light); font-size: 1.2rem; margin-right: 10px; cursor: pointer;">
                         <i class="far fa-window-maximize"></i>
@@ -873,12 +977,281 @@
         <div class="license-info">
             Licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>
         </div>
-        <p><a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">View Source on GitHub</a></p>
+        <p><a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" data-i18n="footer.github_source">View Source on GitHub</a></p>
     </footer>
 
+    <button id="language-toggle" onclick="openLanguageModal()">🌐</button>
     <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 
     <script>
+        // --- Feature Centralized: I18N Translation System ---
+        const DEFAULT_LANG = 'en-us';
+        const LANG_STORAGE_KEY = 'stormwindsky_language';
+        
+        // Structure de données de traduction centralisée
+        const translations = {
+            'en-us': {
+                'nav.home': 'Home',
+                'nav.about': 'About Me',
+                'nav.origin': 'Username Origin',
+                'nav.collection': 'Collection',
+                'nav.rolechat': 'RoleChat',
+                'nav.donate': 'Donate on Roblox',
+                'card.mobile.title': 'Navigation',
+                'card.links.title': 'Find Me Online',
+                'card.links.desc': 'Check out my presence across different platforms and connect with me on various social networks.',
+                'card.links.button': 'View All Links',
+                'card.aboutsite.title': 'About This Site',
+                'card.aboutsite.desc1': 'A creative playground for coding experiments and projects. This is where I share my passion for web development, gaming, and digital preservation.',
+                'card.aboutsite.desc2': 'Simple but fun - just like me! Expect to find tools, games, and various experiments here.',
+                'modal.close': 'Close',
+                'modal.language.title': 'LANGUAGE / LANGUE / IDIOMA',
+                'modal.language.note': 'Note: This is a professional and non-binding language selection button.',
+                'modal.about.title': 'ABOUT ME',
+                'modal.about.p1': 'Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.',
+                'modal.about.p2': 'In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.',
+                'modal.about.p3': 'In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.',
+                'modal.about.p4': 'With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.',
+                'modal.origin.title': 'ORIGIN OF MY USERNAME',
+                'modal.origin.p1': 'The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊',
+                'modal.origin.p2': 'It\'s a unique identifier that has stuck with me across all my online adventures and represents my digital identity.',
+                'modal.mobile_collection.title': 'COLLECTION (Mobile Version)',
+                'modal.mobile_collection.p1': 'Due to performance limitations, the Collection is not embedded on mobile devices.',
+                'modal.mobile_collection.p2': 'You can access the full Collection on a new tab:',
+                'modal.mobile_collection.button': 'Go to Collection',
+                'modal.mobile_rolechat.title': 'ROLECHAT (Mobile Version)',
+                'modal.mobile_rolechat.p1': 'The RoleChat application is optimized for desktop and cannot be displayed in a movable window on mobile devices.',
+                'modal.mobile_rolechat.p2': 'You can access the RoleChat website directly:',
+                'modal.mobile_rolechat.button': 'Go to RoleChat',
+                'modal.desktop_collection.title': 'MY COLLECTION',
+                'modal.darkweb.title': '!! YOU HACKED INTO THE DARK WEB !!',
+                'modal.darkweb.warning1': 'ARE YOU SURE YOU WANT TO WATCH THIS VIDEO??',
+                'modal.darkweb.warning2': 'THIS IS A LOST MEDIA VIDEO from the DEEPEST parts of the INTERNET, it is EXTREMELY cursed and LIKELY to infect your COMPUTER with a TERRIBLE virus. DO NOT proceed unless you are a certified HACKER!!',
+                'modal.darkweb.disclaimer': '(Disclaimer: This is just a fun Halloween/Troll Easter Egg, the video is safe and the \'Dark Web\' warning is fake!)',
+                'modal.rolechat_window.title': 'RoleChat',
+                'footer.github_source': 'View Source on GitHub',
+            },
+            'fr-fr': {
+                'nav.home': 'Accueil',
+                'nav.about': 'À Propos de Moi',
+                'nav.origin': 'Origine du Nom',
+                'nav.collection': 'Collection',
+                'nav.rolechat': 'RoleChat',
+                'nav.donate': 'Faire un Don sur Roblox',
+                'card.mobile.title': 'Navigation',
+                'card.links.title': 'Me Trouver en Ligne',
+                'card.links.desc': 'Découvrez ma présence sur différentes plateformes et connectez-vous avec moi sur divers réseaux sociaux.',
+                'card.links.button': 'Voir Tous les Liens',
+                'card.aboutsite.title': 'À Propos de Ce Site',
+                'card.aboutsite.desc1': 'Un terrain de jeu créatif pour des expériences et projets de codage. C\'est ici que je partage ma passion pour le développement web, le jeu, et la préservation numérique.',
+                'card.aboutsite.desc2': 'Simple mais amusant - tout comme moi ! Attendez-vous à trouver des outils, des jeux et diverses expériences ici.',
+                'modal.close': 'Fermer',
+                'modal.language.title': 'LANGUE / LANGUAGE / IDIOMA',
+                'modal.language.note': 'Note : Ceci est un bouton de sélection de langue professionnel et non-contraignant.',
+                'modal.about.title': 'À PROPOS DE MOI',
+                'modal.about.p1': 'Stormwindsky sur Internet est un passionné d\'histoire et de culture. Il possède une expertise particulière dans l\'histoire des pays, avec une fascination pour la Suisse et l\'histoire de Sealand.',
+                'modal.about.p2': 'En plus de son intérêt pour l\'histoire, Stormwindsky est un grand fan de jeux vidéo indépendants, tels qu\'Undertale, Pizza Tower et Baldi. Il est également atteint d\'un trouble du spectre de l\'autisme.',
+                'modal.about.p3': 'Pendant son temps libre, Stormwindsky aime archiver des vidéos YouTube avec la Wayback Machine pour aider à préserver le patrimoine numérique, ce qui témoigne de son désir de préserver les médias pour les générations futures. Il est également fan de la communauté Lost Media Wiki.',
+                'modal.about.p4': 'Avec sa passion pour l\'histoire et la culture, ainsi que son engagement envers la préservation du patrimoine numérique, Stormwindsky est un individu unique et passionnant. Son profil atypique est une valeur ajoutée pour toute entreprise ou projet souhaitant collaborer avec lui.',
+                'modal.origin.title': 'ORIGINE DE MON NOM D\'UTILISATEUR',
+                'modal.origin.p1': 'Le nom "Stormwindsky" vient de ma mère d\'Animal Jam, puis de Roblox & Scratch, et ensuite de partout 😊',
+                'modal.origin.p2': 'C\'est un identifiant unique qui m\'a suivi dans toutes mes aventures en ligne et représente mon identité numérique.',
+                'modal.mobile_collection.title': 'COLLECTION (Version Mobile)',
+                'modal.mobile_collection.p1': 'En raison de limitations de performance, la Collection n\'est pas intégrée sur les appareils mobiles.',
+                'modal.mobile_collection.p2': 'Vous pouvez accéder à la Collection complète dans un nouvel onglet :',
+                'modal.mobile_collection.button': 'Aller à la Collection',
+                'modal.mobile_rolechat.title': 'ROLECHAT (Version Mobile)',
+                'modal.mobile_rolechat.p1': 'L\'application RoleChat est optimisée pour le bureau et ne peut pas être affichée dans une fenêtre déplaçable sur les appareils mobiles.',
+                'modal.mobile_rolechat.p2': 'Vous pouvez accéder directement au site web RoleChat :',
+                'modal.mobile_rolechat.button': 'Aller à RoleChat',
+                'modal.desktop_collection.title': 'MA COLLECTION',
+                'modal.darkweb.title': '!! VOUS AVEZ PIRATÉ LE DARK WEB !!',
+                'modal.darkweb.warning1': 'ÊTES-VOUS SÛR DE VOULOIR REGARDER CETTE VIDÉO ??',
+                'modal.darkweb.warning2': 'Ceci est une VIDÉO DE MEDIA PERDU des recoins les plus PROFONDS d\'INTERNET, elle est EXTRÊMEMENT maudite et SUSCEPTIBLE d\'INFECTER votre ORDINATEUR avec un virus TERRIBLE. NE continuez PAS à moins d\'être un HACKER certifié !!',
+                'modal.darkweb.disclaimer': '(Avertissement : Ceci est juste un œuf de Pâques/Troll amusant d\'Halloween, la vidéo est sûre et l\'avertissement "Dark Web" est faux !)',
+                'modal.rolechat_window.title': 'RoleChat',
+                'footer.github_source': 'Voir la Source sur GitHub',
+            },
+            'fr-ca': { // Français (Canadien Professionnel)
+                'nav.home': 'Accueil',
+                'nav.about': 'À mon Sujet',
+                'nav.origin': 'Origine du Pseudonyme',
+                'nav.collection': 'Collection',
+                'nav.rolechat': 'Clavardage de Rôle',
+                'nav.donate': 'Faire un Don sur Roblox',
+                'card.mobile.title': 'Navigation',
+                'card.links.title': 'Me Trouver en Ligne',
+                'card.links.desc': 'Veuillez consulter ma présence sur diverses plateformes et me contacter via les réseaux sociaux.',
+                'card.links.button': 'Voir Tous les Liens',
+                'card.aboutsite.title': 'À Propos de Ce Site',
+                'card.aboutsite.desc1': 'Un environnement créatif pour des expériences et projets de programmation. J\'y partage mon intérêt pour le développement web, le jeu et la préservation numérique.',
+                'card.aboutsite.desc2': 'Simple, mais plaisant — à mon image ! Vous y trouverez des outils, des jeux et diverses expérimentations.',
+                'modal.close': 'Fermer',
+                'modal.language.title': 'LANGUE / LANGUAGE / IDIOMA',
+                'modal.language.note': 'Note : Il s\'agit d\'un bouton de sélection de langue professionnel et non contraignant.',
+                'modal.about.title': 'À MON SUJET',
+                'modal.about.p1': 'Stormwindsky sur Internet est un passionné d\'histoire et de culture. Il possède une expertise particulière en histoire des nations, avec une fascination pour la Suisse et l\'histoire de Sealand.',
+                'modal.about.p2': 'En plus de son intérêt pour l\'histoire, Stormwindsky est un grand amateur de jeux vidéo indépendants, tels qu\'Undertale, Pizza Tower et Baldi. Il est également atteint d\'un trouble du spectre de l\'autisme.',
+                'modal.about.p3': 'Durant ses temps libres, Stormwindsky s\'adonne à l\'archivage de vidéos YouTube avec la Wayback Machine, contribuant ainsi à la préservation du patrimoine numérique pour les générations futures. Il est aussi un membre de la communauté Lost Media Wiki.',
+                'modal.about.p4': 'Par sa passion pour l\'histoire, la culture, et son engagement envers la préservation numérique, Stormwindsky est un individu unique et prometteur. Son profil atypique représente une valeur ajoutée pour toute entreprise ou projet de partenariat.',
+                'modal.origin.title': 'ORIGINE DE MON PSEUDONYME',
+                'modal.origin.p1': 'Le nom "Stormwindsky" a été créé par ma mère pour Animal Jam, puis pour Roblox & Scratch, et désormais partout 😊',
+                'modal.origin.p2': 'C\'est un identifiant unique qui m\'a suivi dans toutes mes activités en ligne et qui représente mon identité numérique.',
+                'modal.mobile_collection.title': 'COLLECTION (Version Mobile)',
+                'modal.mobile_collection.p1': 'En raison de contraintes de performance, la Collection n\'est pas intégrée sur les appareils mobiles.',
+                'modal.mobile_collection.p2': 'Vous pouvez consulter l\'intégralité de la Collection dans un nouvel onglet :',
+                'modal.mobile_collection.button': 'Accéder à la Collection',
+                'modal.mobile_rolechat.title': 'CLAVARDAGE DE RÔLE (Version Mobile)',
+                'modal.mobile_rolechat.p1': 'L\'application de Clavardage de Rôle est optimisée pour les ordinateurs de bureau et ne peut être affichée dans une fenêtre déplaçable sur les appareils mobiles.',
+                'modal.mobile_rolechat.p2': 'Vous pouvez accéder directement au site web de Clavardage de Rôle :',
+                'modal.mobile_rolechat.button': 'Accéder au Clavardage',
+                'modal.desktop_collection.title': 'MA COLLECTION',
+                'modal.darkweb.title': '!! VOUS AVEZ PIRATÉ LE WEB SOMBRE !!',
+                'modal.darkweb.warning1': 'ÊTES-VOUS CERTAIN DE VOULOIR VISIONNER CETTE VIDÉO ??',
+                'modal.darkweb.warning2': 'Ceci est une VIDÉO MÉDIA PERDUE provenant des sections les plus PROFONDES d\'INTERNET, elle est EXTRÊMEMENT maudite et PEUT INFECTER votre ORDINATEUR d\'un virus TERRIBLE. NE continuez PAS à moins d\'être un HACKER certifié !!',
+                'modal.darkweb.disclaimer': '(Avertissement : Ceci est une blague/un Œuf de Pâques pour l\'Halloween, la vidéo est sécuritaire et l\'avertissement "Web Sombre" est fictif !)',
+                'modal.rolechat_window.title': 'Clavardage de Rôle',
+                'footer.github_source': 'Voir la Source sur GitHub',
+            },
+            'es-es': {
+                'nav.home': 'Inicio',
+                'nav.about': 'Acerca de Mí',
+                'nav.origin': 'Origen del Nombre',
+                'nav.collection': 'Colección',
+                'nav.rolechat': 'RoleChat',
+                'nav.donate': 'Donar en Roblox',
+                'card.mobile.title': 'Navegación',
+                'card.links.title': 'Encuéntrame Online',
+                'card.links.desc': 'Echa un vistazo a mi presencia en diferentes plataformas y conéctate conmigo en varias redes sociales.',
+                'card.links.button': 'Ver Todos los Enlaces',
+                'card.aboutsite.title': 'Sobre Este Sitio',
+                'card.aboutsite.desc1': 'Un campo de juego creativo para experimentos y proyectos de codificación. Aquí comparto mi pasión por el desarrollo web, los juegos y la preservación digital.',
+                'card.aboutsite.desc2': 'Simple pero divertido, ¡como yo! Espera encontrar herramientas, juegos y varios experimentos aquí.',
+                'modal.close': 'Cerrar',
+                'modal.language.title': 'IDIOMA / LANGUAGE / LANGUE',
+                'modal.language.note': 'Nota: Este es un botón de selección de idioma profesional y no vinculante.',
+                'modal.about.title': 'ACERCA DE MÍ',
+                'modal.about.p1': 'Stormwindsky en Internet es un entusiasta de la historia y la cultura. Tiene una experiencia particular en la historia de los países, con una fascinación por Suiza y la historia de Sealand.',
+                'modal.about.p2': 'Además de su interés en la historia, Stormwindsky es un ávido fanático de los videojuegos independientes, como Undertale, Pizza Tower y Baldi. También tiene trastorno del espectro autista.',
+                'modal.about.p3': 'En su tiempo libre, a Stormwindsky le gusta archivar vídeos de YouTube con la Wayback Machine para ayudar a preservar el patrimonio digital, lo que habla de su deseo de preservar los medios para las futuras generaciones. También es fanático de la comunidad Lost Media Wiki.',
+                'modal.about.p4': 'Con su pasión por la historia y la cultura, así como su compromiso con la preservación del patrimonio digital, Stormwindsky es un individuo único y emocionante. Su perfil atípico es un valor añadido para cualquier empresa o proyecto que desee asociarse con él.',
+                'modal.origin.title': 'ORIGEN DE MI NOMBRE DE USUARIO',
+                'modal.origin.p1': 'El nombre "Stormwindsky" proviene de mi madre de Animal Jam y luego de Roblox & Scratch, y después de todas partes 😊',
+                'modal.origin.p2': 'Es un identificador único que me ha acompañado en todas mis aventuras en línea y representa mi identidad digital.',
+                'modal.mobile_collection.title': 'COLECCIÓN (Versión Móvil)',
+                'modal.mobile_collection.p1': 'Debido a limitaciones de rendimiento, la Colección no está incrustada en dispositivos móviles.',
+                'modal.mobile_collection.p2': 'Puedes acceder a la Colección completa en una nueva pestaña:',
+                'modal.mobile_collection.button': 'Ir a Colección',
+                'modal.mobile_rolechat.title': 'ROLECHAT (Versión Móvil)',
+                'modal.mobile_rolechat.p1': 'La aplicación RoleChat está optimizada para escritorio y no se puede mostrar en una ventana móvil en dispositivos móviles.',
+                'modal.mobile_rolechat.p2': 'Puedes acceder directamente al sitio web de RoleChat:',
+                'modal.mobile_rolechat.button': 'Ir a RoleChat',
+                'modal.desktop_collection.title': 'MI COLECCIÓN',
+                'modal.darkweb.title': '!! ¡¡HAS HACKEADO LA WEB OSCURA!!',
+                'modal.darkweb.warning1': '¿ESTÁS SEGURO DE QUE QUIERES VER ESTE VÍDEO??',
+                'modal.darkweb.warning2': 'ESTE ES UN VÍDEO DE MEDIA PERDIDA de las partes más PROFUNDAS de INTERNET, es EXTREMADAMENTE maldito y PROBABLEMENTE infecte tu ORDENADOR con un virus TERRIBLE. ¡¡NO procedas a menos que seas un HACKER certificado!!',
+                'modal.darkweb.disclaimer': '(Descargo de responsabilidad: Esto es solo un divertido Huevo de Pascua/Troll de Halloween, el vídeo es seguro y la advertencia de \'Web Oscura\' es falsa.)',
+                'modal.rolechat_window.title': 'RoleChat',
+                'footer.github_source': 'Ver Fuente en GitHub',
+            },
+            'es-la': {
+                'nav.home': 'Inicio',
+                'nav.about': 'Acerca de Mí',
+                'nav.origin': 'Origen del Nombre',
+                'nav.collection': 'Colección',
+                'nav.rolechat': 'Chat de Rol',
+                'nav.donate': 'Donar en Roblox',
+                'card.mobile.title': 'Navegación',
+                'card.links.title': 'Encuéntrame en Línea',
+                'card.links.desc': 'Revisa mi presencia en diferentes plataformas y conéctate conmigo en varias redes sociales.',
+                'card.links.button': 'Ver Todos los Enlaces',
+                'card.aboutsite.title': 'Acerca de Este Sitio',
+                'card.aboutsite.desc1': 'Un área creativa para experimentos y proyectos de codificación. Aquí comparto mi pasión por el desarrollo web, los juegos y la preservación digital.',
+                'card.aboutsite.desc2': '¡Simple pero divertido, justo como yo! Espera encontrar herramientas, juegos y varios experimentos aquí.',
+                'modal.close': 'Cerrar',
+                'modal.language.title': 'IDIOMA / LANGUAGE / LANGUE',
+                'modal.language.note': 'Nota: Este es un botón de selección de idioma profesional y no vinculante.',
+                'modal.about.title': 'ACERCA DE MÍ',
+                'modal.about.p1': 'Stormwindsky en Internet es un entusiasta de la historia y la cultura. Tiene una experiencia particular en la historia de los países, con una fascinación por Suiza y la historia de Sealand.',
+                'modal.about.p2': 'Además de su interés en la historia, Stormwindsky es un ávido fanático de los videojuegos independientes, como Undertale, Pizza Tower y Baldi. También tiene trastorno del espectro autista.',
+                'modal.about.p3': 'En su tiempo libre, a Stormwindsky le gusta archivar vídeos de YouTube con la Wayback Machine para ayudar a preservar el patrimonio digital, lo que habla de su deseo de preservar los medios para las futuras generaciones. También es fanático de la comunidad Lost Media Wiki.',
+                'modal.about.p4': 'Con su pasión por la historia y la cultura, así como su compromiso con la preservación del patrimonio digital, Stormwindsky es un individuo único y emocionante. Su perfil atípico es un valor añadido para cualquier empresa o proyecto que desee asociarse con él.',
+                'modal.origin.title': 'ORIGEN DE MI NOMBRE DE USUARIO',
+                'modal.origin.p1': 'El nombre "Stormwindsky" proviene de mi mamá de Animal Jam y luego de Roblox & Scratch, y después de todas partes 😊',
+                'modal.origin.p2': 'Es un identificador único que me ha acompañado en todas mis aventuras en línea y representa mi identidad digital.',
+                'modal.mobile_collection.title': 'COLECCIÓN (Versión Móvil)',
+                'modal.mobile_collection.p1': 'Debido a limitaciones de rendimiento, la Colección no está incrustada en dispositivos móviles.',
+                'modal.mobile_collection.p2': 'Puedes acceder a la Colección completa en una nueva pestaña:',
+                'modal.mobile_collection.button': 'Ir a Colección',
+                'modal.mobile_rolechat.title': 'CHAT DE ROL (Versión Móvil)',
+                'modal.mobile_rolechat.p1': 'La aplicación Chat de Rol está optimizada para escritorio y no se puede mostrar en una ventana móvil en dispositivos móviles.',
+                'modal.mobile_rolechat.p2': 'Puedes acceder directamente al sitio web de Chat de Rol:',
+                'modal.mobile_rolechat.button': 'Ir a Chat de Rol',
+                'modal.desktop_collection.title': 'MI COLECCIÓN',
+                'modal.darkweb.title': '!! ¡¡HAS HACKEADO LA WEB OSCURA!!',
+                'modal.darkweb.warning1': '¿ESTÁS SEGURO DE QUE QUIERES VER ESTE VÍDEO??',
+                'modal.darkweb.warning2': 'ESTE ES UN VÍDEO DE MEDIA PERDIDA de las partes más PROFUNDAS de INTERNET, es EXTREMADAMENTE maldito y PROBABLEMENTE infecte tu ORDENADOR con un virus TERRIBLE. ¡¡NO procedas a menos que seas un HACKER certificado!!',
+                'modal.darkweb.disclaimer': '(Descargo de responsabilidad: Esto es solo un divertido Huevo de Pascua/Troll de Halloween, el vídeo es seguro y la advertencia de \'Web Oscura\' es falsa.)',
+                'modal.rolechat_window.title': 'Chat de Rol',
+                'footer.github_source': 'Ver Fuente en GitHub',
+            }
+        };
+
+        function switchLanguage(langCode) {
+            // 1. Sauvegarder la préférence de langue
+            localStorage.setItem(LANG_STORAGE_KEY, langCode);
+
+            // 2. Mettre à jour la balise <html>
+            document.body.lang = langCode;
+
+            // 3. Traduire le contenu
+            translateContent(langCode);
+
+            // 4. Mettre à jour le bouton actif dans la modale
+            updateLanguageButtons(langCode);
+
+            // 5. Fermer la modale
+            closeModal(document.getElementById('languageModal'));
+        }
+
+        function translateContent(langCode) {
+            const currentTranslations = translations[langCode] || translations[DEFAULT_LANG];
+
+            // Traduire tous les éléments marqués avec data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (currentTranslations[key]) {
+                    element.textContent = currentTranslations[key];
+                }
+            });
+
+            // Traduire le titre (spécial)
+            document.title = (currentTranslations['nav.rolechat'] && currentTranslations['nav.about']) 
+                ? `Stormwindsky | ${currentTranslations['nav.about']}` 
+                : 'Stormwindsky | Creative Portfolio';
+        }
+
+        function loadLanguagePreference() {
+            const savedLang = localStorage.getItem(LANG_STORAGE_KEY) || DEFAULT_LANG;
+            
+            // Appliquer la langue par défaut ou sauvegardée au chargement
+            document.body.lang = savedLang;
+            translateContent(savedLang);
+            updateLanguageButtons(savedLang);
+        }
+        
+        function updateLanguageButtons(activeLangCode) {
+            document.querySelectorAll('#languageModal .language-options button').forEach(btn => {
+                const buttonLangCode = btn.onclick.toString().match(/'([^']+)'/)[1];
+                btn.classList.remove('active');
+                if(buttonLangCode === activeLangCode) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // --- Fin Feature Centralized: I18N Translation System ---
+
         // Check if the current environment should load the lightweight version (Mobile detection)
         function isLightweightVersion() {
             // Consider lightweight if window width is <= 768px
@@ -1002,6 +1375,20 @@
                 bgElements.appendChild(ghost);
             }
         }
+        
+        // --- Language Modal Functions ---
+        
+        function openLanguageModal() {
+            const modal = document.getElementById('languageModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        // La fonction switchLanguage est maintenant définie plus haut.
+        
+        // --- End Language Modal Functions ---
 
 
         // Modal functionality for both versions
@@ -1009,6 +1396,8 @@
             // Standard Modals (Always present)
             const aboutModal = document.getElementById('aboutModal');
             const originModal = document.getElementById('originModal');
+            // NEW MODAL
+            const languageModal = document.getElementById('languageModal');
 
             // Desktop Modals (Removed on mobile)
             const collectionModalDesktop = document.getElementById('collectionModal');
@@ -1062,6 +1451,7 @@
                     closeModal(roleChatWindowModalDesktop);
                     closeModal(collectionModalMobile);
                     closeModal(roleChatModalMobile);
+                    closeModal(languageModal); // Close new language modal
                 }
             });
 
@@ -1069,6 +1459,7 @@
             window.onclick = function(event) {
                 if (event.target == aboutModal) closeModal(aboutModal);
                 if (event.target == originModal) closeModal(originModal);
+                if (event.target == languageModal) closeModal(languageModal); // Close new language modal
                 if (event.target == collectionModalDesktop) closeModal(collectionModalDesktop);
                 if (event.target == darkWebModal) closeModal(darkWebModal);
                 if (event.target == collectionModalMobile) closeModal(collectionModalMobile);
@@ -1336,6 +1727,7 @@
             
             // 3. Setup Modals (handles both versions)
             setupModals();
+            loadLanguagePreference(); // CHARGEMENT DE LA LANGUE SAUVEGARDÉE
             
             // 4. Setup RoleChat Window (Desktop Only)
             if (!isLightweightVersion()) {
