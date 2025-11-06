@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Volley - Stormwindsky</title>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="pongCanvas"></canvas>
+        <div id="score-display">
+            <span id="score-left">0</span> - <span id="score-right">0</span>
+        </div>
+        
+        <div id="settings-menu" style="display: none;">
+            <h2>Settings</h2>
+            
+            <label for="game-mode-select">Game Mode / Mode de Jeu:</label>
+            <select id="game-mode-select" onchange="updateWinScoreLabel()">
+                <option value="2p">2 Players</option>
+                <option value="4p">4 Players (Teams)</option>
+            </select>
+            
+            <label for="lang-select">Language / Langue:</label>
+            <select id="lang-select" onchange="updateText()">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+            </select>
+
+            <label id="win-score-label" for="win-score-input">Points to Win / Points pour Gagner:</label>
+            <input type="number" id="win-score-input" value="5" min="1">
+
+            <button onclick="startGame()">Start Game / Commencer la Partie</button>
+        </div>
+        
+        <div id="main-menu">
+            <h1>Vector Volley</h1>
+            <p>A modern 2-player or 4-player team paddle game.</p>
+            <button onclick="showSettings()">Start Game / Commencer la Partie</button>
+
+            <div class="credits">
+                <h3>Music Credits:</h3>
+                <p>
+                    "Pixel Peeker Polka - slower" Kevin MacLeod (incompetech.com)<br>
+                    "Pixel Peeker Polka - faster" Kevin MacLeod (incompetech.com)<br>
+                    Licensed under Creative Commons: By Attribution 4.0 License<br>
+                    <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">http://creativecommons.org/licenses/by/4.0/</a>
+                </p>
+            </div>
+        </div>
+        
+        <div id="game-over" style="display: none;">
+            <h1 id="winner-message"></h1>
+            <button onclick="resetGame()">Play Again / Rejouer</button>
+        </div>
+    </div>
+    
+    <audio id="menu-music" loop preload="auto">
+        <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Pixel%20Peeker%20Polka%20-%20slower.mp3" type="audio/mpeg">
+        Votre navigateur ne supporte pas l'audio.
+    </audio>
+    <audio id="game-music" loop preload="auto">
+        <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Pixel%20Peeker%20Polka%20-%20faster.mp3" type="audio/mpeg">
+        Votre navigateur ne supporte pas l'audio.
+    </audio>
+
+<script>
+// --- CODE JEU VECTOR VOLLEY ---
+// Créé par Stormwindsky
+// Licence MIT (déclarée dans le fichier LICENSE de GitHub)
+
+// Configuration
+const CANVAS_WIDTH = 800;
+const CANVAS_HEIGHT = 500;
+const BACKGROUND_COLOR = '#000000'; // Fond noir
+
+// Couleurs des joueurs (utilisées dans les deux modes)
+const COLORS = {
+    P1: '#FF9900', // Orange (Gauche)
+    P2: '#66CCFF', // Bleu Ciel (Gauche - 4P)
+    P3: '#FF6666', // Rouge (Droite)
+    P4: '#99FF66', // Vert Lime (Droite - 4P)
+    BALL: '#FFFFFF'
+};
+
+// Objets du jeu
+let canvas, ctx;
+let ball;
+let paddles = [];
+let score = { left: 0, right: 0 };
+let winScore = 5; 
+let gameRunning = false;
+let language = 'en'; 
+let gameMode = '2p'; 
+let menuMusic, gameMusic;
+
+// Input Clavier
+let keys = {};
+const PADDLE_SPEED = 5;
+
+// Initialisation
+window.onload = function() {
+    canvas = document.getElementById('pongCanvas');
+    ctx = canvas.getContext('2d');
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+    
+    menuMusic = document.getElementById('menu-music');
+    gameMusic = document.getElementById('game-music');
+
+    // Masquer le score et afficher le menu principal
+    document.getElementById('score-display').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+
+    // Événements clavier
+    document.addEventListener('keydown', (e) => { keys[e.key] = true; });
+    document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+    
+    updateText(); 
+    playMenuMusic(); // Tente de jouer la musique du menu
+};
+
+// --- Gestion Audio ---
+
+function playMenuMusic() {
+    // Note: La lecture automatique peut être bloquée par certains navigateurs.
+    // L'utilisateur devra interagir (cliquer) pour que l'audio démarre.
+    gameMusic.pause();
+    gameMusic.currentTime = 0; // Rembobine
+    menuMusic.currentTime = 0; // Rembobine
+    menuMusic.play().catch(e => console.log("Audio auto-play blocked. User interaction needed.", e));
+}
+
+function playGameMusic() {
+    menuMusic.pause();
+    gameMusic.currentTime = 0; // Assure que la musique redémarre au début
+    gameMusic.play().catch(e => console.log("Audio auto-play blocked.", e));
+}
+
+function stopMusic() {
+    menuMusic.pause();
+    gameMusic.pause();
+    menuMusic.currentTime = 0;
+    gameMusic.currentTime = 0;
+}
+
+
+// --- Fonctions de l'interface utilisateur et du Jeu ---
+
+function showSettings() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('settings-menu').style.display = 'block';
+    updateText();
+    updateWinScoreLabel();
+}
+
+function startGame() {
+    gameMode = document.getElementById('game-mode-select').value;
+    winScore = parseInt(document.getElementById('win-score-input').value) || 5;
+    language = document.getElementById('lang-select').value;
+
+    document.getElementById('settings-menu').style.display = 'none';
+    document.getElementById('score-display').style.display = 'flex';
+    document.getElementById('game-over').style.display = 'none';
+    
+    // Changement de Musique
+    playGameMusic(); 
+
+    initGameObjects();
+    gameRunning = true;
+    requestAnimationFrame(gameLoop);
+    updateText(); 
+}
+
+function resetGame() {
+    score.left = 0;
+    score.right = 0;
+    document.getElementById('score-left').innerText = '0';
+    document.getElementById('score-right').innerText = '0';
+    
+    // Redémarre en affichant le menu principal et en relançant la musique du menu
+    document.getElementById('game-over').style.display = 'none';
+    document.getElementById('score-display').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+    
+    gameRunning = false;
+    playMenuMusic(); 
+    updateText(); 
+}
+
+function updateWinScoreLabel() {
+    const is4p = document.getElementById('game-mode-select').value === '4p';
+    const isFr = language === 'fr';
+    let text = isFr ? 'Points pour Gagner ' : 'Points to Win ';
+    
+    if (is4p) {
+        text += isFr ? '(Équipe):' : '(Team):';
+    } else {
+        text += isFr ? '(Joueur):' : '(Player):';
+    }
+    
+    document.getElementById('win-score-label').innerText = text;
+}
+
+function updateText() {
+    language = document.getElementById('lang-select').value;
+    const isFr = language === 'fr';
+    
+    // Mises à jour des éléments textuels
+    document.title = isFr ? 'Vector Volley - Stormwindsky' : 'Vector Volley - Stormwindsky';
+
+    const elements = {
+        'main-menu h1': 'Vector Volley',
+        'main-menu p': isFr ? 'Un jeu de palettes moderne pour 2 ou 4 joueurs en équipe.' : 'A modern 2-player or 4-player team paddle game.',
+        'button': isFr ? 'Commencer la Partie' : 'Start Game', 
+
+        'settings-menu h2': isFr ? 'Paramètres' : 'Settings',
+        'label[for="game-mode-select"]': isFr ? 'Mode de Jeu / Game Mode:' : 'Game Mode / Mode de Jeu:',
+        'option[value="2p"]': isFr ? '2 Joueurs' : '2 Players',
+        'option[value="4p"]': isFr ? '4 Joueurs (Équipes)' : '4 Players (Teams)',
+        
+        'label[for="lang-select"]': isFr ? 'Langue / Language:' : 'Language / Langue:',
+        
+        '#game-over button': isFr ? 'Rejouer' : 'Play Again'
+    };
+
+    for (const id in elements) {
+        let element = document.querySelector(id);
+        if (element) {
+            if (id === 'button') {
+                document.querySelector('#main-menu button').innerText = elements[id];
+                document.querySelector('#settings-menu button').innerText = elements[id];
+            } else {
+                 element.innerHTML = elements[id];
+            }
+        }
+    }
+    updateWinScoreLabel(); 
+}
+
+// ... (Les classes Paddle et Ball, ainsi que initGameObjects, drawGame, updateGame, gameLoop restent les mêmes que la version précédente) ...
+
+class Paddle { /* ... code identique ... */
+    constructor(x, y, width, height, color, upKey, downKey, isVisible = true) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.upKey = upKey;
+        this.downKey = downKey;
+        this.isVisible = isVisible;
+    }
+    draw() {
+        if (!this.isVisible) return;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+    update() {
+        if (!gameRunning || !this.isVisible) return;
+        if (keys[this.upKey]) {
+            this.y -= PADDLE_SPEED;
+        } else if (keys[this.downKey]) {
+            this.y += PADDLE_SPEED;
+        }
+        if (this.y < 0) {
+            this.y = 0;
+        } else if (this.y + this.height > CANVAS_HEIGHT) {
+            this.y = CANVAS_HEIGHT - this.height;
+        }
+    }
+}
+
+class Ball { 
+    constructor(size) {
+        this.size = size;
+        this.reset();
+    }
+    reset() {
+        this.x = CANVAS_WIDTH / 2;
+        this.y = CANVAS_HEIGHT / 2;
+        let angle = Math.random() * (Math.PI / 2) - Math.PI / 4;
+        if (Math.random() < 0.5) angle += Math.PI;
+
+        this.speed = 4;
+        this.vx = this.speed * Math.cos(angle);
+        this.vy = this.speed * Math.sin(angle);
+    }
+    draw() {
+        ctx.fillStyle = COLORS.BALL;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    update() {
+        if (!gameRunning) return;
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.y - this.size < 0 || this.y + this.size > CANVAS_HEIGHT) {
+            this.vy *= -1;
+        }
+        for (let paddle of paddles) {
+            if (!paddle.isVisible) continue;
+            if (this.x - this.size < paddle.x + paddle.width &&
+                this.x + this.size > paddle.x &&
+                this.y - this.size < paddle.y + paddle.height &&
+                this.y + this.size > paddle.y) {
+
+                if (paddle.x < CANVAS_WIDTH / 2 && this.vx < 0) {
+                    this.vx *= -1.1; 
+                }
+                else if (paddle.x > CANVAS_WIDTH / 2 && this.vx > 0) {
+                    this.vx *= -1.1; 
+                }
+                let relativeIntersectY = (paddle.y + (paddle.height / 2)) - this.y;
+                let normalizedRelativeIntersectionY = relativeIntersectY / (paddle.height / 2);
+                let bounceAngle = normalizedRelativeIntersectionY * (Math.PI / 4); 
+                this.vy = -this.speed * Math.sin(bounceAngle);
+            }
+        }
+        if (this.x + this.size < 0) { 
+            score.left++;
+            document.getElementById('score-left').innerText = score.left;
+            this.checkWin();
+            this.reset();
+            return;
+        }
+        if (this.x - this.size > CANVAS_WIDTH) { 
+            score.right++;
+            document.getElementById('score-right').innerText = score.right;
+            this.checkWin();
+            this.reset();
+            return;
+        }
+    }
+    checkWin() {
+        if (score.left >= winScore) {
+            const winner = gameMode === '4p' ? 
+                (language === 'fr' ? 'Équipe Gauche gagne !' : 'Left Team Wins!') :
+                (language === 'fr' ? 'Joueur Gauche (Orange) gagne !' : 'Left Player (Orange) Wins!');
+            gameOver(winner);
+        } else if (score.right >= winScore) {
+            const winner = gameMode === '4p' ? 
+                (language === 'fr' ? 'Équipe Droite gagne !' : 'Right Team Wins!') :
+                (language === 'fr' ? 'Joueur Droit (Rouge) gagne !' : 'Right Player (Red) Wins!');
+            gameOver(winner);
+        }
+    }
+}
+
+function initGameObjects() {
+    const PADDLE_WIDTH = 10;
+    const PADDLE_HEIGHT = 70;
+    const PADDLE_MARGIN = 20;
+    const CENTER_Y = CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+
+    if (gameMode === '2p') {
+        paddles = [
+            new Paddle(PADDLE_MARGIN, CENTER_Y, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P1, 'w', 's', true),
+            new Paddle(PADDLE_MARGIN, 3 * CANVAS_HEIGHT / 4 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P2, 'z', 'x', false),
+            new Paddle(CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH, CENTER_Y, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P3, 'ArrowUp', 'ArrowDown', true),
+            new Paddle(CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH, 3 * CANVAS_HEIGHT / 4 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P4, 'o', 'l', false),
+        ];
+    } else {
+        paddles = [
+            new Paddle(PADDLE_MARGIN, CANVAS_HEIGHT / 4 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P1, 'w', 's', true),
+            new Paddle(PADDLE_MARGIN, 3 * CANVAS_HEIGHT / 4 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P2, 'z', 'x', true),
+            new Paddle(CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH, CANVAS_HEIGHT / 4 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P3, 'ArrowUp', 'ArrowDown', true),
+            new Paddle(CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH, 3 * CANVAS_HEIGHT / 4 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, COLORS.P4, 'o', 'l', true),
+        ];
+    }
+
+    ball = new Ball(5);
+    ball.reset();
+}
+
+function drawGame() {
+    ctx.fillStyle = BACKGROUND_COLOR;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    ctx.strokeStyle = '#333333';
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(CANVAS_WIDTH / 2, 0);
+    ctx.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT);
+    ctx.stroke();
+    paddles.forEach(p => p.draw());
+    ball.draw();
+}
+
+function updateGame() {
+    paddles.forEach(p => p.update());
+    ball.update();
+}
+
+function gameLoop() {
+    if (!gameRunning) return;
+    updateGame();
+    drawGame();
+    requestAnimationFrame(gameLoop);
+}
+
+function gameOver(message) {
+    gameRunning = false;
+    stopMusic(); // Arrêter la musique de jeu à la fin de la partie
+    document.getElementById('winner-message').innerText = message;
+    document.getElementById('game-over').style.display = 'block';
+}
+
+</script>
+
+<style>
+/* --- CSS --- */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #1a1a1a;
+    font-family: 'Arial', sans-serif;
+    color: #f0f0f0;
+}
+
+#game-container {
+    position: relative;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+    border: 3px solid #333;
+}
+
+#pongCanvas {
+    display: block;
+    background-color: #000;
+}
+
+#score-display {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: #ffffff;
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+#score-left { color: #FF9900; } 
+#score-right { color: #FF6666; } 
+
+/* Menus */
+#main-menu, #settings-menu, #game-over {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+h1 { color: #99FF66; }
+
+/* Crédits */
+.credits {
+    position: absolute;
+    bottom: 20px;
+    font-size: 0.75em;
+    width: 80%;
+    line-height: 1.4;
+    color: #aaa;
+}
+.credits a {
+    color: #99FF66;
+    text-decoration: none;
+}
+.credits h3 {
+    margin-bottom: 5px;
+    font-size: 1em;
+    color: #fff;
+}
+
+
+#settings-menu label, #settings-menu input, #settings-menu select {
+    margin: 10px 0;
+    font-size: 1.1em;
+    display: block;
+    width: 80%;
+    text-align: left;
+}
+
+#settings-menu label { margin-top: 15px; }
+
+input[type="number"], select {
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #222;
+    color: #f0f0f0;
+    margin-left: auto;
+    width: 50%;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #99FF66;
+    background-color: #333;
+    color: #99FF66;
+    border-radius: 5px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+button:hover {
+    background-color: #99FF66;
+    color: #000;
+}
+</style>
+
+</body>
+</html>
