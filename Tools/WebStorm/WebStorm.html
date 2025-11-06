@@ -3,22 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Editor</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Animated Web Editor</title>
+    <style>
+        /* Modern & Animated CSS */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --bg-color: #1e1e1e; /* Dark theme background */
+            --editor-bg: #2d2d2d;
+            --text-color: #f8f8f8;
+            --border-color: #444;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 10px 0;
+            font-size: 1.8em;
+            letter-spacing: 1px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #252526;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls button {
+            margin: 0 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: white;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        #preview {
+            width: 100%;
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: #fff;
+            margin-bottom: 10px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .editor {
+            display: flex;
+            gap: 10px;
+            min-height: 150px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            resize: vertical;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            caret-color: var(--primary-color);
+            transition: all 0.3s ease-in-out;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Editor labels */
+        .editor-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-group label {
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        /* Class to hide the editors - Animated transition */
+        .editor.hidden {
+            max-height: 0;
+            opacity: 0;
+            padding: 0;
+            overflow: hidden;
+            margin-bottom: 0;
+            min-height: 0;
+        }
+
+        /* Class to display the iframe in fullscreen mode - Animated transition */
+        #preview.fullscreen {
+            height: calc(100vh - 60px); /* Adjusting for header height */
+            position: fixed;
+            top: 60px; /* Below the header */
+            left: 0;
+            z-index: 1000;
+            border: none;
+            border-radius: 0;
+        }
+
+        /* Toggle Button styling based on state */
+        .controls button#editButton.view-mode {
+            background-color: #28a745; /* Green for 'Edit' */
+        }
+        .controls button#editButton.view-mode:hover {
+            background-color: #1e7e34;
+        }
+    </style>
 </head>
 <body>
-    <h1>Web Editor</h1>
-    <div class="controls">
-        <button id="editButton">View</button>
-        <button id="saveButton">Save</button>
-        <button id="copyLinkButton">Copy the link</button>
+    <div class="header">
+        <h1>Code Playground 🚀</h1>
+        <div class="controls">
+            <button id="editButton">View Preview</button>
+            <button id="saveButton">Save to URL</button>
+            <button id="copyLinkButton">Copy Link</button>
+        </div>
     </div>
-    <iframe id="preview"></iframe>
-    <div class="editor">
-        <textarea id="htmlEditor" placeholder="Put your HTML here..."></textarea>
-        <textarea id="cssEditor" placeholder="Put your CSS here..."></textarea>
-        <textarea id="jsEditor" placeholder="Put your JavaScript here..."></textarea>
+    <div class="container">
+        <iframe id="preview"></iframe>
+        <div class="editor">
+            <div class="editor-group">
+                <label for="htmlEditor">HTML</label>
+                <textarea id="htmlEditor" placeholder="Put your HTML here..."></textarea>
+            </div>
+            <div class="editor-group">
+                <label for="cssEditor">CSS</label>
+                <textarea id="cssEditor" placeholder="Put your CSS here..."></textarea>
+            </div>
+            <div class="editor-group">
+                <label for="jsEditor">JavaScript</label>
+                <textarea id="jsEditor" placeholder="Put your JavaScript here..."></textarea>
+            </div>
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const htmlEditor = document.getElementById('htmlEditor');
+            const cssEditor = document.getElementById('cssEditor');
+            const jsEditor = document.getElementById('jsEditor');
+            const preview = document.getElementById('preview');
+            const saveButton = document.getElementById('saveButton');
+            const editButton = document.getElementById('editButton');
+            const copyLinkButton = document.getElementById('copyLinkButton');
+            const editorContainer = document.querySelector('.editor');
+
+            let isEditMode = true;
+
+            // Update the preview iframe content
+            function updatePreview() {
+                const html = htmlEditor.value;
+                const css = `<style>${cssEditor.value}</style>`;
+                const js = `<script>${jsEditor.value}<\/script>`; // Escaping / in script tag to avoid premature termination
+                const content = `${css}${html}${js}`;
+                preview.srcdoc = content;
+            }
+
+            // Save content to the URL hash (more modern and avoids server request issues)
+            function saveContent() {
+                const content = {
+                    html: htmlEditor.value,
+                    css: cssEditor.value,
+                    js: jsEditor.value
+                };
+                const data = JSON.stringify(content);
+                const base64 = btoa(data); // Encode to Base64
+                // Use hash for content storage
+                const url = `${window.location.origin}${window.location.pathname}#${base64}`;
+                window.history.pushState({}, '', url); // Update URL
+                alert('Content saved to the URL hash!');
+            }
+
+            // Load content from the URL hash
+            function loadContent() {
+                const hash = window.location.hash.substring(1); // Get content after '#'
+                if (hash) {
+                    try {
+                        const data = atob(hash); // Decode Base64
+                        const { html, css, js } = JSON.parse(data);
+                        htmlEditor.value = html || '';
+                        cssEditor.value = css || '';
+                        jsEditor.value = js || '';
+                    } catch (e) {
+                        console.error("Error loading content from URL hash:", e);
+                    }
+                }
+            }
+
+            // Copy the link to the clipboard
+            function copyLink() {
+                // Ensure content is up-to-date in the hash before copying
+                const content = {
+                    html: htmlEditor.value,
+                    css: cssEditor.value,
+                    js: jsEditor.value
+                };
+                const data = JSON.stringify(content);
+                const base64 = btoa(data);
+                const url = `${window.location.origin}${window.location.pathname}#${base64}`;
+
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(() => {
+                    alert('Error copying link. Please copy manually.');
+                });
+            }
+
+            // Toggle between edit and preview mode
+            function toggleEditMode() {
+                isEditMode = !isEditMode;
+                if (isEditMode) {
+                    // Edit Mode: show editors and adjust preview size
+                    editorContainer.classList.remove('hidden');
+                    preview.classList.remove('fullscreen');
+                    editButton.textContent = 'View Preview';
+                    editButton.classList.remove('view-mode');
+                } else {
+                    // Preview Mode: hide editors and display fullscreen preview
+                    editorContainer.classList.add('hidden');
+                    preview.classList.add('fullscreen');
+                    editButton.textContent = 'Edit Code';
+                    editButton.classList.add('view-mode');
+                    updatePreview(); // Ensure the latest code is shown
+                }
+            }
+
+            // Event Listeners
+            htmlEditor.addEventListener('input', updatePreview);
+            cssEditor.addEventListener('input', updatePreview);
+            jsEditor.addEventListener('input', updatePreview);
+            saveButton.addEventListener('click', saveContent);
+            editButton.addEventListener('click', toggleEditMode);
+            copyLinkButton.addEventListener('click', copyLink);
+
+            // Initialization
+            loadContent();
+            updatePreview();
+        });
+    </script>
 </body>
 </html>
