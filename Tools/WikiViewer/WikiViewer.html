@@ -3,12 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Wiki Viewer</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>WikiViewer - Your Modern Wiki Reader</title>
+    <style>
+        /*
+         * REVISED CSS FOR VISUAL STABILITY (Using CSS Grid)
+         */
+
+        :root {
+            --header-height: 60px;
+            --sidebar-width: 250px;
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --article-bg: #f5f5dc; /* Book-like color */
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            /* CSS Grid Layout for structure: Header on top, Sidebar | Main Content below */
+            display: grid;
+            grid-template-areas:
+                "header header"
+                "sidebar main";
+            grid-template-rows: var(--header-height) 1fr;
+            grid-template-columns: var(--sidebar-width) 1fr;
+        }
+
+        /* --- 1. Header --- */
+        header {
+            grid-area: header;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            background-color: var(--secondary-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            z-index: 1000;
+        }
+
+        header .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #source-select, #language-select, #search-input, #search-button {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        #search-input {
+            width: 250px;
+            border: 2px solid var(--primary-color);
+        }
+
+        #source-select, #language-select {
+            border: 2px solid var(--primary-color);
+            background-color: white;
+        }
+
+        #search-button {
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #search-button:hover {
+            background-color: #2980b9;
+        }
+
+        /* --- 2. Sidebar --- */
+        .sidebar {
+            grid-area: sidebar;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            /* Height is handled by grid: 1fr of the remaining height after the header */
+        }
+
+        .sidebar h3 {
+            padding: 0 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+            color: var(--primary-color);
+        }
+        
+        /* --- 3. Main Content (Article Container) --- */
+        main {
+            grid-area: main;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+        }
+
+        #article-container {
+            max-width: 900px;
+            width: 100%;
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            background-color: var(--article-bg);
+            padding: 40px;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            /* Transition for loading effect */
+            opacity: 0;
+            filter: blur(5px);
+            transition: opacity 1s ease-in-out, filter 1s ease-in-out;
+            min-height: calc(100vh - var(--header-height) - 80px); /* Ensure minimum height */
+        }
+        
+        #article-container.visible {
+            opacity: 1;
+            filter: blur(0);
+        }
+        
+        /* --- 4. Article Content Styles --- */
+
+        #article-container h1 {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        #article-container h2, #article-container h3, #article-container h4 {
+            color: var(--primary-color);
+            margin-top: 30px;
+            border-left: 5px solid var(--primary-color);
+            padding-left: 10px;
+        }
+
+        #article-container p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        /* Infobox and Tables - ensuring they float properly without breaking layout */
+        #article-container table, #article-container .infobox {
+            max-width: 100%;
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        
+        .infobox, .infobox_v2, .infobox-v2 {
+            width: 300px; 
+            float: right; /* Allow text to wrap around */
+            margin-left: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .infobox th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        #article-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        /* --- 5. Floating Controls --- */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            background-color: rgba(44, 62, 80, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+        }
+        
+        .controls button, .controls select, .controls input {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .controls select, .controls input {
+            background-color: white;
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        #loading-indicator {
+            display: none;
+            color: white;
+            align-self: center;
+        }
+
+        /* --- 6. Image Overlay --- */
+        .image-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .image-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .image-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+
+        .image-overlay img.zoomed {
+            transform: scale(1.5);
+            cursor: zoom-out;
+        }
+
+        /* --- 7. Footer --- */
+        footer {
+            width: calc(100% - var(--sidebar-width));
+            background-color: #34495e;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 12px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            z-index: 900;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        /* --- 8. Media Queries (Responsiveness) --- */
+        @media (max-width: 1000px) {
+            body {
+                grid-template-areas:
+                    "header header"
+                    "main main";
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none; /* Hide sidebar on small screens */
+            }
+
+            main {
+                padding: 10px;
+            }
+
+            #article-container {
+                margin: 0;
+                padding: 20px;
+            }
+            
+            .controls {
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
+                bottom: 10px;
+                gap: 5px;
+                flex-wrap: wrap;
+                max-width: 95%;
+                justify-content: center;
+            }
+
+            footer {
+                display: none; /* Hide fixed footer on small screens */
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
-        <div class="logo">WikiViewer</div>
+        <div class="logo">WikiViewer 📖</div>
         <div class="search-container">
             <select id="source-select">
                 <option value="wikipedia">Wikipedia</option>
@@ -23,44 +370,341 @@
                 <option value="es">Español</option>
                 <option value="de">Deutsch</option>
                 <option value="it">Italiano</option>
-                <!-- Add more languages if needed -->
             </select>
             <input type="text" id="search-input" placeholder="Search...">
             <button id="search-button">Search</button>
         </div>
     </header>
     <div class="sidebar">
+        <h3>Navigation</h3>
         <ul>
-            <li><a href="#" id="home-link">Home</a></li>
-            <li><a href="#" id="random-link">Random Article</a></li>
+            <li><a href="#" id="home-link">🏠 Home</a></li>
+            <li><a href="#" id="random-link">🎲 Random Article</a></li>
         </ul>
     </div>
-    <div id="article-container"></div>
+    
+    <main>
+        <div id="article-container">
+            <h2>Welcome to WikiViewer!</h2>
+            <p>Use the search bar above to find an article on any Wikimedia project (Wikipedia, Wikisource, etc.). The layout uses CSS Grid to ensure the menu and content never overlap, fixing previous visual bugs.</p>
+            <p>Article content will be injected here. Remember to enter your LibreTranslate API key in the controls below if you want to use the translation feature.</p>
+        </div>
+    </main>
 
-    <!-- TTS, translation, and API key controls -->
     <div class="controls">
-        <button id="tts-toggle">Enable TTS</button>
-        <select id="voice-select">
-            <!-- Voice options will be added dynamically -->
-        </select>
+        <button id="tts-toggle">Enable TTS 🗣️</button>
         <select id="translate-select">
             <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="de">Deutsch</option>
-            <option value="it">Italiano</option>
-            <!-- Add more languages if needed -->
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
         </select>
-        <button id="translate-button">Translate</button>
-        <input type="text" id="api-key-input" placeholder="Enter your LibreTranslate API key">
+        <button id="translate-button">Translate 🌐</button>
+        <input type="password" id="api-key-input" placeholder="LibreTranslate API Key">
+        <span id="loading-indicator">Loading...</span>
     </div>
 
-    <!-- Credits and GitHub link -->
     <footer>
-        <p>Not affiliated with <a href="https://wikimediafoundation.org/" target="_blank">Wikimedia Foundation but thx for your api</a></p>
-        <p>View the source code on <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">GitHub</a></p>
+        <p>Not affiliated with the <a href="https://wikimediafoundation.org/" target="_blank">Wikimedia Foundation</a>, but thanks for the API.</p>
+        <p>Source code inspired by the Wikiwand concept.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <div class="image-overlay"></div>
+
+    <script>
+        //
+        // --- REVISED AND OPTIMIZED JAVASCRIPT ---
+        //
+        
+        /**
+         * Generic function to build the Wikimedia REST API URL.
+         * @param {string} title - The article title.
+         * @param {string} lang - The language code.
+         * @param {string} source - The project name (e.g., wikipedia).
+         * @returns {string} The API URL.
+         */
+        const buildArticleUrl = (title, lang, source) => {
+            // Replace spaces with underscores (MediaWiki convention) and encode
+            const encodedTitle = encodeURIComponent(title.replace(/ /g, '_'));
+            return `https://${lang}.${source}.org/api/rest_v1/page/html/${encodedTitle}`;
+        };
+
+        /**
+         * Function to build the random article URL.
+         */
+        const buildRandomUrl = (lang, source) => {
+            return `https://${lang}.${source}.org/api/rest_v1/page/random/html`;
+        };
+
+        /**
+         * Fetches an article from a given URL.
+         */
+        const fetchArticle = (url, source, title) => {
+            document.getElementById('article-container').classList.remove('visible');
+            document.getElementById('loading-indicator').style.display = 'inline';
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            const errorMsg = `Article not found or API error: ${response.status} ${response.statusText}`;
+                            throw new Error(errorMsg);
+                        });
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // If random article, try to extract the actual title
+                    let actualTitle = title; 
+                    if (!actualTitle) {
+                        const match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+                        if (match && match[1]) {
+                            actualTitle = match[1].replace(/<[^>]*>/g, '').trim(); 
+                            document.getElementById('search-input').value = actualTitle;
+                        }
+                    }
+
+                    displayArticle(html, source);
+                })
+                .catch(error => {
+                    console.error('Article fetch error:', error);
+                    document.getElementById('article-container').innerHTML = `<p style="color: red; text-align: center; margin-top: 50px;">Error: ${error.message}</p>`;
+                    document.getElementById('article-container').classList.add('visible');
+                })
+                .finally(() => {
+                    document.getElementById('loading-indicator').style.display = 'none';
+                });
+        };
+
+        // --- Action Handlers ---
+
+        const handleSearch = () => {
+            const query = document.getElementById('search-input').value.trim();
+            const source = document.getElementById('source-select').value;
+            const lang = document.getElementById('language-select').value;
+            if (query) {
+                const url = buildArticleUrl(query, lang, source);
+                fetchArticle(url, source, query);
+            }
+        };
+
+        const handleRandom = (e) => {
+            e.preventDefault();
+            const source = document.getElementById('source-select').value;
+            const lang = document.getElementById('language-select').value;
+            const url = buildRandomUrl(lang, source);
+            fetchArticle(url, source, undefined); 
+        };
+
+        const handleHome = (e) => {
+            e.preventDefault();
+            const container = document.getElementById('article-container');
+            container.classList.remove('visible'); 
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h2>Welcome to WikiViewer!</h2>
+                    <p>Use the search bar above to find an article on any Wikimedia project (Wikipedia, Wikisource, etc.). The layout uses CSS Grid to ensure the menu and content never overlap, fixing previous visual bugs.</p>
+                    <p>Article content will be injected here. Remember to enter your LibreTranslate API key in the controls below if you want to use the translation feature.</p>
+                `;
+                document.getElementById('search-input').value = '';
+                container.classList.add('visible'); 
+            }, 500);
+        };
+        
+        // --- Article Display and Post-Processing ---
+
+        /**
+         * Displays the article and post-processes the HTML for integration.
+         */
+        function displayArticle(html, source) {
+            const articleContainer = document.getElementById('article-container');
+            articleContainer.classList.remove('visible'); 
+            
+            // Wait for the exit transition to finish before injecting new content
+            setTimeout(() => {
+                articleContainer.innerHTML = html;
+
+                // 1. Image Processing
+                articleContainer.querySelectorAll('img').forEach(img => {
+                    const src = img.getAttribute('src');
+                    // Ensure image URLs are absolute
+                    if (src && src.startsWith('//')) {
+                        img.src = `https:${src}`;
+                    } else if (src && src.startsWith('/')) {
+                        img.src = `https://upload.wikimedia.org${src}`;
+                    }
+
+                    // Open image overlay on click
+                    img.addEventListener('click', function (e) {
+                        e.stopPropagation(); 
+                        openImageOverlay(img.src);
+                    });
+                });
+
+                // 2. Intercept Internal Links for in-app navigation
+                articleContainer.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        // Ignore internal anchor links (TOC)
+                        if (link.href.startsWith('#') || link.classList.contains('mw-jump')) {
+                            return; 
+                        }
+                        
+                        // Check if the link points to the same Wiki or a similar one
+                        try {
+                            const url = new URL(link.href);
+                            // If it's a link to a Wikipedia article (or other valid project link)
+                            if (url.hostname.includes(source)) { 
+                                e.preventDefault(); 
+                                
+                                let articleTitle = url.pathname.split('/').pop(); 
+                                articleTitle = decodeURIComponent(articleTitle).replace(/_/g, ' ');
+
+                                const newLangMatch = url.hostname.match(/^(\w+)\./);
+                                const newLang = newLangMatch ? newLangMatch[1] : document.getElementById('language-select').value;
+                                
+                                let newSource = source; 
+                                // Simple logic to check if the target project changes (e.g., from 'en.wikipedia.org' to 'en.wikisource.org')
+                                if (url.hostname.includes('wikisource')) newSource = 'wikisource';
+                                else if (url.hostname.includes('wikipedia')) newSource = 'wikipedia';
+                                // ... add more checks for other projects if needed ...
+                                
+                                document.getElementById('search-input').value = articleTitle;
+                                document.getElementById('language-select').value = newLang;
+                                document.getElementById('source-select').value = newSource;
+
+                                handleSearch(); // Rerun search with new article
+                            }
+
+                        } catch (err) {
+                            // If URL construction fails (e.g., mailto or completely relative), ignore or open externally
+                            console.warn('Non-standard link intercepted, opening externally:', link.href, err);
+                            window.open(link.href, '_blank'); 
+                        }
+                    });
+                });
+
+                // Start the entrance transition
+                articleContainer.classList.add('visible'); 
+            }, 500); 
+        }
+
+        // --- Interaction Functions (Overlay & TTS/Translation) ---
+
+        /** Opens an overlay for image inspection. */
+        function openImageOverlay(src) {
+            const overlay = document.querySelector('.image-overlay');
+            overlay.innerHTML = `<img src="${src}" alt="Enlarged Image">`;
+            
+            setTimeout(() => overlay.classList.add('active'), 10);
+
+            const img = overlay.querySelector('img');
+            img.classList.remove('zoomed'); 
+            
+            // Zoom/Unzoom on click
+            img.addEventListener('click', function (e) {
+                e.stopPropagation();
+                img.classList.toggle('zoomed');
+                img.style.cursor = img.classList.contains('zoomed') ? 'zoom-out' : 'zoom-in';
+            });
+
+            // Close overlay on background click
+            overlay.addEventListener('click', function () {
+                overlay.classList.remove('active');
+                img.classList.remove('zoomed');
+            }, { once: true });
+        }
+
+
+        let speech = null;
+        let isTTSEnabled = false;
+
+        document.getElementById('tts-toggle').addEventListener('click', function () {
+            const articleText = document.getElementById('article-container').innerText;
+            const ttsButton = document.getElementById('tts-toggle');
+            const targetLang = document.getElementById('language-select').value;
+
+            if (window.speechSynthesis) {
+                if (!isTTSEnabled) {
+                    window.speechSynthesis.cancel();
+                    speech = new SpeechSynthesisUtterance(articleText);
+                    speech.lang = targetLang; 
+                    window.speechSynthesis.speak(speech);
+                    ttsButton.textContent = 'Disable TTS 🔇';
+                    isTTSEnabled = true;
+                } else {
+                    window.speechSynthesis.cancel();
+                    ttsButton.textContent = 'Enable TTS 🗣️';
+                    isTTSEnabled = false;
+                }
+            } else {
+                alert('Your browser does not support Text-to-Speech (TTS).');
+            }
+        });
+
+        document.getElementById('translate-button').addEventListener('click', function () {
+            const targetLang = document.getElementById('translate-select').value;
+            const articleText = document.getElementById('article-container').innerText; 
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const originalLang = document.getElementById('language-select').value;
+
+            if (!apiKey) {
+                alert('Please enter a LibreTranslate API key.');
+                return;
+            }
+
+            if (isTTSEnabled) {
+                window.speechSynthesis.cancel();
+                document.getElementById('tts-toggle').textContent = 'Enable TTS 🗣️';
+                isTTSEnabled = false;
+            }
+
+            loadingIndicator.style.display = 'inline';
+
+            fetch('https://libretranslate.com/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    q: articleText,
+                    source: originalLang,
+                    target: targetLang,
+                    api_key: apiKey,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.translatedText) {
+                        // Replace text content only
+                        document.getElementById('article-container').innerText = data.translatedText;
+                        alert(`Translation successful to ${targetLang}. Note: HTML structure is lost.`);
+                    } else {
+                        console.error('Translation error:', data);
+                        alert(`Error during translation. Message: ${data.error || 'Unknown error'}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Network or translation error:', error);
+                    alert('Network or translation error. Please try again.');
+                })
+                .finally(() => {
+                    loadingIndicator.style.display = 'none';
+                });
+        });
+
+
+        // --- Global Event Listeners ---
+
+        document.getElementById('search-button').addEventListener('click', handleSearch);
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        document.getElementById('home-link').addEventListener('click', handleHome);
+        document.getElementById('random-link').addEventListener('click', handleRandom);
+
+    </script>
 </body>
 </html>
