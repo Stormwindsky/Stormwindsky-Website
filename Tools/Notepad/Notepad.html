@@ -191,9 +191,13 @@
         }
         .modal-buttons {
             margin-top: 20px;
+            display: flex; /* Pour aligner les boutons de kit */
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .modal-buttons button {
-            margin: 0 10px;
+            margin: 0; /* Retiré le margin pour utiliser le gap */
         }
         .url-counter {
             margin-left: 10px;
@@ -291,27 +295,20 @@
         #themeToggle:hover {
             background-color: #5a6268;
         }
+        /* Nouveau style pour le bouton Kits */
+        #kitsBtn {
+            background-color: #ffc107; /* Jaune */
+            color: #333;
+        }
+        #kitsBtn:hover {
+            background-color: #e0a800;
+        }
     </style>
 </head>
 <body>
     <div class="notepad drop-zone" id="dropZone">
         <div class="drop-overlay" id="dropOverlay">Drop file here</div>
-        <textarea id="editor" placeholder="Start typing here...">*CZ = MonProjet*
-*Note = Ce projet utilise des ressources sous licence MIT. Merci de créditer les auteurs originaux.*
-
-*F = mods*
-*File = https://cdn.modrinth.com/data/P7dR8mSH/versions/UapVHwiP/fabric-api-0.92.6%2B1.20.1.jar*
-*File = https://cdn.modrinth.com/data/9s6osm5g/versions/2xQdCMyG/cloth-config-11.1.136-fabric.jar*
-*File = https://cdn.modrinth.com/data/EsAfCjCV/versions/xcauwnEB/appleskin-fabric-mc1.20.1-2.5.1.jar*
-*end*
-
-*F = resourcepacks*
-*File = https://cdn.modrinth.com/data/BaY1UdGV/versions/xHC7bqmW/Unique%20Dark%20-%20Lite%20-%201.20.1.zip*
-*end*
-
-*F = config*
-*File = CF + json + name = config.json = {"MC-577":true,"MC-22882":true,"MC-59810":true,"MC-89146":true,"MC-90683":true,"MC-112730":true,"MC-122477":true,"MC-199467":true,"MC-235035":true,"MC-237493":true,"MC-263865":true,"opt_out_updater":true,"gameplay_fixes_in_multiplayer":false,"default_disabled":true}*
-*end*</textarea>
+        <textarea id="editor" placeholder="Start typing here...">Text here!</textarea>
         <div id="statusMessage" class="status-message"></div>
         
         <div class="controls">
@@ -341,7 +338,6 @@
                 </div>
                 <button onclick="saveAsURL()" id="saveAsURLBtn">Save as URL</button>
                 
-                <!-- File upload button -->
                 <label for="fileInput" class="file-input-label" id="fileInputLabel">
                     Load File
                 </label>
@@ -353,6 +349,7 @@
                 <button id="createZipBtn" onclick="createZipFromNotepad()">Create .zip</button>
                 <span id="urlCounter" class="url-counter">0 URLs/CFs</span>
                 <button onclick="toggleTTSControls()" id="ttsBtn">TTS</button>
+                <button id="kitsBtn" onclick="showKitsModal()">Kits</button>
                 <button id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
                 <select id="languageSelector" class="language-selector" onchange="changeLanguage()">
                     <option value="en">English</option>
@@ -376,7 +373,6 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
     <div id="confirmationModal" class="modal">
         <div class="modal-content">
             <h3 id="confirmDownloadTitle">Download Confirmation</h3>
@@ -388,7 +384,6 @@
         </div>
     </div>
 
-    <!-- Warning Modal -->
     <div id="warningModal" class="modal warning-modal">
         <div class="modal-content">
             <h3 id="warningTitle">Security Warning</h3>
@@ -396,6 +391,19 @@
             <div class="modal-buttons">
                 <button onclick="proceedWithWarning()" id="warningProceedBtn">I know what I'm doing</button>
                 <button onclick="cancelWithWarning()" style="background-color: #6c757d;" id="warningCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="kitsModal" class="modal">
+        <div class="modal-content">
+            <h3 id="kitsTitle">Select a Kit</h3>
+            <p id="kitsText">Selecting a kit will **replace** all content in the editor.</p>
+            <div class="modal-buttons">
+                <button onclick="insertKit('zip')" style="background-color: #17a2b8;" id="kitZipBtn">ZIP Creation</button>
+                <button onclick="insertKit('html')" style="background-color: #dc3545;" id="kitHtmlBtn">HTML Page</button>
+                <button onclick="insertKit('json')" style="background-color: #ffc107;" id="kitJsonBtn">JSON Example</button>
+                <button onclick="closeKitsModal()" style="background-color: #6c757d;" id="kitCloseBtn">Cancel</button>
             </div>
         </div>
     </div>
@@ -411,6 +419,51 @@
         let warningData = null;
         let isDarkMode = false;
         
+        // --- Nouveaux Kits de texte ---
+        const kits = {
+            zip: 
+`*CZ = MonProjet*
+*Note = Ce projet utilise des ressources sous licence MIT. Merci de créditer les auteurs originaux.*
+
+*F = mods*
+*File = https://cdn.modrinth.com/data/P7dR8mSH/versions/UapVHwiP/fabric-api-0.92.6%2B1.20.1.jar*
+*File = https://cdn.modrinth.com/data/9s6osm5g/versions/2xQdCMyG/cloth-config-11.1.136-fabric.jar*
+*File = https://cdn.modrinth.com/data/EsAfCjCV/versions/xcauwnEB/appleskin-fabric-mc1.20.1-2.5.1.jar*
+*end*
+
+*F = resourcepacks*
+*File = https://cdn.modrinth.com/data/BaY1UdGV/versions/xHC7bqmW/Unique%20Dark%20-%20Lite%20-%201.20.1.zip*
+*end*
+
+*F = config*
+*File = CF + json + name = config.json = {"MC-577":true,"MC-22882":true,"MC-59810":true,"MC-89146":true,"MC-90683":true,"MC-112730":true,"MC-122477":true,"MC-199467":true,"MC-235035":true,"MC-237493":true,"MC-263865":true,"opt_out_updater":true,"gameplay_fixes_in_multiplayer":false,"default_disabled":true}*
+*end*`,
+            html: 
+`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Kit Page</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <p>This is a basic HTML page structure.</p>
+</body>
+</html>`,
+            json: 
+`{
+    "projectName": "Example JSON Kit",
+    "version": "1.0",
+    "description": "A basic JSON structure.",
+    "files": [
+        {"name": "file1.txt", "size": 1024},
+        {"name": "file2.jpg", "size": 524288}
+    ]
+}`
+        };
+        // -------------------------------------
+
         // Multilingual texts
         const translations = {
             en: {
@@ -422,6 +475,13 @@
                 downloadFiles: "Download Files",
                 createZip: "Create .zip",
                 tts: "TTS",
+                kits: "Kits",
+                kitsTitle: "Select a Kit",
+                kitsText: "Selecting a kit will **replace** all content in the editor.",
+                kitZipBtn: "ZIP Creation",
+                kitHtmlBtn: "HTML Page",
+                kitJsonBtn: "JSON Example",
+                kitCloseBtn: "Cancel",
                 ttsVoice: "Voice:",
                 ttsRate: "Speed:",
                 ttsPlay: "Play",
@@ -461,6 +521,13 @@
                 downloadFiles: "Télécharger les fichiers",
                 createZip: "Créer .zip",
                 tts: "TTS",
+                kits: "Kits",
+                kitsTitle: "Sélectionner un Kit",
+                kitsText: "Sélectionner un kit **remplacera** tout le contenu de l'éditeur.",
+                kitZipBtn: "Création ZIP",
+                kitHtmlBtn: "Page HTML",
+                kitJsonBtn: "Exemple JSON",
+                kitCloseBtn: "Annuler",
                 ttsVoice: "Voix:",
                 ttsRate: "Vitesse:",
                 ttsPlay: "Jouer",
@@ -528,6 +595,13 @@
             document.getElementById('downloadFilesBtn').textContent = lang.downloadFiles;
             document.getElementById('createZipBtn').textContent = lang.createZip;
             document.getElementById('ttsBtn').textContent = lang.tts;
+            document.getElementById('kitsBtn').textContent = lang.kits; // Nouveau
+            document.getElementById('kitsTitle').textContent = lang.kitsTitle; // Nouveau
+            document.getElementById('kitsText').textContent = lang.kitsText; // Nouveau
+            document.getElementById('kitZipBtn').textContent = lang.kitZipBtn; // Nouveau
+            document.getElementById('kitHtmlBtn').textContent = lang.kitHtmlBtn; // Nouveau
+            document.getElementById('kitJsonBtn').textContent = lang.kitJsonBtn; // Nouveau
+            document.getElementById('kitCloseBtn').textContent = lang.kitCloseBtn; // Nouveau
             document.getElementById('ttsVoiceLabel').textContent = lang.ttsVoice;
             document.getElementById('ttsRateLabel').textContent = lang.ttsRate;
             document.getElementById('ttsPlayBtn').textContent = lang.ttsPlay;
@@ -549,7 +623,11 @@
             
             // Update file format selector options
             const formatSelect = document.getElementById('fileFormat');
-            if (formatSelect.options[0].text !== (currentLanguage === 'en' ? 'Text (.txt)' : 'Texte (.txt)')) {
+            // Check if options need update (using the first option as a reference)
+            const firstOptionText = formatSelect.options.length > 0 ? formatSelect.options[0].text : '';
+            const expectedText = currentLanguage === 'en' ? 'Text (.txt)' : 'Texte (.txt)';
+            
+            if (firstOptionText !== expectedText) {
                 formatSelect.innerHTML = '';
                 const options = [
                     {value: 'txt', text: currentLanguage === 'en' ? 'Text (.txt)' : 'Texte (.txt)'},
@@ -685,7 +763,7 @@
         
         // Function to save text as a file with selected format
         function saveAsFile() {
-            const text = document.getElementById('editor').value;
+            let text = document.getElementById('editor').value; // Use 'let' here as it might be modified
             const formatSelect = document.getElementById('fileFormat');
             const format = formatSelect.value;
             
@@ -744,9 +822,9 @@
             const text = document.getElementById('editor').value;
             const encodedText = encodeURIComponent(text);
             window.location.hash = encodedText;
-            alert(currentLanguage === 'en' 
+            alert(translations[currentLanguage].saveAsURLAlert || (currentLanguage === 'en' 
                 ? "Text saved in URL. You can now copy this URL to share your notes." 
-                : "Texte enregistré dans l'URL. Vous pouvez maintenant copier cette URL pour partager vos notes.");
+                : "Texte enregistré dans l'URL. Vous pouvez maintenant copier cette URL pour partager vos notes."));
         }
 
         // Function to detect URLs and CF+format in text
@@ -821,7 +899,7 @@
         // Function to download files based on selected mode
         async function downloadFiles() {
             if (detectedUrls.length === 0) {
-                alert(currentLanguage === 'en' ? 'No URLs/CF detected in the text.' : 'Aucune URL/CF détectée dans le texte.');
+                alert(translations[currentLanguage].noURLsCFError || (currentLanguage === 'en' ? 'No URLs/CF detected in the text.' : 'Aucune URL/CF détectée dans le texte.'));
                 return;
             }
             
@@ -1168,7 +1246,8 @@
                         let currentFolder = zip;
                         
                         for (const folder of pathParts) {
-                            if (!currentFolder.folder(folder)) {
+                            // Check if the folder already exists before creating it
+                            if (!currentFolder.folder(folder)._files[folder]) {
                                 currentFolder = currentFolder.folder(folder);
                             } else {
                                 currentFolder = currentFolder.folder(folder);
@@ -1209,6 +1288,35 @@
                 showStatusMessage(translations[currentLanguage].noFilesError, true);
             }
         }
+
+        // --- Fonctions de Kits (Nouveau) ---
+
+        // Afficher la modale des Kits
+        function showKitsModal() {
+            const modal = document.getElementById('kitsModal');
+            modal.style.display = 'block';
+        }
+
+        // Fermer la modale des Kits
+        function closeKitsModal() {
+            const modal = document.getElementById('kitsModal');
+            modal.style.display = 'none';
+        }
+
+        // Insérer le contenu du Kit
+        function insertKit(kitType) {
+            closeKitsModal();
+            const editor = document.getElementById('editor');
+            
+            if (kits[kitType]) {
+                editor.value = kits[kitType];
+                checkForURLs(); // Vérifier les URLs après l'insertion
+            } else {
+                alert(currentLanguage === 'en' ? 'Unknown kit type.' : 'Type de kit inconnu.');
+            }
+        }
+        
+        // --- Fin des Fonctions de Kits ---
 
         // Load text from URL hash when page loads
         window.onload = function() {
