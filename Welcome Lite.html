@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="images/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Creative Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Variables de couleurs modernes et stables */
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-bg: #1a1a2e;
+            --light-bg: #f8f9fa;
+            --text-dark: #2b2d42;
+            --text-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --nav-bg: #3a0ca3;
+            /* Transition simple et légère */
+            --transition: all 0.3s ease-out;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 14px 28px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.08);
+            --gradient-primary: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); /* Simplifié */
+            --gradient-secondary: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        /* Dark mode - maintenu pour un style moderne */
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+        }
+
+        body.dark-mode .card {
+            background-color: #16213e;
+            color: var(--text-light);
+        }
+
+        body.dark-mode nav,
+        body.dark-mode header,
+        body.dark-mode footer {
+            background-color: #0f3460;
+        }
+
+        header {
+            background-color: var(--nav-bg);
+            color: var(--text-light);
+            padding: 3rem 0;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            opacity: 0.8;
+            z-index: -1;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-light); /* Couleur unie sans gradient animé */
+            display: inline-block;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode header h1 {
+            color: var(--text-light);
+        }
+
+        nav {
+            background-color: var(--primary-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+            /* Suppression du backdrop-filter pour la performance */
+            background-color: rgba(58, 12, 163, 0.9);
+        }
+
+        body.dark-mode nav {
+            background-color: rgba(15, 52, 96, 0.9);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        nav a {
+            color: var(--text-light);
+            margin: 0 1rem;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* Effet hover simplifié pour la légèreté */
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px); /* Légère translation */
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Suppression de l'animation de balayage sur le hover pour la performance */
+        nav a::before {
+            display: none;
+        }
+        
+        nav a i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+
+        .content {
+            padding: 3rem 2rem;
+            text-align: center;
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .mobile-links-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* General Card styles */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+
+        .card:hover {
+            transform: translateY(-5px); /* Animation de hover légère */
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .card h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 3px;
+        }
+
+        .card p {
+            margin-bottom: 1.5rem;
+        }
+
+        .card a, .card button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            padding: 0.75rem 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .card a:hover, .card button:hover {
+            background: var(--gradient-secondary);
+            transform: translateY(-2px); /* Animation de hover légère */
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Suppression de l'animation de balayage sur le hover */
+        .card a::before, .card button::before {
+            display: none;
+        }
+        
+        .card button i {
+            margin-right: 8px;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: auto;
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            opacity: 0.9;
+            z-index: -1;
+        }
+
+        .social-links {
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--text-light);
+            font-size: 1.75rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* Correction : Rendre le lien GitHub plus grand sur desktop pour l'icône seule */
+        #github-source-link {
+            font-size: 1.75rem; 
+            width: 50px;
+            height: 50px;
+        }
+
+        .social-links a:hover {
+            color: #4cc9f0;
+            transform: translateY(-3px) scale(1.05); /* Animation de hover légère */
+            background-color: rgba(255,255,255,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .license-info {
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .license-info a {
+            color: var(--text-light);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        /* Boutons de bascule - conservés pour le style moderne */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: var(--shadow-xl);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05); /* Animation de hover légère */
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        #language-toggle {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: linear-gradient(135deg, #1b0088 0%, #4361ee 100%);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: var(--shadow-xl);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+        
+        #language-toggle:hover {
+            transform: scale(1.05); /* Animation de hover légère */
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Modal Styles (Popup) - Animation simplifiée */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 3rem;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.75rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: var(--transition);
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 1; 
+        }
+
+        .close-modal:hover {
+            background-color: rgba(0,0,0,0.1);
+            transform: rotate(90deg);
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .modal-content h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        body.dark-mode .modal-content {
+            background-color: #16213e;
+            color: var(--text-light);
+        }
+        
+        #languageModal .language-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+        
+        #languageModal .language-options button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #languageModal .language-options button:hover {
+            background: var(--gradient-secondary);
+            transform: translateX(5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        #languageModal .language-options button.active {
+            border: 2px solid #fff;
+            box-shadow: var(--shadow-xl);
+            background: var(--gradient-secondary);
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .modal-content {
+                padding: 2rem 1.5rem;
+            }
+            
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .card a, .card button {
+                padding: 0.75rem 1rem;
+            }
+            
+            #language-toggle {
+                bottom: 80px; 
+                right: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .theme-toggle {
+                bottom: 15px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            /* Correction: Rendre le lien GitHub plus petit sur mobile pour l'icône seule */
+            #github-source-link {
+                font-size: 1.5rem; 
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .modal-content {
+                padding: 1.5rem 1rem;
+            }
+            
+            .mobile-links-content {
+                gap: 8px;
+            }
+            
+            .mobile-links-content button {
+                flex-basis: calc(50% - 8px);
+            }
+        }
+    </style>
+</head>
+<body lang="en">
+    <header>
+        <h1>Stormwindsky Lite</h1>
+    </header>
+
+    <nav id="mainNav">
+        <div class="nav-container">
+            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank" data-i18n="nav.home">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a id="aboutLink" data-i18n="nav.about">
+                <i class="fas fa-user"></i> About Me
+            </a>
+            <a id="originLink" data-i18n="nav.origin">
+                <i class="fas fa-signature"></i> Username Origin
+            </a>
+            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" data-i18n="nav.collection">
+                <i class="fas fa-folder"></i> Collection
+            </a>
+            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" data-i18n="nav.rolechat">
+                <i class="fas fa-comments"></i> RoleChat
+            </a>
+            <a href="https://www.roblox.com/games/12983740104/" target="_blank" data-i18n="nav.donate">
+                <i class="fas fa-heart"></i> Donate on Roblox
+            </a>
+        </div>
+    </nav>
+
+    <div class="content">
+        <div class="card-container">
+            
+            <div id="mobileLinksCard" class="card mobile-only">
+                <h2 data-i18n="card.mobile.title">Navigation</h2>
+                <div class="mobile-links-content">
+                    <button id="mobileAboutBtn" data-i18n="nav.about">
+                        <i class="fas fa-user"></i> About Me
+                    </button>
+                    <button id="mobileOriginBtn" data-i18n="nav.origin">
+                        <i class="fas fa-signature"></i> Username Origin
+                    </button>
+                    <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" data-i18n="nav.collection" class="mobile-only-link-button">
+                        <i class="fas fa-folder"></i> Collection
+                    </a>
+                    <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" data-i18n="nav.rolechat" class="mobile-only-link-button">
+                        <i class="fas fa-comments"></i> RoleChat
+                    </a>
+                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank" data-i18n="nav.home">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="https://www.roblox.com/games/12983740104/" target="_blank" data-i18n="nav.donate">
+                        <i class="fas fa-heart"></i> Donate
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 data-i18n="card.links.title">Find Me Online</h2>
+                <p data-i18n="card.links.desc">Check out my presence across different platforms and connect with me on various social networks.</p>
+                <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=W3sidGV4dCI6Ik15IFlvdVR1YmUiLCJ1cmwiOiJodHRwczovL3d3dy55b3V0dWJlLmNvbS9AU3Rvcm13aW5kc2t5In0seyJ0ZXh0IjoiU2NyYXRjaCIsInVybCI6Imh0dHBzOi8vc2NyYXRjaC5taXQuZWR1L3VzZXJzL3N0b3Jtd2luZHNreS8ifSx7InRleHQiOiJHYW1lSm9sdCIsInVybCI6Imh0dHBzOi8vZ2FtZWpvbHQuY29tL0BTdG9ybXdpbmRza3kifV0=" target="_blank" data-i18n="card.links.button">
+                    View All Links
+                </a>
+            </div>
+            
+            <div class="card">
+                <h2 data-i18n="card.aboutsite.title">About This Site</h2>
+                <p data-i18n="card.aboutsite.desc1">A creative playground for coding experiments and projects. This is where I share my passion for web development, gaming, and digital preservation.</p>
+                <p data-i18n="card.aboutsite.desc2">Simple but fun - just like me! Expect to find tools, games, and various experiments here.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.about.title">ABOUT ME</h2>
+            <p data-i18n="modal.about.p1">Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.</p>
+            
+            <p data-i18n="modal.about.p2">In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.</p>
+            
+            <p data-i18n="modal.about.p3">In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.</p>
+            
+            <p data-i18n="modal.about.p4">With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.</p>
+        </div>
+    </div>
+
+    <div id="originModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.origin.title">ORIGIN OF MY USERNAME</h2>
+            <p data-i18n="modal.origin.p1">The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊</p>
+            <p data-i18n="modal.origin.p2">It's a unique identifier that has stuck with me across all my online adventures and represents my digital identity.</p>
+        </div>
+    </div>
+    
+    <div id="collectionMobileModal" class="modal mobile-only-modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.mobile_collection.title">COLLECTION (Information)</h2>
+            <p data-i18n="modal.mobile_collection.p1">The Collection opens in a new tab for better performance and compatibility.</p>
+            <p style="text-align: center;" data-i18n="modal.mobile_collection.p2">Click the link below to access the full Collection:</p>
+            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" style="margin: 0 auto;" data-i18n="modal.mobile_collection.button">
+                <i class="fas fa-external-link-alt"></i> Go to Collection
+            </a>
+        </div>
+    </div>
+    
+    <div id="roleChatMobileModal" class="modal mobile-only-modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.mobile_rolechat.title">ROLECHAT (Information)</h2>
+            <p data-i18n="modal.mobile_rolechat.p1">RoleChat opens in a new tab for better performance and compatibility.</p>
+            <p style="text-align: center;" data-i18n="modal.mobile_rolechat.p2">Click the link below to access the RoleChat website directly:</p>
+            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" style="margin: 0 auto;" data-i18n="modal.mobile_rolechat.button">
+                <i class="fas fa-external-link-alt"></i> Go to RoleChat
+            </a>
+        </div>
+    </div>
+    
+    <div id="languageModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
+            <h2 data-i18n="modal.language.title">LANGUAGE / LANGUE / IDIOMA</h2>
+            <p style="text-align: center; font-size: 0.9rem;" data-i18n="modal.language.note">Note: This is a professional and non-binding language selection button.</p>
+            <div class="language-options">
+                <button onclick="switchLanguage('en-us')">
+                    <i class="fas fa-globe"></i> <span data-i18n-display="en-us">English (Default)</span>
+                </button>
+                <button onclick="switchLanguage('fr-fr')">
+                    <i class="fas fa-flag"></i> <span data-i18n-display="fr-fr">Français (France)</span>
+                </button>
+                <button onclick="switchLanguage('fr-ca')">
+                    <i class="fas fa-flag"></i> <span data-i18n-display="fr-ca">Français (Canadien Professionnel)</span>
+                </button>
+                <button onclick="switchLanguage('es-es')">
+                    <i class="fas fa-flag"></i> <span data-i18n-display="es-es">Español (España)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">🌙</button>
+    <button id="language-toggle" aria-label="Change Language"><i class="fas fa-globe"></i></button>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" aria-label="GitHub Source" id="github-source-link">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.youtube.com/@Stormwindsky" target="_blank" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+        <p>© <span id="currentYear"></span> Stormwindsky | All Rights Reserved</p>
+        <div class="license-info">
+            <a href="https://opensource.org/license/mit/" target="_blank">MIT License</a> 
+            <span style="opacity: 0.7; margin: 0 5px;">|</span> 
+            <a href="https://github.com/Stormwindsky/Stormwindsky-Website/blob/main/LICENSE" target="_blank">View License</a>
+        </div>
+    </footer>
+
+    <script>
+        // Définition de la langue par défaut : ANGLAIS
+        const DEFAULT_LANG = 'en-us';
+        const LANG_STORAGE_KEY = 'siteLang';
+
+        // Traductions (Easter eggs Dark Web et Halloween retirés)
+        const translations = {
+            'en-us': {
+                'nav.home': 'Home',
+                'nav.about': 'About Me',
+                'nav.origin': 'Username Origin',
+                'nav.collection': 'Collection',
+                'nav.rolechat': 'RoleChat',
+                'nav.donate': 'Donate on Roblox',
+                'card.mobile.title': 'Navigation',
+                'card.links.title': 'Find Me Online',
+                'card.links.desc': 'Check out my presence across different platforms and connect with me on various social networks.',
+                'card.links.button': 'View All Links',
+                'card.aboutsite.title': 'About This Site',
+                'card.aboutsite.desc1': 'A creative playground for coding experiments and projects. This is where I share my passion for web development, gaming, and digital preservation.',
+                'card.aboutsite.desc2': 'Simple but fun - just like me! Expect to find tools, games, and various experiments here.',
+                'modal.close': 'Close',
+                'modal.language.title': 'LANGUAGE / LANGUE / IDIOMA',
+                'modal.language.note': 'Note: This is a professional and non-binding language selection button.',
+                'modal.about.title': 'ABOUT ME',
+                'modal.about.p1': 'Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.',
+                'modal.about.p2': 'In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.',
+                'modal.about.p3': 'In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.',
+                'modal.about.p4': 'With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.',
+                'modal.origin.title': 'ORIGIN OF MY USERNAME',
+                'modal.origin.p1': 'The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊',
+                'modal.origin.p2': 'It\'s a unique identifier that has stuck with me across all my online adventures and represents my digital identity.',
+                'modal.mobile_collection.title': 'COLLECTION (Information)',
+                'modal.mobile_collection.p1': 'The Collection opens in a new tab for better performance and compatibility.',
+                'modal.mobile_collection.p2': 'Click the link below to access the full Collection:',
+                'modal.mobile_collection.button': 'Go to Collection',
+                'modal.mobile_rolechat.title': 'ROLECHAT (Information)',
+                'modal.mobile_rolechat.p1': 'RoleChat opens in a new tab for better performance and compatibility.',
+                'modal.mobile_rolechat.p2': 'Click the link below to access the RoleChat website directly:',
+                'modal.mobile_rolechat.button': 'Go to RoleChat',
+                // Clé de traduction retirée car le bouton est maintenant une icône
+            },
+            'fr-fr': {
+                'nav.home': 'Accueil',
+                'nav.about': 'À Propos de Moi',
+                'nav.origin': 'Origine du Pseudonyme',
+                'nav.collection': 'Collection',
+                'nav.rolechat': 'RoleChat',
+                'nav.donate': 'Faire un Don sur Roblox',
+                'card.mobile.title': 'Navigation',
+                'card.links.title': 'Me Trouver en Ligne',
+                'card.links.desc': 'Consultez ma présence sur différentes plateformes et connectez-vous avec moi sur divers réseaux sociaux.',
+                'card.links.button': 'Voir Tous les Liens',
+                'card.aboutsite.title': 'À Propos de Ce Site',
+                'card.aboutsite.desc1': 'Un terrain de jeu créatif pour les expériences et les projets de codage. C\'est ici que je partage ma passion pour le développement web, le jeu et la préservation numérique.',
+                'card.aboutsite.desc2': 'Simple mais amusant - tout comme moi ! Attendez-vous à trouver des outils, des jeux et diverses expériences ici.',
+                'modal.close': 'Fermer',
+                'modal.language.title': 'LANGUE / LANGUAGE / IDIOMA',
+                'modal.language.note': 'Note : Ceci est un bouton de sélection de langue professionnel et non-contraignant.',
+                'modal.about.title': 'À PROPOS DE MOI',
+                'modal.about.p1': 'Stormwindsky sur Internet est un passionné d\'histoire et de culture. Il possède une expertise particulière dans l\'histoire des pays, avec une fascination pour la Suisse et l\'histoire de Sealand.',
+                'modal.about.p2': 'En plus de son intérêt pour l\'histoire, Stormwindsky est un grand fan de jeux vidéo indépendants, tels qu\'Undertale, Pizza Tower et Baldi. Il est également atteint d\'un trouble du spectre de l\'autisme.',
+                'modal.about.p3': 'Pendant son temps libre, Stormwindsky aime archiver des vidéos YouTube avec la Wayback Machine pour aider à préserver le patrimoine numérique, ce qui témoigne de son désir de préserver les médias pour les générations futures. Il est également fan de la communauté Lost Media Wiki.',
+                'modal.about.p4': 'Avec sa passion pour l\'histoire et la culture, ainsi que son engagement envers la préservation du patrimoine numérique, Stormwindsky est un individu unique et passionnant. Son profil atypique est un atout pour toute entreprise ou projet souhaitant collaborer avec lui.',
+                'modal.origin.title': 'ORIGINE DE MON NOM D\'UTILISATEUR',
+                'modal.origin.p1': 'Le nom "Stormwindsky" vient de ma mère d\'Animal Jam, puis de Roblox & Scratch, et ensuite de partout 😊',
+                'modal.origin.p2': 'C\'est un identifiant unique qui m\'a suivi dans toutes mes aventures en ligne et représente mon identité numérique.',
+                'modal.mobile_collection.title': 'COLLECTION (Information)',
+                'modal.mobile_collection.p1': 'La Collection s\'ouvre dans un nouvel onglet pour de meilleures performances et compatibilité.',
+                'modal.mobile_collection.p2': 'Cliquez sur le lien ci-dessous pour accéder à la Collection complète :',
+                'modal.mobile_collection.button': 'Aller à la Collection',
+                'modal.mobile_rolechat.title': 'ROLECHAT (Information)',
+                'modal.mobile_rolechat.p1': 'RoleChat s\'ouvre dans un nouvel onglet pour de meilleures performances et compatibilité.',
+                'modal.mobile_rolechat.p2': 'Cliquez sur le lien ci-dessous pour accéder directement au site web de RoleChat :',
+                'modal.mobile_rolechat.button': 'Aller à RoleChat',
+                // Clé de traduction retirée car le bouton est maintenant une icône
+            },
+            'fr-ca': {
+                'nav.home': 'Accueil',
+                'nav.about': 'À mon Sujet',
+                'nav.origin': 'Origine du Pseudonyme',
+                'nav.collection': 'Collection',
+                'nav.rolechat': 'Clavardage de Rôle',
+                'nav.donate': 'Faire un Don sur Roblox',
+                'card.mobile.title': 'Navigation',
+                'card.links.title': 'Me Trouver en Ligne',
+                'card.links.desc': 'Veuillez consulter ma présence sur diverses plateformes et me contacter via les réseaux sociaux.',
+                'card.links.button': 'Voir Tous les Liens',
+                'card.aboutsite.title': 'À Propos de Ce Site',
+                'card.aboutsite.desc1': 'Un environnement créatif pour des expériences et projets de programmation. J\'y partage mon intérêt pour le développement web, le jeu et la préservation numérique.',
+                'card.aboutsite.desc2': 'Simple, mais plaisant — à mon image ! Vous y trouverez des outils, des jeux et diverses expérimentations.',
+                'modal.close': 'Fermer',
+                'modal.language.title': 'LANGUE / LANGUAGE / IDIOMA',
+                'modal.language.note': 'Note : Il s\'agit d\'un bouton de sélection de langue professionnel et non contraignant.',
+                'modal.about.title': 'À MON SUJET',
+                'modal.about.p1': 'Stormwindsky sur Internet est un passionné d\'histoire et de culture. Il possède une expertise particulière dans l\'histoire des pays, avec une fascination pour la Suisse et l\'histoire de Sealand.',
+                'modal.about.p2': 'En plus de son intérêt pour l\'histoire, Stormwindsky est un grand fan de jeux vidéo indépendants, tels qu\'Undertale, Pizza Tower et Baldi. Il est également atteint d\'un trouble du spectre de l\'autisme.',
+                'modal.about.p3': 'Pendant son temps libre, Stormwindsky aime archiver des vidéos YouTube avec la Wayback Machine pour aider à préserver le patrimoine numérique, ce qui témoigne de son désir de préserver les médias pour les générations futures. Il est également fan de la communauté Lost Media Wiki.',
+                'modal.about.p4': 'Avec sa passion pour l\'histoire et la culture, ainsi que son engagement envers la préservation du patrimoine numérique, Stormwindsky est un individu unique et passionnant. Son profil atypique est une valeur ajoutée pour toute entreprise ou projet souhaitant collaborer avec lui.',
+                'modal.origin.title': 'ORIGINE DE MON NOM D\'UTILISATEUR',
+                'modal.origin.p1': 'Le nom "Stormwindsky" vient de ma mère d\'Animal Jam, puis de Roblox & Scratch, et ensuite de partout 😊',
+                'modal.origin.p2': 'C\'est un identifiant unique qui m\'a suivi dans toutes mes aventures en ligne et représente mon identité numérique.',
+                'modal.mobile_collection.title': 'COLLECTION (Information)',
+                'modal.mobile_collection.p1': 'La Collection s\'ouvre dans un nouvel onglet pour de meilleures performances et compatibilité.',
+                'modal.mobile_collection.p2': 'Veuillez cliquer sur le lien ci-dessous pour accéder à la Collection complète :',
+                'modal.mobile_collection.button': 'Accéder à la Collection',
+                'modal.mobile_rolechat.title': 'CLAVARDAGE DE RÔLE (Information)',
+                'modal.mobile_rolechat.p1': 'Clavardage de Rôle s\'ouvre dans un nouvel onglet pour de meilleures performances et compatibilité.',
+                'modal.mobile_rolechat.p2': 'Veuillez cliquer sur le lien ci-dessous pour accéder directement au site web de Clavardage de Rôle :',
+                'modal.mobile_rolechat.button': 'Accéder au Clavardage',
+                // Clé de traduction retirée car le bouton est maintenant une icône
+            },
+            'es-es': {
+                'nav.home': 'Inicio',
+                'nav.about': 'Acerca de Mí',
+                'nav.origin': 'Origen del Nombre de Usuario',
+                'nav.collection': 'Colección',
+                'nav.rolechat': 'Chat de Rol',
+                'nav.donate': 'Donar en Roblox',
+                'card.mobile.title': 'Navegación',
+                'card.links.title': 'Encuéntrame en Línea',
+                'card.links.desc': 'Echa un vistazo a mi presencia en diferentes plataformas y conéctate conmigo en varias redes sociales.',
+                'card.links.button': 'Ver Todos los Enlaces',
+                'card.aboutsite.title': 'Acerca de Este Sitio',
+                'card.aboutsite.desc1': 'Un campo de pruebas creativo para experimentos y proyectos de codificación. Aquí comparto mi pasión por el desarrollo web, los juegos y la preservación digital.',
+                'card.aboutsite.desc2': '¡Simple pero divertido, justo como yo! Espera encontrar herramientas, juegos y varios experimentos aquí.',
+                'modal.close': 'Cerrar',
+                'modal.language.title': 'IDIOMA / LANGUAGE / LANGUE',
+                'modal.language.note': 'Nota: Este es un botón de selección de idioma profesional y no vinculante.',
+                'modal.about.title': 'ACERCA DE MÍ',
+                'modal.about.p1': 'Stormwindsky en Internet es un entusiasta de la historia y la cultura. Tiene una experiencia particular en la historia de los países, con una fascinación por Suiza y la historia de Sealand.',
+                'modal.about.p2': 'Además de su interés en la historia, Stormwindsky es un ávido fanático de los videojuegos independientes, como Undertale, Pizza Tower y Baldi. También tiene trastorno del espectro autista.',
+                'modal.about.p3': 'En su tiempo libre, a Stormwindsky le gusta archivar vídeos de YouTube con la Wayback Machine para ayudar a preservar el patrimonio digital, lo que habla de su deseo de preservar los medios para las futuras generaciones. También es fanático de la comunidad Lost Media Wiki.',
+                'modal.about.p4': 'Con su pasión por la historia y la cultura, así como su compromiso con la preservación del patrimonio digital, Stormwindsky es un individuo único y emocionante. Su perfil atípico es un valor añadido para cualquier empresa o proyecto que desee asociarse con él.',
+                'modal.origin.title': 'ORIGEN DE MI NOMBRE DE USUARIO',
+                'modal.origin.p1': 'El nombre "Stormwindsky" proviene de mi mamá de Animal Jam y luego de Roblox & Scratch, y después de todas partes 😊',
+                'modal.origin.p2': 'Es un identificador único que me ha acompañado en todas mis aventuras en línea y representa mi identidad digital.',
+                'modal.mobile_collection.title': 'COLECCIÓN (Información)',
+                'modal.mobile_collection.p1': 'La Colección se abre en una nueva pestaña para un mejor rendimiento y compatibilidad.',
+                'modal.mobile_collection.p2': 'Haz clic en el enlace de abajo para acceder a la Colección completa:',
+                'modal.mobile_collection.button': 'Ir a Colección',
+                'modal.mobile_rolechat.title': 'ROLECHAT (Información)',
+                'modal.mobile_rolechat.p1': 'RoleChat se abre en una nueva pestaña para un mejor rendimiento y compatibilidad.',
+                'modal.mobile_rolechat.p2': 'Haz clic en el enlace de abajo para acceder directamente al sitio web de RoleChat:',
+                'modal.mobile_rolechat.button': 'Ir a RoleChat',
+                // Clé de traduction retirée car le bouton est maintenant une icône
+            }
+        };
+
+        function switchLanguage(langCode) {
+            localStorage.setItem(LANG_STORAGE_KEY, langCode);
+            document.body.lang = langCode;
+            translateContent(langCode);
+            updateLanguageButtons(langCode);
+            closeModal(document.getElementById('languageModal'));
+        }
+
+        function translateContent(langCode) {
+            const currentTranslations = translations[langCode] || translations[DEFAULT_LANG];
+
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (currentTranslations[key]) {
+                    element.textContent = currentTranslations[key];
+                }
+            });
+
+            document.title = (currentTranslations['nav.about']) ? `Stormwindsky | ${currentTranslations['nav.about']}` : 'Stormwindsky | Creative Portfolio';
+        }
+
+        function loadLanguagePreference() {
+            const savedLang = localStorage.getItem(LANG_STORAGE_KEY) || DEFAULT_LANG;
+            document.body.lang = savedLang;
+            translateContent(savedLang);
+            updateLanguageButtons(savedLang);
+        }
+
+        function updateLanguageButtons(activeLangCode) {
+            document.querySelectorAll('#languageModal .language-options button').forEach(btn => {
+                const buttonLangCodeMatch = btn.onclick.toString().match(/switchLanguage\('([^']+)'\)/);
+                const buttonLangCode = buttonLangCodeMatch ? buttonLangCodeMatch[1] : null;
+
+                if (buttonLangCode === activeLangCode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // --- Theme Toggle Logic (Simple) ---
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        }
+
+        // Load saved theme (Simplifié)
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                body.classList.remove('dark-mode');
+                themeToggle.textContent = '🌙';
+            }
+        }
+        
+        // Set current year in footer
+        function setCurrentYear() {
+            const yearElement = document.getElementById('currentYear');
+            const currentYear = new Date().getFullYear();
+            yearElement.textContent = currentYear;
+        }
+
+        // --- Modal Logic (Simple Popups) ---
+
+        // Références aux modales simples
+        const aboutModal = document.getElementById('aboutModal');
+        const originModal = document.getElementById('originModal');
+        const languageModal = document.getElementById('languageModal');
+        const collectionModalMobile = document.getElementById('collectionMobileModal');
+        const roleChatModalMobile = document.getElementById('roleChatMobileModal');
+
+        // Références aux boutons (Desktop et Mobile)
+        const aboutBtnDesktop = document.getElementById('aboutLink');
+        const originBtnDesktop = document.getElementById('originLink');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const languageToggleBtn = document.getElementById('language-toggle');
+        
+        // Boutons Mobile
+        const mobileAboutBtn = document.getElementById('mobileAboutBtn');
+        const mobileOriginBtn = document.getElementById('mobileOriginBtn');
+        // Les boutons Collection et RoleChat mobiles sont maintenant des liens (<a>)
+
+        // Fermer/Ouvrir fonctions
+        function openModal(modal) {
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modal) {
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function setupModals() {
+            // Boutons de fermeture (class .close-modal)
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.onclick = function() {
+                    closeModal(aboutModal);
+                    closeModal(originModal);
+                    closeModal(languageModal);
+                    closeModal(collectionModalMobile);
+                    closeModal(roleChatModalMobile);
+                }
+            });
+
+            // Fermer en cliquant à l'extérieur
+            window.onclick = function(event) {
+                if (event.target == aboutModal) closeModal(aboutModal);
+                if (event.target == originModal) closeModal(originModal);
+                if (event.target == languageModal) closeModal(languageModal);
+                if (event.target == collectionModalMobile) closeModal(collectionModalMobile);
+                if (event.target == roleChatModalMobile) closeModal(roleChatModalMobile);
+            }
+            
+            // Événements pour les liens/boutons
+            if (aboutBtnDesktop) aboutBtnDesktop.onclick = () => openModal(aboutModal);
+            if (originBtnDesktop) originBtnDesktop.onclick = () => openModal(originModal);
+            
+            if (mobileAboutBtn) mobileAboutBtn.onclick = () => openModal(aboutModal);
+            if (mobileOriginBtn) mobileOriginBtn.onclick = () => openModal(originModal);
+
+            if (themeToggleBtn) themeToggleBtn.onclick = toggleTheme;
+            if (languageToggleBtn) languageToggleBtn.onclick = () => openModal(languageModal);
+            
+            // Afficher la carte de navigation mobile uniquement si l'écran est petit (basé sur la détection CSS)
+            if (window.matchMedia("(max-width: 768px)").matches) {
+                const mobileLinksCard = document.getElementById('mobileLinksCard');
+                if (mobileLinksCard) mobileLinksCard.style.display = 'block';
+                
+                // Remplace les boutons nav desktop par les modales d'information pour mobile pour Collection et RoleChat
+                document.getElementById('mainNav').querySelectorAll('a').forEach(link => {
+                    if (link.href.includes('Collection.html')) {
+                        link.onclick = (e) => { e.preventDefault(); openModal(collectionModalMobile); };
+                        link.removeAttribute('target');
+                    }
+                    if (link.href.includes('RoleChat')) {
+                        link.onclick = (e) => { e.preventDefault(); openModal(roleChatModalMobile); };
+                        link.removeAttribute('target');
+                    }
+                });
+            } else {
+                 // S'assurer que la carte mobile est cachée sur desktop
+                const mobileLinksCard = document.getElementById('mobileLinksCard');
+                if (mobileLinksCard) mobileLinksCard.style.display = 'none';
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            setCurrentYear();
+            setupModals();
+            loadLanguagePreference();
+        });
+    </script>
+</body>
+</html>
