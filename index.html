@@ -1,11 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta http-equiv="refresh" content="0; url=/Welcome" />
-    <title>Redirection...</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic Redirection...</title>
+
+    <style>
+      /* Minimalist CSS for a clean waiting screen */
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f4f4f4;
+        color: #333;
+      }
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      p {
+        font-size: 1.1em;
+      }
+    </style>
   </head>
   <body>
-    If you are not redirected, <a href="/Welcome">click here</a>.
+    <div class="loader"></div>
+    <p id="status-message">Analyzing your device performance...</p>
+    <a id="fallback-link" href="#" style="display: none"
+      >Click here if you are not redirected</a
+    >
+
+    <script>
+      // The final redirection URLs
+      const URL_WELCOME = "https://www.stormwindsky.com/Welcome";
+      const URL_LITE = "https://www.stormwindsky.com/Lite";
+      const URL_ULTRALITE = "https://www.stormwindsky.com/UltraLite";
+
+      // Performance thresholds for the "Lite" version (based on your reference PC)
+      // 4 threads (2 cores with Hyper-Threading)
+      const MIN_CORES_LITE = 4;
+      // Assuming 4 GiB of RAM or more for this classification
+      const MIN_MEMORY_LITE = 4; // in GiB (Gigabytes of information)
+
+      /**
+       * Tries to detect if the device is mobile or a tablet.
+       * @returns {boolean} True if the device is likely mobile.
+       */
+      function isMobile() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        // 1. User Agent detection
+        if (
+          /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+            userAgent
+          )
+        ) {
+          return true;
+        }
+        // 2. Touch support detection (useful for tablets/hybrids)
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            // A common heuristic is to treat touch devices as "mobile" experience
+            return true;
+        }
+        return false;
+      }
+
+      /**
+       * Determines the redirection URL based on available performance metrics.
+       */
+      function determineRedirection() {
+        // --- 1. Mobile Detection ---
+        if (isMobile()) {
+          document.getElementById("status-message").textContent = "Mobile device detected. Redirecting to the Welcome version...";
+          return URL_WELCOME;
+        }
+
+        // --- 2. Desktop/Laptop Detection ---
+
+        // Number of logical cores (threads) available
+        const cpuCores = navigator.hardwareConcurrency || 0;
+        
+        // Estimated device memory in GiB (can return 0, 0.5, 1, 2, 4, 8, etc.)
+        const deviceMemory = navigator.deviceMemory || 0;
+        
+        console.log(`Detected CPU Cores: ${cpuCores}`);
+        console.log(`Detected Device Memory (GiB): ${deviceMemory}`);
+
+        let targetUrl = URL_ULTRALITE; // Default to the least demanding version
+
+        // Classification Logic:
+        
+        // If cores are >= 4 (like your i3-2310M) AND RAM is >= 4 GiB
+        if (cpuCores >= MIN_CORES_LITE && deviceMemory >= MIN_MEMORY_LITE) {
+          // Standard PC or better (your reference level)
+          targetUrl = URL_LITE;
+          document.getElementById("status-message").textContent = "Standard performance PC detected. Redirecting to the Lite version...";
+        } else {
+            // Lower performance PC (less cores or less RAM than the threshold)
+            targetUrl = URL_ULTRALITE;
+            document.getElementById("status-message").textContent = "Lower performance PC detected. Redirecting to the UltraLite version...";
+        }
+
+        return targetUrl;
+      }
+
+      // Execute the redirection logic
+      const finalUrl = determineRedirection();
+
+      // Update the fallback link and display it
+      const fallbackLink = document.getElementById("fallback-link");
+      fallbackLink.href = finalUrl;
+      fallbackLink.style.display = "block"; // Show the fallback link
+
+      // Redirect after a short delay to allow the user to read the status
+      setTimeout(() => {
+        window.location.replace(finalUrl);
+      }, 1000); // 1 second delay
+
+    </script>
   </body>
 </html>
-
