@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormExplorer Ultra Lite</title>
+    <style>
+        /* Ultra Lite Wikipedia-like CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'sans-serif';
+        }
+
+        body {
+            background-color: #ffffff; /* White background */
+            color: #000000;   /* Black text */
+            line-height: 1.6;
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column; /* Use column for results screen */
+        }
+
+        /* Home Screen Styling (Center aligned) */
+        #home-screen {
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+            height: 100vh;
+        }
+
+        .home-logo {
+            font-size: 40px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        .home-search-container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+            display: flex;
+        }
+
+        .home-search-input {
+            flex-grow: 1;
+            padding: 8px 10px;
+            border: 1px solid #a2a9b1; /* Wikipedia-like border */
+            font-size: 16px;
+            outline: none;
+        }
+        
+        /* Search Results Screen Styling */
+        #search-results-screen {
+            padding-top: 50px; /* Space for fixed header */
+        }
+
+        .search-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #f8f9fa; /* Light gray header */
+            border-bottom: 1px solid #a2a9b1;
+            z-index: 100;
+            padding: 8px 0;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-right: 20px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .search-form {
+            flex-grow: 1;
+            display: flex;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #a2a9b1;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* Search Results List */
+        .search-results-list {
+            padding: 20px 0;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .search-result-card {
+            padding: 15px 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eaecf0; /* Subtle separator */
+        }
+
+        .result-link-url {
+            color: #006400; /* Dark green URL */
+            font-size: 12px;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .result-title a {
+            font-size: 18px;
+            color: #0000cc; /* Blue link */
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        
+        .result-snippet {
+            font-size: 13px;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .result-stats {
+            margin-bottom: 20px;
+            color: #54595d;
+        }
+
+        .loading, .error-message, .no-results {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #a2a9b1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 20px 40px;
+            border-top: 1px solid #a2a9b1;
+            color: #54595d;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div id="home-screen" class="screen active">
+        <div class="home-logo">
+            StormExplorer Ultra Lite
+        </div>
+        <div class="home-search-container">
+            <input type="text" id="home-search-input" class="home-search-input" placeholder="Search Stormwindsky Files and Formats..." autofocus>
+        </div>
+    </div>
+
+    <div id="search-results-screen" class="screen">
+        
+        <div class="search-header">
+            <div class="header-content">
+                <a href="#" class="logo" id="header-logo-link" onclick="window.location.reload(); return false;">
+                    StormExplorer Ultra Lite
+                </a>
+                <div class="search-form">
+                    <input type="text" id="results-search-input" class="search-input" placeholder="Search files and formats...">
+                </div>
+            </div>
+        </div>
+        
+        <div class="container main-content">
+            <div class="search-results-list">
+                <div id="loading" class="loading" style="display: none;">
+                    Loading results...
+                </div>
+        
+                <div id="error-container" class="error-message" style="display: none;">
+                    <div id="error-message">Error loading files.</div>
+                    <button id="retry-btn" class="retry-btn" onclick="fetchAllFiles()">Retry</button>
+                </div>
+                
+                <div id="result-stats" class="result-stats" style="display: none;"></div>
+                
+                <div id="files-container" class="active">
+                    </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Data retrieved from Stormwindsky-Website and ArtLibre GitHub APIs.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- Core Application Variables ---
+        let allFiles = [];
+        let isDataLoaded = false;
+        
+        // --- Configuration (Simplified) ---
+        // Config for HTML files (Stormwindsky-Website)
+        const mainRepoOwner = 'Stormwindsky';
+        const mainRepoName = 'Stormwindsky-Website';
+        const mainRepoFolders = ['Games', 'Tools', 'Useless thing', 'Countdowns', 'Archives', 'Emulators', 'Others'];
+        const mainRepoBaseUrl = `https://www.stormwindsky.com/`;
+
+        // Config for Non-HTML files (ArtLibre)
+        const artLibreOwner = 'Stormwindsky';
+        const artLibreRepo = 'ArtLibre';
+        const artLibrePath = 'ArtLibre/ArtLibre/files/';
+        const artLibreBaseUrl = `https://raw.githubusercontent.com/${artLibreOwner}/${artLibreRepo}/main/`; // Use raw content link for reliable non-HTML file viewing
+
+        // --- Utility Functions ---
+        function generateVisitUrl(path, isArtLibre = false) {
+            const encodedPath = path.split(' ').join('%20');
+            if (isArtLibre) {
+                return artLibreBaseUrl + encodedPath;
+            }
+            // For main repo files (mostly HTML), use the custom domain
+            return mainRepoBaseUrl + encodedPath;
+        }
+
+        function getCategoryFromPath(path, isArtLibre) {
+            if (isArtLibre) {
+                return 'ArtLibre';
+            }
+            const parts = path.split('/');
+            const rootFolder = parts[0];
+            return mainRepoFolders.includes(rootFolder) ? rootFolder : 'Other';
+        }
+
+        function switchToResultsView() {
+            const homeScreen = document.getElementById('home-screen');
+            const resultsScreen = document.getElementById('search-results-screen');
+            const homeSearchInput = document.getElementById('home-search-input');
+            const resultsSearchInput = document.getElementById('results-search-input');
+
+            // Transfer search term and switch views
+            resultsSearchInput.value = homeSearchInput.value;
+            homeScreen.classList.remove('active');
+            resultsScreen.classList.add('active');
+            resultsSearchInput.focus();
+            
+            handleSearchAndFilter();
+        }
+        
+        // --- Data Fetching (HTML and Non-HTML from separate sources) ---
+        async function fetchAllFiles() {
+            const loadingElement = document.getElementById('loading');
+            const errorContainer = document.getElementById('error-container');
+            const filesContainer = document.getElementById('files-container');
+            const resultStats = document.getElementById('result-stats');
+            const homeSearchInput = document.getElementById('home-search-input');
+
+            try {
+                isDataLoaded = false;
+                loadingElement.style.display = 'block';
+                errorContainer.style.display = 'none';
+                filesContainer.innerHTML = '';
+                resultStats.style.display = 'none';
+
+                const startTime = Date.now();
+                
+                // 1. Fetch HTML files from Stormwindsky-Website
+                const mainRepoApiUrl = `https://api.github.com/repos/${mainRepoOwner}/${mainRepoName}/git/trees/main?recursive=1`;
+                const artLibreApiUrl = `https://api.github.com/repos/${artLibreOwner}/${artLibreRepo}/git/trees/main?recursive=1`;
+
+                const [mainResponse, artLibreResponse] = await Promise.all([
+                    fetch(mainRepoApiUrl),
+                    fetch(artLibreApiUrl)
+                ]);
+
+                if (!mainResponse.ok) {
+                    throw new Error(`Failed to fetch main repo tree (HTTP ${mainResponse.status})`);
+                }
+                if (!artLibreResponse.ok) {
+                    throw new Error(`Failed to fetch ArtLibre repo tree (HTTP ${artLibreResponse.status})`);
+                }
+
+                const mainData = await mainResponse.json();
+                const artLibreData = await artLibreResponse.json();
+
+                let tempFiles = [];
+
+                // Process Main Repo (ONLY .html files in target folders)
+                const htmlFiles = mainData.tree.filter(item => 
+                    item.type === 'blob' && 
+                    item.path.toLowerCase().endsWith('.html') && 
+                    mainRepoFolders.some(folder => item.path.startsWith(folder + '/'))
+                );
+                
+                tempFiles = tempFiles.concat(htmlFiles.map(file => ({
+                    name: file.path.substring(file.path.lastIndexOf('/') + 1),
+                    path: file.path,
+                    category: getCategoryFromPath(file.path, false),
+                    url: generateVisitUrl(file.path, false)
+                })));
+                
+                // Process ArtLibre Repo (ALL non-.html files in the specified path)
+                const nonHtmlFiles = artLibreData.tree.filter(item => 
+                    item.type === 'blob' && 
+                    item.path.startsWith(artLibrePath) &&
+                    !item.path.toLowerCase().endsWith('.html') // Exclude HTML from ArtLibre
+                );
+
+                tempFiles = tempFiles.concat(nonHtmlFiles.map(file => ({
+                    name: file.path.substring(file.path.lastIndexOf('/') + 1),
+                    path: file.path,
+                    category: getCategoryFromPath(file.path, true), // Set category to ArtLibre
+                    url: generateVisitUrl(file.path, true)
+                })));
+
+                if (tempFiles.length === 0) {
+                    throw new Error(`No files found in the specified repositories/folders.`);
+                }
+                
+                allFiles = tempFiles;
+                allFiles.sort((a, b) => a.name.localeCompare(b.name));
+                isDataLoaded = true;
+                
+                const elapsed = Date.now() - startTime;
+                if (elapsed < 500) { await new Promise(resolve => setTimeout(resolve, 500 - elapsed)); }
+                
+                loadingElement.style.display = 'none';
+                handleSearchAndFilter();
+
+            } catch (error) {
+                console.error('Error (Files):', error);
+                loadingElement.style.display = 'none';
+                document.getElementById('error-message').textContent = error.message || 'Error loading files from GitHub. Check console for details.';
+                errorContainer.style.display = 'block';
+                homeSearchInput.placeholder = "ERROR loading files.";
+            }
+        }
+
+        // --- Display Logic ---
+        function displayFiles(files, timeTaken) {
+            const filesContainer = document.getElementById('files-container');
+            const resultStats = document.getElementById('result-stats');
+            
+            filesContainer.innerHTML = '';
+            resultStats.style.display = 'block';
+            
+            const timeString = timeTaken ? ` (${timeTaken.toFixed(2)} seconds)` : '';
+            resultStats.innerHTML = `${files.length} results found${timeString}`;
+
+            if (files.length === 0) {
+                filesContainer.innerHTML = '<div class="no-results">No file results found matching your search.</div>';
+                return;
+            }
+
+            files.forEach(file => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'search-result-card';
+                
+                const snippetText = `Path: ${file.path}. Source Collection: '${file.category}'.`;
+                
+                // Determine the URL to display: custom domain for main repo, raw content for ArtLibre
+                let displayUrl = file.url;
+                if (file.url.startsWith(mainRepoBaseUrl)) {
+                    displayUrl = displayUrl.replace('https://', '').replace(/\/$/, '');
+                } else if (file.url.startsWith(artLibreBaseUrl)) {
+                    displayUrl = displayUrl.replace('https://raw.githubusercontent.com/', 'githubusercontent/').replace(/\/$/, '');
+                }
+
+                resultCard.innerHTML = `
+                    <div class="result-link-url"> ${displayUrl} </div>
+                    <h2 class="result-title">
+                        <a href="${file.url}" target="_blank">${file.name}</a>
+                    </h2>
+                    <div class="result-snippet">${snippetText}</div>
+                `;
+                filesContainer.appendChild(resultCard);
+            });
+        }
+
+        // --- Search/Filter Logic (Simplified) ---
+        function handleSearchAndFilter() {
+            const searchStartTime = Date.now();
+            const searchTerm = document.getElementById('results-search-input').value.toLowerCase().trim();
+
+            if (!isDataLoaded) {
+                document.getElementById('loading').style.display = 'block';
+                return;
+            }
+
+            let filteredFiles = allFiles;
+
+            if (searchTerm !== '') {
+                // Search works on file name (including extension/format) and full path
+                filteredFiles = filteredFiles.filter(file => 
+                    file.name.toLowerCase().includes(searchTerm) || 
+                    file.path.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const searchEndTime = Date.now();
+            const timeTaken = (searchEndTime - searchStartTime) / 1000;
+            displayFiles(filteredFiles, timeTaken);
+        }
+
+        // --- Event Handlers ---
+        function homeSearchTrigger(event) {
+            // Only search if Enter is pressed or input is not empty
+            if (event.key === 'Enter' || document.getElementById('home-search-input').value.trim() !== '') {
+                if (!isDataLoaded) {
+                    // Try fetching and then switch view
+                    fetchAllFiles().then(() => {
+                        if (isDataLoaded) {
+                            switchToResultsView();
+                        }
+                    });
+                } else {
+                    switchToResultsView();
+                }
+            }
+        }
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const homeSearchInput = document.getElementById('home-search-input');
+            const resultsSearchInput = document.getElementById('results-search-input');
+
+            // Add event listeners
+            homeSearchInput.addEventListener('keyup', homeSearchTrigger);
+            
+            resultsSearchInput.addEventListener('input', handleSearchAndFilter);
+            resultsSearchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    handleSearchAndFilter();
+                }
+            });
+
+            // Initial data load
+            fetchAllFiles();
+        });
+    </script>
+</body>
+</html>
