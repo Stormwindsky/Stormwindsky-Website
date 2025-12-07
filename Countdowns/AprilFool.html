@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>April Fool's Countdown - Underwater Theme</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            /* Ocean Gradient */
+            background: linear-gradient(135deg, #005f73, #0a9396, #94d2bd);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+            /* Slightly transparent 'water' background */
+            background-color: rgba(0, 50, 70, 0.6);
+            border-radius: 15px;
+            /* Deeper shadow for underwater feel */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            /* Bubbles/Light Rays color for title */
+            background: linear-gradient(to right, #ffffff, #a8dadc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            /* Light reflection on the numbers */
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+            min-width: 80px;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 0 5px #00FFFF;
+        }
+
+        .countdown-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
+        }
+
+        .fish-emoji {
+            position: absolute;
+            font-size: 30px; /* Size of the fish */
+            pointer-events: none;
+            z-index: 1;
+            /* Floating animation/style */
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+            animation: swim 20s linear infinite;
+        }
+
+        @keyframes swim {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(10px, 10px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .music-credit {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            z-index: 100;
+            padding: 0.5rem;
+            /* Credit background for contrast */
+            background-color: rgba(0, 50, 70, 0.8);
+        }
+
+        .music-credit a {
+            color: #a8dadc;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .countdown {
+                gap: 0.8rem;
+            }
+            
+            .countdown-number {
+                font-size: 2rem;
+                min-width: 60px;
+            }
+            
+            .countdown-label {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>April Fool's Day Countdown</h1>
+        <div class="countdown">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">Days</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="music-credit">
+        "Meatball Parade" Kevin MacLeod (incompetech.com)<br>
+        Licensed under Creative Commons: By Attribution 4.0 License<br>
+        <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">http://creativecommons.org/licenses/by/4.0/</a>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Meatball%20Parade.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Countdown functionality for April 1st
+        function updateCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            // April is month 3 (0-indexed)
+            let aprilFools = new Date(currentYear, 3, 1); 
+            
+            // If April 1st has passed this year, set it to next year
+            if (now > aprilFools) {
+                aprilFools = new Date(currentYear + 1, 3, 1);
+            }
+            
+            const diff = aprilFools - now;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        // Initial call and set interval
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        
+        // Fish emoji creation and movement
+        function createFish() {
+            const fish = document.createElement('div');
+            fish.classList.add('fish-emoji');
+            
+            // The emoji for the fish
+            fish.textContent = '🐠'; 
+            
+            // Random size variation
+            const size = Math.random() * 0.5 + 1; // 1 to 1.5 times the base size
+            fish.style.transform = `scale(${size})`;
+            
+            // Start on the left or right edge randomly
+            const startRight = Math.random() < 0.5;
+            
+            if (startRight) {
+                fish.style.left = `${window.innerWidth + 50}px`;
+                // Flip the fish to face left
+                fish.style.transform += ' scaleX(-1)'; 
+            } else {
+                fish.style.left = '-50px';
+            }
+            
+            // Random vertical starting position
+            fish.style.top = `${Math.random() * window.innerHeight}px`;
+            
+            document.body.appendChild(fish);
+            
+            // Animation for movement across the screen
+            const distance = window.innerWidth + 100;
+            const duration = Math.random() * 15000 + 15000; // 15-30 seconds
+            
+            // Set up the keyframes for the animation
+            fish.animate([
+                { left: fish.style.left },
+                // Move to the opposite side
+                { left: startRight ? '-50px' : `${window.innerWidth + 50}px` } 
+            ], {
+                duration: duration,
+                easing: 'linear',
+                iterations: 1
+            }).onfinish = () => {
+                fish.remove(); // Clean up the fish once it's off-screen
+            };
+        }
+        
+        // Create a new fish periodically
+        setInterval(createFish, 1000);
+        
+        // Background music - will play when user interacts with page
+        document.addEventListener('click', function() {
+            const bgMusic = document.getElementById('bgMusic');
+            if (bgMusic.paused) {
+                bgMusic.volume = 0.4;
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
