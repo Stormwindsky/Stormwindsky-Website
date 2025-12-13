@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurboChallenger</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+    <style>
+        /* --- Modern CSS Styling --- */
+        :root {
+            --bg-color: #242424;
+            --control-bg: #333;
+            --text-color: #f0f0f0;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --header-height: 50px;
+            --control-width: 300px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Header Bar */
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            height: var(--header-height);
+            background-color: #1e1e1e;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+        }
+
+        #header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        /* Button Styling */
+        .btn-primary {
+            padding: 8px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color var(--transition-speed);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Main Content Layout */
+        #content-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Controls Panel */
+        #controls {
+            width: var(--control-width);
+            background-color: var(--control-bg);
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+            transition: transform var(--transition-speed) ease-in-out;
+            transform: translateX(0); 
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        /* Hidden State for Controls Panel */
+        body.controls-hidden #controls {
+            transform: translateX(calc(-1 * var(--control-width)));
+        }
+
+        /* Toggle Button for Controls */
+        #controls-toggle {
+            position: absolute;
+            top: 20px;
+            left: calc(var(--control-width) + 10px); 
+            background-color: var(--control-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 15;
+            box-shadow: 3px 0 5px rgba(0, 0, 0, 0.2);
+            transition: left var(--transition-speed) ease-in-out;
+            font-size: 1.2rem;
+        }
+
+        /* Toggle Button when controls are hidden */
+        body.controls-hidden #controls-toggle {
+            left: 0; 
+            border-radius: 0 5px 5px 0;
+        }
+
+        #controls h2 {
+            font-size: 1.4rem;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Form Elements & Toggles */
+        label { display: block; margin-top: 15px; font-weight: 400; }
+        input[type="text"] {
+            width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #555;
+            border-radius: 4px; background-color: #444; color: var(--text-color); box-sizing: border-box;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-container {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 20px; padding: 10px 0; border-bottom: 1px solid #444;
+        }
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { background-color: #ccc; transition: var(--transition-speed); border-radius: 34px; position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: var(--transition-speed); border-radius: 50%; }
+        input:checked + .slider { background-color: #2196F3; }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        /* Game Player Area */
+        #player-wrapper {
+            flex: 1; position: relative; overflow: hidden; display: flex;
+            justify-content: center; align-items: center; background-color: #1e1e1e;
+        }
+
+        #game-iframe {
+            width: 100%; height: 100%; border: none; display: block;
+            transform-origin: center center;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            transform: scale(1); filter: none;
+        }
+        
+        /* Filter Modes */
+        body.bw-active #game-iframe { filter: grayscale(100%); }
+        body.h-mirror-active #game-iframe { transform: scaleX(-1); }
+        body.v-mirror-active #game-iframe { transform: scaleY(-1); }
+        body.h-mirror-active.v-mirror-active #game-iframe { transform: scaleX(-1) scaleY(-1); }
+
+        /* Credits Section Styling */
+        #credits-section {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #ccc;
+        }
+
+        #credits-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        #credits-section a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color var(--transition-speed);
+        }
+
+        #credits-section a:hover {
+            color: #5bb3ff;
+            text-decoration: underline;
+        }
+
+        .credit-link {
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .credit-link i {
+            width: 18px; /* Fixed width for icon alignment */
+            text-align: center;
+            margin-right: 5px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="header">
+        <h1>TP TurboChallenger</h1>
+        <button class="btn-primary" onclick="updateURL()">Share/Save Settings</button>
+    </div>
+
+    <div id="content-area">
+        
+        <button id="controls-toggle" onclick="toggleControls()">
+            <span id="toggle-icon">❮</span>
+        </button>
+
+        <div id="controls">
+            <h2><i class="fas fa-sliders-h"></i> Challenge Options</h2>
+
+            <label for="project-id">Project ID:</label>
+            <input type="text" id="project-id" placeholder="e.g., 510186917">
+
+            <button class="btn-primary" style="margin-top: 20px;" onclick="loadProject()">Load Project</button>
+
+            <hr style="border-top: 1px solid #444; margin: 25px 0;">
+            
+            <div class="toggle-container">
+                <span><i class="fas fa-arrows-alt-h"></i> Horizontal Mirror Mode (1)</span>
+                <label class="switch">
+                    <input type="checkbox" id="h-mirror-toggle" onchange="toggleHMirrorMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span><i class="fas fa-arrows-alt-v"></i> Vertical Mirror Mode (2)</span>
+                <label class="switch">
+                    <input type="checkbox" id="v-mirror-toggle" onchange="toggleVMirrorMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span><i class="fas fa-adjust"></i> Black & White Mode (Filter)</span>
+                <label class="switch">
+                    <input type="checkbox" id="bw-toggle" onchange="toggleBWMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div id="credits-section">
+                <h3><i class="fas fa-info-circle"></i> Notes & Credits</h3>
+                
+                <p>This project is licensed under the **MIT License**.</p>
+                <p>
+                    **TurboChallenger** is an independent utility and is **not affiliated** with the TurboWarp team, the Scratch Team, or the Scratch Foundation.
+                </p>
+                
+                <p>Project created by: **Stormwindsky**</p>
+                
+                <div style="margin-top: 15px;">
+                    <a href="https://gamejolt.com/@Stormwindsky" target="_blank" class="credit-link">
+                        <i class="fas fa-gamepad"></i> Follow on Gamejolt
+                    </a>
+                    <a href="https://turbowarp.org/" target="_blank" class="credit-link">
+                        <i class="fas fa-external-link-alt"></i> TurboWarp Website
+                    </a>
+                    <a href="https://scratch.mit.edu/" target="_blank" class="credit-link">
+                        <i class="fas fa-external-link-alt"></i> Scratch Website
+                    </a>
+                    <a href="https://github.com/TurboWarp" target="_blank" class="credit-link">
+                        <i class="fab fa-github"></i> TurboWarp GitHub
+                    </a>
+                    <a href="https://github.com/scratchfoundation" target="_blank" class="credit-link">
+                        <i class="fab fa-github"></i> Scratch Foundation GitHub
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="player-wrapper">
+            <iframe id="game-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        // --- JavaScript Logic (No Changes to Core Functions) ---
+        const DEFAULT_ID = "510186917";
+        const BASE_URL = "https://turbowarp.org/";
+
+        const body = document.body;
+        const iframe = document.getElementById('game-iframe');
+        const projectIdInput = document.getElementById('project-id');
+        
+        const hMirrorToggle = document.getElementById('h-mirror-toggle');
+        const vMirrorToggle = document.getElementById('v-mirror-toggle');
+        const bwToggle = document.getElementById('bw-toggle');
+        
+        const controlsToggleIcon = document.getElementById('toggle-icon');
+
+        /**
+         * 1. Initialization: Reads URL parameters and sets up the initial state.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            
+            const initialId = params.get('id') || DEFAULT_ID;
+            projectIdInput.value = initialId;
+            loadProject(initialId); 
+
+            const isHMirror = params.get('hmirror') === 'true';
+            if (isHMirror) {
+                hMirrorToggle.checked = true;
+                toggleHMirrorMode(true); 
+            }
+            
+            const isVMirror = params.get('vmirror') === 'true';
+            if (isVMirror) {
+                vMirrorToggle.checked = true;
+                toggleVMirrorMode(true); 
+            }
+
+            const isBW = params.get('bw') === 'true';
+            if (isBW) {
+                bwToggle.checked = true;
+                toggleBWMode(true); 
+            }
+            
+            const isControlsHidden = params.get('hide') === 'true';
+            if (isControlsHidden) {
+                toggleControls(true);
+            }
+        });
+
+        /**
+         * 2. Core Function: Loads the project into the iframe.
+         */
+        function loadProject(id = projectIdInput.value) {
+            const finalId = id.trim();
+            if (finalId) {
+                const fullUrl = `${BASE_URL}${finalId}/embed`;
+                iframe.src = fullUrl;
+                projectIdInput.value = finalId;
+            } else {
+                alert("Please enter a valid TurboWarp Project ID.");
+            }
+        }
+
+        /**
+         * 3. Toggle Horizontal Mirror Mode (Mirror Mode 1).
+         */
+        function toggleHMirrorMode(forceActive = hMirrorToggle.checked) {
+            body.classList.toggle('h-mirror-active', forceActive);
+        }
+
+        /**
+         * 4. Toggle Vertical Mirror Mode (Mirror Mode 2).
+         */
+        function toggleVMirrorMode(forceActive = vMirrorToggle.checked) {
+            body.classList.toggle('v-mirror-active', forceActive);
+        }
+        
+        /**
+         * 5. Toggle Black & White Mode (Grayscale Filter).
+         */
+        function toggleBWMode(forceActive = bwToggle.checked) {
+            body.classList.toggle('bw-active', forceActive);
+        }
+        
+        /**
+         * 6. Toggle visibility of the controls panel.
+         */
+        function toggleControls(forceHide) {
+            const shouldHide = (typeof forceHide === 'boolean') ? forceHide : !body.classList.contains('controls-hidden');
+            body.classList.toggle('controls-hidden', shouldHide);
+            controlsToggleIcon.textContent = shouldHide ? '❯' : '❮';
+        }
+
+
+        /**
+         * 7. Saves the current settings into the URL and copies it.
+         */
+        function updateURL() {
+            const currentId = projectIdInput.value.trim();
+            if (!currentId) {
+                alert("Cannot save settings. Please load a project ID first.");
+                return;
+            }
+            
+            const newParams = new URLSearchParams();
+            newParams.set('id', currentId);
+            newParams.set('hmirror', hMirrorToggle.checked);
+            newParams.set('vmirror', vMirrorToggle.checked);
+            newParams.set('bw', bwToggle.checked);
+            newParams.set('hide', body.classList.contains('controls-hidden')); 
+
+            const newUrl = `${window.location.origin}${window.location.pathname}?${newParams.toString()}`;
+
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            navigator.clipboard.writeText(newUrl).then(() => {
+                alert(`Settings saved! The shareable URL has been copied to your clipboard:\n\n${newUrl}`);
+            }).catch(err => {
+                console.error('Could not copy URL to clipboard: ', err);
+                alert(`Settings saved! Please copy the URL manually from your address bar:\n\n${newUrl}`);
+            });
+        }
+
+    </script>
+</body>
+</html>
