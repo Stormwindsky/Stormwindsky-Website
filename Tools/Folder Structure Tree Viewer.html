@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Structure Tree Viewer</title>
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --border-color: #ced4da;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* --- Drop Zone Styling --- */
+        #drop-zone {
+            border: 3px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            font-size: 1.1em;
+            color: var(--secondary-color);
+        }
+
+        #drop-zone.dragover {
+            background-color: #e9f5ff;
+            border-color: var(--success-color);
+            color: var(--primary-color);
+        }
+
+        /* --- Results Area --- */
+        #results-container {
+            display: none;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .results-header h2 {
+            margin: 0;
+            color: #343a40;
+        }
+
+        /* --- Tree Output Area --- */
+        #tree-output {
+            background-color: #343a40;
+            color: #e0e0e0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            min-height: 100px;
+            max-height: 400px;
+            border: 1px solid #495057;
+        }
+
+        /* --- Copy Button Styling --- */
+        .copy-button {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .copy-button:hover {
+            background-color: #218838;
+        }
+
+        .copy-button:active {
+            transform: scale(0.98);
+        }
+
+        /* SVG Icon for Copy (Clipboard) */
+        .copy-button svg {
+            fill: white;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* --- Status Message --- */
+        #status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Folder Structure Tree Viewer</h1>
+
+        <div id="drop-zone">
+            <p><strong>Drag and drop a folder here</strong> to see its structure.</p>
+            <p><em>(Note: This works best on Chromium-based browsers like Chrome/Edge and only accesses file/folder names, not content.)</em></p>
+        </div>
+
+        <div id="results-container">
+            <div class="results-header">
+                <h2>Tree Result</h2>
+                <button class="copy-button" id="copy-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 21H8V7h11m0-2H8c-1.11 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2m-3-4H4c-1.1 0-2 .9-2 2v14h2V5h12V3z"/>
+                    </svg>
+                    Copy Tree
+                </button>
+            </div>
+            <pre id="tree-output">Drop a folder to generate the tree structure...</pre>
+            <div id="status-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+        const dropZone = document.getElementById('drop-zone');
+        const resultsContainer = document.getElementById('results-container');
+        const treeOutput = document.getElementById('tree-output');
+        const copyButton = document.getElementById('copy-button');
+        const statusMessage = document.getElementById('status-message');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false); // Prevent drop on entire page
+        });
+
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        async function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const items = dt.items;
+            
+            // Clear previous results and status
+            treeOutput.textContent = 'Generating tree structure...';
+            statusMessage.textContent = '';
+            resultsContainer.style.display = 'block';
+
+            // Check if items were dropped
+            if (items.length === 0) {
+                treeOutput.textContent = 'No items dropped.';
+                return;
+            }
+
+            // The DataTransferItemList interface is tricky. We need to check if the first item is a directory.
+            const entry = items[0].webkitGetAsEntry();
+
+            if (!entry || !entry.isDirectory) {
+                treeOutput.textContent = 'Please drop a single directory (folder).';
+                return;
+            }
+
+            const rootName = entry.name || '.';
+            const tree = await getTreeStructure(entry);
+            const formattedTree = formatTree(rootName, tree);
+            
+            treeOutput.textContent = formattedTree;
+            statusMessage.textContent = 'Tree structure generated successfully.';
+            statusMessage.style.backgroundColor = '#d4edda'; // light green
+            statusMessage.style.color = '#155724'; // dark green
+        }
+
+        /**
+         * Recursively reads the directory structure.
+         * @param {FileSystemDirectoryEntry} entry - The directory entry.
+         * @returns {Promise<Object>} The structured object {dirs: [], files: []}.
+         */
+        function getTreeStructure(entry) {
+            return new Promise(resolve => {
+                const reader = entry.createReader();
+                const structure = { dirs: [], files: [] };
+
+                const readEntries = () => {
+                    reader.readEntries(entries => {
+                        if (entries.length) {
+                            // Sort for consistent output (dirs first, then alphabetically)
+                            entries.sort((a, b) => {
+                                if (a.isDirectory === b.isDirectory) {
+                                    return a.name.localeCompare(b.name);
+                                }
+                                return a.isDirectory ? -1 : 1;
+                            });
+
+                            const promises = [];
+                            entries.forEach(item => {
+                                if (item.isDirectory) {
+                                    promises.push(
+                                        getTreeStructure(item).then(subTree => {
+                                            structure.dirs.push({ name: item.name, content: subTree });
+                                        })
+                                    );
+                                } else if (item.isFile) {
+                                    structure.files.push(item.name);
+                                }
+                            });
+                            
+                            Promise.all(promises).then(readEntries); // Read next batch
+                        } else {
+                            resolve(structure); // All entries read
+                        }
+                    }, () => {
+                        // Error reading entries
+                        resolve(structure);
+                    });
+                };
+                readEntries();
+            });
+        }
+
+        /**
+         * Formats the structure object into the 'tree' text format.
+         * @param {string} rootName - The name of the root directory.
+         * @param {Object} structure - The structured object.
+         * @returns {string} The formatted tree string.
+         */
+        function formatTree(rootName, structure) {
+            let treeLines = [rootName];
+            let dirCount = 0;
+            let fileCount = 0;
+
+            function recurse(data, prefix) {
+                const allItems = [...data.dirs, ...data.files.map(f => ({ name: f, isFile: true }))];
+                const total = allItems.length;
+
+                allItems.forEach((item, index) => {
+                    const isLast = index === total - 1;
+                    const linePrefix = prefix + (isLast ? '└── ' : '├── ');
+                    treeLines.push(linePrefix + item.name);
+
+                    if (!item.isFile) {
+                        // It's a directory
+                        dirCount++;
+                        const nextPrefix = prefix + (isLast ? '    ' : '│   ');
+                        // Correct structure reference: item.content
+                        recurse(item.content, nextPrefix);
+                    } else {
+                        fileCount++;
+                    }
+                });
+            }
+
+            recurse(structure, '');
+
+            const dirText = dirCount === 1 ? 'directory' : 'directories';
+            const fileText = fileCount === 1 ? 'file' : 'files';
+            
+            treeLines.push(`\n${dirCount} ${dirText}, ${fileCount} ${fileText}`);
+
+            return treeLines.join('\n');
+        }
+
+
+        // --- Copy to Clipboard Functionality ---
+        copyButton.addEventListener('click', async () => {
+            const textToCopy = treeOutput.textContent;
+
+            if (textToCopy.includes('Drop a folder') || textToCopy.includes('Please drop a single directory')) {
+                statusMessage.textContent = 'No valid tree to copy.';
+                statusMessage.style.backgroundColor = '#f8d7da'; // light red
+                statusMessage.style.color = '#721c24'; // dark red
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                statusMessage.textContent = 'Copied to clipboard!';
+                statusMessage.style.backgroundColor = '#d4edda'; // light green
+                statusMessage.style.color = '#155724'; // dark green
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                statusMessage.textContent = 'Failed to copy text. Please copy manually.';
+                statusMessage.style.backgroundColor = '#fff3cd'; // light yellow
+                statusMessage.style.color = '#856404'; // dark yellow
+            }
+
+            setTimeout(() => {
+                statusMessage.textContent = '';
+                statusMessage.style.backgroundColor = 'transparent';
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
