@@ -5,168 +5,276 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Image Editor</title>
     <style>
+        /* CSS Variables for Dark Mode */
+        :root {
+            --bg-color: #1a1a1a;
+            --container-bg: #2a2a2a;
+            --text-color: #e0e0e0;
+            --primary-color: #00bcd4; /* Cyan/Teal for a modern look */
+            --primary-hover: #00a8bd;
+            --border-color: #3a3a3a;
+            --input-bg: #3c3c3c;
+            --error-color: #ff6b6b;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Base Styles */
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
-        .container {
-            background-color: #f5f5f5;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+        .editor-container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            transition: transform 0.3s ease-in-out;
         }
+
         h1 {
-            color: #333;
+            color: var(--primary-color);
             text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+        
+        /* Form Groups and Inputs */
+        .control-group {
             margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
         }
-        .input-group {
-            margin-bottom: 15px;
-        }
+
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
         }
+
+        input[type="file"], input[type="number"], input[type="range"] {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
         input[type="file"] {
-            display: block;
-            margin-bottom: 15px;
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
         }
-        .dimensions-container {
+
+        .dimension-inputs {
             display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 20px;
         }
+        
+        .dimension-inputs .input-group {
+            flex-grow: 1;
+        }
+
         .dimension-input {
-            width: 100px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            width: 100%;
         }
+
         .checkbox-group {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            gap: 8px;
-        }
-        .effects-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .effect-option {
-            background-color: #e9e9e9;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .effect-option:hover {
-            background-color: #ddd;
-        }
-        .effect-option.active {
-            background-color: #4CAF50;
-            color: white;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .preview-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .preview-image {
-            max-width: 100%;
-            max-height: 400px;
             margin-top: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .size-info {
-            margin-top: 5px;
-            color: #666;
-            font-style: italic;
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            margin-left: 8px;
+            font-weight: normal;
         }
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .error {
-            color: #d32f2f;
-            margin-top: 5px;
-            font-size: 14px;
-        }
+
+        /* Range Slider Styling */
         .slider-container {
-            margin-bottom: 15px;
+            padding: 0;
         }
         .slider-container label {
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .slider {
+            -webkit-appearance: none;
             width: 100%;
+            height: 10px;
+            background: var(--border-color);
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        /* Effects Selection */
+        .effects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .effect-option {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .effect-option:hover {
+            background-color: var(--border-color);
+            transform: translateY(-2px);
+        }
+        .effect-option.active {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border-color: var(--text-color);
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        /* Buttons */
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        button {
+            flex-grow: 1;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+        }
+        button:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background-color: #555555;
+            color: #aaaaaa;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        /* Preview Area */
+        .preview-section {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px dashed var(--border-color);
+        }
+        .preview-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 400px;
+            margin-top: 15px;
+            border: 3px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: all 0.5s ease-in-out; /* Animation for image update */
+        }
+        
+        .size-info {
+            margin-top: 5px;
+            color: #999;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        
+        .error {
+            color: var(--error-color);
+            margin-top: 5px;
+            font-size: 0.9em;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="editor-container">
         <h1>Advanced Image Editor</h1>
         
-        <div class="input-group">
-            <label for="image-upload">Select an image:</label>
-            <input type="file" id="image-upload" accept="image/*">
-            <div id="file-error" class="error"></div>
-        </div>
-        
-        <div class="dimensions-container">
+        <div class="control-group">
             <div class="input-group">
-                <label for="width-input">Width (px):</label>
-                <input type="number" id="width-input" class="dimension-input" min="1" placeholder="Width">
-                <div id="width-error" class="error"></div>
+                <label for="image-upload">Select an image:</label>
+                <input type="file" id="image-upload" accept="image/*">
+                <div id="file-error" class="error"></div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Resize Options:</label>
+            <div class="dimension-inputs">
+                <div class="input-group">
+                    <label for="width-input">Width (px):</label>
+                    <input type="number" id="width-input" class="dimension-input" min="1" placeholder="Width">
+                    <div id="width-error" class="error"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="height-input">Height (px):</label>
+                    <input type="number" id="height-input" class="dimension-input" min="1" placeholder="Height">
+                    <div id="height-error" class="error"></div>
+                </div>
             </div>
             
-            <div class="input-group">
-                <label for="height-input">Height (px):</label>
-                <input type="number" id="height-input" class="dimension-input" min="1" placeholder="Height">
-                <div id="height-error" class="error"></div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="maintain-ratio" checked>
+                <label for="maintain-ratio">Maintain aspect ratio</label>
             </div>
         </div>
-        
-        <div class="slider-container">
+
+        <div class="control-group slider-container">
             <label for="size-slider">Resize Percentage: <span id="size-value">100%</span></label>
             <input type="range" id="size-slider" class="slider" min="1" max="200" value="100">
         </div>
         
-        <div class="checkbox-group">
-            <input type="checkbox" id="maintain-ratio" checked>
-            <label for="maintain-ratio">Maintain aspect ratio</label>
-        </div>
-        
-        <div class="input-group">
+        <div class="control-group">
             <label>Image Effects:</label>
-            <div class="effects-container">
+            <div class="effects-grid">
                 <div class="effect-option" data-effect="none">None</div>
                 <div class="effect-option" data-effect="grayscale">Black & White</div>
                 <div class="effect-option" data-effect="invert">Invert Colors</div>
@@ -180,7 +288,7 @@
             <button id="reset-btn" disabled>Reset</button>
         </div>
         
-        <div class="preview-container">
+        <div class="preview-section">
             <h3>Image Preview:</h3>
             <img id="preview-image" class="preview-image" style="display: none;">
             <p id="original-size" class="size-info"></p>
@@ -323,10 +431,14 @@
                 if (!originalImage) return;
                 
                 const currentWidth = parseInt(widthInput.value);
-                if (!isNaN(currentWidth)) {
+                if (!isNaN(currentWidth) && originalWidth > 0) {
                     const percentage = Math.round((currentWidth / originalWidth) * 100);
                     sizeSlider.value = percentage;
                     sizeValue.textContent = `${percentage}%`;
+                } else {
+                    // Reset if input is invalid
+                    sizeSlider.value = 100;
+                    sizeValue.textContent = '100%';
                 }
             }
             
@@ -346,6 +458,9 @@
             function validateDimensions() {
                 let isValid = true;
                 
+                widthError.textContent = '';
+                heightError.textContent = '';
+
                 const width = parseInt(widthInput.value);
                 if (isNaN(width) || width <= 0) {
                     widthError.textContent = 'Please enter a valid width';
@@ -429,7 +544,10 @@
                 }
                 
                 // Determine output format based on original image
-                const outputFormat = originalImage.src.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+                // Note: originalImage.src may be a data URL, checking the original file type is better, 
+                // but for simplicity in this script, we'll rely on the original image's source type for a hint.
+                // A better approach would be to store the original file's type on upload.
+                const outputFormat = originalImage.src.toLowerCase().includes('.png') || imageUpload.files[0]?.type.includes('png') ? 'image/png' : 'image/jpeg';
                 const quality = outputFormat === 'image/jpeg' ? 0.92 : 1.0;
                 
                 return canvas.toDataURL(outputFormat, quality);
@@ -437,10 +555,19 @@
             
             // Preview button
             previewBtn.addEventListener('click', function() {
+                // Subtle visual feedback for click
+                this.classList.add('clicked');
+                setTimeout(() => this.classList.remove('clicked'), 300);
+
                 resizedImageUrl = resizeImage();
                 if (resizedImageUrl) {
-                    previewImage.src = resizedImageUrl;
-                    resizedSizeInfo.textContent = `Resized size: ${widthInput.value}px × ${heightInput.value}px`;
+                    // Animation: Fade out old image and fade in new one
+                    previewImage.style.opacity = '0';
+                    setTimeout(() => {
+                        previewImage.src = resizedImageUrl;
+                        resizedSizeInfo.textContent = `Resized size: ${widthInput.value}px × ${heightInput.value}px`;
+                        previewImage.style.opacity = '1';
+                    }, 100);
                 }
             });
             
@@ -451,7 +578,7 @@
                 }
                 
                 if (resizedImageUrl) {
-                    const extension = originalImage.src.toLowerCase().endsWith('.png') ? 'png' : 'jpg';
+                    const extension = originalImage.src.toLowerCase().includes('.png') ? 'png' : 'jpg';
                     const link = document.createElement('a');
                     link.download = `edited-image-${widthInput.value}x${heightInput.value}.${extension}`;
                     link.href = resizedImageUrl;
@@ -481,7 +608,14 @@
                 // Reset preview
                 previewImage.src = originalImage.src;
                 resizedSizeInfo.textContent = '';
+                resizedImageUrl = null;
             });
+
+            // Initial active effect set
+            const initialEffect = document.querySelector('.effect-option[data-effect="none"]');
+            if (initialEffect) {
+                initialEffect.classList.add('active');
+            }
         });
     </script>
 </body>
