@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TurboChallenger</title>
+    <title>BetterWarp</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -208,7 +208,7 @@
 <body>
 
     <div id="header">
-        <h1>TP TurboChallenger</h1>
+        <h1>BetterWarp</h1>
         <button class="btn-primary" onclick="updateURL()">Share/Save Settings</button>
     </div>
 
@@ -222,7 +222,7 @@
             <h2><i class="fas fa-sliders-h"></i> Challenge Options</h2>
 
             <label for="project-id">Project ID:</label>
-            <input type="text" id="project-id" placeholder="e.g., 510186917">
+            <input type="text" id="project-id" placeholder="e.g., 510186917 (TurboWarp/Scratch), #1234 (PenguinMod), m/1a2b3c (MakeCode), s/p_1a2b3c (CreatiCode), cocrea/id (CoCrea)">
 
             <button class="btn-primary" style="margin-top: 20px;" onclick="loadProject()">Load Project</button>
 
@@ -257,7 +257,7 @@
                 
                 <p>This project is licensed under the **MIT License**.</p>
                 <p>
-                    **TurboChallenger** is an independent utility and is **not affiliated** with the TurboWarp team, the Scratch Team, or the Scratch Foundation.
+                    **BetterWarp** is an independent utility and is **not affiliated** with the TurboWarp team, the Scratch Team, the PenguinMod team, MakeCode, CreatiCode, CoCrea, or the Scratch Foundation.
                 </p>
                 
                 <p>Project created by: **Stormwindsky**</p>
@@ -266,6 +266,9 @@
                     <a href="https://gamejolt.com/@Stormwindsky" target="_blank" class="credit-link">
                         <i class="fas fa-gamepad"></i> Follow on Gamejolt
                     </a>
+                    
+                    <h4>Integrated Platforms:</h4>
+
                     <a href="https://turbowarp.org/" target="_blank" class="credit-link">
                         <i class="fas fa-external-link-alt"></i> TurboWarp Website
                     </a>
@@ -278,6 +281,22 @@
                     <a href="https://github.com/scratchfoundation" target="_blank" class="credit-link">
                         <i class="fab fa-github"></i> Scratch Foundation GitHub
                     </a>
+                    
+                    <a href="https://studio.penguinmod.com" target="_blank" class="credit-link">
+                        <i class="fas fa-external-link-alt"></i> PenguinMod Website
+                    </a>
+                    <a href="https://github.com/PenguinMod/" target="_blank" class="credit-link">
+                        <i class="fab fa-github"></i> PenguinMod GitHub
+                    </a>
+
+                    <a href="https://www.cocrea.world/" target="_blank" class="credit-link">
+                        <i class="fas fa-external-link-alt"></i> CoCrea World Website
+                    </a>
+
+                    <a href="https://www.creaticode.com/" target="_blank" class="credit-link">
+                        <i class="fas fa-external-link-alt"></i> CreatiCode Website
+                    </a>
+
                 </div>
             </div>
 
@@ -289,10 +308,9 @@
     </div>
 
     <script>
-        // --- JavaScript Logic (No Changes to Core Functions) ---
-        const DEFAULT_ID = "510186917";
-        const BASE_URL = "https://turbowarp.org/";
-
+        // --- JavaScript Logic (Updated to support multiple platforms) ---
+        const DEFAULT_ID = "510186917"; // Default for TurboWarp
+        
         const body = document.body;
         const iframe = document.getElementById('game-iframe');
         const projectIdInput = document.getElementById('project-id');
@@ -338,17 +356,43 @@
         });
 
         /**
-         * 2. Core Function: Loads the project into the iframe.
+         * 2. Core Function: Loads the project into the iframe, selecting URL based on ID format.
          */
         function loadProject(id = projectIdInput.value) {
             const finalId = id.trim();
-            if (finalId) {
-                const fullUrl = `${BASE_URL}${finalId}/embed`;
-                iframe.src = fullUrl;
-                projectIdInput.value = finalId;
-            } else {
-                alert("Please enter a valid TurboWarp Project ID.");
+            if (!finalId) {
+                alert("Please enter a valid Project ID.");
+                return;
             }
+
+            let fullUrl = '';
+
+            if (finalId.includes('#')) {
+                // Scenario 1: ID contains '#' -> PenguinMod
+                // Example: #123456
+                fullUrl = `https://studio.penguinmod.com/${finalId}`;
+            } else if (finalId.startsWith('m/')) {
+                // Scenario 2: ID starts with 'm/' -> MakeCode Arcade
+                // Example: m/1a2b3c
+                const makecodeId = finalId.substring(2);
+                fullUrl = `https://arcade.makecode.com/${makecodeId}`;
+            } else if (finalId.startsWith('s/')) {
+                // Scenario 3: ID starts with 's/' -> CreatiCode
+                // Example: s/p_1a2b3c
+                const creaticodeId = finalId.substring(2);
+                fullUrl = `https://play.creaticode.com/projects/${creaticodeId}/embed`;
+            } else if (finalId.includes('/')) {
+                // Scenario 4: ID contains '/' (but not m/ or s/) -> CoCrea
+                // Example: myusername/myprojectname
+                fullUrl = `https://cocrea.world/embed/${finalId}?type=player&showCreator=true&showOperating=true`;
+            } else {
+                // Scenario 5: Default (Simple ID) -> TurboWarp/Scratch
+                // Example: 510186917
+                fullUrl = `https://turbowarp.org/${finalId}/embed`;
+            }
+
+            iframe.src = fullUrl;
+            projectIdInput.value = finalId; // Ensure the input field reflects the final ID used
         }
 
         /**
