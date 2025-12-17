@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakes & Ladders - Ultimate Custom</title>
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --cell-size: 65px;
+            --dice-color: #ffffff;
+            --dot-color: #000000;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .lang-switch { position: absolute; top: 10px; right: 10px; }
+        
+        /* --- Setup Screen --- */
+        #setup-screen {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .player-config {
+            background: rgba(0,0,0,0.3);
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        input[type="text"], input[type="url"] {
+            width: 90%;
+            padding: 5px;
+            border-radius: 4px;
+            border: none;
+        }
+
+        /* --- Board --- */
+        #game-area { display: none; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        
+        #board-container { position: relative; border: 5px solid #444; }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, var(--cell-size));
+            grid-template-rows: repeat(10, var(--cell-size));
+            background: #fff;
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            border: 0.1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #333;
+            position: relative;
+        }
+        .cell:nth-child(even) { background-color: #f2f2f2; }
+        .ladder-start { background-color: #f1c40f !important; }
+        .snake-start { background-color: #e67e22 !important; color: white; }
+        .dir-hint { font-size: 9px; font-weight: bold; }
+
+        /* --- Pions --- */
+        .player-pion {
+            width: 35px;
+            height: 35px;
+            position: absolute;
+            z-index: 100;
+            transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pion-art {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .pion-name {
+            font-size: 9px;
+            background: rgba(0,0,0,0.7);
+            padding: 1px 3px;
+            border-radius: 3px;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        /* --- Dice 3D (Ton Script) --- */
+        .dice-area { text-align: center; min-width: 200px; }
+        .single-dice-container { perspective: 1000px; width: 80px; height: 80px; margin: 30px auto; }
+        .dice { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s; }
+        .dice-face {
+            position: absolute; width: 100%; height: 100%;
+            background: var(--dice-color); border: 1px solid #ccc;
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; font-size: 24px; color: var(--dot-color);
+        }
+        .front { transform: rotateY(0deg) translateZ(40px); }
+        .right { transform: rotateY(90deg) translateZ(40px); }
+        .back  { transform: rotateY(180deg) translateZ(40px); }
+        .left  { transform: rotateY(-90deg) translateZ(40px); }
+        .top   { transform: rotateX(90deg) translateZ(40px); }
+        .bottom{ transform: rotateX(-90deg) translateZ(40px); }
+        .rolling { animation: rollAnim 0.8s; }
+        @keyframes rollAnim { 100% { transform: rotateX(720deg) rotateY(360deg); } }
+
+        button { padding: 10px; cursor: pointer; border-radius: 5px; border: none; background: var(--primary-color); color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="lang-switch">
+        <button onclick="changeLang('en')">EN</button>
+        <button onclick="changeLang('fr')">FR</button>
+    </div>
+
+    <div id="setup-screen">
+        <h1 id="t-title">Snakes & Ladders</h1>
+        <div id="player-inputs"></div>
+        <div style="margin-top: 20px;">
+            <button onclick="addPlayerField()" id="t-add">+ Player</button>
+            <button onclick="initGame()" id="t-start" style="background: #27ae60;">Start Game</button>
+        </div>
+    </div>
+
+    <div id="game-area">
+        <div id="board-container"><div id="board"></div></div>
+        <div class="dice-area">
+            <h2 id="current-turn-text">Turn</h2>
+            <div class="single-dice-container">
+                <div id="dice3d" class="dice">
+                    <div class="dice-face front">1</div><div class="dice-face right">2</div>
+                    <div class="dice-face back">3</div><div class="dice-face left">4</div>
+                    <div class="dice-face top">5</div><div class="dice-face bottom">6</div>
+                </div>
+            </div>
+            <button id="roll-btn" onclick="playTurn()">Roll Dice</button>
+            <p id="game-log"></p>
+        </div>
+    </div>
+
+    <script>
+        const sfxUrl = "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Files/sfx/";
+        const trans = {
+            en: { title: "Snakes & Ladders", start: "Start", add: "+ Player", turn: "Turn: ", win: "Wins!", snake: "Snake! Down to ", ladder: "Ladder! Up to " },
+            fr: { title: "Serpents & Échelles", start: "Jouer", add: "+ Joueur", turn: "Tour : ", win: "a gagné !", snake: "Serpent ! Vers ", ladder: "Échelle ! Vers " }
+        };
+
+        let lang = 'en';
+        let players = [];
+        let currentPlayer = 0;
+        let snakesAndLadders = {};
+
+        // --- URL System ---
+        function saveToUrl() {
+            const data = { l: lang, p: players };
+            const encoded = btoa(JSON.stringify(data));
+            window.history.replaceState(null, null, "?data=" + encoded);
+        }
+
+        function loadFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            if(params.has('data')) {
+                const decoded = JSON.parse(atob(params.get('data')));
+                lang = decoded.l;
+                players = decoded.p;
+                renderPlayerFields();
+                changeLang(lang);
+            } else {
+                addPlayerField(); addPlayerField(); // Default 2
+            }
+        }
+
+        // --- Setup ---
+        function addPlayerField() {
+            players.push({ name: "Player " + (players.length+1), color: "#"+Math.floor(Math.random()*16777215).toString(16), img: "", pos: 0 });
+            renderPlayerFields();
+        }
+
+        function renderPlayerFields() {
+            const container = document.getElementById('player-inputs');
+            container.innerHTML = '';
+            players.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = 'player-config';
+                div.innerHTML = `
+                    <input type="text" value="${p.name}" onchange="players[${i}].name=this.value; saveToUrl()">
+                    <input type="color" value="${p.color}" onchange="players[${i}].color=this.value; saveToUrl()">
+                    <input type="url" placeholder="Image URL (opt)" value="${p.img}" onchange="players[${i}].img=this.value; saveToUrl()">
+                    <button onclick="players.splice(${i},1); renderPlayerFields()" style="background:#c0392b">X</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function changeLang(l) {
+            lang = l;
+            document.getElementById('t-title').innerText = trans[lang].title;
+            document.getElementById('t-start').innerText = trans[lang].start;
+            document.getElementById('t-add').innerText = trans[lang].add;
+            saveToUrl();
+        }
+
+        // --- Game Logic ---
+        function initGame() {
+            if(players.length < 2) return alert("Min 2 players");
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-area').style.display = 'flex';
+            
+            generateBoardData();
+            drawBoard();
+            players.forEach((_, i) => createPion(i));
+            updateTurnUI();
+            saveToUrl();
+        }
+
+        function generateBoardData() {
+            snakesAndLadders = {};
+            for(let i=0; i<12; i++) {
+                let s = Math.floor(Math.random()*90)+2;
+                let e = Math.floor(Math.random()*90)+2;
+                if(Math.abs(s-e) > 10) snakesAndLadders[s] = e;
+            }
+        }
+
+        function drawBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let row = 9; row >= 0; row--) {
+                for (let col = 0; col < 10; col++) {
+                    let id = (row % 2 !== 0) ? (row * 10) + (10 - col) : (row * 10) + col + 1;
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${id}`;
+                    cell.innerHTML = `<b>${id}</b>`;
+                    if(snakesAndLadders[id]) {
+                        const target = snakesAndLadders[id];
+                        const isLadder = target > id;
+                        cell.classList.add(isLadder ? 'ladder-start' : 'snake-start');
+                        cell.innerHTML += `<div class="dir-hint">${isLadder ? '▲' : '▼'} ${target}</div>`;
+                    }
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function createPion(i) {
+            const p = players[i];
+            const div = document.createElement('div');
+            div.className = 'player-pion';
+            div.id = `pion-${i}`;
+            div.innerHTML = `
+                <div class="pion-art" style="background-color:${p.color}; background-image:url('${p.img}')"></div>
+                <div class="pion-name">${p.name}</div>
+            `;
+            document.getElementById('board-container').appendChild(div);
+            updatePionPos(i);
+        }
+
+        function updatePionPos(i) {
+            const p = players[i];
+            const el = document.getElementById(`pion-${i}`);
+            if(p.pos === 0) {
+                el.style.left = "-40px"; el.style.top = (i * 40) + "px";
+            } else {
+                const cell = document.getElementById(`cell-${p.pos}`);
+                const bRect = document.getElementById('board').getBoundingClientRect();
+                const cRect = cell.getBoundingClientRect();
+                el.style.left = (cRect.left - bRect.left + (i%4 * 5)) + "px";
+                el.style.top = (cRect.top - bRect.top + (i%4 * 5)) + "px";
+            }
+        }
+
+        function playTurn() {
+            const btn = document.getElementById('roll-btn');
+            btn.disabled = true;
+            const die = document.getElementById('dice3d');
+            die.classList.add('rolling');
+            
+            const roll = Math.floor(Math.random()*6)+1;
+            
+            // SFX: move1.wav to move5.wav
+            const randMoveSfx = "move" + (Math.floor(Math.random()*5)+1) + ".wav";
+            new Audio(sfxUrl + randMoveSfx).play().catch(()=>{});
+
+            setTimeout(() => {
+                die.classList.remove('rolling');
+                const rots = {1:'rotateX(0)', 2:'rotateY(-90deg)', 3:'rotateY(180deg)', 4:'rotateY(90deg)', 5:'rotateX(-90deg)', 6:'rotateX(90deg)'};
+                die.style.transform = rots[roll];
+                document.querySelectorAll('.dice-face').forEach(f => f.innerText = roll);
+                
+                let p = players[currentPlayer];
+                p.pos += roll;
+                if(p.pos > 100) p.pos -= roll;
+
+                updatePionPos(currentPlayer);
+
+                setTimeout(() => {
+                    if(snakesAndLadders[p.pos]) {
+                        const target = snakesAndLadders[p.pos];
+                        const isLadder = target > p.pos;
+                        document.getElementById('game-log').innerText = (isLadder ? trans[lang].ladder : trans[lang].snake) + target;
+                        p.pos = target;
+                        updatePionPos(currentPlayer);
+                    }
+                    
+                    if(p.pos === 100) {
+                        new Audio(sfxUrl + "win.wav").play();
+                        alert(p.name + " " + trans[lang].win);
+                        location.reload();
+                    } else {
+                        currentPlayer = (currentPlayer + 1) % players.length;
+                        updateTurnUI();
+                        btn.disabled = false;
+                    }
+                }, 500);
+            }, 800);
+        }
+
+        function updateTurnUI() {
+            const t = document.getElementById('current-turn-text');
+            t.innerText = trans[lang].turn + players[currentPlayer].name;
+            t.style.color = players[currentPlayer].color;
+        }
+
+        loadFromUrl();
+    </script>
+</body>
+</html>
