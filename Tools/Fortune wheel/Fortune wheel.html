@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Wheel - Roulette Aléatoire</title>
+    <style>
+        :root {
+            --primary: #ff4757;
+            --secondary: #2f3542;
+            --bg: #f1f2f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        
+        /* Conteneur de la roue */
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        #wheel-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 10px solid var(--secondary);
+            background: white;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid var(--primary);
+            z-index: 10;
+        }
+
+        /* Contrôles */
+        .controls {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .spin-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .spin-btn:hover { transform: scale(1.02); }
+        .spin-btn:disabled { background: #ccc; }
+
+        .segment-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            flex: 1;
+        }
+
+        .lang-selector { margin-bottom: 20px; }
+        
+        .remove-btn { color: red; cursor: pointer; border: none; background: none; font-weight: bold; }
+        
+        .winner-msg {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-top: 10px;
+            font-weight: bold;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lang-selector">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español (España)</option>
+            <option value="es-lat">Español (Latam)</option>
+            <option value="bingling">Bingling (FR/EN)</option>
+        </select>
+    </div>
+
+    <div class="header">
+        <h1 id="ui-title">Lucky Wheel</h1>
+    </div>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheel-canvas" width="800" height="800"></canvas>
+    </div>
+
+    <div id="winnerDisplay" class="winner-msg"></div>
+
+    <button id="spinBtn" class="spin-btn" onclick="spinWheel()">GO!!!</button>
+
+    <div class="controls">
+        <h3 id="ui-manage">Manage Segments</h3>
+        <div id="segments-list"></div>
+        <button onclick="addSegment()" style="margin-top:10px;">+ Add Segment</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheel-canvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        
+        let segments = [
+            { text: '100$', img: '' },
+            { text: '20$', img: '' },
+            { text: '50$', img: '' },
+            { text: '1000$', img: '' },
+            { text: 'BANKRUPT', img: '' },
+            { text: 'X2', img: '' }
+        ];
+
+        let currentAngle = 0;
+        let isSpinning = false;
+        let currentLang = 'en';
+
+        const translations = {
+            en: { title: "Fortune Wheel", manage: "Segments", spin: "GO!!!", placeholder: "Text", imgPlaceholder: "Img URL" },
+            fr: { title: "Roue de la Fortune", manage: "Gérer les cases", spin: "C'EST PARTI !!!", placeholder: "Texte", imgPlaceholder: "URL Image" },
+            es: { title: "Rueda de la Suerte", manage: "Gestionar", spin: "¡ADELANTE!", placeholder: "Texto", imgPlaceholder: "URL Imagen" },
+            'es-lat': { title: "Ruleta de Suerte", manage: "Configurar", spin: "¡DALE!", placeholder: "Texto", imgPlaceholder: "URL Imagen" },
+            bingling: { title: "Fortune Wheel (Le Spin)", manage: "Manage tes cases", spin: "LET'S GO !!!", placeholder: "Text/Texte", imgPlaceholder: "Image URL" }
+        };
+
+        // --- Logique de la Roue ---
+
+        function drawWheel() {
+            const numSegments = segments.length;
+            const arc = (2 * Math.PI) / numSegments;
+            const colors = ['#f1c40f', '#e67e22', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71'];
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            segments.forEach((seg, i) => {
+                const angle = currentAngle + i * arc;
+                
+                // Dessiner la part
+                ctx.beginPath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.moveTo(400, 400);
+                ctx.arc(400, 400, 380, angle, angle + arc);
+                ctx.fill();
+                ctx.stroke();
+
+                // Ajouter le texte et l'image
+                ctx.save();
+                ctx.translate(400, 400);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "white";
+                ctx.font = "bold 30px Arial";
+                
+                // Texte
+                ctx.fillText(seg.text, 350, 10);
+                
+                // Image (si présente)
+                if(seg.img) {
+                    const img = new Image();
+                    img.src = seg.img;
+                    try {
+                        ctx.drawImage(img, 200, -25, 50, 50);
+                    } catch(e) {}
+                }
+
+                ctx.restore();
+            });
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            document.getElementById('winnerDisplay').innerText = "";
+
+            const extraSpins = Math.floor(Math.random() * 5) + 5;
+            const targetRotation = currentAngle + (extraSpins * 2 * Math.PI) + (Math.random() * 2 * Math.PI);
+            const startRotation = currentAngle;
+            const duration = 4000;
+            let startTime = null;
+
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const progress = (currentTime - startTime) / duration;
+
+                if (progress < 1) {
+                    // Easing out function
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    currentAngle = startRotation + (targetRotation - startRotation) * easeOut;
+                    drawWheel();
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    determineWinner();
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function determineWinner() {
+            const numSegments = segments.length;
+            const arc = (2 * Math.PI) / numSegments;
+            // On ajuste pour que le pointeur en haut (1.5 * PI) soit le repère
+            const normalizedAngle = (1.5 * Math.PI - currentAngle) % (2 * Math.PI);
+            const index = Math.floor((normalizedAngle < 0 ? normalizedAngle + 2 * Math.PI : normalizedAngle) / arc);
+            document.getElementById('winnerDisplay').innerText = "Winner: " + segments[index].text;
+        }
+
+        // --- Gestion de l'UI et Data ---
+
+        function updateUI() {
+            const t = translations[currentLang];
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('ui-manage').innerText = t.manage;
+            document.getElementById('spinBtn').innerText = t.spin;
+            renderSegmentsInputs();
+            drawWheel();
+            saveToUrl();
+        }
+
+        function renderSegmentsInputs() {
+            const container = document.getElementById('segments-list');
+            container.innerHTML = '';
+            segments.forEach((seg, i) => {
+                const row = document.createElement('div');
+                row.className = 'segment-row';
+                row.innerHTML = `
+                    <input type="text" value="${seg.text}" oninput="updateSegment(${i}, 'text', this.value)" placeholder="${translations[currentLang].placeholder}">
+                    <input type="text" value="${seg.img}" oninput="updateSegment(${i}, 'img', this.value)" placeholder="${translations[currentLang].imgPlaceholder}">
+                    <button class="remove-btn" onclick="removeSegment(${i})">✕</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function updateSegment(index, field, value) {
+            segments[index][field] = value;
+            drawWheel();
+            saveToUrl();
+        }
+
+        function addSegment() {
+            segments.push({ text: 'New', img: '' });
+            updateUI();
+        }
+
+        function removeSegment(index) {
+            if(segments.length > 2) {
+                segments.splice(index, 1);
+                updateUI();
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            updateUI();
+        }
+
+        // --- Sauvegarde URL ---
+
+        function saveToUrl() {
+            const data = {
+                s: segments,
+                l: currentLang
+            };
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+            window.history.replaceState(null, null, "#" + encoded);
+        }
+
+        function loadFromUrl() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                try {
+                    const decoded = JSON.parse(decodeURIComponent(escape(atob(hash))));
+                    segments = decoded.s;
+                    currentLang = decoded.l;
+                    document.getElementById('langSelect').value = currentLang;
+                } catch (e) { console.error("URL load error", e); }
+            }
+        }
+
+        // Initialisation
+        loadFromUrl();
+        updateUI();
+    </script>
+</body>
+</html>
