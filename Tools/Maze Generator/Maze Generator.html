@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Maze Generator</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --panel-bg: #f8f9fa;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --accent-color: #4a90e2;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --panel-bg: #2d2d2d;
+            --text-color: #eeeeee;
+            --border-color: #444444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { max-width: 1000px; width: 100%; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        
+        label { font-size: 0.85rem; font-weight: 600; }
+
+        input, select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .btn-group {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: filter 0.2s;
+        }
+
+        .primary { background: var(--accent-color); color: white; }
+        .secondary { background: #27ae60; color: white; }
+        .theme-toggle { background: #8e44ad; color: white; }
+
+        #maze-wrapper {
+            background: white; /* Toujours blanc pour le rendu exportable, sauf si on change via JS */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: auto;
+            max-width: 100%;
+        }
+
+        canvas { display: none; }
+    </style>
+</head>
+<body data-theme="light">
+
+<div class="container">
+    <header>
+        <h1 id="txt-title">Maze Generator</h1>
+        <div style="display: flex; gap: 10px;">
+            <select id="lang-select" onchange="changeLang(this.value)">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es-ES">Español (España)</option>
+                <option value="es-LA">Español (Latam)</option>
+            </select>
+            <button class="theme-toggle" onclick="toggleTheme()" id="txt-theme">Dark Mode</button>
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="input-group">
+            <label id="lbl-cols">Columns</label>
+            <input type="number" id="cols" value="20" min="5">
+        </div>
+        <div class="input-group">
+            <label id="lbl-rows">Rows</label>
+            <input type="number" id="rows" value="20" min="5">
+        </div>
+        <div class="input-group">
+            <label id="lbl-color">Wall Color</label>
+            <input type="color" id="wallColor" value="#000000">
+        </div>
+        <div class="input-group">
+            <label id="lbl-io">Entry/Exit</label>
+            <select id="showIO">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        
+        <div class="btn-group">
+            <button class="primary" onclick="generateMaze()" id="btn-gen">Generate</button>
+            <button class="secondary" onclick="exportSVG()">SVG</button>
+            <button class="secondary" onclick="exportPNG()">PNG</button>
+        </div>
+    </div>
+
+    <div id="maze-wrapper"></div>
+</div>
+
+<canvas id="exportCanvas"></canvas>
+
+<script>
+    // --- TRANSLATIONS ---
+    const i18n = {
+        en: { title: "Maze Generator", theme: "Dark Mode", cols: "Columns", rows: "Rows", color: "Wall Color", io: "Entry/Exit", gen: "Generate New" },
+        fr: { title: "Générateur de Labyrinthe", theme: "Mode Sombre", cols: "Colonnes", rows: "Lignes", color: "Couleur Murs", io: "Entrée/Sortie", gen: "Générer" },
+        "es-ES": { title: "Generador de Laberinto", theme: "Modo Oscuro", cols: "Columnas", rows: "Filas", color: "Color Paredes", io: "Entrada/Salida", gen: "Generar" },
+        "es-LA": { title: "Generador de Laberintos", theme: "Modo Oscuro", cols: "Columnas", rows: "Renglones", color: "Color de Muros", io: "Entrada/Salida", gen: "Generar" }
+    };
+
+    let currentGrid = [];
+    let config = { cols: 20, rows: 20, size: 25 };
+
+    // --- INITIALIZATION ---
+    window.onload = () => {
+        const savedLang = localStorage.getItem('maze-lang') || 'en';
+        document.getElementById('lang-select').value = savedLang;
+        changeLang(savedLang);
+
+        const savedTheme = localStorage.getItem('maze-theme') || 'light';
+        setTheme(savedTheme);
+        
+        generateMaze();
+    };
+
+    function changeLang(lang) {
+        localStorage.setItem('maze-lang', lang);
+        const t = i18n[lang];
+        document.getElementById('txt-title').innerText = t.title;
+        document.getElementById('txt-theme').innerText = t.theme;
+        document.getElementById('lbl-cols').innerText = t.cols;
+        document.getElementById('lbl-rows').innerText = t.rows;
+        document.getElementById('lbl-color').innerText = t.color;
+        document.getElementById('lbl-io').innerText = t.io;
+        document.getElementById('btn-gen').innerText = t.gen;
+    }
+
+    function setTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('maze-theme', theme);
+    }
+
+    function toggleTheme() {
+        const current = document.body.getAttribute('data-theme');
+        setTheme(current === 'light' ? 'dark' : 'light');
+    }
+
+    // --- MAZE LOGIC ---
+    function generateMaze() {
+        const cols = parseInt(document.getElementById('cols').value);
+        const rows = parseInt(document.getElementById('rows').value);
+        config.cols = cols; config.rows = rows;
+
+        let grid = Array.from({ length: rows }, (_, r) => 
+            Array.from({ length: cols }, (_, c) => ({
+                r, c, visited: false, walls: [true, true, true, true]
+            }))
+        );
+
+        let stack = [];
+        let current = grid[0][0];
+        current.visited = true;
+        let visitedCount = 1;
+
+        while (visitedCount < cols * rows) {
+            let next = getNeighbor(current, grid, cols, rows);
+            if (next) {
+                removeWalls(current, next);
+                stack.push(current);
+                current = next;
+                current.visited = true;
+                visitedCount++;
+            } else if (stack.length > 0) {
+                current = stack.pop();
+            }
+        }
+        currentGrid = grid;
+        renderSVG();
+    }
+
+    function getNeighbor(cell, grid, cols, rows) {
+        let n = [];
+        const { r, c } = cell;
+        if (r > 0 && !grid[r-1][c].visited) n.push(grid[r-1][c]);
+        if (c < cols - 1 && !grid[r][c+1].visited) n.push(grid[r][c+1]);
+        if (r < rows - 1 && !grid[r+1][c].visited) n.push(grid[r+1][c]);
+        if (c > 0 && !grid[r][c-1].visited) n.push(grid[r][c-1]);
+        return n.length > 0 ? n[Math.floor(Math.random() * n.length)] : null;
+    }
+
+    function removeWalls(a, b) {
+        if (a.c - b.c === 1) { a.walls[3] = false; b.walls[1] = false; }
+        else if (a.c - b.c === -1) { a.walls[1] = false; b.walls[3] = false; }
+        if (a.r - b.r === 1) { a.walls[0] = false; b.walls[2] = false; }
+        else if (a.r - b.r === -1) { a.walls[2] = false; b.walls[0] = false; }
+    }
+
+    // --- RENDERING ---
+    function renderSVG() {
+        const size = config.size;
+        const color = document.getElementById('wallColor').value;
+        const showIO = document.getElementById('showIO').value === 'yes';
+        const width = config.cols * size;
+        const height = config.rows * size;
+
+        let svg = `<svg id="maze-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="background:transparent">`;
+        
+        // Entrée / Sortie (Marqueurs visuels)
+        if (showIO) {
+            svg += `<rect x="2" y="2" width="${size-4}" height="${size-4}" fill="#27ae60" opacity="0.4"/>`;
+            svg += `<rect x="${(config.cols-1)*size+2}" y="${(config.rows-1)*size+2}" width="${size-4}" height="${size-4}" fill="#e74c3c" opacity="0.4"/>`;
+        }
+
+        for (let r = 0; r < config.rows; r++) {
+            for (let c = 0; c < config.cols; c++) {
+                const x = c * size, y = r * size;
+                const w = currentGrid[r][c].walls;
+                const style = `stroke="${color}" stroke-width="2" stroke-linecap="round"`;
+                
+                if (w[0]) svg += `<line x1="${x}" y1="${y}" x2="${x+size}" y2="${y}" ${style}/>`;
+                if (w[1]) svg += `<line x1="${x+size}" y1="${y}" x2="${x+size}" y2="${y+size}" ${style}/>`;
+                if (w[2]) svg += `<line x1="${x}" y1="${y+size}" x2="${x+size}" y2="${y+size}" ${style}/>`;
+                if (w[3]) svg += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+size}" ${style}/>`;
+            }
+        }
+        svg += `</svg>`;
+        document.getElementById('maze-wrapper').innerHTML = svg;
+    }
+
+    // --- EXPORTS ---
+    function exportSVG() {
+        const svgContent = document.getElementById('maze-wrapper').innerHTML;
+        const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url; link.download = 'maze.svg'; link.click();
+    }
+
+    function exportPNG() {
+        const svg = document.getElementById('maze-svg');
+        const canvas = document.getElementById('exportCanvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        canvas.width = svg.width.baseVal.value;
+        canvas.height = svg.height.baseVal.value;
+
+        const xml = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([xml], {type: 'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+
+        img.onload = () => {
+            // Fond blanc pour le PNG (sinon transparent)
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            const pngUrl = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.href = pngUrl; link.download = 'maze.png'; link.click();
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    }
+</script>
+
+</body>
+</html>
