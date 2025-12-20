@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormTranslate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 { font-size: 1.5rem; color: var(--primary-color); font-weight: 800; letter-spacing: -0.5px; }
+
+        .ui-lang-selector {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .translator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) { .translator-grid { grid-template-columns: 1fr; } }
+
+        .box { display: flex; flex-direction: column; }
+
+        select.lang-select {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            resize: none;
+            font-size: 16px;
+            line-height: 1.6;
+            transition: all 0.2s;
+        }
+
+        textarea:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+
+        #output-text { background-color: #f8fafc; color: #334155; }
+
+        .btn-translate {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-translate:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .btn-modal {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        /* Modal Design */
+        #credits-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            max-width: 550px;
+            width: 90%;
+            line-height: 1.7;
+            position: relative;
+        }
+
+        .modal-content h2 { margin-bottom: 20px; color: var(--text-main); font-weight: 600; }
+        .modal-content a { color: var(--primary-color); text-decoration: none; font-weight: 600; border-bottom: 1px solid transparent; }
+        .modal-content a:hover { border-bottom: 1px solid var(--primary-color); }
+        
+        .modal-section { margin-bottom: 15px; font-size: 0.95rem; }
+        .hr-sep { margin: 20px 0; border: 0; border-top: 1px solid var(--border-color); }
+
+        .close-modal {
+            display: block;
+            margin-top: 25px;
+            text-align: center;
+            background: var(--text-main);
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>StormTranslate</h1>
+        <select id="ui-lang" class="ui-lang-selector">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español (ES)</option>
+            <option value="latam">Español (LATAM)</option>
+        </select>
+    </header>
+
+    <div class="translator-grid">
+        <div class="box">
+            <select id="source-lang" class="lang-select">
+                <option value="en-GB">English</option>
+                <option value="fr-FR">Français</option>
+                <option value="es-ES">Español (España)</option>
+                <option value="es-MX">Español (América)</option>
+            </select>
+            <textarea id="source-text" placeholder="Type text to translate..."></textarea>
+        </div>
+
+        <div class="box">
+            <select id="target-lang" class="lang-select">
+                <option value="fr-FR">Français</option>
+                <option value="en-GB" selected>English</option>
+                <option value="es-ES">Español (España)</option>
+                <option value="es-MX">Español (América)</option>
+            </select>
+            <textarea id="output-text" placeholder="Translation..." readonly></textarea>
+        </div>
+    </div>
+
+    <button id="translate-btn" class="btn-translate">Translate Now</button>
+</div>
+
+<footer>
+    <button class="btn-modal" onclick="toggleModal(true)">Notes & Credits</button>
+    <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;">
+        © <span id="current-year"></span> Stormwindsky • MIT License
+    </div>
+</footer>
+
+<div id="credits-modal" onclick="if(event.target == this) toggleModal(false)">
+    <div class="modal-content">
+        <h2 id="modal-title">Credits & Licenses</h2>
+        
+        <div class="modal-section">
+            <strong>Creator:</strong> Stormwindsky <br>
+            <strong>Follow:</strong> 
+            <a href="https://github.com/Stormwindsky" target="_blank">GitHub</a> | 
+            <a href="https://gamejolt.com/@Stormwindsky" target="_blank">GameJolt</a>
+        </div>
+
+        <div class="modal-section">
+            <strong>Source Code:</strong> <br>
+            <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">github.com/Stormwindsky/Stormwindsky-Website</a>
+        </div>
+
+        <hr class="hr-sep">
+
+        <div class="modal-section">
+            <strong>API Information:</strong><br>
+            This service uses the <a href="https://mymemory.translated.net/" target="_blank">MyMemory API</a>. 
+            It is a 100% free translation memory service (within usage limits).
+        </div>
+
+        <div class="modal-section">
+            <strong>Legal Notice:</strong><br>
+            This website is licensed under the <strong>MIT License</strong>. <br>
+            Copyright © <span class="dynamic-year"></span> Stormwindsky.
+        </div>
+
+        <span class="close-modal" onclick="toggleModal(false)">Close</span>
+    </div>
+</div>
+
+<script>
+    // --- GESTION DE L'ANNÉE AUTOMATIQUE ---
+    const year = new Date().getFullYear();
+    document.getElementById('current-year').textContent = year;
+    document.querySelector('.dynamic-year').textContent = year;
+
+    // --- DICTIONNAIRE MULTILINGUE (UI) ---
+    const translations = {
+        en: {
+            title: "StormTranslate",
+            placeholder: "Type text to translate...",
+            btn: "Translate Now",
+            modal: "Notes & Credits",
+            close: "Close",
+            mTitle: "Credits & Licenses"
+        },
+        fr: {
+            title: "StormTranslate",
+            placeholder: "Entrez le texte à traduire...",
+            btn: "Traduire maintenant",
+            modal: "Notes & Crédits",
+            close: "Fermer",
+            mTitle: "Crédits & Licences"
+        },
+        es: {
+            title: "StormTranslate",
+            placeholder: "Escriba el texto a traducir...",
+            btn: "Traducir ahora",
+            modal: "Notas y Créditos",
+            close: "Cerrar",
+            mTitle: "Créditos y Licencias"
+        },
+        latam: {
+            title: "StormTranslate",
+            placeholder: "Escriba el texto para traducir...",
+            btn: "Traducir ahora",
+            modal: "Notas y Créditos",
+            close: "Cerrar",
+            mTitle: "Créditos y Licencias"
+        }
+    };
+
+    const uiSelector = document.getElementById('ui-lang');
+    const sourceText = document.getElementById('source-text');
+    const outputText = document.getElementById('output-text');
+    const translateBtn = document.getElementById('translate-btn');
+
+    // --- INITIALISATION ET SAUVEGARDE ---
+    window.onload = () => {
+        const savedLang = localStorage.getItem('stormTranslateLang') || 'en';
+        uiSelector.value = savedLang;
+        updateUI(savedLang);
+    };
+
+    uiSelector.addEventListener('change', (e) => {
+        const lang = e.target.value;
+        localStorage.setItem('stormTranslateLang', lang);
+        updateUI(lang);
+    });
+
+    function updateUI(lang) {
+        const t = translations[lang];
+        document.querySelector('h1').innerText = t.title;
+        sourceText.placeholder = t.placeholder;
+        translateBtn.innerText = t.btn;
+        document.querySelector('.btn-modal').innerText = t.modal;
+        document.querySelector('.close-modal').innerText = t.close;
+        document.getElementById('modal-title').innerText = t.mTitle;
+        document.documentElement.lang = (lang === 'latam' || lang === 'es') ? 'es' : lang;
+    }
+
+    // --- LOGIQUE DE TRADUCTION ---
+    translateBtn.addEventListener('click', async () => {
+        const text = sourceText.value.trim();
+        const source = document.getElementById('source-lang').value;
+        const target = document.getElementById('target-lang').value;
+
+        if(!text) return;
+
+        const originalBtnText = translateBtn.innerText;
+        translateBtn.innerText = "...";
+        translateBtn.disabled = true;
+
+        try {
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`);
+            const data = await res.json();
+            
+            if(data.responseData) {
+                outputText.value = data.responseData.translatedText;
+            } else {
+                outputText.value = "Error: Limit reached or API issue.";
+            }
+        } catch (e) {
+            alert("Connection error.");
+        } finally {
+            translateBtn.innerText = originalBtnText;
+            translateBtn.disabled = false;
+        }
+    });
+
+    // --- MODAL ---
+    function toggleModal(show) {
+        document.getElementById('credits-modal').style.display = show ? 'flex' : 'none';
+    }
+</script>
+
+</body>
+</html>
