@@ -174,7 +174,6 @@
         let currentPlayer = 0;
         let snakesAndLadders = {};
 
-        // --- URL System ---
         function saveToUrl() {
             const data = { l: lang, p: players };
             const encoded = btoa(JSON.stringify(data));
@@ -190,11 +189,10 @@
                 renderPlayerFields();
                 changeLang(lang);
             } else {
-                addPlayerField(); addPlayerField(); // Default 2
+                addPlayerField(); addPlayerField(); 
             }
         }
 
-        // --- Setup ---
         function addPlayerField() {
             players.push({ name: "Player " + (players.length+1), color: "#"+Math.floor(Math.random()*16777215).toString(16), img: "", pos: 0 });
             renderPlayerFields();
@@ -224,7 +222,6 @@
             saveToUrl();
         }
 
-        // --- Game Logic ---
         function initGame() {
             if(players.length < 2) return alert("Min 2 players");
             document.getElementById('setup-screen').style.display = 'none';
@@ -301,10 +298,6 @@
             die.classList.add('rolling');
             
             const roll = Math.floor(Math.random()*6)+1;
-            
-            // SFX: move1.wav to move5.wav
-            const randMoveSfx = "move" + (Math.floor(Math.random()*5)+1) + ".wav";
-            new Audio(sfxUrl + randMoveSfx).play().catch(()=>{});
 
             setTimeout(() => {
                 die.classList.remove('rolling');
@@ -316,9 +309,17 @@
                 p.pos += roll;
                 if(p.pos > 100) p.pos -= roll;
 
+                // SFX START: Start of move
+                const startMoveSfx = "move" + (Math.floor(Math.random()*5)+1) + ".wav";
+                new Audio(sfxUrl + startMoveSfx).play().catch(()=>{});
+
                 updatePionPos(currentPlayer);
 
                 setTimeout(() => {
+                    // SFX END: End of move
+                    const endMoveSfx = "move" + (Math.floor(Math.random()*5)+1) + ".wav";
+                    new Audio(sfxUrl + endMoveSfx).play().catch(()=>{});
+
                     if(snakesAndLadders[p.pos]) {
                         const target = snakesAndLadders[p.pos];
                         const isLadder = target > p.pos;
@@ -336,8 +337,8 @@
                         updateTurnUI();
                         btn.disabled = false;
                     }
-                }, 500);
-            }, 800);
+                }, 500); // Wait for pawn movement transition to finish
+            }, 800); // Wait for dice roll to finish
         }
 
         function updateTurnUI() {
