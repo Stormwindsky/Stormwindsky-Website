@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technoblade Never Dies | Memorial</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --accent-color: #ff55ff; /* Une touche de rose pour Technoblade */
+            --secondary-text: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(to bottom, #111, var(--bg-color));
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .lang-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        select {
+            background: var(--card-bg);
+            color: white;
+            border: 1px solid var(--secondary-text);
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .memorial-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 40px;
+            border-top: 4px solid var(--accent-color);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .info-section {
+            margin-top: 30px;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--secondary-text);
+            border-left: 3px solid var(--accent-color);
+            padding-left: 20px;
+            margin: 30px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+
+        .btn-wiki {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .btn-wiki:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lang-selector">
+        <select id="languageSelect" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="fr">Français (France)</option>
+            <option value="fr-ca">Français (Canada)</option>
+            <option value="es">Español (España)</option>
+            <option value="es-lat">Español (Latinoamérica)</option>
+        </select>
+    </div>
+
+    <header>
+        <h1 id="title">Technoblade Never Dies</h1>
+        <p id="subtitle">1999 - 2022</p>
+    </header>
+
+    <div class="container">
+        <div class="memorial-card">
+            <h2 id="about-title">About Alex</h2>
+            <p id="bio">Alexander, known online as Technoblade, was an American YouTuber and Internet personality known for his Minecraft content. He was widely regarded as one of the best players in the community, famous for his skill, wit, and humble nature.</p>
+            
+            <div class="quote" id="quote-text">
+                "If I had another hundred lives, I think I would choose to be Technoblade again every single time, as those were the happiest years of my life."
+            </div>
+
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/DPMluEVUqS0" title="so long nerds" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <div class="info-section">
+                <p id="final-msg">The video above, "so long nerds", was his final message to his fans, read by his father. It remains a testament to his legacy and the impact he had on millions.</p>
+                <a href="https://en.wikipedia.org/wiki/Technoblade" target="_blank" class="btn-wiki" id="wiki-link">Learn more on Wikipedia</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p id="footer-text">Technoblade Never Dies. Rest in peace, King.</p>
+    </footer>
+
+    <script>
+        const translations = {
+            'en': {
+                title: 'Technoblade Never Dies',
+                subtitle: '1999 - 2022',
+                aboutTitle: 'About Alex',
+                bio: 'Alexander, known online as Technoblade, was an American YouTuber and Internet personality known for his Minecraft content. He was widely regarded as one of the best players in the community, famous for his skill, wit, and humble nature.',
+                quote: '"If I had another hundred lives, I think I would choose to be Technoblade again every single time, as those were the happiest years of my life."',
+                finalMsg: 'The video above, "so long nerds", was his final message to his fans, read by his father. It remains a testament to his legacy and the impact he had on millions.',
+                wiki: 'Learn more on Wikipedia',
+                footer: 'Technoblade Never Dies. Rest in peace, King.'
+            },
+            'fr': {
+                title: 'Technoblade Never Dies',
+                subtitle: '1999 - 2022',
+                aboutTitle: 'À propos d\'Alex',
+                bio: 'Alexander, connu sous le nom de Technoblade, était un YouTubeur américain et une personnalité d\'Internet célèbre pour son contenu Minecraft. Il était considéré comme l\'un des meilleurs joueurs de la communauté, célèbre pour son talent et son humour.',
+                quote: '"Si j\'avais cent autres vies, je pense que je choisirais d\'être à nouveau Technoblade à chaque fois, car ce furent les années les plus heureuses de ma vie."',
+                finalMsg: 'La vidéo ci-dessus, "so long nerds", était son dernier message à ses fans, lu par son père. Elle reste un témoignage de son héritage.',
+                wiki: 'En savoir plus sur Wikipedia',
+                footer: 'Technoblade ne meurt jamais. Repose en paix, le Roi.'
+            },
+            'fr-ca': {
+                title: 'Technoblade Never Dies',
+                subtitle: '1999 - 2022',
+                aboutTitle: 'À propos d\'Alex',
+                bio: 'Alexander, connu sous le nom de Technoblade, était un créateur de contenu Minecraft américain. Reconnu comme l\'un des plus grands joueurs, il a marqué la communauté par son génie tactique et son sens de l\'autodérision.',
+                quote: '"Si j\'avais une centaine d\'autres vies, je choisirais d\'être Technoblade à chaque fois. Ce furent les plus belles années de ma vie."',
+                finalMsg: 'La vidéo "so long nerds" est son ultime message, livré par son père. Un moment gravé dans l\'histoire de YouTube.',
+                wiki: 'Voir sur Wikipédia',
+                footer: 'Technoblade ne meurt jamais. Repose en paix.'
+            },
+            'es': {
+                title: 'Technoblade Never Dies',
+                subtitle: '1999 - 2022',
+                aboutTitle: 'Sobre Alex',
+                bio: 'Alexander, conocido como Technoblade, fue un YouTuber estadounidense famoso por su contenido de Minecraft. Fue ampliamente considerado uno de los mejores jugadores, conocido por su ingenio y humildad.',
+                quote: '"Si tuviera otras cien vidas, creo que elegiría ser Technoblade de nuevo cada una de ellas, ya que fueron los años más felices de mi vida."',
+                finalMsg: 'El video de arriba, "so long nerds", fue su último mensaje, leído por su padre. Es un testimonio de su impacto en millones de personas.',
+                wiki: 'Saber más en Wikipedia',
+                footer: 'Technoblade nunca muere. Descansa en paz, Rey.'
+            },
+            'es-lat': {
+                title: 'Technoblade Never Dies',
+                subtitle: '1999 - 2022',
+                aboutTitle: 'Acerca de Alex',
+                bio: 'Alexander, mejor conocido como Technoblade, fue un YouTuber e influencer dedicado a Minecraft. Se le recuerda como un jugador legendario, admirado por su gran habilidad y sentido del humor.',
+                quote: '"Si tuviera cien vidas más, elegiría ser Technoblade cada vez, porque fueron los años más felices de mi vida."',
+                finalMsg: 'Este video, "so long nerds", fue su despedida final compartida por su padre. Su legado vivirá por siempre en la comunidad.',
+                wiki: 'Leer más en Wikipedia',
+                footer: 'Technoblade nunca muere. Descansa en paz.'
+            }
+        };
+
+        function changeLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            const content = translations[lang];
+
+            document.getElementById('title').innerText = content.title;
+            document.getElementById('subtitle').innerText = content.subtitle;
+            document.getElementById('about-title').innerText = content.aboutTitle;
+            document.getElementById('bio').innerText = content.bio;
+            document.getElementById('quote-text').innerText = content.quote;
+            document.getElementById('final-msg').innerText = content.finalMsg;
+            document.getElementById('wiki-link').innerText = content.wiki;
+            document.getElementById('footer-text').innerText = content.footer;
+        }
+    </script>
+</body>
+</html>
