@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic World - Tactical Sorcery</title>
+    <style>
+        :root {
+            --primary-color: #8e44ad;
+            --cell-size: 60px;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* UI Screens & Animated Modals */
+        #setup-screen, .modal {
+            background: rgba(15, 12, 41, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid var(--primary-color);
+            text-align: center;
+            box-shadow: 0 0 50px rgba(142, 68, 173, 0.6);
+            z-index: 2000;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            display: none;
+            opacity: 0;
+            transition: all 0.3s ease-out;
+            min-width: 320px;
+        }
+
+        .modal.active { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .player-config {
+            background: rgba(255,255,255,0.05);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        #game-area { display: none; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; }
+        
+        #board-container { position: relative; padding: 10px; background: #2c3e50; border-radius: 5px; }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, var(--cell-size));
+            grid-template-rows: repeat(10, var(--cell-size));
+            background: #34495e;
+            border: 2px solid #2c3e50;
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cell.dark { background-color: #2c3e50; }
+        .cell.light { background-color: #34495e; }
+        
+        /* Highlights */
+        .cell.highlight-diag { background-color: #27ae60 !important; box-shadow: inset 0 0 10px #2ecc71; animation: pulse 1.5s infinite; }
+        .cell.highlight-adj { background-color: #2980b9 !important; box-shadow: inset 0 0 10px #3498db; animation: pulse 1.5s infinite; }
+        .cell.target-choice { background-color: #f1c40f !important; border: 2px solid white; animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+
+        .tile-red { background: radial-gradient(#ff7675, #d63031) !important; }
+        .tile-violet { background: radial-gradient(#a29bfe, #6c5ce7) !important; }
+        .tile-blue { background: radial-gradient(#74b9ff, #0984e3) !important; }
+
+        /* Pawns */
+        .pion {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid white;
+            position: absolute;
+            z-index: 100;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        /* Transformation en Coeur (Maintient l'émoji droit) */
+        .pion.heart-shape { 
+            border-radius: 10px 10px 50% 50% / 10px 10px 80% 80%;
+            background: #ff4757 !important;
+            transform: scale(1.1);
+        }
+        .pion.active { border-color: #f1c40f; box-shadow: 0 0 25px #f1c40f; z-index: 101; }
+
+        /* 3D Dice */
+        .dice-area { text-align: center; background: rgba(0,0,0,0.4); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .single-dice-container { perspective: 1000px; width: 80px; height: 80px; margin: 20px auto 30px; }
+        .dice { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .dice-face {
+            position: absolute; width: 100%; height: 100%;
+            background: white; border: 2px solid #ccc;
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 32px; color: #2c3e50; font-weight: bold;
+        }
+        .front { transform: rotateY(0deg) translateZ(40px); }
+        .right { transform: rotateY(90deg) translateZ(40px); }
+        .back  { transform: rotateY(180deg) translateZ(40px); }
+        .left  { transform: rotateY(-90deg) translateZ(40px); }
+        .top   { transform: rotateX(90deg) translateZ(40px); }
+        .bottom{ transform: rotateX(-90deg) translateZ(40px); }
+        .rolling { animation: rollAnim 0.8s infinite; }
+        @keyframes rollAnim { 100% { transform: rotateX(360deg) rotateY(360deg); } }
+
+        button { padding: 12px 25px; cursor: pointer; border-radius: 10px; border: none; background: var(--primary-color); color: white; font-weight: bold; font-size: 16px; }
+        button:hover { background: #9b59b6; transform: scale(1.05); }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        #log { margin-top: 20px; color: #f1c40f; min-height: 50px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="setup-screen">
+        <h1>🔮 MAGIC WORLD 🔮</h1>
+        <p>Diagonals (X) = Dice Value | Straights (+) = 1 Case</p>
+        <div id="player-inputs">
+            <div class="player-config">
+                <span>Team Ogres 👹:</span>
+                <input type="text" id="p1-name" value="Grom">
+                <input type="color" id="p1-color" value="#e74c3c">
+            </div>
+            <div class="player-config">
+                <span>Team Mages 🧙:</span>
+                <input type="text" id="p2-name" value="Jaina">
+                <input type="color" id="p2-color" value="#3498db">
+            </div>
+        </div>
+        <button onclick="initGame()" style="margin-top:20px;">Enter the World</button>
+    </div>
+
+    <div id="modal-container" class="modal">
+        <h2 id="modal-title">Event</h2>
+        <p id="modal-text"></p>
+        <div id="modal-buttons" style="display:flex; gap:10px; justify-content:center; margin-top:20px;"></div>
+    </div>
+
+    <div id="game-area">
+        <div id="board-container">
+            <div id="board"></div>
+        </div>
+
+        <div class="dice-area">
+            <h2 id="turn-display">Turn: Player 1</h2>
+            <div class="single-dice-container">
+                <div id="dice3d" class="dice">
+                    <div class="dice-face front">1</div><div class="dice-face right">2</div>
+                    <div class="dice-face back">3</div><div class="dice-face left">4</div>
+                    <div class="dice-face top">5</div><div class="dice-face bottom">6</div>
+                </div>
+            </div>
+            <button id="roll-btn" onclick="rollDice()">Roll Mana</button>
+            <p id="move-status">X: 0 | +: 1</p>
+            <div id="log">Ready to battle? Roll the dice!</div>
+        </div>
+    </div>
+
+    <script>
+        const sfxUrl = "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Files/sfx/";
+        let players = [];
+        let currentPlayer = 0;
+        let rollValue = 0;
+        let selectedPawn = null;
+        let teleportMode = false;
+        let specialTiles = { red: [], violet: [], blue: [] };
+
+        function initGame() {
+            players = [
+                { name: document.getElementById('p1-name').value, color: document.getElementById('p1-color').value, emoji: '👹', pawns: [{r:0, c:0, lives:1}, {r:0, c:2, lives:1}, {r:0, c:4, lives:1}] },
+                { name: document.getElementById('p2-name').value, color: document.getElementById('p2-color').value, emoji: '🧙', pawns: [{r:9, c:9, lives:1}, {r:9, c:7, lives:1}, {r:9, c:5, lives:1}] }
+            ];
+
+            for(let i=0; i<6; i++) {
+                specialTiles.red.push({r: Math.floor(Math.random()*6+2), c: Math.floor(Math.random()*10)});
+                specialTiles.violet.push({r: Math.floor(Math.random()*6+2), c: Math.floor(Math.random()*10)});
+                specialTiles.blue.push({r: Math.floor(Math.random()*6+2), c: Math.floor(Math.random()*10)});
+            }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-area').style.display = 'flex';
+            drawBoard();
+            renderPawns();
+            updateUI();
+        }
+
+        function drawBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${(r+c)%2 === 0 ? 'dark' : 'light'}`;
+                    cell.id = `cell-${r}-${c}`;
+                    if(specialTiles.red.some(t => t.r === r && t.c === c)) cell.classList.add('tile-red');
+                    if(specialTiles.violet.some(t => t.r === r && t.c === c)) cell.classList.add('tile-violet');
+                    if(specialTiles.blue.some(t => t.r === r && t.c === c)) cell.classList.add('tile-blue');
+                    cell.onclick = () => handleCellClick(r, c);
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function renderPawns() {
+            document.querySelectorAll('.pion').forEach(p => p.remove());
+            players.forEach((player, pIdx) => {
+                player.pawns.forEach((pawn, pawnIdx) => {
+                    if(pawn.r === -1) return;
+                    const cell = document.getElementById(`cell-${pawn.r}-${pawn.c}`);
+                    const bRect = document.getElementById('board').getBoundingClientRect();
+                    const cRect = cell.getBoundingClientRect();
+
+                    const div = document.createElement('div');
+                    div.className = `pion ${selectedPawn && selectedPawn.pIdx === pIdx && selectedPawn.pawnIdx === pawnIdx ? 'active' : ''}`;
+                    if(pawn.lives > 1) div.classList.add('heart-shape');
+                    
+                    div.style.backgroundColor = player.color;
+                    div.style.left = (cRect.left - bRect.left + 7) + "px";
+                    div.style.top = (cRect.top - bRect.top + 7) + "px";
+                    div.innerHTML = `<span>${player.emoji}</span>`;
+                    div.onclick = (e) => { e.stopPropagation(); selectPawn(pIdx, pawnIdx); };
+                    document.getElementById('board-container').appendChild(div);
+                });
+            });
+        }
+
+        function rollDice() {
+            const die = document.getElementById('dice3d');
+            document.getElementById('roll-btn').disabled = true;
+            die.classList.add('rolling');
+            rollValue = Math.floor(Math.random()*6)+1;
+            setTimeout(() => {
+                die.classList.remove('rolling');
+                const rots = {1:'rotateX(0)', 2:'rotateY(-90deg)', 3:'rotateY(180deg)', 4:'rotateY(90deg)', 5:'rotateX(-90deg)', 6:'rotateX(90deg)'};
+                die.style.transform = rots[rollValue];
+                document.querySelectorAll('.dice-face').forEach(f => f.innerText = rollValue);
+                document.getElementById('move-status').innerText = `X: ${rollValue} | +: 1`;
+                logMsg(`Mana: ${rollValue}. Select your champion!`);
+            }, 800);
+        }
+
+        function selectPawn(pIdx, pawnIdx) {
+            if(pIdx !== currentPlayer || rollValue === 0 || teleportMode) return;
+            selectedPawn = { pIdx, pawnIdx };
+            document.querySelectorAll('.cell').forEach(c => { c.classList.remove('highlight-diag', 'highlight-adj'); });
+            const p = players[pIdx].pawns[pawnIdx];
+
+            // Diagonals (X)
+            [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(d => {
+                for(let i=1; i <= rollValue; i++){
+                    let tr = p.r+(d[0]*i), tc = p.c+(d[1]*i);
+                    if(tr>=0 && tr<10 && tc>=0 && tc<10) document.getElementById(`cell-${tr}-${tc}`).classList.add('highlight-diag');
+                }
+            });
+            // Cardinaux (+)
+            [[0,1],[0,-1],[1,0],[-1,0]].forEach(s => {
+                let tr=p.r+s[0], tc=p.c+s[1];
+                if(tr>=0 && tr<10 && tc>=0 && tc<10) document.getElementById(`cell-${tr}-${tc}`).classList.add('highlight-adj');
+            });
+            renderPawns();
+        }
+
+        async function handleCellClick(r, c) {
+            if(teleportMode) {
+                if(specialTiles.red.some(t => t.r === r && t.c === c)) {
+                    players[selectedPawn.pIdx].pawns[selectedPawn.pawnIdx].r = r;
+                    players[selectedPawn.pIdx].pawns[selectedPawn.pawnIdx].c = c;
+                    endTurn();
+                }
+                return;
+            }
+            if(!selectedPawn) return;
+            const pawn = players[selectedPawn.pIdx].pawns[selectedPawn.pawnIdx];
+            const dr = Math.abs(r - pawn.r), dc = Math.abs(c - pawn.c);
+
+            let valid = (dr === dc && dr <= rollValue && dr > 0) || ((dr === 1 && dc === 0) || (dr === 0 && dc === 1));
+
+            if(valid) {
+                new Audio(sfxUrl + "move" + (Math.floor(Math.random()*5)+1) + ".wav").play().catch(()=>{});
+                checkCapture(r, c);
+                pawn.r = r; pawn.c = c;
+                rollValue = 0;
+                await handleMagicTiles(pawn, r, c);
+                if(!teleportMode) endTurn();
+            }
+        }
+
+        function checkCapture(r, c) {
+            const opp = players[(currentPlayer + 1) % 2];
+            opp.pawns.forEach(p => {
+                if(p.r === r && p.c === c) {
+                    if(p.lives > 1) {
+                        p.lives = 1;
+                        p.r = Math.max(0, Math.min(9, p.r + (currentPlayer === 0 ? -1 : 1)));
+                        logMsg("Heart Shield broken! Enemy pushed back.");
+                    } else {
+                        p.r = -1; p.c = -1;
+                        logMsg("Enemy Champion eliminated!");
+                    }
+                }
+            });
+        }
+
+        async function handleMagicTiles(pawn, r, c) {
+            if(specialTiles.red.some(t => t.r === r && t.c === c)) {
+                const go = await showModal("🔴 Ogre Portal", "Manually teleport to another Red Tile?", [{txt: "Portal!", val:true}, {txt: "Stay", val:false}]);
+                if(go) { teleportMode = true; document.querySelectorAll('.tile-red').forEach(el => el.classList.add('target-choice')); logMsg("Choose a Red Tile destination!"); }
+            } else if(specialTiles.violet.some(t => t.r === r && t.c === c)) {
+                await showModal("🟣 Chaos Warp", "Randomly warping to another Violet Tile...", [{txt: "Warp!", val:true}]);
+                const others = specialTiles.violet.filter(t => t.r !== r || t.c !== c);
+                if(others.length > 0) { const target = others[Math.floor(Math.random()*others.length)]; pawn.r = target.r; pawn.c = target.c; }
+            } else if(specialTiles.blue.some(t => t.r === r && t.c === c)) {
+                const choice = await showModal("🔵 Transformation", "Accept blessing for Heart Form? 50% chance of death!", [{txt: "Accept Risk", val:true}, {txt: "Decline", val:false}]);
+                if(choice) {
+                    if(Math.random() > 0.5) { pawn.r = -1; logMsg("The blessing was too strong. Champion lost."); }
+                    else { pawn.lives = 2; logMsg("Heart transformation complete! ❤️"); }
+                }
+                specialTiles.blue = specialTiles.blue.filter(t => t.r !== r || t.c !== c);
+                document.getElementById(`cell-${r}-${c}`).classList.remove('tile-blue');
+            }
+        }
+
+        function endTurn() {
+            teleportMode = false; selectedPawn = null;
+            document.querySelectorAll('.cell').forEach(cl => { cl.classList.remove('highlight-diag', 'highlight-adj', 'target-choice'); });
+            renderPawns();
+            if(checkWin()) return;
+            currentPlayer = (currentPlayer + 1) % 2;
+            document.getElementById('roll-btn').disabled = false;
+            updateUI();
+        }
+
+        function showModal(title, text, buttons) {
+            return new Promise(resolve => {
+                const m = document.getElementById('modal-container');
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-text').innerText = text;
+                const btnArea = document.getElementById('modal-buttons');
+                btnArea.innerHTML = '';
+                buttons.forEach(b => {
+                    const btn = document.createElement('button');
+                    btn.innerText = b.txt;
+                    btn.onclick = () => { m.classList.remove('active'); resolve(b.val); };
+                    btnArea.appendChild(btn);
+                });
+                m.classList.add('active');
+            });
+        }
+
+        function checkWin() {
+            for(let i=0; i<2; i++) {
+                if(players[i].pawns.every(p => p.r === -1)) {
+                    alert(`${players[(i+1)%2].name} is the Supreme Victor!`);
+                    location.reload(); return true;
+                }
+            }
+            return false;
+        }
+
+        function updateUI() {
+            const t = document.getElementById('turn-display');
+            t.innerText = `Turn: ${players[currentPlayer].name}`;
+            t.style.color = players[currentPlayer].color;
+            document.getElementById('move-status').innerText = `X: ${rollValue} | +: 1`;
+        }
+
+        function logMsg(m) { document.getElementById('log').innerText = m; }
+    </script>
+</body>
+</html>
