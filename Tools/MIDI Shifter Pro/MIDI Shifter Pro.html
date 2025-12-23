@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Speed Customizer</title>
+    
+    <script src="https://unpkg.com/@tonejs/midi"></script>
+    <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@2.1.4/browser/midiwriter.js"></script>
+    
+    <style>
+        :root {
+            --accent: #7d5fff;
+            --accent-glow: rgba(125, 95, 255, 0.4);
+            --bg: #0b0e14;
+            --panel: #161b22;
+            --text: #e6edf3;
+            --text-dim: #8b949e;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(125, 95, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.05) 0%, transparent 40%);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid #30363d;
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .settings-top {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        #lang-select {
+            background: #21262d;
+            color: var(--text);
+            border: 1px solid #30363d;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        h1 { margin: 0; font-size: 1.6rem; text-align: center; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-dim); text-align: center; font-size: 0.9rem; margin-top: 8px; margin-bottom: 2rem; }
+
+        /* Zone d'upload */
+        .upload-box {
+            border: 2px dashed #30363d;
+            border-radius: 16px;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .upload-box:hover {
+            border-color: var(--accent);
+            background: rgba(125, 95, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .upload-box i { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+        /* Contrôles */
+        .controls {
+            display: none;
+            margin-top: 2rem;
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .speed-input-container {
+            background: #0d1117;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #30363d;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        /* Le champ numérique customisé */
+        .custom-val-input {
+            background: #161b22;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.5rem;
+            font-weight: bold;
+            width: 90px;
+            padding: 5px;
+            border-radius: 10px;
+            text-align: center;
+            outline: none;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #30363d;
+            border-radius: 10px;
+            appearance: none;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .btn-download {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-download:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .filename-badge {
+            background: rgba(0, 210, 255, 0.1);
+            color: #58a6ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="settings-top">
+            <select id="lang-select" onchange="updateLang()">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+
+        <h1 id="txt-title">MIDI Shifter Pro</h1>
+        <p class="subtitle" id="txt-sub">Custom speed & tempo engine</p>
+
+        <div class="upload-box" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <span style="font-size: 30px;">📂</span>
+            <p id="txt-drop" style="margin: 10px 0 0 0;">Select or drop MIDI file</p>
+            <input type="file" id="file-input" accept=".mid,.midi" class="hidden">
+            <div id="file-name" class="hidden filename-badge"></div>
+        </div>
+
+        <div class="controls" id="controls">
+            <div class="speed-input-container">
+                <div class="flex-row">
+                    <span id="txt-speed" style="font-weight: 500;">Speed Multiplier</span>
+                    <div>
+                        <input type="number" id="speed-num" class="custom-val-input" value="1.0" step="0.1" min="0.1" max="10">
+                        <span style="color:var(--accent); font-weight: bold; margin-left: 5px;">x</span>
+                    </div>
+                </div>
+                <input type="range" id="speed-range" min="0.1" max="4.0" step="0.1" value="1.0">
+            </div>
+            
+            <button class="btn-download" id="txt-btn" onclick="process()">Export Modified MIDI</button>
+        </div>
+    </div>
+
+    <script>
+        const langData = {
+            en: { title: "MIDI Shifter Pro", sub: "Custom speed & tempo engine", drop: "Select or drop MIDI file", speed: "Speed Multiplier", btn: "Export Modified MIDI" },
+            fr: { title: "MIDI Shifter Pro", sub: "Moteur de tempo personnalisé", drop: "Sélectionnez ou glissez un MIDI", speed: "Multiplicateur de vitesse", btn: "Exporter le MIDI modifié" }
+        };
+
+        function updateLang() {
+            const l = document.getElementById('lang-select').value;
+            Object.keys(langData[l]).forEach(key => {
+                document.getElementById('txt-' + key).innerText = langData[l][key];
+            });
+        }
+
+        let currentMidi = null;
+        let originalName = "";
+
+        const range = document.getElementById('speed-range');
+        const num = document.getElementById('speed-num');
+
+        // Synchronisation entre le Slider et l'Input Numérique
+        range.oninput = () => { num.value = range.value; };
+        num.oninput = () => { range.value = num.value; };
+
+        // Upload
+        const fileInput = document.getElementById('file-input');
+        fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+        const dz = document.getElementById('drop-zone');
+        dz.ondragover = (e) => { e.preventDefault(); dz.style.borderColor = "#7d5fff"; };
+        dz.ondragleave = () => { dz.style.borderColor = "#30363d"; };
+        dz.ondrop = (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); };
+
+        async function handleFile(file) {
+            if (!file) return;
+            originalName = file.name;
+            const buffer = await file.arrayBuffer();
+            currentMidi = new Midi(buffer);
+            
+            document.getElementById('file-name').innerText = "📄 " + file.name;
+            document.getElementById('file-name').classList.remove('hidden');
+            document.getElementById('controls').classList.add('active');
+            document.getElementById('controls').style.display = 'block';
+        }
+
+        function process() {
+            if (!currentMidi) return;
+            const factor = parseFloat(num.value) || 1.0;
+            const track = new MidiWriter.Track();
+            
+            currentMidi.tracks.forEach(t => {
+                t.notes.forEach(n => {
+                    track.addEvent(new MidiWriter.NoteEvent({
+                        pitch: n.name,
+                        startTick: Math.round(n.ticks / factor),
+                        duration: 't' + Math.max(1, Math.round(n.durationTicks / factor)),
+                        velocity: Math.round(n.velocity * 127)
+                    }));
+                });
+            });
+
+            const writer = new MidiWriter.Writer(track);
+            const a = document.createElement('a');
+            a.href = writer.dataUri();
+            a.download = `custom_${factor}x_${originalName}`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
