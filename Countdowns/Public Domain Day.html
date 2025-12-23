@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Domain Day Countdown</title>
+    <style>
+        /* Vintage Noir Theme */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            background: radial-gradient(circle, #333 0%, #000 100%);
+            color: #ddd;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* TV Static Effect Overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/5/5a/Static_noise.gif');
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 3rem;
+            background-color: rgba(20, 20, 20, 0.85);
+            border: 4px double #555;
+            border-radius: 5px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 2px 2px 0px #444;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: normal;
+            margin-bottom: 2rem;
+            color: #888;
+            letter-spacing: 2px;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-number {
+            font-size: 4rem;
+            font-weight: bold;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border: 1px solid #444;
+            min-width: 90px;
+            text-align: center;
+            box-shadow: inset 0 0 15px #000;
+        }
+
+        .countdown-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-top: 0.8rem;
+            letter-spacing: 3px;
+            color: #777;
+        }
+
+        /* City silhouettes */
+        .city-skyline {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(transparent, #000);
+            z-index: 5;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            opacity: 0.6;
+        }
+
+        .building {
+            background-color: #000;
+            width: 80px;
+            margin: 0 2px;
+            position: relative;
+        }
+
+        /* Music Credit Section */
+        .music-credit {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            z-index: 100;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid #333;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        .music-credit a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.5rem; }
+            .countdown-number { font-size: 2rem; min-width: 60px; }
+            .countdown-label { font-size: 0.6rem; }
+            .container { padding: 1.5rem; width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Public Domain Day</h1>
+        <h2>CELEBRATING CREATIVE FREEDOM</h2>
+        <div class="countdown">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">Days</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="city-skyline" id="skyline"></div>
+
+    <div class="music-credit">
+        1950's era simple rock with tremolo lead guitar and vibraphone. Almost surf music.<br>
+        Instruments: Guitar, Bass, Kit, Vibes<br>
+        <strong>"Sock Hop" Kevin MacLeod (incompetech.com)</strong><br>
+        Licensed under Creative Commons: By Attribution 4.0 License<br>
+        <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">http://creativecommons.org/licenses/by/4.0/</a>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sock%20Hop.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Countdown functionality for January 1st
+        function updateCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            // Public Domain Day is January 1st (Month 0 in JS)
+            let nextYear = new Date(currentYear + 1, 0, 1);
+            
+            const diff = nextYear - now;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // Generate Cityscape
+        function buildCity() {
+            const skyline = document.getElementById('skyline');
+            const buildingCount = 20;
+            for(let i = 0; i < buildingCount; i++) {
+                const b = document.createElement('div');
+                b.className = 'building';
+                b.style.height = (Math.random() * 100 + 40) + 'px';
+                b.style.width = (Math.random() * 40 + 20) + 'px';
+                skyline.appendChild(b);
+            }
+        }
+        buildCity();
+        
+        // Background music - plays on first interaction
+        document.addEventListener('click', function() {
+            const bgMusic = document.getElementById('bgMusic');
+            if (bgMusic.paused) {
+                bgMusic.volume = 0.4;
+                bgMusic.play().catch(e => console.log('Audio playback requires interaction.'));
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
