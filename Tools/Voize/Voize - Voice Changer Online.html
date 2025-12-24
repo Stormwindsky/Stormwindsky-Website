@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V0ize | Modern Voice Changer Online</title>
+    <style>
+        :root {
+            --primary: #a855f7;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --neon-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding-bottom: 150px;
+        }
+
+        header { text-align: center; padding: 30px 20px; }
+        h1 {
+            font-size: 3rem; margin: 0;
+            background: linear-gradient(to right, #a855f7, #6366f1);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .controls-top { display: flex; gap: 10px; margin-bottom: 30px; }
+        .btn {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 600;
+        }
+        .btn:hover { background: var(--primary); box-shadow: var(--neon-shadow); }
+        .btn-download { background: #10b981; border: none; }
+
+        .voice-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 20px; width: 90%; max-width: 850px;
+        }
+        .voice-card { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .voice-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--card-bg); display: flex;
+            justify-content: center; align-items: center; font-size: 2rem;
+            margin-bottom: 8px; border: 3px solid transparent;
+        }
+        .voice-card:hover .voice-icon { border-color: var(--primary); transform: scale(1.05); }
+        .voice-card.active .voice-icon { background: rgba(168, 85, 247, 0.2); border-color: var(--primary); }
+
+        .player-bar {
+            position: fixed; bottom: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px);
+            padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 1000;
+        }
+
+        .progress-container { width: 100%; max-width: 600px; display: flex; align-items: center; gap: 10px; }
+        .progress-bar { flex-grow: 1; height: 6px; background: #334155; border-radius: 3px; cursor: pointer; position: relative; }
+        .progress-fill { height: 100%; background: var(--primary); border-radius: 3px; width: 0%; pointer-events: none; }
+
+        .playback-controls { display: flex; align-items: center; gap: 20px; }
+        .btn-play { width: 50px; height: 50px; border-radius: 50%; background: var(--primary); border: none; color: white; cursor: pointer; font-size: 1.2rem; }
+        
+        #speed-panel { display: none; align-items: center; gap: 10px; font-size: 0.8rem; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 20px; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>V0ize</h1>
+        <p id="tagline">Modern Voice Changer Online</p>
+    </header>
+
+    <div class="controls-top">
+        <button class="btn" onclick="document.getElementById('audio-file').click()" id="btn-upload">Upload Audio</button>
+        <button class="btn btn-download" id="btn-save">Download .WAV</button>
+        <input type="file" id="audio-file" accept="audio/*" class="hidden">
+    </div>
+
+    <div class="voice-grid" id="voice-grid"></div>
+
+    <div class="player-bar">
+        <div class="progress-container">
+            <span id="time-current">0:00</span>
+            <div class="progress-bar" id="seek-bar">
+                <div class="progress-fill" id="seek-fill"></div>
+            </div>
+            <span id="time-total">0:00</span>
+        </div>
+
+        <div class="playback-controls">
+            <div id="speed-panel">
+                <label id="lbl-speed">Speed:</label>
+                <input type="range" id="speed-range" min="0.5" max="2.2" step="0.1" value="1.0">
+                <span id="speed-val">1.0x</span>
+            </div>
+            <button class="btn-play" id="play-pause">▶</button>
+            <select id="lang-select" style="background:none; color:white; border:1px solid #444; border-radius:5px; cursor:pointer;">
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        const voicesData = [
+            { id: 'normal', icon: '👤', speed: 1.0, effect: null, en: 'Original', fr: 'Original' },
+            { id: 'snail', icon: '🐌', speed: 0.7, effect: null, en: 'Snail', fr: 'Escargot' },
+            { id: 'rabbit', icon: '🐇', speed: 1.6, effect: null, en: 'Rabbit', fr: 'Lapin' },
+            { id: 'chip', icon: '🐿️', speed: 2.0, effect: null, en: 'Chipmunk', fr: 'Écureuil' },
+            { id: 'giant', icon: '👹', speed: 0.5, effect: null, en: 'Giant', fr: 'Géant' },
+            { id: 'robot', icon: '🤖', speed: 1.0, effect: 'robot', en: 'Robot', fr: 'Robot' },
+            { id: 'wobble', icon: '🌀', speed: 1.0, effect: 'wobble', en: 'Wobble', fr: 'Vacillement' },
+            { id: 'bad1', icon: '💩', speed: 1.0, effect: 'bad1', en: 'Bad Quality', fr: 'Qualité Pourrie' },
+            { id: 'bad2', icon: '🔊', speed: 1.0, effect: 'bad2', en: 'Bad Quality 2', fr: 'Qualité Meme' },
+            { id: 'blur', icon: '🌫️', speed: 1.0, effect: 'blur', en: 'Blur', fr: 'Flou Sourd' },
+            { id: 'custom', icon: '⚙️', speed: 1.0, isCustom: true, effect: null, en: 'Custom', fr: 'Perso' }
+        ];
+
+        const audioUrls = {
+            en: 'https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Free%20to%20Use%20(English).wav',
+            fr: 'https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Free%20to%20Use%20(French).wav'
+        };
+
+        const i18n = {
+            en: { tagline: "Modern Voice Changer Online", upload: "Upload Audio", save: "Download .WAV", speed: "Speed:" },
+            fr: { tagline: "Modern Voice Changer Online", upload: "Charger Audio", save: "Télécharger .WAV", speed: "Vitesse :" }
+        };
+
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioBuffer = null, source = null, oscillator = null, lfo = null, gainNode = null;
+        let startTime = 0, pausedAt = 0, isPlaying = false, currentRate = 1.0, activeEffect = null;
+        let currentLang = localStorage.getItem('v0ize_lang') || 'en';
+
+        const playBtn = document.getElementById('play-pause');
+        const seekFill = document.getElementById('seek-fill');
+        const timeCur = document.getElementById('time-current');
+        const timeTot = document.getElementById('time-total');
+
+        function init() { 
+            updateUI(); 
+            loadDefaultAudio();
+            requestAnimationFrame(updateProgress); 
+        }
+
+        async function loadDefaultAudio() {
+            try {
+                const response = await fetch(audioUrls[currentLang]);
+                const arrayBuffer = await response.arrayBuffer();
+                audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                timeTot.innerText = formatTime(audioBuffer.duration);
+                pausedAt = 0;
+            } catch (e) {
+                console.error("Failed to load default audio", e);
+            }
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('voice-grid');
+            grid.innerHTML = '';
+            voicesData.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'voice-card';
+                card.innerHTML = `<div class="voice-icon">${v.icon}</div><div style="font-size:0.8rem">${v[currentLang]}</div>`;
+                card.onclick = () => {
+                    document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    document.getElementById('speed-panel').style.display = v.isCustom ? 'flex' : 'none';
+                    currentRate = v.speed;
+                    activeEffect = v.effect;
+                    document.getElementById('speed-range').value = v.speed;
+                    document.getElementById('speed-val').innerText = v.speed + 'x';
+                    playFrom(0);
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        function createDistortionCurve(amount) {
+            let k = amount, n_samples = 44100, curve = new Float32Array(n_samples), i = 0, x;
+            for (; i < n_samples; ++i ) {
+                x = i * 2 / n_samples - 1;
+                curve[i] = ( 3 + k ) * x * 20 * (Math.PI / 180) / ( Math.PI + k * Math.abs(x) );
+            }
+            return curve;
+        }
+
+        function setupEffects(sourceNode, ctx) {
+            let lastNode = sourceNode;
+
+            if (activeEffect === 'robot') {
+                oscillator = ctx.createOscillator();
+                gainNode = ctx.createGain();
+                oscillator.type = 'sawtooth'; oscillator.frequency.value = 50;
+                sourceNode.connect(gainNode); oscillator.connect(gainNode.gain);
+                lastNode = gainNode; oscillator.start();
+            } 
+            else if (activeEffect === 'wobble') {
+                const delayNode = ctx.createDelay();
+                delayNode.delayTime.value = 0.01;
+                lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                lfo.frequency.value = 6;
+                lfoGain.gain.value = 0.004;
+                lfo.connect(lfoGain);
+                lfoGain.connect(delayNode.delayTime);
+                sourceNode.connect(delayNode);
+                lastNode = delayNode;
+                lfo.start();
+            }
+            else if (activeEffect === 'bad1') {
+                const distortion = ctx.createWaveShaper();
+                distortion.curve = createDistortionCurve(400);
+                const filter = ctx.createBiquadFilter();
+                filter.type = "bandpass"; filter.frequency.value = 1000;
+                sourceNode.connect(distortion); distortion.connect(filter);
+                lastNode = filter;
+            }
+            else if (activeEffect === 'bad2') {
+                const distortion = ctx.createWaveShaper();
+                distortion.curve = createDistortionCurve(1000); 
+                const filter = ctx.createBiquadFilter();
+                filter.type = "lowpass"; filter.frequency.value = 800;
+                const boost = ctx.createGain(); boost.gain.value = 1.5;
+                sourceNode.connect(distortion); distortion.connect(filter); filter.connect(boost);
+                lastNode = boost;
+            }
+            else if (activeEffect === 'blur') {
+                const lowpass = ctx.createBiquadFilter();
+                lowpass.type = "lowpass"; lowpass.frequency.value = 400; lowpass.Q.value = 2;
+                sourceNode.connect(lowpass); lastNode = lowpass;
+            }
+
+            lastNode.connect(ctx.destination);
+        }
+
+        function playFrom(offset) {
+            if (!audioBuffer) return;
+            stopAudio();
+            isPlaying = true; playBtn.innerText = '⏸';
+            source = audioCtx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.playbackRate.value = currentRate;
+            setupEffects(source, audioCtx);
+            startTime = audioCtx.currentTime - (offset / currentRate);
+            source.start(0, offset);
+        }
+
+        function stopAudio() {
+            if (source) { try { source.stop(); } catch(e) {} source = null; }
+            if (oscillator) { try { oscillator.stop(); } catch(e) {} oscillator = null; }
+            if (lfo) { try { lfo.stop(); } catch(e) {} lfo = null; }
+            isPlaying = false;
+        }
+
+        playBtn.onclick = () => {
+            if (!audioBuffer) return;
+            if (isPlaying) { pausedAt = (audioCtx.currentTime - startTime) * currentRate; stopAudio(); playBtn.innerText = '▶'; }
+            else { playFrom(pausedAt >= audioBuffer.duration ? 0 : pausedAt); }
+        };
+
+        document.getElementById('seek-bar').onclick = (e) => {
+            if (!audioBuffer) return;
+            const rect = document.getElementById('seek-bar').getBoundingClientRect();
+            const perc = (e.clientX - rect.left) / rect.width;
+            const newPos = perc * audioBuffer.duration;
+            pausedAt = newPos; playFrom(newPos);
+        };
+
+        function updateProgress() {
+            if (isPlaying && audioBuffer) {
+                const elapsed = (audioCtx.currentTime - startTime) * currentRate;
+                const perc = (elapsed / audioBuffer.duration) * 100;
+                seekFill.style.width = Math.min(perc, 100) + '%';
+                timeCur.innerText = formatTime(elapsed);
+                if (elapsed >= audioBuffer.duration) { isPlaying = false; playBtn.innerText = '▶'; pausedAt = 0; }
+            }
+            requestAnimationFrame(updateProgress);
+        }
+
+        document.getElementById('audio-file').onchange = async (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const arrayBuffer = await file.arrayBuffer();
+            audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            timeTot.innerText = formatTime(audioBuffer.duration); pausedAt = 0;
+        };
+
+        function updateUI() {
+            const t = i18n[currentLang];
+            document.getElementById('tagline').innerText = t.tagline;
+            document.getElementById('btn-upload').innerText = t.upload;
+            document.getElementById('btn-save').innerText = t.save;
+            document.getElementById('lbl-speed').innerText = t.speed;
+            renderGrid();
+        }
+
+        document.getElementById('lang-select').onchange = (e) => {
+            currentLang = e.target.value; 
+            localStorage.setItem('v0ize_lang', currentLang); 
+            updateUI();
+            loadDefaultAudio(); // Recharge l'audio par défaut correspondant à la langue
+        };
+
+        document.getElementById('speed-range').oninput = (e) => {
+            currentRate = parseFloat(e.target.value);
+            document.getElementById('speed-val').innerText = currentRate + 'x';
+            if (isPlaying) playFrom((audioCtx.currentTime - startTime) * currentRate);
+        };
+
+        document.getElementById('btn-save').onclick = async () => {
+            if (!audioBuffer) return;
+            const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length / currentRate, audioBuffer.sampleRate);
+            const offlineSource = offlineCtx.createBufferSource();
+            offlineSource.buffer = audioBuffer;
+            offlineSource.playbackRate.value = currentRate;
+            setupEffects(offlineSource, offlineCtx);
+            offlineSource.start();
+            const renderedBuffer = await offlineCtx.startRendering();
+            const wavBlob = bufferToWav(renderedBuffer);
+            const url = URL.createObjectURL(wavBlob);
+            const a = document.createElement('a'); a.href = url; a.download = `v0ize_export.wav`; a.click();
+        };
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60); const s = Math.floor(sec % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function bufferToWav(abuffer) {
+            let numOfChan = abuffer.numberOfChannels, length = abuffer.length * numOfChan * 2 + 44, buffer = new ArrayBuffer(length), view = new DataView(buffer), channels = [], i, sample, offset = 0, pos = 0;
+            const setUint16 = (data) => { view.setUint16(pos, data, true); pos += 2; };
+            const setUint32 = (data) => { view.setUint32(pos, data, true); pos += 4; };
+            setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
+            setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
+            setUint32(abuffer.sampleRate); setUint32(abuffer.sampleRate * 2 * numOfChan);
+            setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 4);
+            for(i=0; i<abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
+            while(pos < length) {
+                for(i=0; i<numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF);
+                    view.setInt16(pos, sample, true); pos += 2;
+                }
+                offset++;
+            }
+            return new Blob([buffer], {type: "audio/wav"});
+        }
+
+        init();
+    </script>
+</body>
+</html>
