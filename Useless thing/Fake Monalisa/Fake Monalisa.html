@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Monalisa</title>
+    <style>
+        /* Style général */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            transition: background-color 0.2s ease;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Animation du fond : Rouge puis revient au Noir en 2s */
+        @keyframes flashBackground {
+            0% { background-color: red; }
+            100% { background-color: black; }
+        }
+
+        .flashing {
+            animation: flashBackground 2s forwards;
+        }
+
+        /* Overlay de démarrage - Noir opaque */
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black; /* Fond totalement noir */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Image centrale (Monalisa) - Tremblement violent */
+        .monalisa {
+            width: 300px;
+            z-index: 2;
+            animation: shake 0.1s infinite;
+        }
+
+        /* Images orbitales (Yeux) */
+        .orbiting-eye {
+            position: absolute;
+            width: 80px;
+            z-index: 3;
+            /* Combine l'orbite et le tremblement léger */
+            animation: orbit 4s linear infinite, mini-shake 0.2s infinite;
+        }
+
+        /* Décalage des 4 yeux sur le cercle */
+        .eye1 { animation-delay: 0s, 0s; }
+        .eye2 { animation-delay: 1s, 0s; }
+        .eye3 { animation-delay: 2s, 0s; }
+        .eye4 { animation-delay: 3s, 0s; }
+
+        /* Animation : Tremblement violent */
+        @keyframes shake {
+            0% { transform: translate(3px, 3px) rotate(0deg); }
+            20% { transform: translate(-4px, -3px) rotate(-2deg); }
+            40% { transform: translate(-2px, -2px) rotate(2deg); }
+            60% { transform: translate(4px, 2px) rotate(0deg); }
+            80% { transform: translate(-2px, -2px) rotate(-2deg); }
+            100% { transform: translate(2px, 3px) rotate(0deg); }
+        }
+
+        /* Animation : Tremblement léger pour les yeux */
+        @keyframes mini-shake {
+            0% { margin-top: 1px; }
+            50% { margin-top: -1px; }
+            100% { margin-top: 1px; }
+        }
+
+        /* Animation : Orbite circulaire (200px de rayon) */
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(200px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(200px) rotate(-360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-overlay">
+        <h1 style="letter-spacing: 5px;">CLICK TO ENTER THE EXHIBITION</h1>
+    </div>
+
+    <div class="container">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Fake%20Monalisa%20(Originaly%20made%20by%20Robert%20Henri).png" 
+             alt="Fake Monalisa" class="monalisa">
+
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye1">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye2">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye3">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye4">
+    </div>
+
+    <audio id="background-audio" src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/hell%20hell%20hell%20hell%20hell%20hell.wav"></audio>
+
+    <script>
+        const audio = document.getElementById('background-audio');
+        const body = document.body;
+        const overlay = document.getElementById('start-overlay');
+
+        // Fonction pour déclencher le flash rouge (durée 2s totale via CSS)
+        function triggerFlash() {
+            body.classList.remove('flashing');
+            void body.offsetWidth; // Hack pour redémarrer l'animation CSS
+            body.classList.add('flashing');
+        }
+
+        // Action au clic sur l'écran noir
+        overlay.addEventListener('click', () => {
+            overlay.style.display = 'none'; // Disparition de l'écran noir
+            audio.play();
+            triggerFlash();
+            
+            // Répète le flash rouge périodiquement (ex: toutes les 6 secondes)
+            setInterval(triggerFlash, 6000);
+        });
+
+        // Gestion de la boucle audio avec pause de 5 secondes
+        audio.addEventListener('ended', () => {
+            setTimeout(() => {
+                audio.play();
+                triggerFlash(); // Optionnel : reflasher quand le son recommence
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
