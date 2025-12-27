@@ -23,7 +23,6 @@
             min-height: 100vh;
         }
 
-        /* UI Screens & Animated Modals */
         #setup-screen, .modal {
             background: rgba(15, 12, 41, 0.95);
             padding: 30px;
@@ -47,14 +46,19 @@
 
         .modal.active { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-        .player-config {
+        .config-section {
             background: rgba(255,255,255,0.05);
             margin: 10px 0;
             padding: 15px;
             border-radius: 10px;
+        }
+
+        .player-config {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             align-items: center;
+            margin-bottom: 8px;
+            justify-content: center;
         }
 
         #game-area { display: none; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; }
@@ -62,8 +66,6 @@
         #board-container { position: relative; padding: 10px; background: #2c3e50; border-radius: 5px; }
         #board {
             display: grid;
-            grid-template-columns: repeat(10, var(--cell-size));
-            grid-template-rows: repeat(10, var(--cell-size));
             background: #34495e;
             border: 2px solid #2c3e50;
         }
@@ -81,7 +83,6 @@
         .cell.dark { background-color: #2c3e50; }
         .cell.light { background-color: #34495e; }
         
-        /* Highlights */
         .cell.highlight-diag { background-color: #27ae60 !important; box-shadow: inset 0 0 10px #2ecc71; animation: pulse 1.5s infinite; }
         .cell.highlight-adj { background-color: #2980b9 !important; box-shadow: inset 0 0 10px #3498db; animation: pulse 1.5s infinite; }
         .cell.target-choice { background-color: #f1c40f !important; border: 2px solid white; animation: pulse 1s infinite; }
@@ -92,7 +93,6 @@
         .tile-violet { background: radial-gradient(#a29bfe, #6c5ce7) !important; }
         .tile-blue { background: radial-gradient(#74b9ff, #0984e3) !important; }
 
-        /* Pawns */
         .pion {
             width: 45px;
             height: 45px;
@@ -100,14 +100,15 @@
             border: 3px solid white;
             position: absolute;
             z-index: 100;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: left 0.5s ease-in-out, top 0.5s ease-in-out, transform 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            pointer-events: auto;
         }
-        /* Transformation en Coeur (Maintient l'émoji droit) */
+        
         .pion.heart-shape { 
             border-radius: 10px 10px 50% 50% / 10px 10px 80% 80%;
             background: #ff4757 !important;
@@ -115,7 +116,6 @@
         }
         .pion.active { border-color: #f1c40f; box-shadow: 0 0 25px #f1c40f; z-index: 101; }
 
-        /* 3D Dice */
         .dice-area { text-align: center; background: rgba(0,0,0,0.4); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .single-dice-container { perspective: 1000px; width: 80px; height: 80px; margin: 20px auto 30px; }
         .dice { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -134,31 +134,61 @@
         .rolling { animation: rollAnim 0.8s infinite; }
         @keyframes rollAnim { 100% { transform: rotateX(360deg) rotateY(360deg); } }
 
-        button { padding: 12px 25px; cursor: pointer; border-radius: 10px; border: none; background: var(--primary-color); color: white; font-weight: bold; font-size: 16px; }
+        button { padding: 12px 25px; cursor: pointer; border-radius: 10px; border: none; background: var(--primary-color); color: white; font-weight: bold; font-size: 16px; margin: 5px; }
         button:hover { background: #9b59b6; transform: scale(1.05); }
         button:disabled { background: #555; cursor: not-allowed; }
 
-        #log { margin-top: 20px; color: #f1c40f; min-height: 50px; font-weight: bold; }
+        #log { margin-top: 20px; color: #f1c40f; min-height: 50px; font-weight: bold; width: 250px; }
+        select { padding: 8px; border-radius: 5px; background: #2c3e50; color: white; border: 1px solid var(--primary-color); }
     </style>
 </head>
 <body>
 
     <div id="setup-screen">
-        <h1>🔮 MAGIC WORLD 🔮</h1>
-        <p>Diagonals (X) = Dice Value | Straights (+) = 1 Case</p>
+        <h1 id="ui-title">🔮 MAGIC WORLD 🔮</h1>
+        
+        <div class="config-section">
+            <label>Language / Langue:</label>
+            <select id="lang-select" onchange="updateSetupLang()">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+
+        <div class="config-section">
+            <label id="ui-players-label">Players:</label>
+            <select id="player-count" onchange="togglePlayerInputs()">
+                <option value="2">2 Players</option>
+                <option value="3">3 Players</option>
+                <option value="4">4 Players</option>
+                <option value="4-team">4 Players (2vs2 Teams)</option>
+            </select>
+        </div>
+
         <div id="player-inputs">
             <div class="player-config">
-                <span>Team Ogres 👹:</span>
+                <span id="p1-label">P1 👹:</span>
                 <input type="text" id="p1-name" value="Grom">
                 <input type="color" id="p1-color" value="#e74c3c">
             </div>
             <div class="player-config">
-                <span>Team Mages 🧙:</span>
+                <span id="p2-label">P2 🧙:</span>
                 <input type="text" id="p2-name" value="Jaina">
                 <input type="color" id="p2-color" value="#3498db">
             </div>
+            <div class="player-config" id="p3-box" style="display:none;">
+                <span id="p3-label">P3 🎩:</span>
+                <input type="text" id="p3-name" value="Presto">
+                <input type="color" id="p3-color" value="#f1c40f">
+            </div>
+            <div class="player-config" id="p4-box" style="display:none;">
+                <span id="p4-label">P4 🧝:</span>
+                <input type="text" id="p4-name" value="Legolas">
+                <input type="color" id="p4-color" value="#2ecc71">
+            </div>
         </div>
-        <button onclick="initGame()" style="margin-top:20px;">Enter the World</button>
+        
+        <button id="start-btn" onclick="initGame()" style="margin-top:20px;">Enter the World</button>
     </div>
 
     <div id="modal-container" class="modal">
@@ -183,7 +213,7 @@
             </div>
             <button id="roll-btn" onclick="rollDice()">Roll Mana</button>
             <p id="move-status">X: 0 | +: 1</p>
-            <div id="log">Ready to battle? Roll the dice!</div>
+            <div id="log">Ready?</div>
         </div>
     </div>
 
@@ -195,17 +225,89 @@
         let selectedPawn = null;
         let teleportMode = false;
         let specialTiles = { red: [], violet: [], blue: [] };
+        let boardSize = 10;
+        let gameMode = "2"; 
+        let currentLang = "en";
+
+        const texts = {
+            en: {
+                title: "🔮 MAGIC WORLD 🔮",
+                pLabel: "Players:",
+                start: "Enter the World",
+                mana: "Mana: ",
+                select: "Select your champion!",
+                turn: "Turn: ",
+                ogrePortal: "🔴 Ogre Portal",
+                ogreMsg: "Manually teleport to another Red Tile?",
+                chaosWarp: "🟣 Chaos Warp",
+                chaosMsg: "Randomly warping to another Violet Tile...",
+                trans: "🔵 Transformation",
+                transMsg: "Accept Heart Form? 50% chance of death!",
+                win: " is the Supreme Victor!",
+                shield: "Heart Shield broken! Pushed back.",
+                elim: "Enemy Champion eliminated!",
+                teamWin: "Team Wins!",
+                chooseRed: "Choose a Red Tile destination!"
+            },
+            fr: {
+                title: "🔮 MONDE MAGIQUE 🔮",
+                pLabel: "Joueurs:",
+                start: "Entrer dans le Monde",
+                mana: "Mana: ",
+                select: "Choisissez votre champion!",
+                turn: "Tour: ",
+                ogrePortal: "🔴 Portail Ogre",
+                ogreMsg: "Se téléporter manuellement vers une autre tuile rouge ?",
+                chaosWarp: "🟣 Distorsion",
+                chaosMsg: "Téléportation aléatoire vers une tuile violette...",
+                trans: "🔵 Transformation",
+                transMsg: "Accepter la forme Coeur ? 50% de chance de mort !",
+                win: " est le Grand Vainqueur !",
+                shield: "Bouclier brisé ! Ennemi repoussé.",
+                elim: "Champion ennemi éliminé !",
+                teamWin: "L'équipe Gagne !",
+                chooseRed: "Choisissez une destination rouge !"
+            }
+        };
+
+        function updateSetupLang() {
+            currentLang = document.getElementById('lang-select').value;
+            const t = texts[currentLang];
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('ui-players-label').innerText = t.pLabel;
+            document.getElementById('start-btn').innerText = t.start;
+        }
+
+        function togglePlayerInputs() {
+            const val = document.getElementById('player-count').value;
+            document.getElementById('p3-box').style.display = (val === '3' || val === '4' || val === '4-team') ? 'flex' : 'none';
+            document.getElementById('p4-box').style.display = (val === '4' || val === '4-team') ? 'flex' : 'none';
+        }
 
         function initGame() {
+            gameMode = document.getElementById('player-count').value;
+            currentLang = document.getElementById('lang-select').value;
+            
+            // Élargir le plateau si > 2 joueurs
+            boardSize = (gameMode === '2') ? 10 : 14;
+            document.documentElement.style.setProperty('--cell-size', (gameMode === '2' ? '60px' : '45px'));
+
             players = [
-                { name: document.getElementById('p1-name').value, color: document.getElementById('p1-color').value, emoji: '👹', pawns: [{r:0, c:0, lives:1}, {r:0, c:2, lives:1}, {r:0, c:4, lives:1}] },
-                { name: document.getElementById('p2-name').value, color: document.getElementById('p2-color').value, emoji: '🧙', pawns: [{r:9, c:9, lives:1}, {r:9, c:7, lives:1}, {r:9, c:5, lives:1}] }
+                { name: document.getElementById('p1-name').value, color: document.getElementById('p1-color').value, emoji: '👹', team: 1, pawns: [{r:0, c:0, lives:1}, {r:0, c:2, lives:1}, {r:0, c:4, lives:1}] },
+                { name: document.getElementById('p2-name').value, color: document.getElementById('p2-color').value, emoji: '🧙', team: 2, pawns: [{r:boardSize-1, c:boardSize-1, lives:1}, {r:boardSize-1, c:boardSize-3, lives:1}, {r:boardSize-1, c:boardSize-5, lives:1}] }
             ];
 
-            for(let i=0; i<6; i++) {
-                specialTiles.red.push({r: Math.floor(Math.random()*6+2), c: Math.floor(Math.random()*10)});
-                specialTiles.violet.push({r: Math.floor(Math.random()*6+2), c: Math.floor(Math.random()*10)});
-                specialTiles.blue.push({r: Math.floor(Math.random()*6+2), c: Math.floor(Math.random()*10)});
+            if(gameMode === '3' || gameMode === '4' || gameMode === '4-team') {
+                players.push({ name: document.getElementById('p3-name').value, color: document.getElementById('p3-color').value, emoji: '🎩', team: (gameMode === '4-team' ? 1 : 3), pawns: [{r:0, c:boardSize-1, lives:1}, {r:0, c:boardSize-3, lives:1}, {r:0, c:boardSize-5, lives:1}] });
+            }
+            if(gameMode === '4' || gameMode === '4-team') {
+                players.push({ name: document.getElementById('p4-name').value, color: document.getElementById('p4-color').value, emoji: '🧝', team: (gameMode === '4-team' ? 2 : 4), pawns: [{r:boardSize-1, c:0, lives:1}, {r:boardSize-1, c:2, lives:1}, {r:boardSize-1, c:4, lives:1}] });
+            }
+
+            for(let i=0; i< (boardSize === 10 ? 6 : 10); i++) {
+                specialTiles.red.push({r: Math.floor(Math.random()*(boardSize-4)+2), c: Math.floor(Math.random()*boardSize)});
+                specialTiles.violet.push({r: Math.floor(Math.random()*(boardSize-4)+2), c: Math.floor(Math.random()*boardSize)});
+                specialTiles.blue.push({r: Math.floor(Math.random()*(boardSize-4)+2), c: Math.floor(Math.random()*boardSize)});
             }
 
             document.getElementById('setup-screen').style.display = 'none';
@@ -217,9 +319,10 @@
 
         function drawBoard() {
             const board = document.getElementById('board');
+            board.style.gridTemplateColumns = `repeat(${boardSize}, var(--cell-size))`;
             board.innerHTML = '';
-            for (let r = 0; r < 10; r++) {
-                for (let c = 0; c < 10; c++) {
+            for (let r = 0; r < boardSize; r++) {
+                for (let c = 0; c < boardSize; c++) {
                     const cell = document.createElement('div');
                     cell.className = `cell ${(r+c)%2 === 0 ? 'dark' : 'light'}`;
                     cell.id = `cell-${r}-${c}`;
@@ -233,24 +336,45 @@
         }
 
         function renderPawns() {
-            document.querySelectorAll('.pion').forEach(p => p.remove());
+            // Mise à jour de la position existante ou création
             players.forEach((player, pIdx) => {
                 player.pawns.forEach((pawn, pawnIdx) => {
-                    if(pawn.r === -1) return;
+                    let id = `pion-${pIdx}-${pawnIdx}`;
+                    let div = document.getElementById(id);
+                    
+                    if(pawn.r === -1) {
+                        if(div) div.remove();
+                        return;
+                    }
+
+                    if(!div) {
+                        div = document.createElement('div');
+                        div.id = id;
+                        div.className = `pion`;
+                        div.innerHTML = `<span>${player.emoji}</span>`;
+                        div.style.backgroundColor = player.color;
+                        div.onclick = (e) => { 
+                            e.stopPropagation(); 
+                            // Bug fix: Si le pion est sur une case en surbrillance, on déclenche le clic de la case au lieu de la sélection
+                            const cell = document.getElementById(`cell-${pawn.r}-${pawn.c}`);
+                            if(cell.classList.contains('highlight-diag') || cell.classList.contains('highlight-adj')) {
+                                handleCellClick(pawn.r, pawn.c);
+                            } else {
+                                selectPawn(pIdx, pawnIdx); 
+                            }
+                        };
+                        document.getElementById('board-container').appendChild(div);
+                    }
+
                     const cell = document.getElementById(`cell-${pawn.r}-${pawn.c}`);
                     const bRect = document.getElementById('board').getBoundingClientRect();
                     const cRect = cell.getBoundingClientRect();
 
-                    const div = document.createElement('div');
                     div.className = `pion ${selectedPawn && selectedPawn.pIdx === pIdx && selectedPawn.pawnIdx === pawnIdx ? 'active' : ''}`;
                     if(pawn.lives > 1) div.classList.add('heart-shape');
                     
-                    div.style.backgroundColor = player.color;
-                    div.style.left = (cRect.left - bRect.left + 7) + "px";
-                    div.style.top = (cRect.top - bRect.top + 7) + "px";
-                    div.innerHTML = `<span>${player.emoji}</span>`;
-                    div.onclick = (e) => { e.stopPropagation(); selectPawn(pIdx, pawnIdx); };
-                    document.getElementById('board-container').appendChild(div);
+                    div.style.left = (cRect.left - bRect.left + (boardSize === 10 ? 7 : 2)) + "px";
+                    div.style.top = (cRect.top - bRect.top + (boardSize === 10 ? 7 : 2)) + "px";
                 });
             });
         }
@@ -266,7 +390,7 @@
                 die.style.transform = rots[rollValue];
                 document.querySelectorAll('.dice-face').forEach(f => f.innerText = rollValue);
                 document.getElementById('move-status').innerText = `X: ${rollValue} | +: 1`;
-                logMsg(`Mana: ${rollValue}. Select your champion!`);
+                logMsg(texts[currentLang].mana + rollValue + ". " + texts[currentLang].select);
             }, 800);
         }
 
@@ -276,17 +400,17 @@
             document.querySelectorAll('.cell').forEach(c => { c.classList.remove('highlight-diag', 'highlight-adj'); });
             const p = players[pIdx].pawns[pawnIdx];
 
-            // Diagonals (X)
+            // Diagonales
             [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(d => {
                 for(let i=1; i <= rollValue; i++){
                     let tr = p.r+(d[0]*i), tc = p.c+(d[1]*i);
-                    if(tr>=0 && tr<10 && tc>=0 && tc<10) document.getElementById(`cell-${tr}-${tc}`).classList.add('highlight-diag');
+                    if(tr>=0 && tr<boardSize && tc>=0 && tc<boardSize) document.getElementById(`cell-${tr}-${tc}`).classList.add('highlight-diag');
                 }
             });
-            // Cardinaux (+)
+            // Cardinaux
             [[0,1],[0,-1],[1,0],[-1,0]].forEach(s => {
                 let tr=p.r+s[0], tc=p.c+s[1];
-                if(tr>=0 && tr<10 && tc>=0 && tc<10) document.getElementById(`cell-${tr}-${tc}`).classList.add('highlight-adj');
+                if(tr>=0 && tr<boardSize && tc>=0 && tc<boardSize) document.getElementById(`cell-${tr}-${tc}`).classList.add('highlight-adj');
             });
             renderPawns();
         }
@@ -296,57 +420,67 @@
                 if(specialTiles.red.some(t => t.r === r && t.c === c)) {
                     players[selectedPawn.pIdx].pawns[selectedPawn.pawnIdx].r = r;
                     players[selectedPawn.pIdx].pawns[selectedPawn.pawnIdx].c = c;
+                    renderPawns();
                     endTurn();
                 }
                 return;
             }
             if(!selectedPawn) return;
+            
+            const cell = document.getElementById(`cell-${r}-${c}`);
+            if(!cell.classList.contains('highlight-diag') && !cell.classList.contains('highlight-adj')) return;
+
             const pawn = players[selectedPawn.pIdx].pawns[selectedPawn.pawnIdx];
-            const dr = Math.abs(r - pawn.r), dc = Math.abs(c - pawn.c);
-
-            let valid = (dr === dc && dr <= rollValue && dr > 0) || ((dr === 1 && dc === 0) || (dr === 0 && dc === 1));
-
-            if(valid) {
-                new Audio(sfxUrl + "move" + (Math.floor(Math.random()*5)+1) + ".wav").play().catch(()=>{});
-                checkCapture(r, c);
-                pawn.r = r; pawn.c = c;
-                rollValue = 0;
-                await handleMagicTiles(pawn, r, c);
-                if(!teleportMode) endTurn();
-            }
+            new Audio(sfxUrl + "move" + (Math.floor(Math.random()*5)+1) + ".wav").play().catch(()=>{});
+            
+            checkCapture(r, c);
+            pawn.r = r; pawn.c = c;
+            rollValue = 0;
+            renderPawns(); // Déclenche l'animation CSS smooth
+            
+            await new Promise(res => setTimeout(res, 500)); // Attend la fin de l'anim
+            await handleMagicTiles(pawn, r, c);
+            if(!teleportMode) endTurn();
         }
 
         function checkCapture(r, c) {
-            const opp = players[(currentPlayer + 1) % 2];
-            opp.pawns.forEach(p => {
-                if(p.r === r && p.c === c) {
-                    if(p.lives > 1) {
-                        p.lives = 1;
-                        p.r = Math.max(0, Math.min(9, p.r + (currentPlayer === 0 ? -1 : 1)));
-                        logMsg("Heart Shield broken! Enemy pushed back.");
-                    } else {
-                        p.r = -1; p.c = -1;
-                        logMsg("Enemy Champion eliminated!");
+            players.forEach((player, pIdx) => {
+                if(pIdx === currentPlayer) return;
+                // Si mode équipe, ne pas capturer son allié
+                if(gameMode === '4-team' && player.team === players[currentPlayer].team) return;
+
+                player.pawns.forEach(p => {
+                    if(p.r === r && p.c === c) {
+                        if(p.lives > 1) {
+                            p.lives = 1;
+                            p.r = Math.max(0, Math.min(boardSize-1, p.r + (p.r < boardSize/2 ? 1 : -1)));
+                            logMsg(texts[currentLang].shield);
+                        } else {
+                            p.r = -1; p.c = -1;
+                            logMsg(texts[currentLang].elim);
+                        }
                     }
-                }
+                });
             });
         }
 
         async function handleMagicTiles(pawn, r, c) {
-            if(specialTiles.red.some(t => t.r === r && t.c === c)) {
-                const go = await showModal("🔴 Ogre Portal", "Manually teleport to another Red Tile?", [{txt: "Portal!", val:true}, {txt: "Stay", val:false}]);
-                if(go) { teleportMode = true; document.querySelectorAll('.tile-red').forEach(el => el.classList.add('target-choice')); logMsg("Choose a Red Tile destination!"); }
-            } else if(specialTiles.violet.some(t => t.r === r && t.c === c)) {
-                await showModal("🟣 Chaos Warp", "Randomly warping to another Violet Tile...", [{txt: "Warp!", val:true}]);
-                const others = specialTiles.violet.filter(t => t.r !== r || t.c !== c);
-                if(others.length > 0) { const target = others[Math.floor(Math.random()*others.length)]; pawn.r = target.r; pawn.c = target.c; }
-            } else if(specialTiles.blue.some(t => t.r === r && t.c === c)) {
-                const choice = await showModal("🔵 Transformation", "Accept blessing for Heart Form? 50% chance of death!", [{txt: "Accept Risk", val:true}, {txt: "Decline", val:false}]);
+            const t = texts[currentLang];
+            if(specialTiles.red.some(t_ => t_.r === r && t_.c === c)) {
+                const go = await showModal(t.ogrePortal, t.ogreMsg, [{txt: "Portal!", val:true}, {txt: "Stay", val:false}]);
+                if(go) { teleportMode = true; document.querySelectorAll('.tile-red').forEach(el => el.classList.add('target-choice')); logMsg(t.chooseRed); }
+            } else if(specialTiles.violet.some(t_ => t_.r === r && t_.c === c)) {
+                await showModal(t.chaosWarp, t.chaosMsg, [{txt: "Warp!", val:true}]);
+                const others = specialTiles.violet.filter(t_ => t_.r !== r || t_.c !== c);
+                if(others.length > 0) { const target = others[Math.floor(Math.random()*others.length)]; pawn.r = target.r; pawn.c = target.c; renderPawns(); }
+            } else if(specialTiles.blue.some(t_ => t_.r === r && t_.c === c)) {
+                const choice = await showModal(t.trans, t.transMsg, [{txt: "Yes", val:true}, {txt: "No", val:false}]);
                 if(choice) {
-                    if(Math.random() > 0.5) { pawn.r = -1; logMsg("The blessing was too strong. Champion lost."); }
-                    else { pawn.lives = 2; logMsg("Heart transformation complete! ❤️"); }
+                    if(Math.random() > 0.5) { pawn.r = -1; }
+                    else { pawn.lives = 2; }
+                    renderPawns();
                 }
-                specialTiles.blue = specialTiles.blue.filter(t => t.r !== r || t.c !== c);
+                specialTiles.blue = specialTiles.blue.filter(t_ => t_.r !== r || t_.c !== c);
                 document.getElementById(`cell-${r}-${c}`).classList.remove('tile-blue');
             }
         }
@@ -356,7 +490,7 @@
             document.querySelectorAll('.cell').forEach(cl => { cl.classList.remove('highlight-diag', 'highlight-adj', 'target-choice'); });
             renderPawns();
             if(checkWin()) return;
-            currentPlayer = (currentPlayer + 1) % 2;
+            currentPlayer = (currentPlayer + 1) % players.length;
             document.getElementById('roll-btn').disabled = false;
             updateUI();
         }
@@ -379,9 +513,17 @@
         }
 
         function checkWin() {
-            for(let i=0; i<2; i++) {
-                if(players[i].pawns.every(p => p.r === -1)) {
-                    alert(`${players[(i+1)%2].name} is the Supreme Victor!`);
+            if(gameMode === '4-team') {
+                const team1Alive = players.filter(p => p.team === 1).some(p => p.pawns.some(pw => pw.r !== -1));
+                const team2Alive = players.filter(p => p.team === 2).some(p => p.pawns.some(pw => pw.r !== -1));
+                if(!team1Alive || !team2Alive) {
+                    alert(texts[currentLang].teamWin);
+                    location.reload(); return true;
+                }
+            } else {
+                let alive = players.filter(pl => pl.pawns.some(p => p.r !== -1));
+                if(alive.length === 1) {
+                    alert(alive[0].name + texts[currentLang].win);
                     location.reload(); return true;
                 }
             }
@@ -390,12 +532,15 @@
 
         function updateUI() {
             const t = document.getElementById('turn-display');
-            t.innerText = `Turn: ${players[currentPlayer].name}`;
+            t.innerText = texts[currentLang].turn + players[currentPlayer].name;
             t.style.color = players[currentPlayer].color;
             document.getElementById('move-status').innerText = `X: ${rollValue} | +: 1`;
         }
 
         function logMsg(m) { document.getElementById('log').innerText = m; }
+        
+        // Init labels on load
+        updateSetupLang();
     </script>
 </body>
 </html>
