@@ -122,7 +122,11 @@
         .cell.x::before, .cell.x::after,
         .cell.o::before,
         .cell.plus::before, .cell.plus::after,
-        .cell.triangle::before {
+        .cell.triangle::before,
+        .cell.team1-x::before, .cell.team1-x::after,
+        .cell.team1-o::before,
+        .cell.team2-plus::before, .cell.team2-plus::after,
+        .cell.team2-triangle::before {
             content: '';
             position: absolute;
         }
@@ -174,26 +178,18 @@
             border-bottom: 35px solid var(--triangle-color);
         }
 
+        /* CORRECTION MODE ÉQUIPE - DESSIN DES FORMES */
         .cell.team1-x::before, .cell.team1-x::after {
             background-color: var(--team1-color);
-        }
-
-        .cell.team1-x::before {
             width: 10px;
             height: 70%;
             border-radius: 5px;
-            transform: rotate(45deg);
         }
-
-        .cell.team1-x::after {
-            width: 10px;
-            height: 70%;
-            border-radius: 5px;
-            transform: rotate(-45deg);
-        }
+        .cell.team1-x::before { transform: rotate(45deg); }
+        .cell.team1-x::after { transform: rotate(-45deg); }
 
         .cell.team1-o::before {
-            background-color: var(--team1-color);
+            background-color: transparent;
             width: 50%;
             height: 50%;
             border-radius: 50%;
@@ -203,18 +199,8 @@
         .cell.team2-plus::before, .cell.team2-plus::after {
             background-color: var(--team2-color);
         }
-
-        .cell.team2-plus::before {
-            width: 10px;
-            height: 50%;
-            border-radius: 5px;
-        }
-
-        .cell.team2-plus::after {
-            width: 50%;
-            height: 10px;
-            border-radius: 5px;
-        }
+        .cell.team2-plus::before { width: 10px; height: 50%; border-radius: 5px; }
+        .cell.team2-plus::after { width: 50%; height: 10px; border-radius: 5px; }
 
         .cell.team2-triangle::before {
             width: 0;
@@ -304,26 +290,11 @@
         }
 
         @media (max-width: 500px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .board {
-                gap: 8px;
-            }
-
-            .mode-selector {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .mode-btn {
-                width: 100%;
-            }
-            
-            .team-names {
-                padding: 0 20px;
-            }
+            h1 { font-size: 2rem; }
+            .board { gap: 8px; }
+            .mode-selector { flex-direction: column; width: 100%; }
+            .mode-btn { width: 100%; }
+            .team-names { padding: 0 20px; }
         }
     </style>
 </head>
@@ -374,7 +345,6 @@
             let team1Symbol = 'x';
             let team2Symbol = 'plus';
 
-            // Winning conditions
             const winningConditions3x3 = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8],
                 [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -414,26 +384,24 @@
             function initGame() {
                 if (gameMode === 'classic') {
                     boardSize = 3;
+                    currentPlayer = 'x';
                 } else if (gameMode === 'threePlayer') {
                     boardSize = 4;
+                    currentPlayer = 'x';
                 } else if (gameMode === 'fourPlayer') {
                     boardSize = 6;
+                    currentPlayer = 'x';
                 } else if (gameMode === 'team') {
                     boardSize = 6;
+                    currentPlayer = 'team1';
                 }
                 
                 gameState = Array(boardSize * boardSize).fill('');
-                currentPlayer = 'x';
                 gameActive = true;
                 team1Symbol = 'x';
                 team2Symbol = 'plus';
                 
-                if (gameMode === 'team') {
-                    status.textContent = `${team1Name}'s turn (X)`;
-                } else {
-                    status.textContent = "Player X's turn";
-                }
-                
+                updateStatus();
                 createBoard();
             }
 
@@ -466,11 +434,11 @@
                     if (currentPlayer === 'team1') {
                         gameState[clickedCellIndex] = team1Symbol;
                         clickedCell.classList.add(team1Symbol === 'x' ? 'team1-x' : 'team1-o');
-                        team1Symbol = team1Symbol === 'x' ? 'o' : 'x';
+                        team1Symbol = (team1Symbol === 'x') ? 'o' : 'x';
                     } else {
                         gameState[clickedCellIndex] = team2Symbol;
                         clickedCell.classList.add(team2Symbol === 'plus' ? 'team2-plus' : 'team2-triangle');
-                        team2Symbol = team2Symbol === 'plus' ? 'triangle' : 'plus';
+                        team2Symbol = (team2Symbol === 'plus') ? 'triangle' : 'plus';
                     }
                 } else {
                     gameState[clickedCellIndex] = currentPlayer;
@@ -482,18 +450,10 @@
 
             function checkResult() {
                 let winningConditions;
-                let requiredToWin;
                 
-                if (boardSize === 3) {
-                    winningConditions = winningConditions3x3;
-                    requiredToWin = 3;
-                } else if (boardSize === 4) {
-                    winningConditions = winningConditions4x4;
-                    requiredToWin = 3;
-                } else if (boardSize === 6) {
-                    winningConditions = winningConditions6x6;
-                    requiredToWin = 4;
-                }
+                if (boardSize === 3) winningConditions = winningConditions3x3;
+                else if (boardSize === 4) winningConditions = winningConditions4x4;
+                else if (boardSize === 6) winningConditions = winningConditions6x6;
                 
                 let roundWon = false;
                 let winningCells = [];
@@ -502,7 +462,6 @@
                 for (let i = 0; i < winningConditions.length; i++) {
                     const condition = winningConditions[i];
                     const firstCell = gameState[condition[0]];
-                    
                     if (firstCell === '') continue;
                     
                     let allSame = true;
@@ -512,7 +471,6 @@
                             break;
                         }
                     }
-                    
                     if (allSame) {
                         roundWon = true;
                         winningCells = condition;
@@ -524,18 +482,13 @@
                 if (roundWon) {
                     let winner;
                     if (gameMode === 'team') {
-                        if (winningSymbol === 'x' || winningSymbol === 'o') {
-                            winner = team1Name;
-                        } else {
-                            winner = team2Name;
-                        }
+                        winner = (winningSymbol === 'x' || winningSymbol === 'o') ? team1Name : team2Name;
                     } else {
                         if (winningSymbol === 'x') winner = 'X';
                         else if (winningSymbol === 'o') winner = 'O';
                         else if (winningSymbol === 'plus') winner = '+';
                         else if (winningSymbol === 'triangle') winner = '△';
                     }
-                    
                     status.textContent = `${winner} wins!`;
                     gameActive = false;
                     highlightWinningCells(winningCells);
@@ -551,7 +504,7 @@
 
                 // Switch turns
                 if (gameMode === 'classic') {
-                    currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+                    currentPlayer = (currentPlayer === 'x') ? 'o' : 'x';
                 } else if (gameMode === 'threePlayer') {
                     if (currentPlayer === 'x') currentPlayer = 'o';
                     else if (currentPlayer === 'o') currentPlayer = 'plus';
@@ -562,7 +515,7 @@
                     else if (currentPlayer === 'plus') currentPlayer = 'triangle';
                     else currentPlayer = 'x';
                 } else if (gameMode === 'team') {
-                    currentPlayer = currentPlayer === 'team1' ? 'team2' : 'team1';
+                    currentPlayer = (currentPlayer === 'team1') ? 'team2' : 'team1';
                 }
                 
                 updateStatus();
@@ -581,7 +534,6 @@
                     else if (currentPlayer === 'o') playerName = 'O';
                     else if (currentPlayer === 'plus') playerName = '+';
                     else if (currentPlayer === 'triangle') playerName = '△';
-                    
                     status.textContent = `Player ${playerName}'s turn`;
                 }
             }
@@ -589,14 +541,13 @@
             function highlightWinningCells(cells) {
                 cells.forEach(index => {
                     const cell = document.querySelector(`.cell[data-index="${index}"]`);
-                    cell.classList.add('winning-cell');
+                    if(cell) cell.classList.add('winning-cell');
                 });
             }
 
             function createConfetti() {
                 const colors = ['#4285f4', '#ea4335', '#00ff00', '#9c27b0', '#fbbc05', '#34a853', '#ff6d00'];
                 const container = document.querySelector('.game-container');
-                
                 for (let i = 0; i < 150; i++) {
                     const confetti = document.createElement('div');
                     confetti.classList.add('confetti');
@@ -606,54 +557,40 @@
                     confetti.style.width = `${Math.random() * 10 + 5}px`;
                     confetti.style.height = `${Math.random() * 10 + 5}px`;
                     container.appendChild(confetti);
-                    
-                    setTimeout(() => {
-                        confetti.remove();
-                    }, 3000);
+                    setTimeout(() => confetti.remove(), 3000);
                 }
-            }
-
-            function resetGame() {
-                initGame();
             }
 
             function setClassicMode() {
                 gameMode = 'classic';
-                classicModeBtn.classList.add('active');
-                threePlayerModeBtn.classList.remove('active');
-                fourPlayerModeBtn.classList.remove('active');
-                teamModeBtn.classList.remove('active');
+                updateActiveBtn(classicModeBtn);
                 teamNameInputs.style.display = 'none';
                 initGame();
             }
 
             function setThreePlayerMode() {
                 gameMode = 'threePlayer';
-                classicModeBtn.classList.remove('active');
-                threePlayerModeBtn.classList.add('active');
-                fourPlayerModeBtn.classList.remove('active');
-                teamModeBtn.classList.remove('active');
+                updateActiveBtn(threePlayerModeBtn);
                 teamNameInputs.style.display = 'none';
                 initGame();
             }
 
             function setFourPlayerMode() {
                 gameMode = 'fourPlayer';
-                classicModeBtn.classList.remove('active');
-                threePlayerModeBtn.classList.remove('active');
-                fourPlayerModeBtn.classList.add('active');
-                teamModeBtn.classList.remove('active');
+                updateActiveBtn(fourPlayerModeBtn);
                 teamNameInputs.style.display = 'none';
                 initGame();
             }
 
             function setTeamMode() {
                 gameMode = 'team';
-                classicModeBtn.classList.remove('active');
-                threePlayerModeBtn.classList.remove('active');
-                fourPlayerModeBtn.classList.remove('active');
-                teamModeBtn.classList.add('active');
+                updateActiveBtn(teamModeBtn);
                 teamNameInputs.style.display = 'block';
+            }
+
+            function updateActiveBtn(activeBtn) {
+                [classicModeBtn, threePlayerModeBtn, fourPlayerModeBtn, teamModeBtn].forEach(btn => btn.classList.remove('active'));
+                activeBtn.classList.add('active');
             }
 
             function startTeamGame() {
@@ -662,15 +599,13 @@
                 initGame();
             }
 
-            // Event listeners
-            resetButton.addEventListener('click', resetGame);
+            resetButton.addEventListener('click', () => initGame());
             classicModeBtn.addEventListener('click', setClassicMode);
             threePlayerModeBtn.addEventListener('click', setThreePlayerMode);
             fourPlayerModeBtn.addEventListener('click', setFourPlayerMode);
             teamModeBtn.addEventListener('click', setTeamMode);
             startTeamGameBtn.addEventListener('click', startTeamGame);
 
-            // Initialize game
             initGame();
         });
     </script>
