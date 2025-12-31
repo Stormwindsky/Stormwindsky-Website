@@ -1,0 +1,7 @@
+/* Its fine if you wanna use it or not, i saw the welcome website and saw that the source code text in hyperlink was without CSS style, so imma help ya' */
+a {
+  text-decoration: none;
+    color: #656ddd;
+    cursor: pointer; 
+}
+/* I'm re using the hyperlink style of my project, you are free to change it however you want */
