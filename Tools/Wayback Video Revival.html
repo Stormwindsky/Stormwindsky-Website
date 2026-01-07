@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wayback Video Revival</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --button-hover: #0284c7;
+            --success-color: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 { color: var(--accent-color); margin-bottom: 0.5rem; }
+        p { margin-bottom: 1.5rem; opacity: 0.9; }
+
+        .lang-switch {
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        button.lang-btn {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button.btn {
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        #load-btn { background-color: var(--accent-color); }
+        #load-btn:hover { background-color: var(--button-hover); }
+
+        #copy-btn { background-color: #475569; }
+        #copy-btn:hover { background-color: #334155; }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%; border: 0;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="lang-switch">
+            <button class="lang-btn" onclick="toggleLang()">Français</button>
+        </div>
+
+        <h1 id="main-title">Wayback Video Revival</h1>
+        <p id="description">Enter a YouTube URL or Video ID to watch it via Wayback Machine's player.</p>
+
+        <div class="input-group">
+            <input type="text" id="video-input" placeholder="https://www.youtube.com/watch?v=XXXXX or ID">
+        </div>
+        
+        <div class="actions">
+            <button id="load-btn" class="btn" onclick="handleLoadAction()">Load Video</button>
+            <button id="copy-btn" class="btn" onclick="copyShareUrl()">Copy Link</button>
+        </div>
+
+        <div id="player-container" class="video-wrapper">
+            <iframe id="wayback-frame" src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <footer>
+        Created by <strong>Stormwindsky</strong> | License MIT | 
+        <span id="license-text">This tool uses the Wayback Machine archive link structure.</span>
+    </footer>
+
+    <script>
+        let currentLang = 'en';
+        const DEFAULT_ID = "xvFZjo5PgG0";
+
+        const translations = {
+            en: {
+                title: "Wayback Video Revival",
+                desc: "Enter a YouTube URL or Video ID to watch it via Wayback Machine's player.",
+                placeholder: "https://www.youtube.com/watch?v=XXXXX or ID",
+                btn: "Load Video",
+                copy: "Copy Link",
+                copied: "Link Copied!",
+                license: "This tool uses the Wayback Machine archive link structure.",
+                langBtn: "Français"
+            },
+            fr: {
+                title: "Wayback Video Revival",
+                desc: "Entrez une URL YouTube ou un ID vidéo pour visionner via le lecteur de la Wayback Machine.",
+                placeholder: "https://www.youtube.com/watch?v=XXXXX ou ID",
+                btn: "Charger la Vidéo",
+                copy: "Copier le Lien",
+                copied: "Lien Copié !",
+                license: "Cet outil utilise la structure de lien d'archive de la Wayback Machine.",
+                langBtn: "English"
+            }
+        };
+
+        // Extraction de l'ID depuis l'URL de la page (?=ID)
+        function getIDFromUrl() {
+            const queryString = window.location.search;
+            if (queryString.startsWith('?=')) {
+                return queryString.substring(2);
+            }
+            return null;
+        }
+
+        function extractVideoID(input) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = input.match(regex);
+            if (match && match[1]) return match[1];
+            return input.trim().length === 11 ? input.trim() : null;
+        }
+
+        function loadVideo(id) {
+            const videoId = id || extractVideoID(document.getElementById('video-input').value);
+            const playerContainer = document.getElementById('player-container');
+            const iframe = document.getElementById('wayback-frame');
+
+            if (videoId) {
+                iframe.src = `https://web.archive.org/web/2oe_/http://wayback-fakeurl.archive.org/yt/${videoId}`;
+                playerContainer.style.display = 'block';
+                document.getElementById('video-input').value = videoId;
+            } else {
+                alert(currentLang === 'en' ? 'Invalid ID' : 'ID invalide');
+            }
+        }
+
+        function handleLoadAction() {
+            loadVideo();
+        }
+
+        function copyShareUrl() {
+            const id = extractVideoID(document.getElementById('video-input').value) || DEFAULT_ID;
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?=${id}`;
+            
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                const copyBtn = document.getElementById('copy-btn');
+                const originalText = translations[currentLang].copy;
+                copyBtn.innerText = translations[currentLang].copied;
+                copyBtn.style.backgroundColor = 'var(--success-color)';
+                setTimeout(() => {
+                    copyBtn.innerText = originalText;
+                    copyBtn.style.backgroundColor = '#475569';
+                }, 2000);
+            });
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'fr' : 'en';
+            document.getElementById('main-title').innerText = translations[currentLang].title;
+            document.getElementById('description').innerText = translations[currentLang].desc;
+            document.getElementById('video-input').placeholder = translations[currentLang].placeholder;
+            document.getElementById('load-btn').innerText = translations[currentLang].btn;
+            document.getElementById('copy-btn').innerText = translations[currentLang].copy;
+            document.getElementById('license-text').innerText = translations[currentLang].license;
+            document.querySelector('.lang-btn').innerText = translations[currentLang].langBtn;
+        }
+
+        // Au chargement
+        window.onload = () => {
+            const urlId = getIDFromUrl();
+            if (urlId) {
+                loadVideo(urlId);
+            } else {
+                loadVideo(DEFAULT_ID);
+            }
+        };
+
+        document.getElementById('video-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loadVideo();
+        });
+    </script>
+</body>
+</html>
