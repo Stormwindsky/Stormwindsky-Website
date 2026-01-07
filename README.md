@@ -19,3 +19,7 @@ CC-BY-SA-4.0 license:
 https://github.com/Stormwindsky/Stormwindsky-website-the-part-under-license-by-sa-4.0
 
 
+CC0 1.0 License:
+
+https://github.com/Stormwindsky/ArtLibre
+
