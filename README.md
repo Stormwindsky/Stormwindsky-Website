@@ -1,4 +1,4 @@
-# Stormwindsky-Website
+# Stormwindsky Website
 This is my website of the part licensed under MIT
 
 Here: https://www.stormwindsky.com
@@ -22,4 +22,6 @@ https://github.com/Stormwindsky/Stormwindsky-website-the-part-under-license-by-s
 CC0 1.0 License:
 
 https://github.com/Stormwindsky/ArtLibre
+
+![This is a Dragon Snake made by me under CC0 1.0](https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Znak%20the%20Dragon%20Snake.svg)
 
