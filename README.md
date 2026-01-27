@@ -1,9 +1,13 @@
 # Stormwindsky Website
 This is my website of the part licensed under MIT
 
+## NOTICE HERE:
+
+https://github.com/Stormwindsky/Stormwindsky-Website/blob/main/NOTICE.md
+
 Here: https://www.stormwindsky.com
 
-About Credits:
+## About Credits:
 
 Please note that all sounds and music, etc. used under a free license are credited on my web pages which contain the sound in question on this page.
 
