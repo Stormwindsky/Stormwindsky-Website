@@ -1,11 +1,12 @@
 # Stormwindsky Website
 This is my website of the part licensed under MIT
 
+Here: https://www.stormwindsky.com
+
+
 ## NOTICE HERE:
 
 https://github.com/Stormwindsky/Stormwindsky-Website/blob/main/NOTICE.md
-
-Here: https://www.stormwindsky.com
 
 ## About Credits:
 
