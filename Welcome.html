@@ -4,1736 +4,198 @@
     <link rel="icon" href="images/favicon.ico">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stormwindsky | Creative Portfolio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Stormwindsky | Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4895ef;
-            --dark-bg: #1a1a2e;
-            --light-bg: #f8f9fa;
-            --text-dark: #2b2d42;
-            --text-light: #f8f9fa;
-            --card-bg: #ffffff;
-            --nav-bg: #3a0ca3;
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.1);
-            --shadow-xl: 0 14px 28px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.08);
-            --gradient-primary: linear-gradient(135deg, #f72585 0%, #7209b7 50%, #3a0ca3 100%);
-            --gradient-secondary: linear-gradient(135deg, #f72585 0%, #4cc9f0 100%);
-
-            /* Halloween Theme Variables */
-            --halloween-primary: #ff6600; /* Pumpkin orange */
-            --halloween-secondary: #5e1a7b; /* Deep purple */
-            --halloween-accent: #333333; /* Dark gray/black */
-            --halloween-gradient: linear-gradient(135deg, #ff6600 0%, #5e1a7b 100%);
-            --halloween-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--light-bg);
-            color: var(--text-dark);
-            transition: var(--transition);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.6;
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --dark-bg: #0f172a;
+            --light-bg: #f8fafc;
+            --text-dark: #1e293b;
+            --text-light: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
 
         body.dark-mode {
             background-color: var(--dark-bg);
             color: var(--text-light);
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --glass: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.05);
         }
 
-        body.dark-mode .card {
-            background-color: #16213e;
-            color: var(--text-light);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--light-bg); color: var(--text-dark); transition: var(--transition); line-height: 1.7; }
 
-        body.dark-mode nav {
-            background-color: #0f3460;
-        }
+        /* Header & Nav */
+        header { min-height: 35vh; background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
+        nav { position: sticky; top: 20px; z-index: 1000; width: 100%; display: flex; justify-content: center; margin-top: -30px; }
+        .nav-container { display: flex; gap: 8px; background: var(--glass); backdrop-filter: blur(15px); padding: 10px; border-radius: 50px; border: 1px solid var(--glass-border); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        nav a { text-decoration: none; color: inherit; font-weight: 500; padding: 10px 18px; border-radius: 30px; font-size: 0.9rem; transition: var(--transition); cursor: pointer; }
+        nav a:hover { background: var(--primary); color: white; }
 
-        body.dark-mode header {
-            background-color: #0f3460;
-        }
+        /* Content */
+        .content { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
+        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 24px; padding: 2.5rem; border: 1px solid var(--glass-border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: var(--transition); }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .card h2 { color: var(--primary); margin-bottom: 1rem; font-family: 'Poppins'; }
 
-        body.dark-mode footer {
-            background-color: #0f3460;
-        }
+        /* Buttons & Widgets */
+        .card a, .card button, .lang-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: var(--primary); color: white; border-radius: 12px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); }
+        .theme-toggle, #language-toggle { position: fixed; right: 25px; width: 55px; height: 55px; border-radius: 16px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.15); z-index: 1001; transition: var(--transition); }
+        .theme-toggle { bottom: 25px; background: #1e293b; color: white; }
+        #language-toggle { bottom: 95px; background: white; color: #1e293b; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); padding: 3rem; border-radius: 30px; max-width: 500px; width: 90%; position: relative; text-align: center; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; background: none; border: none; color: inherit; }
         
-        /* Halloween Theme Overrides */
-        body.halloween-theme header::before {
-            background: var(--halloween-gradient);
-            opacity: 0.9;
-        }
-
-        body.halloween-theme header h1 {
-            background: linear-gradient(90deg, #ff6600, #5e1a7b, #333333);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: textGlowHalloween 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes textGlowHalloween {
-            from {
-                text-shadow: 0 0 5px rgba(255, 102, 0, 0.5);
-            }
-            to {
-                text-shadow: 0 0 15px rgba(255, 102, 0, 0.8), 
-                            0 0 20px rgba(94, 26, 123, 0.6);
-            }
-        }
-
-        body.halloween-theme nav {
-            background-color: rgba(94, 26, 123, 0.9); /* var(--halloween-secondary) with opacity */
-        }
-        
-        body.halloween-theme nav a {
-            background-color: rgba(255, 102, 0, 0.1);
-        }
-
-        body.halloween-theme nav a:hover {
-            background-color: rgba(255, 102, 0, 0.2);
-        }
-
-        body.halloween-theme .card::after,
-        body.halloween-theme .card h2::after {
-            background: var(--halloween-gradient);
-        }
-
-        body.halloween-theme .card h2 {
-            color: var(--halloween-primary);
-        }
-
-        body.halloween-theme .card a {
-            background: var(--halloween-gradient);
-            color: var(--text-light);
-        }
-
-        body.halloween-theme footer::before {
-            background: var(--halloween-gradient);
-            opacity: 0.9;
-        }
-
-        body.halloween-theme .theme-toggle {
-            background: var(--halloween-gradient);
-        }
-
-        /* Animated Background Elements */
-        .bg-elements {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .bg-element {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 15s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-20px) rotate(5deg);
-            }
-        }
-        
-        .ghost-element {
-            position: absolute;
-            font-size: 4rem;
-            opacity: 0;
-            animation: floatGhost 20s infinite ease-in-out;
-            pointer-events: none;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-            transition: all 0.5s;
-        }
-
-        @keyframes floatGhost {
-            0% {
-                transform: translateY(0) translateX(0) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.15;
-            }
-            50% {
-                transform: translateY(-150px) translateX(70px) rotate(10deg);
-                opacity: 0.3;
-            }
-            90% {
-                opacity: 0.15;
-            }
-            100% {
-                transform: translateY(0) translateX(0) rotate(0deg);
-                opacity: 0;
-            }
-        }
-
-        header {
-            background-color: var(--nav-bg);
-            color: var(--text-light);
-            padding: 3rem 0;
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient-primary);
-            opacity: 0.8;
-            z-index: -1;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #f72585, #7209b7, #3a0ca3);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            animation: textGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes textGlow {
-            from {
-                text-shadow: 0 0 5px rgba(247, 37, 133, 0.5);
-            }
-            to {
-                text-shadow: 0 0 15px rgba(247, 37, 133, 0.8), 
-                            0 0 20px rgba(114, 9, 183, 0.6);
-            }
-        }
-
-        body.dark-mode header h1 {
-            background: var(--gradient-secondary);
-            -webkit-background-clip: text;
-            background-clip: text;
-        }
-
-        nav {
-            background-color: var(--primary-color);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-sm);
-            backdrop-filter: blur(10px);
-            background-color: rgba(58, 12, 163, 0.9);
-        }
-
-        body.dark-mode nav {
-            background-color: rgba(15, 52, 96, 0.9);
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        nav a {
-            color: var(--text-light);
-            margin: 0 1rem;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        /* --- Nav styles for desktop (not used on mobile) --- */
-        nav a::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: 0.5s;
-        }
-
-        nav a:hover::before {
-            left: 100%;
-        }
-
-        nav a i {
-            margin-right: 8px;
-            font-size: 1rem;
-        }
-
-        nav a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-        /* ---------------------------------------------------- */
-
-        .content {
-            padding: 3rem 2rem;
-            text-align: center;
-            flex: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .card-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        /* Mobile Link Card specific styles (flex layout for buttons) */
-        .mobile-links-content {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        /* General Card styles */
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: var(--shadow-lg);
-            transition: var(--transition);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            border: none;
-        }
-
-        .card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: var(--gradient-primary);
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .card h2 {
-            color: var(--primary-color);
-            margin-top: 0;
-            font-weight: 600;
-            position: relative;
-            display: inline-block;
-        }
-
-        .card h2::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 3px;
-            background: var(--gradient-primary);
-            border-radius: 3px;
-        }
-
-        .card p {
-            margin-bottom: 1.5rem;
-        }
-
-        .card a, .card button {
-            display: inline-flex; /* Use inline-flex for button centering */
-            align-items: center;
-            justify-content: center;
-            margin-top: 1rem;
-            padding: 0.75rem 2rem;
-            background: var(--gradient-primary);
-            color: white;
-            border-radius: 50px;
-            text-decoration: none;
-            transition: var(--transition);
-            font-weight: 500;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            overflow: hidden;
-            border: none;
-            cursor: pointer;
-        }
-
-        .card a:hover, .card button:hover {
-            background: var(--gradient-secondary);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .card a::before, .card button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-
-        .card a:hover::before, .card button:hover::before {
-            left: 100%;
-        }
-        
-        .card button i {
-            margin-right: 8px;
-        }
-
-        footer {
-            background-color: var(--primary-color);
-            color: var(--text-light);
-            text-align: center;
-            padding: 2rem 0;
-            margin-top: auto;
-            position: relative;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient-primary);
-            opacity: 0.9;
-            z-index: -1;
-        }
-
-        .social-links {
-            margin: 1.5rem 0;
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-        }
-
-        .social-links a {
-            color: var(--text-light);
-            font-size: 1.75rem;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        .social-links a:hover {
-            color: #4cc9f0;
-            transform: translateY(-5px) scale(1.1);
-            background-color: rgba(255,255,255,0.2);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .license-info {
-            font-size: 0.9rem;
-            margin-top: 1.5rem;
-            opacity: 0.9;
-        }
-
-        .license-info a {
-            color: var(--text-light);
-            text-decoration: underline;
-            font-weight: 500;
-        }
-
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            box-shadow: var(--shadow-xl);
-            transition: var(--transition);
-            z-index: 1000;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1) rotate(30deg);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        }
-        
-        /* Language Toggle Button Style */
-        #language-toggle {
-            position: fixed;
-            bottom: 90px; /* Position above theme toggle */
-            right: 20px;
-            background: linear-gradient(135deg, #1b0088 0%, #4361ee 100%);
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            box-shadow: var(--shadow-xl);
-            transition: var(--transition);
-            z-index: 1000;
-        }
-        
-        #language-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        }
-        
-        body.halloween-theme #language-toggle {
-            background: linear-gradient(135deg, #5e1a7b 0%, #ff6600 100%);
-        }
-
-        /* Modal Styles (Popup) */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            padding: 3rem;
-            border-radius: 20px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            position: relative;
-            transform: scale(0.9);
-            opacity: 0;
-            animation: modalOpen 0.3s forwards 0.1s;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        /* --- Desktop-only Modal/Window styles (Collection, Dark Web, RoleChat Window) --- */
-        #collectionModal .modal-content {
-            max-width: 95vw; 
-            max-height: 95vh; 
-            width: 95vw; 
-            padding: 1.5rem; 
-        }
-        
-        #roleChatWindowModal {
-            align-items: flex-start; 
-            justify-content: flex-start;
-        }
-
-        #roleChatWindowModal .modal-content {
-            /* Desktop window style */
-            animation: none; 
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); 
-        }
-        
-        .collection-iframe, .darkweb-iframe, .rolechat-iframe {
-            /* Styles for the iframes (Desktop only) */
-            width: 100%;
-            height: calc(95vh - 100px); 
-            border: none;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
-        /* --------------------------------------------------------------------------------- */
-
-        @keyframes modalOpen {
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 1.75rem;
-            cursor: pointer;
-            color: var(--primary-color);
-            transition: var(--transition);
-            background: none;
-            border: none;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            z-index: 1; 
-        }
-        
-        body.halloween-theme .close-modal {
-            color: var(--halloween-primary);
-        }
-
-        .close-modal:hover {
-            background-color: rgba(0,0,0,0.1);
-            transform: rotate(90deg);
-        }
-
-        .modal-content h2 {
-            color: var(--primary-color);
-            margin-top: 0;
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .modal-content h2::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: var(--gradient-primary);
-            border-radius: 2px;
-        }
-        
-        body.dark-mode .modal-content {
-            background-color: #16213e;
-            color: var(--text-light);
-        }
-        
-        /* Language Modal Specific Styles */
-        #languageModal .language-options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 10px;
-        }
-        
-        #languageModal .language-options button {
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow-md);
-            text-align: left;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #languageModal .language-options button:hover {
-            background: var(--gradient-secondary);
-            transform: translateX(5px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        #languageModal .language-options button.active {
-            border: 2px solid #fff;
-            box-shadow: var(--shadow-xl);
-            background: var(--gradient-secondary);
-        }
-        
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2rem;
-            }
-
-            .modal-content {
-                padding: 2rem 1.5rem;
-            }
-            
-            .card-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .card a, .card button {
-                padding: 0.75rem 1rem;
-            }
-            
-            #language-toggle {
-                bottom: 80px; 
-                right: 15px;
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-            }
-            
-            .theme-toggle {
-                bottom: 15px;
-                right: 15px;
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .card {
-                padding: 1.5rem;
-            }
-            
-            .modal-content {
-                padding: 1.5rem 1rem;
-            }
-            
-            .mobile-links-content {
-                gap: 8px;
-            }
-            
-            .mobile-links-content button {
-                flex-basis: calc(50% - 8px); /* Two buttons per row */
-            }
-        }
+        footer { text-align: center; padding: 4rem 20px; opacity: 0.7; }
     </style>
 </head>
-<body lang="en">
-    <div class="bg-elements">
-        <div class="bg-element" style="width: 200px; height: 200px; background: var(--primary-color); top: 10%; left: 5%; animation-delay: 0s;"></div>
-        <div class="bg-element" style="width: 150px; height: 150px; background: var(--accent-color); top: 60%; left: 80%; animation-delay: 2s;"></div>
-        <div class="bg-element" style="width: 100px; height: 100px; background: #f72585; top: 30%; left: 50%; animation-delay: 4s;"></div>
-    </div>
-
+<body>
     <header>
-        <h1>Stormwindsky <span id="halloween-emoji-header"></span></h1>
+        <h1 id="title-main">Stormwindsky</h1>
+        <p id="subtitle">Innovation & Creative Preservation</p>
     </header>
 
     <nav id="mainNav">
         <div class="nav-container">
-            <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank" data-i18n="nav.home">
-                <i class="fas fa-home"></i> Home
-            </a>
-            <a id="aboutLink" data-i18n="nav.about">
-                <i class="fas fa-user"></i> About Me
-            </a>
-            <a id="originLink" data-i18n="nav.origin">
-                <i class="fas fa-signature"></i> Username Origin
-            </a>
-            <a id="collectionLink" href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" data-i18n="nav.collection">
-                <i class="fas fa-folder"></i> Collection
-            </a>
-            <a id="roleChatLink" href="https://stormwindsky.github.io/RoleChat/" target="_blank" data-i18n="nav.rolechat">
-                <i class="fas fa-comments"></i> RoleChat
-            </a>
-            <a href="https://www.roblox.com/games/12983740104/" target="_blank" data-i18n="nav.donate">
-                <i class="fas fa-heart"></i> Donate on Roblox
-            </a>
+            <a href="#" data-i18n="nav.home"><i class="fas fa-home"></i> Home</a>
+            <a id="aboutLink" data-i18n="nav.about"><i class="fas fa-user"></i> About</a>
+            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" data-i18n="nav.collection"><i class="fas fa-folder"></i> Collection</a>
+            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" data-i18n="nav.rolechat"><i class="fas fa-comments"></i> RoleChat</a>
         </div>
     </nav>
 
     <div class="content">
         <div class="card-container">
-            
-            <div id="mobileLinksCard" class="card mobile-only" style="display: none;">
-                <h2 data-i18n="card.mobile.title">Navigation</h2>
-                <div class="mobile-links-content">
-                    <button id="mobileAboutBtn" data-i18n="nav.about">
-                        <i class="fas fa-user"></i> About Me
-                    </button>
-                    <button id="mobileOriginBtn" data-i18n="nav.origin">
-                        <i class="fas fa-signature"></i> Username Origin
-                    </button>
-                    <button id="mobileCollectionBtn" data-i18n="nav.collection">
-                        <i class="fas fa-folder"></i> Collection
-                    </button>
-                    <button id="mobileRoleChatBtn" data-i18n="nav.rolechat">
-                        <i class="fas fa-comments"></i> RoleChat
-                    </button>
-                    <a href="https://stormwindsky.github.io/Stormwindsky-Website/Welcome.html" target="_blank" data-i18n="nav.home">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                    <a href="https://www.roblox.com/games/12983740104/" target="_blank" data-i18n="nav.donate">
-                        <i class="fas fa-heart"></i> Donate
-                    </a>
-                </div>
-            </div>
-            
             <div class="card">
-                <h2 data-i18n="card.links.title">Find Me Online</h2>
-                <p data-i18n="card.links.desc">Check out my presence across different platforms and connect with me on various social networks.</p>
-                <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=W3sidGV4dCI6Ik15IFlvdVR1YmUiLCJ1cmwiOiJodHRwczovL3d3dy55b3V0dWJlLmNvbS9AU3Rvcm13aW5kc2t5In0seyJ0ZXh0IjoiU2NyYXRjaCIsInVybCI6Imh0dHBzOi8vc2NyYXRjaC5taXQuZWR1L3VzZXJzL3N0b3Jtd2luZHNreS8ifSx7InRleHQiOiJHYW1lSm9sdCIsInVybCI6Imh0dHBzOi8vZ2FtZWpvbHQuY29tL0BTdG9ybXdpbmRza3kifV0=" target="_blank" data-i18n="card.links.button">
-                    View All Links
+                <h2 data-i18n="card.links.title">Digital Presence</h2>
+                <p data-i18n="card.links.desc">Check out my presence across different platforms and connect with me.</p>
+                <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=..." target="_blank" data-i18n="card.links.button">
+                    View All Links <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
             
             <div class="card">
-                <h2 data-i18n="card.aboutsite.title">About This Site</h2>
-                <p data-i18n="card.aboutsite.desc1">A creative playground for coding experiments and projects. This is where I share my passion for web development, gaming, and digital preservation.</p>
-                <p data-i18n="card.aboutsite.desc2">Simple but fun - just like me! Expect to find tools, games, and various experiments here.</p>
+                <h2 data-i18n="card.aboutsite.title">About This Project</h2>
+                <p data-i18n="card.aboutsite.desc1">A professional playground for web experiments, focusing on digital archiving and UI development.</p>
+                <p data-i18n="card.aboutsite.desc2">Merging history preservation with modern technology.</p>
             </div>
         </div>
     </div>
 
     <div id="aboutModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
-            <h2 data-i18n="modal.about.title">ABOUT ME</h2>
-            <p data-i18n="modal.about.p1">Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.</p>
-            
-            <p data-i18n="modal.about.p2">In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.</p>
-            
-            <p data-i18n="modal.about.p3">In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.</p>
-            
-            <p data-i18n="modal.about.p4">With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.</p>
+            <button class="close-btn" onclick="closeModal('aboutModal')">&times;</button>
+            <h2 data-i18n="modal.about.title">Biography</h2>
+            <p data-i18n="modal.about.p1">Stormwindsky is a history and culture enthusiast with a focus on digital preservation.</p>
         </div>
     </div>
 
-    <div id="originModal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
-            <h2 data-i18n="modal.origin.title">ORIGIN OF MY USERNAME</h2>
-            <p data-i18n="modal.origin.p1">The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊</p>
-            <p data-i18n="modal.origin.p2">It's a unique identifier that has stuck with me across all my online adventures and represents my digital identity.</p>
-        </div>
-    </div>
-    
-    <div id="collectionMobileModal" class="modal mobile-only-modal">
-        <div class="modal-content">
-            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
-            <h2 data-i18n="modal.mobile_collection.title">COLLECTION (Mobile Version)</h2>
-            <p data-i18n="modal.mobile_collection.p1">Due to performance limitations, the Collection is not embedded on mobile devices.</p>
-            <p style="text-align: center;" data-i18n="modal.mobile_collection.p2">You can access the full Collection on a new tab:</p>
-            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" style="margin: 0 auto;" data-i18n="modal.mobile_collection.button">
-                <i class="fas fa-external-link-alt"></i> Go to Collection
-            </a>
-        </div>
-    </div>
-    
-    <div id="roleChatMobileModal" class="modal mobile-only-modal">
-        <div class="modal-content">
-            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
-            <h2 data-i18n="modal.mobile_rolechat.title">ROLECHAT (Mobile Version)</h2>
-            <p data-i18n="modal.mobile_rolechat.p1">The RoleChat application is optimized for desktop and cannot be displayed in a movable window on mobile devices.</p>
-            <p style="text-align: center;" data-i18n="modal.mobile_rolechat.p2">You can access the RoleChat website directly:</p>
-            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" style="margin: 0 auto;" data-i18n="modal.mobile_rolechat.button">
-                <i class="fas fa-external-link-alt"></i> Go to RoleChat
-            </a>
-        </div>
-    </div>
-    
     <div id="languageModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
-            <h2 data-i18n="modal.language.title">LANGUAGE / LANGUE / IDIOMA</h2>
-            <div class="language-options">
-                <button onclick="switchLanguage('en-us')">
-                    <i class="fas fa-globe"></i> <span data-i18n-display="en-us">English (Default)</span>
-                </button>
-                <button onclick="switchLanguage('fr-fr')">
-                    <i class="fas fa-flag"></i> <span data-i18n-display="fr-fr">Français (France)</span>
-                </button>
-                <button onclick="switchLanguage('fr-ca')">
-                    <i class="fas fa-flag"></i> <span data-i18n-display="fr-ca">Français (Canadien Professionnel)</span>
-                </button>
-                <button onclick="switchLanguage('es-es')">
-                    <i class="fas fa-flag"></i> <span data-i18n-display="es-es">Español (España)</span>
-                </button>
-                <button onclick="switchLanguage('es-la')">
-                    <i class="fas fa-flag"></i> <span data-i18n-display="es-la">Español (América)</span>
-                </button>
+            <button class="close-btn" onclick="closeModal('languageModal')">&times;</button>
+            <h2 style="margin-bottom: 20px;">Select Language</h2>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="lang-btn" onclick="switchLanguage('en')">🇺🇸 English</button>
+                <button class="lang-btn" onclick="switchLanguage('fr')">🇫🇷 Français</button>
             </div>
-            <p style="margin-top: 1.5rem; text-align: center; font-style: italic;" data-i18n="modal.language.note">Note: This is a professional and non-binding language selection button.</p>
         </div>
     </div>
-    <div id="collectionModal" class="modal desktop-only">
-        <div class="modal-content">
-            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
-            <h2 data-i18n="modal.desktop_collection.title">MY COLLECTION</h2>
-            <iframe src="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" class="collection-iframe" title="Stormwindsky's Collection"></iframe>
-        </div>
-    </div>
-    
-    <div id="darkWebModal" class="modal desktop-only">
-        <div class="modal-content">
-            <button class="close-modal" aria-label="Close" data-i18n="modal.close">&times;</button>
-            <h2 style="color: #FF0000;" data-i18n="modal.darkweb.title">!! YOU HACKED INTO THE DARK WEB !!</h2>
-            <p style="text-align: center; font-weight: 700; color: #ff0000; font-size: 1.2rem;" data-i18n="modal.darkweb.warning1">ARE YOU SURE YOU WANT TO WATCH THIS VIDEO??</p>
-            <p style="text-align: center; font-style: italic;" data-i18n="modal.darkweb.warning2">THIS IS A LOST MEDIA VIDEO from the DEEPEST parts of the INTERNET, it is EXTREMELY cursed and LIKELY to infect your COMPUTER with a TERRIBLE virus. DO NOT proceed unless you are a certified HACKER!!</p>
-            
-            <iframe 
-                width="560" 
-                height="315" 
-                src="https://www.youtube.com/embed/A9knxzzqdnE" 
-                class="darkweb-iframe" 
-                title="YouTube video player" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowfullscreen>
-            </iframe>
-            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;" data-i18n="modal.darkweb.disclaimer">(Disclaimer: This is just a fun Halloween/Troll Easter Egg, the video is safe and the 'Dark Web' warning is fake!)</p>
-        </div>
-    </div>
-    
-    <div id="roleChatWindowModal" class="modal desktop-only" style="display: none;">
-        <div class="modal-content" id="roleChatModalContent" style="width: 600px; height: 400px; min-width: 300px; min-height: 200px; padding: 0; overflow: hidden; transform: none; opacity: 1; border-radius: 10px; position: absolute;">
-            
-            <div id="roleChatHeader" style="cursor: move; background-color: var(--nav-bg); color: var(--text-light); padding: 8px 15px; border-top-left-radius: 10px; border-top-right-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                <span style="font-weight: 600; font-size: 1rem;" data-i18n="modal.rolechat_window.title"><i class="fas fa-comments"></i> RoleChat</span>
-                <div>
-                    <button id="roleChatMaximize" style="background: none; border: none; color: var(--text-light); font-size: 1.2rem; margin-right: 10px; cursor: pointer;">
-                        <i class="far fa-window-maximize"></i>
-                    </button>
-                    <button id="roleChatClose" style="background: none; border: none; color: var(--text-light); font-size: 1.2rem; cursor: pointer;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-
-            <iframe src="https://stormwindsky.github.io/RoleChat/" class="rolechat-iframe" title="RoleChat Application" style="width: 100%; height: calc(100% - 40px); border: none; display: block;"></iframe>
-
-            <div id="roleChatResizer" style="position: absolute; width: 15px; height: 15px; right: 0; bottom: 0; cursor: nwse-resize; background-color: rgba(255, 255, 255, 0.3); border-bottom-right-radius: 10px;"></div>
-        </div>
-    </div>
-    
-    <footer>
-        <div class="social-links">
-            <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" aria-label="GitHub">
-                <i class="fab fa-github"></i>
-            </a>
-            <a href="https://www.youtube.com/@Stormwindsky" target="_blank" aria-label="YouTube">
-                <i class="fab fa-youtube"></i>
-            </a>
-        </div>
-        <p>© <span id="currentYear"></span> Stormwindsky | All Rights Reserved</p>
-        <div class="license-info">
-            Licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>
-        </div>
-        <p><a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" data-i18n="footer.github_source">View Source on GitHub</a></p>
-    </footer>
 
     <button id="language-toggle" onclick="openLanguageModal()">🌐</button>
     <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 
+    <footer>
+        <p>© <span id="currentYear"></span> Stormwindsky</p>
+    </footer>
+
     <script>
-        // --- Feature Centralized: I18N Translation System ---
-        const DEFAULT_LANG = 'en-us';
-        const LANG_STORAGE_KEY = 'stormwindsky_language';
-        
-        // Structure de données de traduction centralisée
+        // --- 1. GESTION DES TRADUCTIONS ---
         const translations = {
-            'en-us': {
-                'nav.home': 'Home',
-                'nav.about': 'About Me',
-                'nav.origin': 'Username Origin',
-                'nav.collection': 'Collection',
-                'nav.rolechat': 'RoleChat',
-                'nav.donate': 'Donate on Roblox',
-                'card.mobile.title': 'Navigation',
-                'card.links.title': 'Find Me Online',
-                'card.links.desc': 'Check out my presence across different platforms and connect with me on various social networks.',
-                'card.links.button': 'View All Links',
-                'card.aboutsite.title': 'About This Site',
-                'card.aboutsite.desc1': 'A creative playground for coding experiments and projects. This is where I share my passion for web development, gaming, and digital preservation.',
-                'card.aboutsite.desc2': 'Simple but fun - just like me! Expect to find tools, games, and various experiments here.',
-                'modal.close': 'Close',
-                'modal.language.title': 'LANGUAGE / LANGUE / IDIOMA',
-                'modal.language.note': 'Note: This is a professional and non-binding language selection button.',
-                'modal.about.title': 'ABOUT ME',
-                'modal.about.p1': 'Stormwindsky on the Internet is a history and culture enthusiast. He has a particular expertise in the history of countries, with a fascination for Switzerland and the history of Sealand.',
-                'modal.about.p2': 'In addition to his interest in history, Stormwindsky is an avid fan of independent video games, such as Undertale, Pizza Tower, and Baldi. He also has autism spectrum disorder.',
-                'modal.about.p3': 'In his spare time, Stormwindsky enjoys archiving YouTube videos with the Wayback Machine to help preserve digital heritage, which speaks to his desire to preserve media for future generations. He is also a fan of the Lost Media Wiki community.',
-                'modal.about.p4': 'With his passion for history and culture, as well as his commitment to digital heritage preservation, Stormwindsky is a unique and exciting individual. His atypical profile is an added value for any company or project that wishes to partner with him.',
-                'modal.origin.title': 'ORIGIN OF MY USERNAME',
-                'modal.origin.p1': 'The name "Stormwindsky" comes from my mom from Animal Jam and later on Roblox & Scratch, and after everywhere 😊',
-                'modal.origin.p2': 'It\'s a unique identifier that has stuck with me across all my online adventures and represents my digital identity.',
-                'modal.mobile_collection.title': 'COLLECTION (Mobile Version)',
-                'modal.mobile_collection.p1': 'Due to performance limitations, the Collection is not embedded on mobile devices.',
-                'modal.mobile_collection.p2': 'You can access the full Collection on a new tab:',
-                'modal.mobile_collection.button': 'Go to Collection',
-                'modal.mobile_rolechat.title': 'ROLECHAT (Mobile Version)',
-                'modal.mobile_rolechat.p1': 'The RoleChat application is optimized for desktop and cannot be displayed in a movable window on mobile devices.',
-                'modal.mobile_rolechat.p2': 'You can access the RoleChat website directly:',
-                'modal.mobile_rolechat.button': 'Go to RoleChat',
-                'modal.desktop_collection.title': 'MY COLLECTION',
-                'modal.darkweb.title': '!! YOU HACKED INTO THE DARK WEB !!',
-                'modal.darkweb.warning1': 'ARE YOU SURE YOU WANT TO WATCH THIS VIDEO??',
-                'modal.darkweb.warning2': 'THIS IS A LOST MEDIA VIDEO from the DEEPEST parts of the INTERNET, it is EXTREMELY cursed and LIKELY to infect your COMPUTER with a TERRIBLE virus. DO NOT proceed unless you are a certified HACKER!!',
-                'modal.darkweb.disclaimer': '(Disclaimer: This is just a fun Halloween/Troll Easter Egg, the video is safe and the \'Dark Web\' warning is fake!)',
-                'modal.rolechat_window.title': 'RoleChat',
-                'footer.github_source': 'View Source on GitHub',
+            en: {
+                "nav.home": '<i class="fas fa-home"></i> Home',
+                "nav.about": '<i class="fas fa-user"></i> About',
+                "nav.collection": '<i class="fas fa-folder"></i> Collection',
+                "nav.rolechat": '<i class="fas fa-comments"></i> RoleChat',
+                "card.links.title": "Digital Presence",
+                "card.links.desc": "Check out my presence across different platforms and connect with me.",
+                "card.links.button": "View All Links <i class='fas fa-arrow-right'></i>",
+                "card.aboutsite.title": "About This Project",
+                "card.aboutsite.desc1": "A professional playground for web experiments, focusing on digital archiving.",
+                "card.aboutsite.desc2": "Merging history preservation with modern technology.",
+                "modal.about.title": "Biography",
+                "modal.about.p1": "Stormwindsky is a history and culture enthusiast with a focus on digital preservation."
             },
-            'fr-fr': {
-                'nav.home': 'Accueil',
-                'nav.about': 'À Propos de Moi',
-                'nav.origin': 'Origine du Nom',
-                'nav.collection': 'Collection',
-                'nav.rolechat': 'RoleChat',
-                'nav.donate': 'Faire un Don sur Roblox',
-                'card.mobile.title': 'Navigation',
-                'card.links.title': 'Me Trouver en Ligne',
-                'card.links.desc': 'Découvrez ma présence sur différentes plateformes et connectez-vous avec moi sur divers réseaux sociaux.',
-                'card.links.button': 'Voir Tous les Liens',
-                'card.aboutsite.title': 'À Propos de Ce Site',
-                'card.aboutsite.desc1': 'Un terrain de jeu créatif pour des expériences et projets de codage. C\'est ici que je partage ma passion pour le développement web, le jeu, et la préservation numérique.',
-                'card.aboutsite.desc2': 'Simple mais amusant - tout comme moi ! Attendez-vous à trouver des outils, des jeux et diverses expériences ici.',
-                'modal.close': 'Fermer',
-                'modal.language.title': 'LANGUE / LANGUAGE / IDIOMA',
-                'modal.language.note': 'Note : Ceci est un bouton de sélection de langue professionnel et non-contraignant.',
-                'modal.about.title': 'À PROPOS DE MOI',
-                'modal.about.p1': 'Stormwindsky sur Internet est un passionné d\'histoire et de culture. Il possède une expertise particulière dans l\'histoire des pays, avec une fascination pour la Suisse et l\'histoire de Sealand.',
-                'modal.about.p2': 'En plus de son intérêt pour l\'histoire, Stormwindsky est un grand fan de jeux vidéo indépendants, tels qu\'Undertale, Pizza Tower et Baldi. Il est également atteint d\'un trouble du spectre de l\'autisme.',
-                'modal.about.p3': 'Pendant son temps libre, Stormwindsky aime archiver des vidéos YouTube avec la Wayback Machine pour aider à préserver le patrimoine numérique, ce qui témoigne de son désir de préserver les médias pour les générations futures. Il est également fan de la communauté Lost Media Wiki.',
-                'modal.about.p4': 'Avec sa passion pour l\'histoire et la culture, ainsi que son engagement envers la préservation du patrimoine numérique, Stormwindsky est un individu unique et passionnant. Son profil atypique est une valeur ajoutée pour toute entreprise ou projet souhaitant collaborer avec lui.',
-                'modal.origin.title': 'ORIGINE DE MON NOM D\'UTILISATEUR',
-                'modal.origin.p1': 'Le nom "Stormwindsky" vient de ma mère d\'Animal Jam, puis de Roblox & Scratch, et ensuite de partout 😊',
-                'modal.origin.p2': 'C\'est un identifiant unique qui m\'a suivi dans toutes mes aventures en ligne et représente mon identité numérique.',
-                'modal.mobile_collection.title': 'COLLECTION (Version Mobile)',
-                'modal.mobile_collection.p1': 'En raison de limitations de performance, la Collection n\'est pas intégrée sur les appareils mobiles.',
-                'modal.mobile_collection.p2': 'Vous pouvez accéder à la Collection complète dans un nouvel onglet :',
-                'modal.mobile_collection.button': 'Aller à la Collection',
-                'modal.mobile_rolechat.title': 'ROLECHAT (Version Mobile)',
-                'modal.mobile_rolechat.p1': 'L\'application RoleChat est optimisée pour le bureau et ne peut pas être affichée dans une fenêtre déplaçable sur les appareils mobiles.',
-                'modal.mobile_rolechat.p2': 'Vous pouvez accéder directement au site web RoleChat :',
-                'modal.mobile_rolechat.button': 'Aller à RoleChat',
-                'modal.desktop_collection.title': 'MA COLLECTION',
-                'modal.darkweb.title': '!! VOUS AVEZ PIRATÉ LE DARK WEB !!',
-                'modal.darkweb.warning1': 'ÊTES-VOUS SÛR DE VOULOIR REGARDER CETTE VIDÉO ??',
-                'modal.darkweb.warning2': 'Ceci est une VIDÉO DE MEDIA PERDU des recoins les plus PROFONDS d\'INTERNET, elle est EXTRÊMEMENT maudite et SUSCEPTIBLE d\'INFECTER votre ORDINATEUR avec un virus TERRIBLE. NE continuez PAS à moins d\'être un HACKER certifié !!',
-                'modal.darkweb.disclaimer': '(Avertissement : Ceci est juste un œuf de Pâques/Troll amusant d\'Halloween, la vidéo est sûre et l\'avertissement "Dark Web" est faux !)',
-                'modal.rolechat_window.title': 'RoleChat',
-                'footer.github_source': 'Voir la Source sur GitHub',
-            },
-            'fr-ca': { // Français (Canadien Professionnel)
-                'nav.home': 'Accueil',
-                'nav.about': 'À mon Sujet',
-                'nav.origin': 'Origine du Pseudonyme',
-                'nav.collection': 'Collection',
-                'nav.rolechat': 'Clavardage de Rôle',
-                'nav.donate': 'Faire un Don sur Roblox',
-                'card.mobile.title': 'Navigation',
-                'card.links.title': 'Me Trouver en Ligne',
-                'card.links.desc': 'Veuillez consulter ma présence sur diverses plateformes et me contacter via les réseaux sociaux.',
-                'card.links.button': 'Voir Tous les Liens',
-                'card.aboutsite.title': 'À Propos de Ce Site',
-                'card.aboutsite.desc1': 'Un environnement créatif pour des expériences et projets de programmation. J\'y partage mon intérêt pour le développement web, le jeu et la préservation numérique.',
-                'card.aboutsite.desc2': 'Simple, mais plaisant — à mon image ! Vous y trouverez des outils, des jeux et diverses expérimentations.',
-                'modal.close': 'Fermer',
-                'modal.language.title': 'LANGUE / LANGUAGE / IDIOMA',
-                'modal.language.note': 'Note : Il s\'agit d\'un bouton de sélection de langue professionnel et non contraignant.',
-                'modal.about.title': 'À MON SUJET',
-                'modal.about.p1': 'Stormwindsky sur Internet est un passionné d\'histoire et de culture. Il possède une expertise particulière en histoire des nations, avec une fascination pour la Suisse et l\'histoire de Sealand.',
-                'modal.about.p2': 'En plus de son intérêt pour l\'histoire, Stormwindsky est un grand amateur de jeux vidéo indépendants, tels qu\'Undertale, Pizza Tower et Baldi. Il est également atteint d\'un trouble du spectre de l\'autisme.',
-                'modal.about.p3': 'Durant ses temps libres, Stormwindsky s\'adonne à l\'archivage de vidéos YouTube avec la Wayback Machine, contribuant ainsi à la préservation du patrimoine numérique pour les générations futures. Il est aussi un membre de la communauté Lost Media Wiki.',
-                'modal.about.p4': 'Par sa passion pour l\'histoire, la culture, et son engagement envers la préservation numérique, Stormwindsky est un individu unique et prometteur. Son profil atypique représente une valeur ajoutée pour toute entreprise ou projet de partenariat.',
-                'modal.origin.title': 'ORIGINE DE MON PSEUDONYME',
-                'modal.origin.p1': 'Le nom "Stormwindsky" a été créé par ma mère pour Animal Jam, puis pour Roblox & Scratch, et désormais partout 😊',
-                'modal.origin.p2': 'C\'est un identifiant unique qui m\'a suivi dans toutes mes activités en ligne et qui représente mon identité numérique.',
-                'modal.mobile_collection.title': 'COLLECTION (Version Mobile)',
-                'modal.mobile_collection.p1': 'En raison de contraintes de performance, la Collection n\'est pas intégrée sur les appareils mobiles.',
-                'modal.mobile_collection.p2': 'Vous pouvez consulter l\'intégralité de la Collection dans un nouvel onglet :',
-                'modal.mobile_collection.button': 'Accéder à la Collection',
-                'modal.mobile_rolechat.title': 'CLAVARDAGE DE RÔLE (Version Mobile)',
-                'modal.mobile_rolechat.p1': 'L\'application de Clavardage de Rôle est optimisée pour les ordinateurs de bureau et ne peut être affichée dans une fenêtre déplaçable sur les appareils mobiles.',
-                'modal.mobile_rolechat.p2': 'Vous pouvez accéder directement au site web de Clavardage de Rôle :',
-                'modal.mobile_rolechat.button': 'Accéder au Clavardage',
-                'modal.desktop_collection.title': 'MA COLLECTION',
-                'modal.darkweb.title': '!! VOUS AVEZ PIRATÉ LE WEB SOMBRE !!',
-                'modal.darkweb.warning1': 'ÊTES-VOUS CERTAIN DE VOULOIR VISIONNER CETTE VIDÉO ??',
-                'modal.darkweb.warning2': 'Ceci est une VIDÉO MÉDIA PERDUE provenant des sections les plus PROFONDES d\'INTERNET, elle est EXTRÊMEMENT maudite et PEUT INFECTER votre ORDINATEUR d\'un virus TERRIBLE. NE continuez PAS à moins d\'être un HACKER certifié !!',
-                'modal.darkweb.disclaimer': '(Avertissement : Ceci est une blague/un Œuf de Pâques pour l\'Halloween, la vidéo est sécuritaire et l\'avertissement "Web Sombre" est fictif !)',
-                'modal.rolechat_window.title': 'Clavardage de Rôle',
-                'footer.github_source': 'Voir la Source sur GitHub',
-            },
-            'es-es': {
-                'nav.home': 'Inicio',
-                'nav.about': 'Acerca de Mí',
-                'nav.origin': 'Origen del Nombre',
-                'nav.collection': 'Colección',
-                'nav.rolechat': 'RoleChat',
-                'nav.donate': 'Donar en Roblox',
-                'card.mobile.title': 'Navegación',
-                'card.links.title': 'Encuéntrame Online',
-                'card.links.desc': 'Echa un vistazo a mi presencia en diferentes plataformas y conéctate conmigo en varias redes sociales.',
-                'card.links.button': 'Ver Todos los Enlaces',
-                'card.aboutsite.title': 'Sobre Este Sitio',
-                'card.aboutsite.desc1': 'Un campo de juego creativo para experimentos y proyectos de codificación. Aquí comparto mi pasión por el desarrollo web, los juegos y la preservación digital.',
-                'card.aboutsite.desc2': 'Simple pero divertido, ¡como yo! Espera encontrar herramientas, juegos y varios experimentos aquí.',
-                'modal.close': 'Cerrar',
-                'modal.language.title': 'IDIOMA / LANGUAGE / LANGUE',
-                'modal.language.note': 'Nota: Este es un botón de selección de idioma profesional y no vinculante.',
-                'modal.about.title': 'ACERCA DE MÍ',
-                'modal.about.p1': 'Stormwindsky en Internet es un entusiasta de la historia y la cultura. Tiene una experiencia particular en la historia de los países, con una fascinación por Suiza y la historia de Sealand.',
-                'modal.about.p2': 'Además de su interés en la historia, Stormwindsky es un ávido fanático de los videojuegos independientes, como Undertale, Pizza Tower y Baldi. También tiene trastorno del espectro autista.',
-                'modal.about.p3': 'En su tiempo libre, a Stormwindsky le gusta archivar vídeos de YouTube con la Wayback Machine para ayudar a preservar el patrimonio digital, lo que habla de su deseo de preservar los medios para las futuras generaciones. También es fanático de la comunidad Lost Media Wiki.',
-                'modal.about.p4': 'Con su pasión por la historia y la cultura, así como su compromiso con la preservación del patrimonio digital, Stormwindsky es un individuo único y emocionante. Su perfil atípico es un valor añadido para cualquier empresa o proyecto que desee asociarse con él.',
-                'modal.origin.title': 'ORIGEN DE MI NOMBRE DE USUARIO',
-                'modal.origin.p1': 'El nombre "Stormwindsky" proviene de mi madre de Animal Jam y luego de Roblox & Scratch, y después de todas partes 😊',
-                'modal.origin.p2': 'Es un identificador único que me ha acompañado en todas mis aventuras en línea y representa mi identidad digital.',
-                'modal.mobile_collection.title': 'COLECCIÓN (Versión Móvil)',
-                'modal.mobile_collection.p1': 'Debido a limitaciones de rendimiento, la Colección no está incrustada en dispositivos móviles.',
-                'modal.mobile_collection.p2': 'Puedes acceder a la Colección completa en una nueva pestaña:',
-                'modal.mobile_collection.button': 'Ir a Colección',
-                'modal.mobile_rolechat.title': 'ROLECHAT (Versión Móvil)',
-                'modal.mobile_rolechat.p1': 'La aplicación RoleChat está optimizada para escritorio y no se puede mostrar en una ventana móvil en dispositivos móviles.',
-                'modal.mobile_rolechat.p2': 'Puedes acceder directamente al sitio web de RoleChat:',
-                'modal.mobile_rolechat.button': 'Ir a RoleChat',
-                'modal.desktop_collection.title': 'MI COLECCIÓN',
-                'modal.darkweb.title': '!! ¡¡HAS HACKEADO LA WEB OSCURA!!',
-                'modal.darkweb.warning1': '¿ESTÁS SEGURO DE QUE QUIERES VER ESTE VÍDEO??',
-                'modal.darkweb.warning2': 'ESTE ES UN VÍDEO DE MEDIA PERDIDA de las partes más PROFUNDAS de INTERNET, es EXTREMADAMENTE maldito y PROBABLEMENTE infecte tu ORDENADOR con un virus TERRIBLE. ¡¡NO procedas a menos que seas un HACKER certificado!!',
-                'modal.darkweb.disclaimer': '(Descargo de responsabilidad: Esto es solo un divertido Huevo de Pascua/Troll de Halloween, el vídeo es seguro y la advertencia de \'Web Oscura\' es falsa.)',
-                'modal.rolechat_window.title': 'RoleChat',
-                'footer.github_source': 'Ver Fuente en GitHub',
-            },
-            'es-la': {
-                'nav.home': 'Inicio',
-                'nav.about': 'Acerca de Mí',
-                'nav.origin': 'Origen del Nombre',
-                'nav.collection': 'Colección',
-                'nav.rolechat': 'Chat de Rol',
-                'nav.donate': 'Donar en Roblox',
-                'card.mobile.title': 'Navegación',
-                'card.links.title': 'Encuéntrame en Línea',
-                'card.links.desc': 'Revisa mi presencia en diferentes plataformas y conéctate conmigo en varias redes sociales.',
-                'card.links.button': 'Ver Todos los Enlaces',
-                'card.aboutsite.title': 'Acerca de Este Sitio',
-                'card.aboutsite.desc1': 'Un área creativa para experimentos y proyectos de codificación. Aquí comparto mi pasión por el desarrollo web, los juegos y la preservación digital.',
-                'card.aboutsite.desc2': '¡Simple pero divertido, justo como yo! Espera encontrar herramientas, juegos y varios experimentos aquí.',
-                'modal.close': 'Cerrar',
-                'modal.language.title': 'IDIOMA / LANGUAGE / LANGUE',
-                'modal.language.note': 'Nota: Este es un botón de selección de idioma profesional y no vinculante.',
-                'modal.about.title': 'ACERCA DE MÍ',
-                'modal.about.p1': 'Stormwindsky en Internet es un entusiasta de la historia y la cultura. Tiene una experiencia particular en la historia de los países, con una fascinación por Suiza y la historia de Sealand.',
-                'modal.about.p2': 'Además de su interés en la historia, Stormwindsky es un ávido fanático de los videojuegos independientes, como Undertale, Pizza Tower y Baldi. También tiene trastorno del espectro autista.',
-                'modal.about.p3': 'En su tiempo libre, a Stormwindsky le gusta archivar vídeos de YouTube con la Wayback Machine para ayudar a preservar el patrimonio digital, lo que habla de su deseo de preservar los medios para las futuras generaciones. También es fanático de la comunidad Lost Media Wiki.',
-                'modal.about.p4': 'Con su pasión por la historia y la cultura, así como su compromiso con la preservación del patrimonio digital, Stormwindsky es un individuo único y emocionante. Su perfil atípico es un valor añadido para cualquier empresa o proyecto que desee asociarse con él.',
-                'modal.origin.title': 'ORIGEN DE MI NOMBRE DE USUARIO',
-                'modal.origin.p1': 'El nombre "Stormwindsky" proviene de mi mamá de Animal Jam y luego de Roblox & Scratch, y después de todas partes 😊',
-                'modal.origin.p2': 'Es un identificador único que me ha acompañado en todas mis aventuras en línea y representa mi identidad digital.',
-                'modal.mobile_collection.title': 'COLECCIÓN (Versión Móvil)',
-                'modal.mobile_collection.p1': 'Debido a limitaciones de rendimiento, la Colección no está incrustada en dispositivos móviles.',
-                'modal.mobile_collection.p2': 'Puedes acceder a la Colección completa en una nueva pestaña:',
-                'modal.mobile_collection.button': 'Ir a Colección',
-                'modal.mobile_rolechat.title': 'CHAT DE ROL (Versión Móvil)',
-                'modal.mobile_rolechat.p1': 'La aplicación Chat de Rol está optimizada para escritorio y no se puede mostrar en una ventana móvil en dispositivos móviles.',
-                'modal.mobile_rolechat.p2': 'Puedes acceder directamente al sitio web de Chat de Rol:',
-                'modal.mobile_rolechat.button': 'Ir a Chat de Rol',
-                'modal.desktop_collection.title': 'MI COLECCIÓN',
-                'modal.darkweb.title': '!! ¡¡HAS HACKEADO LA WEB OSCURA!!',
-                'modal.darkweb.warning1': '¿ESTÁS SEGURO DE QUE QUIERES VER ESTE VÍDEO??',
-                'modal.darkweb.warning2': 'ESTE ES UN VÍDEO DE MEDIA PERDIDA de las partes más PROFUNDAS de INTERNET, es EXTREMADAMENTE maldito y PROBABLEMENTE infecte tu ORDENADOR con un virus TERRIBLE. ¡¡NO procedas a menos que seas un HACKER certificado!!',
-                'modal.darkweb.disclaimer': '(Descargo de responsabilidad: Esto es solo un divertido Huevo de Pascua/Troll de Halloween, el vídeo es seguro y la advertencia de \'Web Oscura\' es falsa.)',
-                'modal.rolechat_window.title': 'Chat de Rol',
-                'footer.github_source': 'Ver Fuente en GitHub',
+            fr: {
+                "nav.home": '<i class="fas fa-home"></i> Accueil',
+                "nav.about": '<i class="fas fa-user"></i> À Propos',
+                "nav.collection": '<i class="fas fa-folder"></i> Collection',
+                "nav.rolechat": '<i class="fas fa-comments"></i> RoleChat',
+                "card.links.title": "Présence Numérique",
+                "card.links.desc": "Découvrez mes activités sur différentes plateformes et contactez-moi.",
+                "card.links.button": "Voir tous les liens <i class='fas fa-arrow-right'></i>",
+                "card.aboutsite.title": "À Propos du Projet",
+                "card.aboutsite.desc1": "Un espace d'expérimentation web dédié à l'archivage numérique.",
+                "card.aboutsite.desc2": "Allier la préservation de l'histoire aux technologies modernes.",
+                "modal.about.title": "Biographie",
+                "modal.about.p1": "Stormwindsky est un passionné d'histoire et de culture, expert en préservation numérique."
             }
         };
 
-        function switchLanguage(langCode) {
-            // 1. Sauvegarder la préférence de langue
-            localStorage.setItem(LANG_STORAGE_KEY, langCode);
-
-            // 2. Mettre à jour la balise <html>
-            document.body.lang = langCode;
-
-            // 3. Traduire le contenu
-            translateContent(langCode);
-
-            // 4. Mettre à jour le bouton actif dans la modale
-            updateLanguageButtons(langCode);
-
-            // 5. Fermer la modale
-            closeModal(document.getElementById('languageModal'));
-        }
-
-        function translateContent(langCode) {
-            const currentTranslations = translations[langCode] || translations[DEFAULT_LANG];
-
-            // Traduire tous les éléments marqués avec data-i18n
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (currentTranslations[key]) {
-                    element.textContent = currentTranslations[key];
-                }
+        function switchLanguage(lang) {
+            localStorage.setItem('preferredLang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.innerHTML = translations[lang][key];
             });
-
-            // Traduire le titre (spécial)
-            document.title = (currentTranslations['nav.rolechat'] && currentTranslations['nav.about']) 
-                ? `Stormwindsky | ${currentTranslations['nav.about']}` 
-                : 'Stormwindsky | Creative Portfolio';
+            closeModal('languageModal');
         }
 
-        function loadLanguagePreference() {
-            const savedLang = localStorage.getItem(LANG_STORAGE_KEY) || DEFAULT_LANG;
-            
-            // Appliquer la langue par défaut ou sauvegardée au chargement
-            document.body.lang = savedLang;
-            translateContent(savedLang);
-            updateLanguageButtons(savedLang);
-        }
-        
-        function updateLanguageButtons(activeLangCode) {
-            document.querySelectorAll('#languageModal .language-options button').forEach(btn => {
-                const buttonLangCode = btn.onclick.toString().match(/'([^']+)'/)[1];
-                btn.classList.remove('active');
-                if(buttonLangCode === activeLangCode) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-        
-        // --- Fin Feature Centralized: I18N Translation System ---
-
-        // Check if the current environment should load the lightweight version (Mobile detection)
-        function isLightweightVersion() {
-            // Consider lightweight if window width is <= 768px
-            return window.innerWidth <= 768;
-        }
-
-        // Theme toggle function
+        // --- 2. GESTION DU THÈME ---
         function toggleTheme() {
-            const body = document.body;
-            const themeToggle = document.querySelector('.theme-toggle');
-            if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                // Re-check for Halloween theme when switching to light mode
-                if (isOctober()) {
-                    themeToggle.textContent = '🎃'; 
-                } else {
-                    themeToggle.textContent = '🌙';
-                }
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
-                localStorage.setItem('theme', 'dark');
-            }
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
         }
 
-        // Check if it's October (Month is 0-indexed, so 9 is October)
-        function isOctober() {
-            const now = new Date();
-            return now.getMonth() === 9;
+        function updateThemeIcon(isDark) {
+            document.querySelector('.theme-toggle').innerHTML = isDark ? '☀️' : '🌙';
         }
 
-        // Apply Halloween theme if it's October
-        function applyHalloweenTheme() {
-            if (isOctober()) {
-                document.body.classList.add('halloween-theme');
-                const headerEmoji = document.getElementById('halloween-emoji-header');
-                headerEmoji.textContent = '🎃';
-                document.querySelector('.theme-toggle').textContent = '🎃'; // Pumpkin icon for October
-                createGhostParticles();
-            }
-        }
+        // --- 3. MODALS ---
+        function openLanguageModal() { document.getElementById('languageModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        document.getElementById('aboutLink').onclick = (e) => { e.preventDefault(); document.getElementById('aboutModal').style.display = 'flex'; };
 
-        // Load saved theme
-        function loadTheme() {
+        // --- 4. INITIALISATION (Check Mémoire) ---
+        window.onload = () => {
+            // Charger la langue (Anglais par défaut)
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            switchLanguage(savedLang);
+
+            // Charger le thème
             const savedTheme = localStorage.getItem('theme');
-            const body = document.body;
-            const themeToggle = document.querySelector('.theme-toggle');
-            
             if (savedTheme === 'dark') {
-                body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
-            } else {
-                body.classList.remove('dark-mode');
-                // Check for October theme when loading light mode
-                if (isOctober()) {
-                    themeToggle.textContent = '🎃';
-                } else {
-                    themeToggle.textContent = '🌙';
-                }
-            }
-        }
-
-        // Set current year in footer
-        function setCurrentYear() {
-            const yearElement = document.getElementById('currentYear');
-            const currentYear = new Date().getFullYear();
-            yearElement.textContent = currentYear;
-        }
-
-        // Create floating particles (Original)
-        function createParticles() {
-            const bgElements = document.querySelector('.bg-elements');
-            const colors = ['#4361ee', '#4895ef', '#f72585', '#7209b7', '#4cc9f0'];
-            
-            for (let i = 0; i < 5; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('bg-element');
-                
-                const size = Math.random() * 100 + 50;
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                const delay = Math.random() * 5;
-                const duration = Math.random() * 10 + 10;
-                
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.top = `${posY}%`;
-                particle.style.left = `${posX}%`;
-                particle.style.background = color;
-                particle.style.animation = `floatParticle ${duration}s infinite ${delay}s`;
-                particle.style.opacity = '0.1';
-                
-                bgElements.appendChild(particle);
-            }
-        }
-        
-        // Create Ghostly floating particles (Halloween)
-        function createGhostParticles() {
-            const bgElements = document.querySelector('.bg-elements');
-            const ghosts = ['👻', '🦇', '🕷️', '🕸️']; 
-            
-            for (let i = 0; i < 7; i++) {
-                const ghost = document.createElement('div');
-                ghost.classList.add('ghost-element');
-                
-                const emoji = ghosts[Math.floor(Math.random() * ghosts.length)];
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const delay = Math.random() * 10;
-                const duration = Math.random() * 15 + 15;
-                const size = Math.random() * 1.5 + 1;
-                
-                ghost.textContent = emoji;
-                ghost.style.top = `${posY}%`;
-                ghost.style.left = `${posX}%`;
-                ghost.style.fontSize = `${size}rem`;
-                ghost.style.animation = `floatGhost ${duration}s infinite ease-in-out ${delay}s`;
-                
-                bgElements.appendChild(ghost);
-            }
-        }
-        
-        // --- Language Modal Functions ---
-        
-        function openLanguageModal() {
-            const modal = document.getElementById('languageModal');
-            if (modal) {
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
-        }
-        
-        // La fonction switchLanguage est maintenant définie plus haut.
-        
-        // --- End Language Modal Functions ---
-
-
-        // Modal functionality for both versions
-        function setupModals() {
-            // Standard Modals (Always present)
-            const aboutModal = document.getElementById('aboutModal');
-            const originModal = document.getElementById('originModal');
-            // NEW MODAL
-            const languageModal = document.getElementById('languageModal');
-
-            // Desktop Modals (Removed on mobile)
-            const collectionModalDesktop = document.getElementById('collectionModal');
-            const darkWebModal = document.getElementById('darkWebModal');
-            const roleChatWindowModalDesktop = document.getElementById('roleChatWindowModal');
-
-            // Mobile Modals (Always present, but hidden on desktop)
-            const collectionModalMobile = document.getElementById('collectionMobileModal');
-            const roleChatModalMobile = document.getElementById('roleChatMobileModal');
-
-
-            // Desktop Buttons (for Desktop version)
-            const aboutBtnDesktop = document.getElementById('aboutLink');
-            const originBtnDesktop = document.getElementById('originLink');
-            const collectionBtnDesktop = document.getElementById('collectionLink');
-            const roleChatBtnDesktop = document.getElementById('roleChatLink');
-            
-            // Mobile Buttons (for Mobile version)
-            const mobileAboutBtn = document.getElementById('mobileAboutBtn');
-            const mobileOriginBtn = document.getElementById('mobileOriginBtn');
-            const mobileCollectionBtn = document.getElementById('mobileCollectionBtn');
-            const mobileRoleChatBtn = document.getElementById('mobileRoleChatBtn');
-            
-            // Close buttons (common class)
-            const closeButtons = document.querySelectorAll('.close-modal');
-            
-            // Function to open a modal
-            function openModal(modal) {
-                if (modal) {
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                }
-            }
-            
-            // Function to close a modal
-            function closeModal(modal) {
-                if (modal) {
-                    modal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }
-            }
-            
-            // Close Modals: One listener to close all (safe approach when only one is open)
-            closeButtons.forEach(button => {
-                button.onclick = function() {
-                    // Close all possible modals
-                    closeModal(aboutModal);
-                    closeModal(originModal);
-                    closeModal(collectionModalDesktop);
-                    closeModal(darkWebModal);
-                    closeModal(roleChatWindowModalDesktop);
-                    closeModal(collectionModalMobile);
-                    closeModal(roleChatModalMobile);
-                    closeModal(languageModal); // Close new language modal
-                }
-            });
-
-            // Close when clicking outside modal
-            window.onclick = function(event) {
-                if (event.target == aboutModal) closeModal(aboutModal);
-                if (event.target == originModal) closeModal(originModal);
-                if (event.target == languageModal) closeModal(languageModal); // Close new language modal
-                if (event.target == collectionModalDesktop) closeModal(collectionModalDesktop);
-                if (event.target == darkWebModal) closeModal(darkWebModal);
-                if (event.target == collectionModalMobile) closeModal(collectionModalMobile);
-                if (event.target == roleChatModalMobile) closeModal(roleChatModalMobile);
-                // RoleChat Desktop Window is managed by the drag/resize logic and should not close on outside click.
-            }
-            
-            if (!isLightweightVersion()) {
-                // DESKTOP VERSION LOGIC
-                
-                // Navigation Links (open iframes/window)
-                aboutBtnDesktop.onclick = () => openModal(aboutModal);
-                originBtnDesktop.onclick = () => openModal(originModal);
-                
-                // Prevent default href for iframes/windows and open modals instead
-                collectionBtnDesktop.onclick = (e) => { 
-                    e.preventDefault(); 
-                    openModal(collectionModalDesktop);
-                };
-                roleChatBtnDesktop.onclick = (e) => { 
-                    e.preventDefault(); 
-                    openModal(roleChatWindowModalDesktop);
-                };
-
-                // Easter Egg Logic (Key Sequence 666) - DESKTOP ONLY
-                const konamiCode = '666';
-                let keySequence = '';
-
-                document.addEventListener('keydown', (e) => {
-                    const key = e.key;
-                    if (key >= '0' && key <= '9') {
-                        keySequence += key;
-                        if (keySequence.length > 3) {
-                            keySequence = keySequence.slice(-3);
-                        }
-                        if (keySequence === konamiCode) {
-                            keySequence = ''; 
-                            openModal(darkWebModal);
-                        }
-                    } else {
-                        keySequence = '';
-                    }
-                });
-                
-            } else {
-                // MOBILE LIGHTWEIGHT VERSION LOGIC
-                
-                // Card Buttons (open simple popups)
-                if (mobileAboutBtn) mobileAboutBtn.onclick = () => openModal(aboutModal);
-                if (mobileOriginBtn) mobileOriginBtn.onclick = () => openModal(originModal);
-                if (mobileCollectionBtn) mobileCollectionBtn.onclick = () => openModal(collectionModalMobile);
-                if (mobileRoleChatBtn) mobileRoleChatBtn.onclick = () => openModal(roleChatModalMobile);
-                
-                // Remove desktop-specific elements
-                document.querySelectorAll('.desktop-only').forEach(el => {
-                    el.remove();
-                });
-                
-                // Show mobile-specific card
-                const mobileLinksCard = document.getElementById('mobileLinksCard');
-                if (mobileLinksCard) mobileLinksCard.style.display = 'block';
-
-                // Remove mobile-only-modal class elements too (optional, but ensures only specific modals are used)
-                document.querySelectorAll('.mobile-only-modal').forEach(el => {
-                    // We only remove the classes used for the Desktop links, as the modals themselves are needed.
-                    // Instead of removing, we just make sure they are included in the DOM for mobile.
-                    el.classList.remove('mobile-only-modal'); // Keep the modals, but ensure they are not hidden by desktop-only styles if any.
-                });
-            }
-        }
-        
-        // Window Modal Logic (Draggable, Resizable, Maximizable) - DESKTOP ONLY
-        function setupWindowModal(modalId, headerId, resizerId, closeBtnId, maximizeBtnId) {
-            if (isLightweightVersion()) return; // Skip setup in lightweight mode
-            
-            const modal = document.getElementById(modalId);
-            const content = document.getElementById(modalId.replace('WindowModal', 'ModalContent'));
-            const header = document.getElementById(headerId);
-            const resizer = document.getElementById(resizerId);
-            const closeBtn = document.getElementById(closeBtnId);
-            const maximizeBtn = document.getElementById(maximizeBtnId);
-
-            let isDragging = false;
-            let isResizing = false;
-            let initialX, initialY, xOffset = 0, yOffset = 0;
-            let initialWidth, initialHeight;
-            let isMaximized = false;
-            // Set initial position and size
-            let storedPosition = { 
-                top: '50%', 
-                left: '50%', 
-                width: content.style.width || '600px', 
-                height: content.style.height || '400px' 
-            };
-
-            // Set initial position and size for the window
-            content.style.position = 'absolute';
-            content.style.left = storedPosition.left;
-            content.style.top = storedPosition.top;
-            content.style.width = storedPosition.width;
-            content.style.height = storedPosition.height;
-            content.style.transform = 'translate(-50%, -50%)'; // Center it initially
-
-            // DRAGGING
-            header.addEventListener('mousedown', dragStart);
-            document.addEventListener('mouseup', dragEnd);
-            document.addEventListener('mousemove', drag);
-
-            function dragStart(e) {
-                if (isMaximized) return; // Prevent dragging when maximized
-                
-                initialX = e.clientX;
-                initialY = e.clientY;
-
-                if (e.target === header || header.contains(e.target)) {
-                    // Calculate offsets based on current position relative to top/left (not transformed)
-                    const rect = content.getBoundingClientRect();
-                    xOffset = e.clientX - rect.left;
-                    yOffset = e.clientY - rect.top;
-                    
-                    isDragging = true;
-                    content.style.transition = 'none'; // Disable transition during drag
-                    content.style.transform = 'none'; // Remove centering transform for absolute positioning
-                    content.style.zIndex = 2001; // Bring to front
-                }
+                document.body.classList.add('dark-mode');
+                updateThemeIcon(true);
             }
 
-            function drag(e) {
-                if (isDragging) {
-                    e.preventDefault();
-                    
-                    content.style.left = (e.clientX - xOffset) + 'px';
-                    content.style.top = (e.clientY - yOffset) + 'px';
-                }
-            }
+            // Année
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        };
 
-            function dragEnd() {
-                isDragging = false;
-                content.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'; // Re-enable transition
-                
-                // Store the final position (important for maximize/restore)
-                storedPosition.left = content.style.left;
-                storedPosition.top = content.style.top;
-                content.style.zIndex = ''; // Reset z-index
-            }
-
-            // RESIZING
-            resizer.addEventListener('mousedown', resizeStart);
-            document.addEventListener('mousemove', resize);
-            document.addEventListener('mouseup', resizeEnd);
-
-            function resizeStart(e) {
-                if (isMaximized) return; // Prevent resizing when maximized
-
-                isResizing = true;
-                initialX = e.clientX;
-                initialY = e.clientY;
-                initialWidth = content.offsetWidth;
-                initialHeight = content.offsetHeight;
-                content.style.transition = 'none'; // Disable transition during resize
-                content.style.zIndex = 2001; // Bring to front
-            }
-
-            function resize(e) {
-                if (!isResizing) return;
-                
-                const dx = e.clientX - initialX;
-                const dy = e.clientY - initialY;
-                
-                // Calculate new width and height, respecting min values
-                const newWidth = Math.max(initialWidth + dx, 300); // 300px min-width
-                const newHeight = Math.max(initialHeight + dy, 200); // 200px min-height
-
-                content.style.width = newWidth + 'px';
-                content.style.height = newHeight + 'px';
-            }
-
-            function resizeEnd() {
-                isResizing = false;
-                content.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'; // Re-enable transition
-                
-                // Store the final size
-                storedPosition.width = content.style.width;
-                storedPosition.height = content.style.height;
-                content.style.zIndex = ''; // Reset z-index
-            }
-            
-            // MAXIMIZE / RESTORE
-            maximizeBtn.onclick = function() {
-                if (isMaximized) {
-                    // Restore
-                    content.style.width = storedPosition.width;
-                    content.style.height = storedPosition.height;
-                    content.style.left = storedPosition.left;
-                    content.style.top = storedPosition.top;
-                    content.style.transform = 'none';
-                    maximizeBtn.innerHTML = '<i class="far fa-window-maximize"></i>';
-                    resizer.style.display = 'block';
-                } else {
-                    // Maximize: Save current position/size before maximizing
-                    if (content.style.transform === 'none') {
-                        storedPosition.left = content.style.left;
-                        storedPosition.top = content.style.top;
-                    } else {
-                        storedPosition.left = '50%'; 
-                        storedPosition.top = '50%';
-                    }
-                    storedPosition.width = content.style.width;
-                    storedPosition.height = content.style.height;
-
-                    // Apply maximized state
-                    content.style.width = '100vw';
-                    content.style.height = '100vh';
-                    content.style.left = '0';
-                    content.style.top = '0';
-                    content.style.transform = 'none';
-                    maximizeBtn.innerHTML = '<i class="far fa-window-restore"></i>';
-                    resizer.style.display = 'none';
-                }
-                isMaximized = !isMaximized;
-            }
-            
-            // CLOSE
-            closeBtn.onclick = () => {
-                if (isMaximized) {
-                    isMaximized = false;
-                    content.style.width = storedPosition.width;
-                    content.style.height = storedPosition.height;
-                    
-                    if (storedPosition.left === '50%' && storedPosition.top === '50%') {
-                        content.style.left = '50%';
-                        content.style.top = '50%';
-                        content.style.transform = 'translate(-50%, -50%)'; 
-                    } else {
-                        content.style.left = storedPosition.left;
-                        content.style.top = storedPosition.top;
-                        content.style.transform = 'none';
-                    }
-                    
-                    maximizeBtn.innerHTML = '<i class="far fa-window-maximize"></i>';
-                    resizer.style.display = 'block';
-                }
-                // Close the modal using the local close function
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', () => {
-            // 1. REMOVE NAV IF MOBILE
-            if (isLightweightVersion()) {
-                const navElement = document.getElementById('mainNav');
-                if (navElement) {
-                    navElement.remove();
-                }
-            }
-            
-            // 2. General Initialization
-            applyHalloweenTheme(); 
-            loadTheme();
-            setCurrentYear();
-            createParticles();
-            
-            // 3. Setup Modals (handles both versions)
-            setupModals();
-            loadLanguagePreference(); // CHARGEMENT DE LA LANGUE SAUVEGARDÉE
-            
-            // 4. Setup RoleChat Window (Desktop Only)
-            if (!isLightweightVersion()) {
-                setupWindowModal('roleChatWindowModal', 'roleChatHeader', 'roleChatResizer', 'roleChatClose', 'roleChatMaximize');
-            }
-        });
+        // Fermer les modals si on clique à côté
+        window.onclick = (e) => { if (e.target.className === 'modal') e.target.style.display = 'none'; };
     </script>
 </body>
 </html>
