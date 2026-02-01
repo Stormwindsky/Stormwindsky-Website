@@ -30,34 +30,35 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--light-bg); color: var(--text-dark); transition: var(--transition); line-height: 1.7; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--light-bg); color: var(--text-dark); transition: var(--transition); line-height: 1.7; overflow-x: hidden; }
 
-        /* Header & Nav */
         header { min-height: 35vh; background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
+        header h1 { font-family: 'Poppins', sans-serif; font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 700; letter-spacing: -1.5px; }
+
         nav { position: sticky; top: 20px; z-index: 1000; width: 100%; display: flex; justify-content: center; margin-top: -30px; }
         .nav-container { display: flex; gap: 8px; background: var(--glass); backdrop-filter: blur(15px); padding: 10px; border-radius: 50px; border: 1px solid var(--glass-border); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         nav a { text-decoration: none; color: inherit; font-weight: 500; padding: 10px 18px; border-radius: 30px; font-size: 0.9rem; transition: var(--transition); cursor: pointer; }
         nav a:hover { background: var(--primary); color: white; }
 
-        /* Content */
         .content { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
         .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
         .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 24px; padding: 2.5rem; border: 1px solid var(--glass-border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: var(--transition); }
         .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .card h2 { color: var(--primary); margin-bottom: 1rem; font-family: 'Poppins'; }
 
-        /* Buttons & Widgets */
         .card a, .card button, .lang-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: var(--primary); color: white; border-radius: 12px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); }
+        
         .theme-toggle, #language-toggle { position: fixed; right: 25px; width: 55px; height: 55px; border-radius: 16px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.15); z-index: 1001; transition: var(--transition); }
         .theme-toggle { bottom: 25px; background: #1e293b; color: white; }
         #language-toggle { bottom: 95px; background: white; color: #1e293b; }
 
-        /* Modal */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
         .modal-content { background: var(--card-bg); padding: 3rem; border-radius: 30px; max-width: 500px; width: 90%; position: relative; text-align: center; }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; background: none; border: none; color: inherit; }
         
-        footer { text-align: center; padding: 4rem 20px; opacity: 0.7; }
+        footer { text-align: center; padding: 4rem 20px; opacity: 0.8; font-size: 0.9rem; }
+        .license-link { color: var(--primary); text-decoration: none; font-weight: 600; transition: var(--transition); }
+        .license-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -104,7 +105,7 @@
     <div id="languageModal" class="modal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeModal('languageModal')">&times;</button>
-            <h2 style="margin-bottom: 20px;">Select Language</h2>
+            <h2 style="margin-bottom: 20px;">Select Language / Choisir la langue</h2>
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 <button class="lang-btn" onclick="switchLanguage('en')">🇺🇸 English</button>
                 <button class="lang-btn" onclick="switchLanguage('fr')">🇫🇷 Français</button>
@@ -117,6 +118,10 @@
 
     <footer>
         <p>© <span id="currentYear"></span> Stormwindsky</p>
+        <p style="margin-top: 10px;">
+            Licensed under 
+            <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" class="license-link">MIT License</a>
+        </p>
     </footer>
 
     <script>
@@ -177,24 +182,24 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         document.getElementById('aboutLink').onclick = (e) => { e.preventDefault(); document.getElementById('aboutModal').style.display = 'flex'; };
 
-        // --- 4. INITIALISATION (Check Mémoire) ---
+        // --- 4. INITIALISATION (Persistence) ---
         window.onload = () => {
-            // Charger la langue (Anglais par défaut)
+            // Charger la langue (Anglais par défaut si rien n'est sauvé)
             const savedLang = localStorage.getItem('preferredLang') || 'en';
             switchLanguage(savedLang);
 
-            // Charger le thème
+            // Charger le thème (Mémoire)
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
                 updateThemeIcon(true);
             }
 
-            // Année
+            // Année dynamique
             document.getElementById('currentYear').textContent = new Date().getFullYear();
         };
 
-        // Fermer les modals si on clique à côté
+        // Fermer les modals si clic extérieur
         window.onclick = (e) => { if (e.target.className === 'modal') e.target.style.display = 'none'; };
     </script>
 </body>
