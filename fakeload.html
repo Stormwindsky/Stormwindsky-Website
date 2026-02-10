@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>...</title>
+    <style>
+        :root {
+            --n1: #dcdcdc; /* Base neutre */
+            --n2: #808080; /* Accent neutre */
+            --n3: #4a4a4a; /* Texte/Icone */
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--n1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+            overflow: hidden;
+        }
+
+        #loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: opacity 0.6s ease-out;
+        }
+
+        /* Forme universelle sans texte */
+        .ring {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--n2);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: rot 0.8s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        #pct {
+            color: var(--n3);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @keyframes rot {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Transition finale */
+        .done #loader {
+            opacity: 0;
+        }
+
+        .success-icon {
+            position: absolute;
+            font-size: 3rem;
+            color: var(--n3);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .done .success-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="ring"></div>
+        <div id="pct">0%</div>
+    </div>
+
+    <div class="success-icon">➔</div>
+
+    <script>
+        const target = "https://www.stormwindsky.com/Stormwindsky's%20Collection.html";
+        const pct = document.getElementById('pct');
+        let val = 0;
+
+        const update = () => {
+            val += Math.floor(Math.random() * 12) + 1;
+            if (val >= 100) {
+                val = 100;
+                pct.innerText = "100%";
+                document.body.classList.add('done');
+                setTimeout(() => {
+                    window.location.href = target;
+                }, 800);
+            } else {
+                pct.innerText = val + "%";
+                setTimeout(update, 50 + Math.random() * 100);
+            }
+        };
+
+        window.onload = update;
+    </script>
+</body>
+</html>
