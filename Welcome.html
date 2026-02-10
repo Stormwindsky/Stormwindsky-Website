@@ -1,206 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" href="images/favicon.ico">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stormwindsky | Portfolio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <title>Stormwindsky | Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --dark-bg: #0f172a;
-            --light-bg: #f8fafc;
-            --text-dark: #1e293b;
-            --text-light: #f1f5f9;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            --glass: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --blue-main: #007aff;
+            --blue-light: #5db0ff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
         }
 
-        body.dark-mode {
-            background-color: var(--dark-bg);
-            color: var(--text-light);
-            --card-bg: rgba(30, 41, 59, 0.8);
-            --glass: rgba(15, 23, 42, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.05);
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--light-bg); color: var(--text-dark); transition: var(--transition); line-height: 1.7; overflow-x: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        header { min-height: 35vh; background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
-        header h1 { font-family: 'Poppins', sans-serif; font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 700; letter-spacing: -1.5px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
 
-        nav { position: sticky; top: 20px; z-index: 1000; width: 100%; display: flex; justify-content: center; margin-top: -30px; }
-        .nav-container { display: flex; gap: 8px; background: var(--glass); backdrop-filter: blur(15px); padding: 10px; border-radius: 50px; border: 1px solid var(--glass-border); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        nav a { text-decoration: none; color: inherit; font-weight: 500; padding: 10px 18px; border-radius: 30px; font-size: 0.9rem; transition: var(--transition); cursor: pointer; }
-        nav a:hover { background: var(--primary); color: white; }
+        .controls {
+            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
+        }
 
-        .content { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
-        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
-        .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 24px; padding: 2.5rem; border: 1px solid var(--glass-border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: var(--transition); }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .card h2 { color: var(--primary); margin-bottom: 1rem; font-family: 'Poppins'; }
+        select, .theme-toggle {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+        }
 
-        .card a, .card button, .lang-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: var(--primary); color: white; border-radius: 12px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); }
-        
-        .theme-toggle, #language-toggle { position: fixed; right: 25px; width: 55px; height: 55px; border-radius: 16px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.15); z-index: 1001; transition: var(--transition); }
-        .theme-toggle { bottom: 25px; background: #1e293b; color: white; }
-        #language-toggle { bottom: 95px; background: white; color: #1e293b; }
+        .bento-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+            max-width: 1100px; width: 100%;
+        }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); padding: 3rem; border-radius: 30px; max-width: 500px; width: 90%; position: relative; text-align: center; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; background: none; border: none; color: inherit; }
-        
-        footer { text-align: center; padding: 4rem 20px; opacity: 0.8; font-size: 0.9rem; }
-        .license-link { color: var(--primary); text-decoration: none; font-weight: 600; transition: var(--transition); }
-        .license-link:hover { text-decoration: underline; }
+        .card {
+            border-radius: 35px; padding: 30px; display: flex; flex-direction: column;
+            justify-content: space-between; text-decoration: none; color: inherit;
+            border: 1px solid transparent;
+        }
+
+        /* ANIMATION AU SURVOL */
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: var(--blue-main);
+        }
+
+        .white { background: var(--card-white); }
+        .dark-card { background: var(--card-dark); color: #fff; }
+        .blue { background: var(--blue-main); color: #fff; }
+        .sky { background: var(--blue-light); color: #fff; }
+
+        .col-2 { grid-column: span 2; }
+        .row-2 { grid-row: span 2; }
+
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; }
+        h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        p { font-size: 0.95rem; line-height: 1.5; opacity: 0.9; }
+
+        .tag {
+            background: rgba(255,255,255,0.2); padding: 5px 12px;
+            border-radius: 10px; font-size: 0.75rem; display: inline-block; margin-bottom: 15px;
+        }
+
+        .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            padding: 10px 20px; border-radius: 12px; text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; background: var(--blue-main); color: white;
+        }
+
+        .link-item {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+            text-decoration: none; color: inherit; font-weight: 500;
+        }
+
+        footer { grid-column: span 4; text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-dim); }
+
+        @media (max-width: 850px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .col-2, footer { grid-column: span 2; }
+        }
+        @media (max-width: 550px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .col-2, .row-2, footer { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1 id="title-main">Stormwindsky</h1>
-        <p id="subtitle">Innovation & Creative Preservation</p>
-    </header>
 
-    <nav id="mainNav">
-        <div class="nav-container">
-            <a href="#" data-i18n="nav.home"><i class="fas fa-home"></i> Home</a>
-            <a id="aboutLink" data-i18n="nav.about"><i class="fas fa-user"></i> About</a>
-            <a href="https://www.stormwindsky.com/Stormwindsky's%20Collection.html" target="_blank" data-i18n="nav.collection"><i class="fas fa-folder"></i> Collection</a>
-            <a href="https://stormwindsky.github.io/RoleChat/" target="_blank" data-i18n="nav.rolechat"><i class="fas fa-comments"></i> RoleChat</a>
-        </div>
-    </nav>
-
-    <div class="content">
-        <div class="card-container">
-            <div class="card">
-                <h2 data-i18n="card.links.title">Digital Presence</h2>
-                <p data-i18n="card.links.desc">Check out my presence across different platforms and connect with me.</p>
-                <a href="https://stormwindsky.github.io/Stormwindsky-Website/Tools/OpenLinker/OpenLinker.html?links=..." target="_blank" data-i18n="card.links.button">
-                    View All Links <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-            
-            <div class="card">
-                <h2 data-i18n="card.aboutsite.title">About This Project</h2>
-                <p data-i18n="card.aboutsite.desc1">A professional playground for web experiments, focusing on digital archiving and UI development.</p>
-                <p data-i18n="card.aboutsite.desc2">Merging history preservation with modern technology.</p>
-            </div>
-        </div>
+    <div class="controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
     </div>
 
-    <div id="aboutModal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal('aboutModal')">&times;</button>
-            <h2 data-i18n="modal.about.title">Biography</h2>
-            <p data-i18n="modal.about.p1">Stormwindsky is a history and culture enthusiast with a focus on digital preservation.</p>
-        </div>
-    </div>
-
-    <div id="languageModal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal('languageModal')">&times;</button>
-            <h2 style="margin-bottom: 20px;">Select Language / Choisir la langue</h2>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <button class="lang-btn" onclick="switchLanguage('en')">🇺🇸 English</button>
-                <button class="lang-btn" onclick="switchLanguage('fr')">🇫🇷 Français</button>
+    <div class="bento-grid">
+        <div class="card dark-card col-2">
+            <div>
+                <h1 id="txt-title">Stormwindsky</h1>
+                <span class="tag" id="txt-tag">Available for Projects</span>
+                <p id="txt-bio">Digital archivist and creator interested in history and indie gaming.</p>
+            </div>
+            <div class="btn-container">
+                <a href="#" class="btn" id="btn-profile">View Profile</a>
+                <a href="https://www.roblox.com/users/191125650/profile" class="btn" style="background:rgba(255,255,255,0.1)">Roblox</a>
             </div>
         </div>
+
+        <div class="card blue col-2">
+            <h2 id="txt-pres-title">Digital Preservation</h2>
+            <p id="txt-pres-desc">Active contributor to the Wayback Machine and the Lost Media Wiki community.</p>
+        </div>
+
+        <div class="card blue row-2">
+            <h2 id="txt-social-title">Find Me Online</h2>
+            <div style="margin-top: 20px;">
+                <a href="https://bsky.app/profile/Stormwindsky.mastodon.social.ap.brid.gy" class="link-item">🦋 Bluesky</a>
+                <a href="https://mastodon.social/@Stormwindsky" class="link-item">🐘 Mastodon</a>
+                <a href="https://gamejolt.com/@Stormwindsky" class="link-item">⚡ Gamejolt</a>
+                <a href="https://www.roblox.com/users/191125650/profile" class="link-item">🎮 Roblox</a>
+                <a href="https://archive.org/details/@stormwindsky" class="link-item">📦 Wayback Machine</a>
+            </div>
+        </div>
+
+        <div class="card white">
+            <h2 id="txt-name-title">The Name</h2>
+            <p id="txt-name-desc">Originating from Animal Jam via my mom, it became my unique identity.</p>
+        </div>
+
+        <a href="https://www.stormwindsky.com/fakeload" class="card white">
+            <h2 id="txt-coll-title">🌐 Navigator</h2>
+            <p id="txt-coll-desc">Access the digital collection and experimental tools.</p>
+        </a>
+
+        <div class="card sky">
+            <h2>RoleChat</h2>
+            <p id="txt-role-desc">An application tailored for roleplay and social interactions.</p>
+        </div>
+
+        <div class="card white">
+            <h2 id="txt-site-title">This Site</h2>
+            <p id="txt-site-desc">A playground for coding, gaming, and digital archiving experiments.</p>
+        </div>
+
+        <footer id="txt-footer">
+            © 2026 Stormwindsky | MIT License | Built with Passion & Autism Pride
+        </footer>
     </div>
-
-    <button id="language-toggle" onclick="openLanguageModal()">🌐</button>
-    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-
-    <footer>
-        <p>© <span id="currentYear"></span> Stormwindsky</p>
-        <p style="margin-top: 10px;">
-            Licensed under 
-            <a href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" class="license-link">MIT License</a>
-        </p>
-    </footer>
 
     <script>
-        // --- 1. GESTION DES TRADUCTIONS ---
         const translations = {
-            en: {
-                "nav.home": '<i class="fas fa-home"></i> Home',
-                "nav.about": '<i class="fas fa-user"></i> About',
-                "nav.collection": '<i class="fas fa-folder"></i> Collection',
-                "nav.rolechat": '<i class="fas fa-comments"></i> RoleChat',
-                "card.links.title": "Digital Presence",
-                "card.links.desc": "Check out my presence across different platforms and connect with me.",
-                "card.links.button": "View All Links <i class='fas fa-arrow-right'></i>",
-                "card.aboutsite.title": "About This Project",
-                "card.aboutsite.desc1": "A professional playground for web experiments, focusing on digital archiving.",
-                "card.aboutsite.desc2": "Merging history preservation with modern technology.",
-                "modal.about.title": "Biography",
-                "modal.about.p1": "Stormwindsky is a history and culture enthusiast with a focus on digital preservation."
+            'en': {
+                tag: "Available for Projects", bio: "Digital archivist and creator interested in history and indie gaming.",
+                presTitle: "Digital Preservation", presDesc: "Contributor to Wayback Machine & Lost Media Wiki.",
+                social: "Find Me Online", nameTitle: "The Name", nameDesc: "From Animal Jam via my mom.",
+                collTitle: "🌐 Navigator", collDesc: "Access the digital collection.",
+                roleDesc: "App for roleplay.", siteTitle: "This Site",
+                siteDesc: "A playground for coding.", footer: "© 2026 Stormwindsky | MIT License", themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode"
             },
-            fr: {
-                "nav.home": '<i class="fas fa-home"></i> Accueil',
-                "nav.about": '<i class="fas fa-user"></i> À Propos',
-                "nav.collection": '<i class="fas fa-folder"></i> Collection',
-                "nav.rolechat": '<i class="fas fa-comments"></i> RoleChat',
-                "card.links.title": "Présence Numérique",
-                "card.links.desc": "Découvrez mes activités sur différentes plateformes et contactez-moi.",
-                "card.links.button": "Voir tous les liens <i class='fas fa-arrow-right'></i>",
-                "card.aboutsite.title": "À Propos du Projet",
-                "card.aboutsite.desc1": "Un espace d'expérimentation web dédié à l'archivage numérique.",
-                "card.aboutsite.desc2": "Allier la préservation de l'histoire aux technologies modernes.",
-                "modal.about.title": "Biographie",
-                "modal.about.p1": "Stormwindsky est un passionné d'histoire et de culture, expert en préservation numérique."
+            'fr-FR': {
+                tag: "Disponible", bio: "Archiviste numérique passionné d'histoire et de jeux indés.",
+                presTitle: "Préservation", presDesc: "Contributeur Wayback Machine et Lost Media Wiki.",
+                social: "Me trouver", nameTitle: "Le Nom", nameDesc: "Vient d'Animal Jam via ma mère.",
+                collTitle: "🌐 Navigateur", collDesc: "Accéder à la collection numérique.",
+                roleDesc: "App de roleplay.", siteTitle: "Ce Site",
+                siteDesc: "Terrain de jeu pour le code.", footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'fr-CA': {
+                tag: "Prêt", bio: "Archiviste numérique trippeux d'histoire et de jeux indés.",
+                presTitle: "Préservation", presDesc: "Je contribue à la Wayback Machine et au Lost Media Wiki.",
+                social: "Réseaux Sociaux", nameTitle: "Mon Nom", nameDesc: "Vient d'Animal Jam par ma mère.",
+                collTitle: "🌐 Navigateur", collDesc: "Accéder à la collection numérique.",
+                roleDesc: "App pour le roleplay.", siteTitle: "Le Site",
+                siteDesc: "Ma place pour gosser sur du code.", footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'es-ES': {
+                tag: "Disponible", bio: "Archivista digital interesado en la historia y juegos indie.",
+                presTitle: "Preservación", presDesc: "Colaborador de Wayback Machine y Lost Media Wiki.",
+                social: "Redes", nameTitle: "El Nombre", nameDesc: "Viene de Animal Jam por mi madre.",
+                collTitle: "🌐 Navegador", collDesc: "Acceder a la colección digital.",
+                roleDesc: "App para juegos de rol.", siteTitle: "Este Sitio",
+                siteDesc: "Espacio para el código.", footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            },
+            'es-AM': {
+                tag: "Disponible", bio: "Archivista digital apasionado por la historia y los videojuegos.",
+                presTitle: "Preservación", presDesc: "Contribuyo a la Wayback Machine y Lost Media Wiki.",
+                social: "Mis redes", nameTitle: "El Nombre", nameDesc: "De Animal Jam por mi mamá.",
+                collTitle: "🌐 Navegador", collDesc: "Acceder a la colección digital.",
+                roleDesc: "App para roleplay.", siteTitle: "Este Sitio",
+                siteDesc: "Lugar para experimentar.", footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
             }
         };
 
-        function switchLanguage(lang) {
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-tag').innerText = t.tag;
+            document.getElementById('txt-bio').innerText = t.bio;
+            document.getElementById('txt-pres-title').innerText = t.presTitle;
+            document.getElementById('txt-pres-desc').innerText = t.presDesc;
+            document.getElementById('txt-social-title').innerText = t.social;
+            document.getElementById('txt-name-title').innerText = t.nameTitle;
+            document.getElementById('txt-name-desc').innerText = t.nameDesc;
+            document.getElementById('txt-coll-title').innerText = t.collTitle;
+            document.getElementById('txt-coll-desc').innerText = t.collDesc;
+            document.getElementById('txt-role-desc').innerText = t.roleDesc;
+            document.getElementById('txt-site-title').innerText = t.siteTitle;
+            document.getElementById('txt-site-desc').innerText = t.siteDesc;
+            document.getElementById('txt-footer').innerText = t.footer;
             localStorage.setItem('preferredLang', lang);
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) el.innerHTML = translations[lang][key];
-            });
-            closeModal('languageModal');
+            updateThemeButtonText();
         }
 
-        // --- 2. GESTION DU THÈME ---
         function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon(isDark);
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
         }
 
-        function updateThemeIcon(isDark) {
-            document.querySelector('.theme-toggle').innerHTML = isDark ? '☀️' : '🌙';
+        function updateThemeButtonText() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const theme = localStorage.getItem('theme') || 'light';
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
         }
 
-        // --- 3. MODALS ---
-        function openLanguageModal() { document.getElementById('languageModal').style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        document.getElementById('aboutLink').onclick = (e) => { e.preventDefault(); document.getElementById('aboutModal').style.display = 'flex'; };
-
-        // --- 4. INITIALISATION (Persistence) ---
         window.onload = () => {
-            // Charger la langue (Anglais par défaut si rien n'est sauvé)
+            const savedTheme = localStorage.getItem('theme') || 'light';
             const savedLang = localStorage.getItem('preferredLang') || 'en';
-            switchLanguage(savedLang);
-
-            // Charger le thème (Mémoire)
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                updateThemeIcon(true);
-            }
-
-            // Année dynamique
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
         };
-
-        // Fermer les modals si clic extérieur
-        window.onclick = (e) => { if (e.target.className === 'modal') e.target.style.display = 'none'; };
     </script>
 </body>
 </html>
