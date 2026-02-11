@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Expérience 3D</title>
+    <style>
+        /* Force le Dark Mode pour l'expérience 3D */
+        :root {
+            --bg-body: #0a0a0a;
+            --blue-main: #007aff;
+            --text-dark: #f5f5f7;
+        }
+
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: var(--bg-body); 
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+        }
+
+        canvas { display: block; }
+        
+        #ui-overlay {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .status-tag {
+            background: rgba(0, 122, 255, 0.2);
+            color: var(--blue-main);
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            border: 1px solid var(--blue-main);
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            color: var(--text-dark);
+            opacity: 0.5;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-overlay">
+        <div class="status-tag" id="status-text">Chargement...</div>
+        <h1 style="font-size: 1.5rem; margin-top: 10px;">Stormwindsky</h1>
+        <p id="sub-text" style="opacity: 0.6; font-size: 0.9rem;"></p>
+    </div>
+
+    <div class="instructions" id="instruction-text"></div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+        import { PointerLockControls } from 'https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/PointerLockControls.js';
+
+        // --- GESTION DES LANGUES (Basé sur ton script précédent) ---
+        const translations = {
+            'en': { status: "Experimental World", sub: "Digital Archive 3D", move: "Click to explore | WASD to move" },
+            'fr-FR': { status: "Monde Expérimental", sub: "Archive Numérique 3D", move: "Cliquez pour explorer | ZQSD pour bouger" },
+            'fr-CA': { status: "Monde Expérimental", sub: "Archive Numérique 3D", move: "Clique pour explorer | ZQSD pour bouger" },
+            'es-ES': { status: "Mundo Experimental", sub: "Archivo Digital 3D", move: "Haz clic para explorar | WASD para mover" },
+            'es-AM': { status: "Mundo Experimental", sub: "Archivo Digital 3D", move: "Haz clic para explorar | WASD para mover" }
+        };
+
+        const currentLang = localStorage.getItem('preferredLang') || 'en';
+        const t = translations[currentLang] || translations['en'];
+
+        document.getElementById('status-text').innerText = t.status;
+        document.getElementById('sub-text').innerText = t.sub;
+        document.getElementById('instruction-text').innerText = t.move;
+
+        // --- INITIALISATION THREE.JS ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0a);
+        scene.fog = new THREE.FogExp2(0x0a0a0a, 0.08);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lumière bleue (ta signature visuelle)
+        const light = new THREE.PointLight(0x007aff, 2, 50);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040, 1));
+
+        // --- GÉNÉRATION D'ARCHIVES ABSTRAITES ---
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        for (let i = 0; i < 400; i++) {
+            const material = new THREE.MeshPhongMaterial({ 
+                color: Math.random() > 0.8 ? 0x007aff : 0xffffff, 
+                wireframe: true,
+                transparent: true,
+                opacity: 0.4
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*40, (Math.random()-0.5)*80);
+            mesh.rotation.set(Math.random(), Math.random(), Math.random());
+            mesh.scale.set(Math.random()*3, Math.random()*3, Math.random()*3);
+            scene.add(mesh);
+        }
+
+        // --- CONTRÔLES ---
+        const controls = new PointerLockControls(camera, document.body);
+        document.body.addEventListener('click', () => controls.lock());
+
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        const velocity = new THREE.Vector3();
+
+        const onKeyDown = (e) => {
+            if(e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = true;
+            if(e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = true;
+            if(e.code === 'KeyA' || e.code === 'ArrowLeft') moveLeft = true;
+            if(e.code === 'KeyD' || e.code === 'ArrowRight') moveRight = true;
+        };
+        const onKeyUp = (e) => {
+            if(e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = false;
+            if(e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = false;
+            if(e.code === 'KeyA' || e.code === 'ArrowLeft') moveLeft = false;
+            if(e.code === 'KeyD' || e.code === 'ArrowRight') moveRight = false;
+        };
+
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
+
+        // --- ANIMATION ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            if (controls.isLocked) {
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+                if (moveForward) velocity.z -= 50.0 * delta;
+                if (moveBackward) velocity.z += 50.0 * delta;
+                if (moveLeft) velocity.x += 50.0 * delta;
+                if (moveRight) velocity.x -= 50.0 * delta;
+
+                controls.moveRight(-velocity.x * delta);
+                controls.moveForward(-velocity.z * delta);
+            }
+
+            // Faire léviter doucement la caméra
+            camera.position.y += Math.sin(Date.now() * 0.001) * 0.002;
+            
+            // Animation de la lumière
+            light.position.set(camera.position.x, camera.position.y, camera.position.z);
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>
