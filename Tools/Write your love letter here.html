@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💌</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Great+Vibes&display=swap');
+
+        :root {
+            --valentine-red: #e63946;
+            --valentine-pink: #ffb3c1;
+            --valentine-bg: #fff0f3;
+            --text-color: #5e0b15;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--valentine-bg);
+            font-family: 'Dancing Script', cursive;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Animation des cœurs en arrière-plan */
+        .heart-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            color: var(--valentine-pink);
+            font-size: 20px;
+            animation: flyUp linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes flyUp {
+            0% { transform: translateY(100vh) scale(1); opacity: 1; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        /* Conteneur principal */
+        .notepad {
+            width: 85%;
+            max-width: 800px;
+            height: 80vh;
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid var(--valentine-red);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .image-container img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid var(--valentine-pink);
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .image-container img:hover {
+            transform: scale(1.05);
+            border-color: var(--valentine-red);
+        }
+
+        textarea {
+            width: 100%;
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            font-family: 'Great Vibes', cursive;
+            font-size: 28px;
+            color: var(--text-color);
+            resize: none;
+            outline: none;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        button {
+            background-color: var(--valentine-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            background-color: #c1121f;
+        }
+
+        .credits {
+            position: fixed;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            font-family: Arial, sans-serif;
+            color: #999;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body onclick="startMusicOnFirstClick()">
+
+    <div class="heart-bg" id="heartContainer"></div>
+
+    <div class="notepad">
+        <div class="image-container">
+            <img id="imgLeft" src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Mimine%20cute.jpg" onclick="changeImage('imgLeft')" title="Click to change">
+            <img id="imgRight" src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Minet%20Face.png" onclick="changeImage('imgRight')" title="Click to change">
+        </div>
+
+        <textarea id="editor" placeholder="❤️ ...">Write your love letter here... / Écris ici ta lettre d'amour... / Escribe aquí tu carta de amor...</textarea>
+
+        <div class="controls">
+            <button onclick="saveAsURL()" title="Save URL">🔗</button>
+            <button onclick="toggleMusic()" id="musicBtn" title="Play/Pause">🎵</button>
+        </div>
+    </div>
+
+    <div class="credits">
+        "Canon in D for Two Harps" Kevin MacLeod (incompetech.com)<br>
+        Licensed under Creative Commons: By Attribution 4.0 License<br>
+        http://creativecommons.org/licenses/by/4.0/
+    </div>
+
+    <audio id="loveTheme" loop>
+        <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Canon%20in%20D%20for%20Two%20Harps.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const audio = document.getElementById('loveTheme');
+        const musicBtn = document.getElementById('musicBtn');
+        let musicStarted = false;
+
+        // 1. Animation des cœurs
+        function createHearts() {
+            const container = document.getElementById('heartContainer');
+            const heartIcons = ['❤️', '💖', '💝', '💕', '🌸'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                const duration = 6 + Math.random() * 6;
+                heart.style.animationDuration = duration + 's';
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), duration * 1000);
+            }, 600);
+        }
+
+        // 2. Changer les images au clic
+        function changeImage(imgId) {
+            const newUrl = prompt("URL de l'image (JPG, PNG, GIF) :");
+            if (newUrl) {
+                document.getElementById(imgId).src = newUrl;
+            }
+        }
+
+        // 3. Gestion de la musique (Autoplay + Toggle)
+        function startMusicOnFirstClick() {
+            if (!musicStarted) {
+                audio.play().catch(e => console.log("Autoplay blocked, waiting for interaction."));
+                musicBtn.innerHTML = "⏸️";
+                musicStarted = true;
+            }
+        }
+
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play();
+                musicBtn.innerHTML = "⏸️";
+            } else {
+                audio.pause();
+                musicBtn.innerHTML = "🎵";
+            }
+        }
+
+        // 4. Gestion de l'URL
+        function saveAsURL() {
+            const text = encodeURIComponent(editor.value);
+            const imgL = encodeURIComponent(document.getElementById('imgLeft').src);
+            const imgR = encodeURIComponent(document.getElementById('imgRight').src);
+            // On stocke le texte et les images dans le hash
+            window.location.hash = `text=${text}&il=${imgL}&ir=${imgR}`;
+            alert("✅ URL OK!");
+        }
+
+        // 5. Chargement initial
+        window.onload = () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const params = new URLSearchParams(hash);
+                if(params.get('text')) editor.value = decodeURIComponent(params.get('text'));
+                if(params.get('il')) document.getElementById('imgLeft').src = decodeURIComponent(params.get('il'));
+                if(params.get('ir')) document.getElementById('imgRight').src = decodeURIComponent(params.get('ir'));
+            }
+            createHearts();
+        };
+    </script>
+</body>
+</html>
