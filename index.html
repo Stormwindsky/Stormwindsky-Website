@@ -6,6 +6,27 @@
     <title>Select Your Website Version</title>
 
     <style>
+      :root {
+        --bg-body: #f4f4f4;
+        --card-bg: white;
+        --text-color: #333;
+        --title-color: #3498db;
+        --link-bg: #3498db;
+        --link-hover: #2980b9;
+        --github-color: #555;
+      }
+
+      /* Variables pour le Mode Sombre */
+      [data-theme="dark"] {
+        --bg-body: #0a0a0a;
+        --card-bg: #1c1c1e;
+        --text-color: #f5f5f7;
+        --title-color: #5db0ff;
+        --link-bg: #007aff;
+        --link-hover: #0056b3;
+        --github-color: #a1a1a6;
+      }
+
       body {
         font-family: Arial, sans-serif;
         display: flex;
@@ -14,25 +35,26 @@
         align-items: center;
         min-height: 100vh;
         margin: 0;
-        background-color: #f4f4f4;
-        color: #333;
+        background-color: var(--bg-body);
+        color: var(--text-color);
         text-align: center;
+        transition: all 0.3s ease;
       }
       .container {
         padding: 40px;
-        background: white;
+        background: var(--card-bg);
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
       h1 {
-        color: #3498db;
+        color: var(--title-color);
         margin-bottom: 20px;
       }
       .version-link {
         display: block;
         margin: 15px 0;
         padding: 15px 30px;
-        background-color: #3498db;
+        background-color: var(--link-bg);
         color: white;
         text-decoration: none;
         border-radius: 5px;
@@ -40,45 +62,110 @@
         transition: background-color 0.3s;
       }
       .version-link:hover {
-        background-color: #2980b9;
+        background-color: var(--link-hover);
       }
-      /* Style pour le lien GitHub */
       .github-link {
         margin-top: 25px;
         display: inline-block;
-        color: #555;
+        color: var(--github-color);
         text-decoration: none;
         font-size: 0.9em;
         transition: color 0.3s;
       }
       .github-link:hover {
-        color: #333;
+        color: var(--text-color);
         text-decoration: underline;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Select Your Preferred Website Version</h1>
-      <p>Please choose the version that best suits your device and connection speed:</p>
+      <h1 id="txt-title">Select Your Preferred Website Version</h1>
+      <p id="txt-desc">Please choose the version that best suits your device and connection speed:</p>
 
-      <a class="version-link" href="https://www.stormwindsky.com/Welcome">
+      <a class="version-link" href="https://www.stormwindsky.com/Welcome" id="link-welcome">
         Welcome Version (Standard/Mobile)
       </a>
 
-      <a class="version-link" href="https://www.stormwindsky.com/Lite">
+      <a class="version-link" href="https://www.stormwindsky.com/Lite" id="link-lite">
         Lite Version (Standard PC Performance)
       </a>
 
-      <a class="version-link" href="https://www.stormwindsky.com/UltraLite">
+      <a class="version-link" href="https://www.stormwindsky.com/UltraLite" id="link-ultra">
         UltraLite Version (Low-Performance PC)
       </a>
 
       <hr style="border: 0; border-top: 1px solid #eee; margin-top: 20px;">
 
-      <a class="github-link" href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank">
+      <a class="github-link" href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" id="link-github">
         View source code on GitHub
       </a>
     </div>
+
+    <script>
+      // Dictionnaire de traduction identique à Welcome.html
+      const translations = {
+        'en': {
+          title: "Select Your Preferred Website Version",
+          desc: "Please choose the version that best suits your device and connection speed:",
+          welcome: "Welcome Version (Standard/Mobile)",
+          lite: "Lite Version (Standard PC Performance)",
+          ultra: "UltraLite Version (Low-Performance PC)",
+          github: "View source code on GitHub"
+        },
+        'fr-FR': {
+          title: "Choisissez votre version préférée",
+          desc: "Veuillez choisir la version qui convient le mieux à votre appareil :",
+          welcome: "Version Welcome (Standard/Mobile)",
+          lite: "Version Lite (Performance PC Standard)",
+          ultra: "Version UltraLite (PC basse performance)",
+          github: "Voir le code source sur GitHub"
+        },
+        'fr-CA': {
+          title: "Choisis ta version préférée",
+          desc: "Prends la version qui marche le mieux sur ton appareil :",
+          welcome: "Version Welcome (Standard/Mobile)",
+          lite: "Version Lite (Performance PC Standard)",
+          ultra: "Version UltraLite (Vieille canisse/PC lent)",
+          github: "Voir le code source sur GitHub"
+        },
+        'es-ES': {
+          title: "Selecciona tu versión preferida",
+          desc: "Por favor, elige la versión que mejor se adapte a tu dispositivo:",
+          welcome: "Versión Welcome (Estándar/Móvil)",
+          lite: "Versión Lite (Rendimiento PC Estándar)",
+          ultra: "Versión UltraLite (PC de bajo rendimiento)",
+          github: "Ver código fuente en GitHub"
+        },
+        'es-AM': {
+          title: "Elige tu versión preferida",
+          desc: "Por favor, elige la versión que mejor se adapte a tu dispositivo:",
+          welcome: "Versión Welcome (Estándar/Móvil)",
+          lite: "Versión Lite (Rendimiento PC Estándar)",
+          ultra: "Versión UltraLite (PC de bajo rendimiento)",
+          github: "Ver código fuente en GitHub"
+        }
+      };
+
+      function applySettings() {
+        // 1. Appliquer le thème (Dark/Light)
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // 2. Appliquer la traduction
+        const savedLang = localStorage.getItem('preferredLang') || 'en';
+        const t = translations[savedLang] || translations['en'];
+
+        document.getElementById('txt-title').innerText = t.title;
+        document.getElementById('txt-desc').innerText = t.desc;
+        document.getElementById('link-welcome').innerText = t.welcome;
+        document.getElementById('link-lite').innerText = t.lite;
+        document.getElementById('link-ultra').innerText = t.ultra;
+        document.getElementById('link-github').innerText = t.github;
+      }
+
+      // Exécuter au chargement
+      window.onload = applySettings;
+    </script>
   </body>
 </html>
