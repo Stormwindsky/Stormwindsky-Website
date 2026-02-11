@@ -11,6 +11,7 @@ Below is the list of third-party resources used in this project:
 * **Font Awesome**: Icons are distributed under the [Font Awesome Free License](https://fontawesome.com/license/free) (CC BY 4.0 for icons, SIL OFL for fonts).
 
 ### JavaScript Libraries (CDN)
+* **Three.js**: Distributed under the [MIT License](https://github.com/mrdoob/three.js/blob/dev/LICENSE).
 * **JSZip**: Distributed under the [MIT License](https://github.com/Stuk/jszip/blob/master/LICENSE.markdown) or [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html).
 * **Midi-Writer-JS**: Distributed under the [MIT License](https://github.com/grimmdude/MidiWriterJS/blob/master/LICENSE).
 * **@tonejs/midi**: Distributed under the [MIT License](https://github.com/Tonejs/Midi/blob/master/LICENSE.md).
