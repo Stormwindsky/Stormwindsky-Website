@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medieval Night Village Ambience</title>
+    <title>Medieval Night | Stormwindsky</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --night-overlay-color: rgba(0, 10, 30, 0.7);
-            --night-filter: brightness(0.6) contrast(1.1) sepia(0.2) hue-rotate(220deg);
+            --glass: rgba(10, 15, 30, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --accent: #5db0ff;
         }
 
         body {
             margin: 0;
+            padding: 0;
+            background-color: #02040a;
+            color: #eee;
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
-            font-family: 'Times New Roman', Times, serif;
-            color: #ccc;
-            background-color: #000;
-            position: relative;
-            min-height: 100vh;
+            height: 100vh;
         }
 
         .background-image {
@@ -26,211 +30,295 @@
             background-image: url('https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-website-the-part-under-license-CC-BY-4.0/main/Images/David%20Revoy/night%20town%20medieval/town%20night.jpg');
             background-size: cover;
             background-position: center;
-            filter: var(--night-filter);
-            transition: filter 2s ease-in-out;
+            filter: brightness(0.35) contrast(1.1) saturate(0.8);
+            z-index: -2;
         }
 
-        .night-overlay {
+        #fireflies-canvas {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--night-overlay-color);
-        }
-
-        .firefly-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
+            z-index: -1;
         }
 
-        .firefly {
+        /* Interface Style Bento Moderne */
+        .content-card {
             position: absolute;
-            width: 3px; height: 3px;
-            background: rgba(255, 255, 150, 0.8);
-            border-radius: 50%;
-            box-shadow: 0 0 5px 2px rgba(255, 255, 150, 0.9);
-            opacity: 0;
-            animation: move-firefly 10s infinite alternate, glow-firefly 1.5s infinite alternate;
+            top: 30px; left: 30px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            border-radius: 28px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            max-width: 320px;
         }
 
-        @keyframes move-firefly {
-            0% { transform: translate(0, 0) scale(1); opacity: 0; }
-            50% { transform: translate(var(--dx), var(--dy)) scale(1.5); opacity: 0.7; }
-            100% { transform: translate(var(--dx2), var(--dy2)) scale(1); opacity: 0; }
-        }
-
-        @keyframes glow-firefly {
-            0% { box-shadow: 0 0 5px 2px rgba(255, 255, 150, 0.9); }
-            100% { box-shadow: 0 0 8px 4px rgba(255, 255, 100, 1); }
-        }
-
-        .content {
-            position: relative;
-            z-index: 10;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: fit-content;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            margin: 20px;
-            border: 1px solid #444;
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            margin: 0 0 15px 0;
+            color: var(--accent);
+            letter-spacing: 1px;
         }
 
         .control-group {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        #test-howling {
-            padding: 5px 12px;
-            background: #333;
-            color: #eee;
-            border: 1px solid #666;
-            border-radius: 4px;
+        label { font-size: 0.9rem; font-weight: 600; opacity: 0.8; }
+
+        input[type=range] {
+            width: 100%;
             cursor: pointer;
-            font-family: serif;
-        }
-
-        #test-howling:hover { background: #555; }
-
-        #credits-button {
-            position: fixed;
-            bottom: 20px; right: 20px;
-            padding: 10px 20px;
-            background-color: rgba(50, 50, 50, 0.7);
-            color: white;
-            border: 1px solid #777;
+            accent-color: var(--accent);
+            height: 6px;
             border-radius: 5px;
-            cursor: pointer;
-            z-index: 20;
         }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(93, 176, 255, 0.3);
+        }
+
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(93, 176, 255, 0.4);
+        }
+
+        .hint {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
+        .credits-btn {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .credits-btn:hover { background: rgba(255,255,255,0.15); }
 
         .modal {
             display: none;
             position: fixed;
-            z-index: 30;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.8);
+            z-index: 100;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background-color: #222;
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
+            background: #121214;
+            padding: 40px;
+            border-radius: 32px;
+            max-width: 480px;
+            width: 90%;
+            border: 1px solid #333;
+            position: relative;
         }
 
-        .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn {
+            position: absolute;
+            top: 20px; right: 25px;
+            cursor: pointer;
+            font-size: 2rem;
+            color: #777;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <audio id="ambience-audio" loop>
-        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/Deep%20wind%20night%20ambience%20in%20village.wav" type="audio/wav">
-    </audio>
-
-    <audio id="owl-audio" loop>
-        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/owlsfx.wav" type="audio/wav">
-    </audio>
-
-    <audio id="howl-audio">
-        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/Howling.wav" type="audio/wav">
-    </audio>
-
     <div class="background-image"></div>
-    <div class="night-overlay"></div>
-    <div class="firefly-container" id="firefly-container"></div>
+    <canvas id="fireflies-canvas"></canvas>
 
-    <div class="content">
+    <audio id="ambience-audio" loop><source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/Deep%20wind%20night%20ambience%20in%20village.wav"></audio>
+    <audio id="owl-audio" loop><source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/owlsfx.wav"></audio>
+    <audio id="howl-audio"><source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/night%20town%20medieval/Howling.wav"></audio>
+
+    <div class="content-card">
+        <h1 id="ui-title">Medieval Night</h1>
         <div class="control-group">
-            <label>Howling Volume:</label>
+            <label id="ui-vol-label">Howl Volume</label>
             <input type="range" id="howl-volume" min="0" max="1" step="0.1" value="0.5">
-            <button id="test-howling">Test Howl</button>
+            <button class="btn" id="test-howling">Test Howl</button>
         </div>
-        <p style="font-size: 0.8em; margin: 0; color: #888;">(Click anywhere to activate the sound)</p>
+        <p class="hint" id="ui-hint">(Click anywhere to start the sounds)</p>
     </div>
 
-    <button id="credits-button">Notes & Credits</button>
+    <button class="credits-btn" id="credits-button">Notes & Credits</button>
 
     <div id="credits-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Notes & Credits</h2>
-            <p>Background: David Revoy (CC BY 4.0)</p>
-            <p>Sounds: eniru, NaturesTemper, Patrick_Corra (CC0)</p>
+            <span class="close-btn">&times;</span>
+            <h2 id="ui-modal-title" style="font-family: 'Cinzel', serif;">Credits</h2>
+            <div id="modal-body" style="line-height: 1.8;">
+                </div>
         </div>
     </div>
 
     <script>
+        const i18n = {
+            'en': {
+                title: "Medieval Night", vol: "Howl Volume", test: "Test Howl",
+                hint: "(Click anywhere to activate sounds)", credits: "Notes & Credits",
+                art: "Background Art", sfx: "Sound Design", code: "3D Visuals", source: "Source"
+            },
+            'fr-FR': {
+                title: "Nuit Médiévale", vol: "Volume Hurlement", test: "Tester le Cri",
+                hint: "(Cliquez n'importe où pour activer le son)", credits: "Notes & Crédits",
+                art: "Arrière-plan", sfx: "Sons d'ambiance", code: "Visuels 3D", source: "Source"
+            },
+            'fr-CA': {
+                title: "Nuit Médiévale", vol: "Volume du Loup", test: "Tester le cri",
+                hint: "(Clique n'importe où pour partir le son)", credits: "Notes & Crédits",
+                art: "Arrière-plan", sfx: "Sons d'ambiance", code: "Visuels 3D", source: "Source"
+            },
+            'es-ES': {
+                title: "Noche Medieval", vol: "Volumen de Aullido", test: "Probar Aullido",
+                hint: "(Haz clic en cualquier lugar para activar)", credits: "Notas y Créditos",
+                art: "Arte de fondo", sfx: "Sonidos", code: "Visuales 3D", source: "Fuente"
+            }
+        };
+
+        function applyLanguage() {
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            const t = i18n[savedLang] || i18n['en'];
+            
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('ui-vol-label').innerText = t.vol;
+            document.getElementById('test-howling').innerText = t.test;
+            document.getElementById('ui-hint').innerText = t.hint;
+            document.getElementById('credits-button').innerText = t.credits;
+            document.getElementById('ui-modal-title').innerText = t.credits;
+            
+            document.getElementById('modal-body').innerHTML = `
+                <p><strong>${t.art}:</strong> David Revoy (CC BY 4.0)</p>
+                <p><strong>${t.source}:</strong> <a href="https://www.davidrevoy.com/article725/starry-night" target="_blank">davidrevoy.com/article725/starry-night</a></p>
+                <p><strong>${t.sfx}:</strong> eniru, NaturesTemper, Patrick_Corra (CC0)</p>
+                <p><strong>${t.code}:</strong>Three.js</p>
+            `;
+        }
+
+        let scene, camera, renderer, fireflies, particleCount = 60;
+        
+        function initThree() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x02040a, 0.15);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('fireflies-canvas'), 
+                alpha: true,
+                antialias: true 
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 12;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 8;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.08,
+                color: 0xfff3a0,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            });
+
+            fireflies = new THREE.Points(geometry, material);
+            scene.add(fireflies);
+            camera.position.z = 5;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
+            const positions = fireflies.geometry.attributes.position.array;
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3 + 1] += Math.sin(time + i) * 0.003; 
+                positions[i * 3] += Math.cos(time + i) * 0.002;
+                fireflies.material.size = 0.06 + Math.sin(time * 2 + i) * 0.02;
+            }
+            
+            fireflies.geometry.attributes.position.needsUpdate = true;
+            renderer.render(scene, camera);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            applyLanguage();
+            initThree();
+            animate();
+
             const wind = document.getElementById('ambience-audio');
             const owl = document.getElementById('owl-audio');
             const howl = document.getElementById('howl-audio');
             const volSlider = document.getElementById('howl-volume');
-            const testBtn = document.getElementById('test-howling');
 
-            // Fonction pour démarrer les sons bouclés
-            const startAmbience = () => {
-                wind.play();
-                owl.play();
-                // On retire l'écouteur après le premier clic réussi
-                document.removeEventListener('click', startAmbience);
+            const startAll = () => {
+                wind.play(); owl.play();
+                document.removeEventListener('click', startAll);
+                document.getElementById('ui-hint').style.opacity = '0';
             };
+            document.addEventListener('click', startAll);
 
-            // Tente de jouer au chargement (échouera souvent sans clic)
-            wind.play().catch(() => {
-                console.log("Attente d'une interaction utilisateur pour le son...");
-            });
-            owl.play().catch(() => {});
-
-            // Force le démarrage au premier clic sur la page
-            document.addEventListener('click', startAmbience);
-
-            // Gestion du volume du loup
             howl.volume = volSlider.value;
             volSlider.oninput = (e) => howl.volume = e.target.value;
-
-            testBtn.onclick = (e) => {
-                e.stopPropagation(); // Évite de déclencher startAmbience deux fois
-                howl.currentTime = 0;
-                howl.play();
+            
+            document.getElementById('test-howling').onclick = (e) => {
+                e.stopPropagation();
+                howl.currentTime = 0; howl.play();
             };
 
-            // Hurlement aléatoire (60-180s)
-            function randomHowl() {
-                setTimeout(() => {
-                    if (howl.paused) howl.play();
-                    randomHowl();
-                }, Math.random() * (180000 - 60000) + 60000);
-            }
-            randomHowl();
-
-            // Fireflies
-            const container = document.getElementById('firefly-container');
-            for (let i = 0; i < 30; i++) {
-                const f = document.createElement('div');
-                f.className = 'firefly';
-                f.style.left = Math.random() * 100 + 'vw';
-                f.style.top = Math.random() * 100 + 'vh';
-                f.style.animationDuration = (10 + Math.random() * 10) + 's';
-                f.style.animationDelay = Math.random() * 10 + 's';
-                f.style.setProperty('--dx', (Math.random() * 200 - 100) + 'px');
-                f.style.setProperty('--dy', (Math.random() * 200 - 100) + 'px');
-                f.style.setProperty('--dx2', (Math.random() * 200 - 100) + 'px');
-                f.style.setProperty('--dy2', (Math.random() * 200 - 100) + 'px');
-                container.appendChild(f);
-            }
-
-            // Modal
             const modal = document.getElementById("credits-modal");
-            document.getElementById("credits-button").onclick = () => modal.style.display = "block";
-            document.querySelector(".close-button").onclick = () => modal.style.display = "none";
+            document.getElementById("credits-button").onclick = () => modal.style.display = "flex";
+            document.querySelector(".close-btn").onclick = () => modal.style.display = "none";
             window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }
+        });
+
+        window.addEventListener('resize', () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         });
     </script>
 </body>
