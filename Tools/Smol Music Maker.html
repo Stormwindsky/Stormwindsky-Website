@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smol Music Maker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --blue-main: #007aff;
+            --cell-off: #d1d1d6;
+            --text-dark: #1d1d1f;
+            --accent: #34c759;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --blue-main: #5db0ff;
+            --cell-off: #3a3a3c;
+            --text-dark: #f5f5f7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.2s ease; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 { font-weight: 800; margin-bottom: 20px; letter-spacing: -1px; }
+
+        /* Grille de séquençage style Bento */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 4px;
+            background: var(--card-white);
+            padding: 15px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 95vw;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            background: var(--cell-off);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .cell.active { background: var(--blue-main); transform: scale(0.9); box-shadow: 0 0 10px var(--blue-main); }
+        .cell.playing { border: 2px solid var(--accent); }
+
+        /* Contrôles avec Emojis */
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: var(--card-white);
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .btn-icon {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .btn-icon:hover { background: rgba(0,0,0,0.05); transform: scale(1.1); }
+        
+        #recBtn.recording { animation: pulse 1s infinite; color: red; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        input[type="range"] { accent-color: var(--blue-main); cursor: pointer; }
+
+        @media (max-width: 600px) {
+            .cell { width: 20px; height: 20px; }
+            #grid { gap: 2px; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="site-title">Smol Music Maker</h1>
+    
+    <div id="grid"></div>
+
+    <div class="controls">
+        <button id="playBtn" class="btn-icon" title="Play/Pause">▶️</button>
+        
+        <button id="recBtn" class="btn-icon" title="Record to WebM/OGG">🔴</button>
+        
+        <button id="clearBtn" class="btn-icon" title="Clear Grid">🗑️</button>
+        
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span>⏱️</span>
+            <input type="range" id="tempo" min="60" max="240" value="120">
+        </div>
+
+        <button onclick="toggleTheme()" class="btn-icon" id="themeBtn">🌙</button>
+    </div>
+
+    <script>
+        // --- SYNCHRONISATION DU THÈME ---
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        }
+
+        // --- ENGINE MUSICAL ---
+        const ROWS = 12;
+        const COLS = 16;
+        const gridElement = document.getElementById('grid');
+        const frequencies = [261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.00, 415.30, 440.00, 466.16, 493.88].reverse();
+        const state = Array(ROWS).fill().map(() => Array(COLS).fill(false));
+        
+        let isPlaying = false;
+        let isRecording = false;
+        let currentStep = 0;
+        let scheduler = null;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const dest = audioCtx.createMediaStreamDestination();
+        const mainGain = audioCtx.createGain();
+        mainGain.connect(audioCtx.destination);
+        mainGain.connect(dest);
+
+        const mediaRecorder = new MediaRecorder(dest.stream);
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'smol_track.ogg';
+            a.click();
+            chunks.length = 0;
+        };
+
+        // Génération de la grille
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.row = r; cell.dataset.col = c;
+                cell.addEventListener('click', () => {
+                    state[r][c] = !state[r][c];
+                    cell.classList.toggle('active');
+                    if(state[r][c]) playNote(frequencies[r], 0.1);
+                });
+                gridElement.appendChild(cell);
+            }
+        }
+
+        function playNote(freq, duration) {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(g);
+            g.connect(mainGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function nextStep() {
+            if(!isPlaying) return;
+            const tempo = document.getElementById('tempo').value;
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('playing'));
+            for (let r = 0; r < ROWS; r++) {
+                if (state[r][currentStep]) playNote(frequencies[r], 0.2);
+                document.querySelector(`.cell[data-row="${r}"][data-col="${currentStep}"]`).classList.add('playing');
+            }
+            currentStep = (currentStep + 1) % COLS;
+            scheduler = setTimeout(nextStep, (60 / tempo / 4) * 1000);
+        }
+
+        // Événements boutons
+        document.getElementById('playBtn').addEventListener('click', (e) => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            isPlaying = !isPlaying;
+            e.target.innerText = isPlaying ? '⏸️' : '▶️';
+            if (isPlaying) nextStep(); else clearTimeout(scheduler);
+        });
+
+        document.getElementById('recBtn').addEventListener('click', (e) => {
+            if (!isRecording) {
+                isRecording = true;
+                e.target.classList.add('recording');
+                mediaRecorder.start();
+                if(!isPlaying) document.getElementById('playBtn').click();
+            } else {
+                isRecording = false;
+                e.target.classList.remove('recording');
+                mediaRecorder.stop();
+                if(isPlaying) document.getElementById('playBtn').click();
+            }
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            state.forEach(row => row.fill(false));
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+        });
+
+        // Chargement initial
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+        };
+    </script>
+</body>
+</html>
