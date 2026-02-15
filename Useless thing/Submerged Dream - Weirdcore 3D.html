@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submerged Dream - Weirdcore 3D</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #001a1a;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #credits {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .grain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://raw.githubusercontent.com/maxinaize/Assets/main/grain.png');
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-overlay">
+        <h1>is this real?</h1>
+        <p>𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼</p>
+    </div>
+
+    <div id="credits">
+        <span id="txt-audio-credits">Sounds created by Zat_Dude & wjoojoo & edit by me</span>
+    </div>
+
+    <div class="grain"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- Traductions (Synchronisées avec welcome.html) ---
+        const translations = {
+            'en': { credits: "Sounds created by Zat_Dude & wjoojoo & edit by me" },
+            'fr-FR': { credits: "Sons créés par Zat_Dude & wjoojoo & édités par moi" },
+            'fr-CA': { credits: "Sons créés par Zat_Dude & wjoojoo & arrangés par moi" },
+            'es-ES': { credits: "Sonidos creados por Zat_Dude & wjoojoo & editados por mí" },
+            'es-AM': { credits: "Sonidos creados por Zat_Dude & wjoojoo & editados por mí" }
+        };
+
+        function updateLanguage() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const creditElement = document.getElementById('txt-audio-credits');
+            if (creditElement && translations[lang]) {
+                creditElement.innerText = translations[lang].credits;
+            }
+        }
+
+        // --- Gestion de l'Audio ---
+        const underwaterAudio = new Audio('https://github.com/Stormwindsky/Stormwindsky-Website/blob/main/Files/sfx/Underwater.wav?raw=true');
+        const weirdNoiseAudio = new Audio('https://github.com/Stormwindsky/Stormwindsky-Website/blob/main/Files/sfx/weird%20noise.wav?raw=true');
+        
+        underwaterAudio.loop = true;
+        underwaterAudio.volume = 0.5;
+
+        let isWeirdNoisePlaying = false;
+
+        function playWeirdNoise() {
+            if (!isWeirdNoisePlaying) {
+                isWeirdNoisePlaying = true;
+                weirdNoiseAudio.volume = Math.random() * 0.5 + 0.2;
+                weirdNoiseAudio.play();
+            }
+        }
+
+        weirdNoiseAudio.onended = () => { isWeirdNoisePlaying = false; };
+
+        // Lancer l'audio au premier clic (contrainte navigateur)
+        window.addEventListener('click', () => {
+            underwaterAudio.play();
+            scheduleNextNoise();
+        }, { once: true });
+
+        function scheduleNextNoise() {
+            const nextTick = Math.random() * 15000 + 5000; // Entre 5 et 20 secondes
+            setTimeout(() => {
+                playWeirdNoise();
+                scheduleNextNoise();
+            }, nextTick);
+        }
+
+        // --- Setup Three.js (Même scène) ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x002b36);
+        scene.fog = new THREE.FogExp2(0x002b36, 0.07);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(0, 10, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040, 2));
+
+        const symbols = ['𓇼', '𓆉', '𓆝', '𓆡', '⋆.˚'];
+        const createTextSprite = (text) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256; canvas.height = 256;
+            ctx.fillStyle = 'white';
+            ctx.font = '80px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(text, 128, 160);
+            const texture = new THREE.CanvasTexture(canvas);
+            return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.8 }));
+        };
+
+        const creatures = [];
+        for (let i = 0; i < 50; i++) {
+            const sprite = createTextSprite(symbols[Math.floor(Math.random() * symbols.length)]);
+            sprite.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+            sprite.scale.set(2, 2, 1);
+            sprite.userData = { speed: 0.01 + Math.random()*0.02, drift: Math.random()*Math.PI*2 };
+            scene.add(sprite);
+            creatures.push(sprite);
+        }
+
+        const bubbles = [];
+        const bGeo = new THREE.SphereGeometry(0.05, 8, 8);
+        const bMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
+        for (let i = 0; i < 200; i++) {
+            const b = new THREE.Mesh(bGeo, bMat);
+            b.position.set((Math.random()-0.5)*50, (Math.random()-0.5)*50, (Math.random()-0.5)*50);
+            scene.add(b);
+            bubbles.push(b);
+        }
+
+        camera.position.z = 15;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
+            creatures.forEach(c => {
+                c.position.y += Math.sin(time + c.userData.drift) * 0.01;
+                c.position.x += Math.cos(time + c.userData.drift) * 0.005;
+            });
+            bubbles.forEach(b => {
+                b.position.y += 0.02;
+                if (b.position.y > 20) b.position.y = -20;
+            });
+            camera.position.x = Math.sin(time * 0.5) * 2;
+            camera.position.y = Math.cos(time * 0.3) * 1;
+            camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Initialisation
+        updateLanguage();
+        animate();
+        
+        // Écouter les changements de localStorage si l'utilisateur change de langue sur l'autre onglet
+        window.addEventListener('storage', updateLanguage);
+    </script>
+</body>
+</html>
