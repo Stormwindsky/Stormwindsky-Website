@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Art Generator</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* Zone de rendu */
+        #stage {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        /* Interface flottante moderne */
+        .dock {
+            position: fixed;
+            bottom: 40px;
+            z-index: 100;
+            display: flex;
+            gap: 15px;
+            padding: 12px;
+            background: var(--glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        button {
+            width: 55px;
+            height: 55px;
+            border-radius: 18px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Bouton "Nouveau" (Style verre teinté) */
+        .plus {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        /* Bouton "Effacer" */
+        .trash {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-10px) scale(1.1);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Formes générées */
+        .shape {
+            position: absolute;
+            mix-blend-mode: plus-lighter;
+            filter: blur(40px); /* Look moderne "glow" */
+            transition: all 1s ease-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes morph {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="stage"></div>
+
+    <div class="dock">
+        <button class="plus" onclick="create()">✦</button>
+        <button onclick="createMany()">⧉</button>
+        <button class="trash" onclick="wipe()">×</button>
+    </div>
+
+    <script>
+        const stage = document.getElementById('stage');
+
+        function create() {
+            const el = document.createElement('div');
+            el.className = 'shape';
+            
+            // Taille aléatoire
+            const size = Math.random() * 400 + 150;
+            el.style.width = `${size}px`;
+            el.style.height = `${size}px`;
+
+            // Position centrée sur un point aléatoire
+            el.style.left = Math.random() * 100 + '%';
+            el.style.top = Math.random() * 100 + '%';
+
+            // Couleurs modernes (Camaïeu de bleus, violets et cyans)
+            const hue = Math.random() * 100 + 190; // Plage de couleurs froides
+            const sat = Math.random() * 50 + 50;
+            el.style.background = `radial-gradient(circle, hsla(${hue}, ${sat}%, 50%, 0.8) 0%, transparent 70%)`;
+
+            // Forme fluide (border-radius complexe)
+            const r = () => Math.floor(Math.random() * 40 + 30) + '%';
+            el.style.borderRadius = `${r()} ${r()} ${r()} ${r()} / ${r()} ${r()} ${r()} ${r()}`;
+
+            // Animation
+            el.style.animation = `morph ${Math.random() * 5 + 5}s infinite alternate ease-in-out`;
+
+            stage.appendChild(el);
+
+            // Apparition en douceur
+            setTimeout(() => el.style.opacity = "0.6", 50);
+        }
+
+        function createMany() {
+            for(let i=0; i<5; i++) create();
+        }
+
+        function wipe() {
+            const all = document.querySelectorAll('.shape');
+            all.forEach(s => {
+                s.style.opacity = "0";
+                s.style.transform = "scale(0.5)";
+                setTimeout(() => s.remove(), 1000);
+            });
+        }
+
+        // Init
+        for(let i=0; i<6; i++) create();
+    </script>
+</body>
+</html>
