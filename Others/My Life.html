@@ -6,167 +6,147 @@
     <title>My Life</title>
     
     <style>
-        /* --- CSS : Modern & Adaptive Design --- */
+        /* --- CSS : Synchronisation Dark/Light Mode --- */
         :root {
-            --bg-color: #ffffff;
-            --text-color: #1a1a1a;
-            --accent-color: #0070f3;
-            --secondary-text: #666666;
-            --card-bg: #f5f5f7;
+            --bg-body: #f0f0f0;
+            --text-main: #1d1d1f;
+            --card-bg: #ffffff;
+            --accent: #007aff;
         }
 
-        /* Dark Mode Synchronization */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #0f172a;
-                --text-color: #f1f5f9;
-                --accent-color: #38bdf8;
-                --secondary-text: #94a3b8;
-                --card-bg: #1e293b;
-            }
+        /* Cette classe sera ajoutée par le JS pour matcher Welcome.html */
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --text-main: #f5f5f7;
+            --card-bg: #1c1c1e;
+            --accent: #5db0ff;
         }
 
         body {
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
         }
 
-        .container {
-            max-width: 750px;
-            margin: 0 auto;
-            padding: 3rem 1.5rem;
+        .article-container {
+            max-width: 800px;
+            width: 90%;
+            margin: 50px 0;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        header {
-            margin-bottom: 3.5rem;
-            border-bottom: 2px solid var(--card-bg);
-            padding-bottom: 1.5rem;
-        }
-
-        .badge {
-            display: inline-block;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 1rem;
-        }
-
-        #content-area {
-            font-size: 1.15rem;
-            white-space: pre-wrap; /* Keeps .txt formatting */
-            animation: fadeIn 0.8s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .loading-text {
-            opacity: 0.6;
-            font-style: italic;
+        header { border-bottom: 1px solid rgba(128,128,128,0.2); margin-bottom: 2rem; padding-bottom: 1rem; }
+        
+        .content { 
+            line-height: 1.8; 
+            font-size: 1.1rem; 
+            white-space: pre-wrap; /* Respecte les sauts de ligne du .txt */
         }
 
         footer {
-            margin-top: 6rem;
-            padding-top: 2rem;
+            margin-top: 4rem;
             font-size: 0.8rem;
-            color: var(--secondary-text);
+            opacity: 0.7;
         }
 
-        .license-box {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            line-height: 1.4;
+        .license-tag {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="article-container">
         <header>
-            <div class="badge" id="type-badge">Article</div>
-            <h1 id="title">Loading Story...</h1>
-            <p id="meta-info" style="font-size: 0.9rem; opacity: 0.8;">Detecting language...</p>
+            <div class="license-tag">CC0 1.0 Content</div>
+            <h1 id="art-title">Loading...</h1>
         </header>
 
-        <main id="content-area" class="loading-text">
-            Initializing connection to GitHub API...
-        </main>
+        <main id="art-content" class="content">Fetching data from GitHub...</main>
 
         <footer>
-            <div class="license-box">
-                <strong>Legal Information:</strong><br><br>
-                • Code & Webpage: <b>MIT License</b><br>
-                • Article Content: <b>CC0 1.0 Universal (Public Domain)</b>
-            </div>
+            <p><strong>Page License:</strong> MIT</p>
+            <p><strong>Text License:</strong> CC0 1.0 Universal</p>
+            <p id="sync-status" style="font-style: italic;"></p>
         </footer>
     </div>
 
     <script>
-        /* --- JS : Language Logic (Default: English) --- */
-
+        // Mapping des fichiers RAW GitHub
         const API_MAP = {
             'en': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/EN.txt',
-            'fr': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/FRCA.txt',
-            'es': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/ES.txt',
-            'es-mx': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/ESAM.txt'
+            'fr-FR': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/FRCA.txt',
+            'fr-CA': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/FRCA.txt',
+            'es-ES': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/ES.txt',
+            'es-AM': 'https://raw.githubusercontent.com/Stormwindsky/My-Life/main/lang/ESAM.txt'
         };
 
-        async function fetchContent() {
-            const contentEl = document.getElementById('content-area');
-            const titleEl = document.getElementById('title');
-            const metaEl = document.getElementById('meta-info');
+        function applySettings() {
+            // 1. Récupérer le Thème de Welcome.html
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
 
-            // Get browser language
-            let userLang = navigator.language.toLowerCase();
-            let langToUse = 'en'; // DEFAULT
+            // 2. Récupérer la Langue de Welcome.html
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            
+            loadGitHubText(savedLang);
+        }
 
-            // Logic to switch if specific languages are detected
-            if (userLang.includes('fr')) {
-                langToUse = 'fr';
-                titleEl.innerText = "Mon Histoire";
-            } else if (userLang.includes('es-419') || userLang.includes('es-mx')) {
-                langToUse = 'es-mx';
-                titleEl.innerText = "Mi Vida";
-            } else if (userLang.startsWith('es')) {
-                langToUse = 'es';
-                titleEl.innerText = "Mi Vida";
-            } else {
-                titleEl.innerText = "My Life Story";
-            }
+        async function loadGitHubText(lang) {
+            const titleEl = document.getElementById('art-title');
+            const contentEl = document.getElementById('art-content');
+            const statusEl = document.getElementById('sync-status');
+
+            // Titres selon la langue
+            const titles = {
+                'en': 'My Life',
+                'fr-FR': 'Ma Vie',
+                'fr-CA': 'Ma Vie',
+                'es-ES': 'Mi Vida',
+                'es-AM': 'Mi Vida'
+            };
+
+            titleEl.innerText = titles[lang] || titles['en'];
+            statusEl.innerText = `Synchronized: ${lang} | ${localStorage.getItem('theme')}`;
 
             try {
-                const response = await fetch(API_MAP[langToUse]);
-                if (!response.ok) throw new Error('Network error');
+                // On utilise le lien de l'API_MAP, sinon anglais par défaut
+                const url = API_MAP[lang] || API_MAP['en'];
+                const response = await fetch(url);
                 
-                const data = await response.text();
-                contentEl.innerHTML = data;
-                contentEl.classList.remove('loading-text');
+                if (!response.ok) throw new Error('Failed to fetch');
                 
-                // Update Metadata info
-                const langNames = { 'en': 'English', 'fr': 'Français (CA)', 'es': 'Español', 'es-mx': 'Español (AM)' };
-                metaEl.innerText = `Content Language: ${langNames[langToUse]} | Auto-sync active`;
-
-            } catch (error) {
-                contentEl.innerText = "Error: Could not load the article content from GitHub.";
-                console.error("API Fetch Error:", error);
+                const text = await response.text();
+                contentEl.innerText = text;
+            } catch (err) {
+                contentEl.innerText = "Error loading content. Please check your GitHub links.";
+                console.error(err);
             }
         }
 
-        // Run on load
-        window.addEventListener('DOMContentLoaded', fetchContent);
+        // S'exécute au chargement
+        window.onload = applySettings;
+
+        // Écoute les changements si l'utilisateur change de mode dans un autre onglet
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'theme' || e.key === 'preferredLang') {
+                applySettings();
+            }
+        });
     </script>
 </body>
 </html>
