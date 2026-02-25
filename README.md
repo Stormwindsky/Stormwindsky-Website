@@ -32,5 +32,9 @@ Attribution 3.0:
 
 https://github.com/Stormwindsky/Attribution-3.0-Unported-Files-used-for-my-website
 
+GPLv3 License:
+
+https://github.com/Stormwindsky/Stormwindsky-website-part-under-license-GPLv3
+
 ![This is a Dragon Snake made by me under CC0 1.0](https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Znak%20the%20Dragon%20Snake.svg)
 
