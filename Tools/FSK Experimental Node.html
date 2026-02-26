@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FSK Experimental Node | Stormwindsky</title>
+    <style>
+        /* Intégration de ton design système */
+        :root {
+            --neon-green: #00ff88;
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --text-dark: #1d1d1f;
+            --blue-main: #007aff;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .terminal {
+            background: var(--card-white);
+            border: 2px solid var(--blue-main);
+            border-radius: 35px;
+            padding: 30px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 { color: var(--blue-main); text-align: center; font-size: 1.5rem; margin-bottom: 20px; font-weight: 800; }
+        
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; justify-content: center; }
+        select, .btn-ui { padding: 8px 15px; border-radius: 12px; border: 1px solid #ccc; background: var(--card-white); color: var(--text-dark); cursor: pointer; }
+
+        .mode-section { border-top: 1px solid #eee; margin-top: 15px; padding-top: 15px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.8rem; font-weight: 700; color: var(--blue-main); }
+        
+        input[type="text"], input[type="file"] {
+            width: 100%; background: var(--bg-body); border: 1px solid #ddd;
+            color: var(--text-dark); padding: 12px; border-radius: 15px; margin-bottom: 10px;
+        }
+
+        .grid-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button.action {
+            padding: 12px; border: none; border-radius: 15px; cursor: pointer;
+            font-weight: 600; text-transform: uppercase; font-size: 0.75rem; transition: 0.2s;
+        }
+        .btn-blue { background: var(--blue-main); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--blue-main); color: var(--blue-main); }
+        
+        canvas { width: 100%; height: 120px; background: #000; margin-top: 20px; border-radius: 20px; }
+        #decodedOutput { background: #000; padding: 15px; border-radius: 15px; margin-top: 10px; color: var(--neon-green); font-family: monospace; text-align: center; }
+        footer { margin-top: 20px; font-size: 0.7rem; opacity: 0.6; }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (FR)</option>
+            <option value="fr-CA">Français (QC)</option>
+            <option value="es-ES">Español (ES)</option>
+            <option value="es-AM">Español (AM)</option>
+        </select>
+        <button class="btn-ui" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+    </div>
+
+    <div class="terminal">
+        <h1 id="txt-title">FSK Experimental Node</h1>
+
+        <div class="mode-section">
+            <label id="lbl-tx">1. GENERATE & EXPORT (TX)</label>
+            <input type="text" id="txData" placeholder="Message..." value="STORM">
+            <div class="grid-btns">
+                <button class="action btn-blue" onclick="transmit(false)" id="btn-emit">Emit</button>
+                <button class="action btn-outline" onclick="transmit(true)" id="btn-dl">Download .wav</button>
+            </div>
+        </div>
+
+        <div class="mode-section">
+            <label id="lbl-rx">2. DECODE (RX - RAW AUDIO)</label>
+            <input type="file" id="audioFile" accept="audio/*">
+            <div class="grid-btns">
+                <button class="action btn-outline" id="rxBtn" onclick="toggleListening()">Micro (Raw)</button>
+                <button class="action btn-outline" onclick="playFile()" id="btn-play">Play File</button>
+            </div>
+            <div id="decodedOutput">DECODING : _</div>
+        </div>
+
+        <canvas id="scope"></canvas>
+    </div>
+
+    <footer id="txt-footer">© 2026 Stormwindsky | MIT License</footer>
+
+<script>
+    // --- SYSTÈME DE TRADUCTION SYNCHRONISÉ ---
+    const translations = {
+        'en': { title: "FSK Experimental Node", tx: "1. GENERATE & EXPORT (TX)", rx: "2. DECODE (RX - RAW AUDIO)", emit: "Emit", dl: "Download .wav", play: "Play File", footer: "© 2026 Stormwindsky | MIT License", themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode" },
+        'fr-FR': { title: "Nœud Expérimental FSK", tx: "1. GÉNÉRER & EXPORTER (TX)", rx: "2. DÉCODER (RX - AUDIO BRUT)", emit: "Émettre", dl: "Télécharger .wav", play: "Lire Fichier", footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair" },
+        'fr-CA': { title: "Nœud Expérimental FSK", tx: "1. GÉNÉRER & EXPORTER (TX)", rx: "2. DÉCODER (RX - AUDIO BRUT)", emit: "Émettre", dl: "Télécharger .wav", play: "Lire le fichier", footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair" },
+        'es-ES': { title: "Nodo Experimental FSK", tx: "1. GENERAR Y EXPORTAR (TX)", rx: "2. DECODIFICAR (RX - AUDIO BRUTO)", emit: "Emitir", dl: "Descargar .wav", play: "Abrir Archivo", footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro" },
+        'es-AM': { title: "Nodo Experimental FSK", tx: "1. GENERAR Y EXPORTAR (TX)", rx: "2. DECODIFICAR (RX - AUDIO BRUTO)", emit: "Emitir", dl: "Descargar .wav", play: "Reproducir Archivo", footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro" }
+    };
+
+    function changeLanguage(lang) {
+        const t = translations[lang];
+        document.getElementById('txt-title').innerText = t.title;
+        document.getElementById('lbl-tx').innerText = t.tx;
+        document.getElementById('lbl-rx').innerText = t.rx;
+        document.getElementById('btn-emit').innerText = t.emit;
+        document.getElementById('btn-dl').innerText = t.dl;
+        document.getElementById('btn-play').innerText = t.play;
+        document.getElementById('txt-footer').innerText = t.footer;
+        localStorage.setItem('preferredLang', lang);
+        updateThemeButtonText();
+    }
+
+    // --- LOGIQUE CORE FSK & AUDIO ---
+    let audioCtx, analyzer, microphoneSource, isListening = false;
+    const FREQ_MARK = 1200, FREQ_SPACE = 2200, BIT_DURATION = 0.15;
+    const constraints = { audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } };
+
+    function initContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            setupVisualizer();
+            startDecodingLoop();
+        }
+    }
+
+    async function transmit(download = false) {
+        initContext();
+        const data = document.getElementById('txData').value;
+        const binary = data.split('').map(c => c.charCodeAt(0).toString(2).padStart(8,'0')).join('');
+        const duration = binary.length * BIT_DURATION;
+        
+        if (download) {
+            const offlineCtx = new OfflineAudioContext(1, 44100 * duration, 44100);
+            const osc = offlineCtx.createOscillator();
+            osc.connect(offlineCtx.destination);
+            const now = offlineCtx.currentTime;
+            for (let i = 0; i < binary.length; i++) {
+                osc.frequency.setValueAtTime(binary[i] === '1' ? FREQ_MARK : FREQ_SPACE, now + (i * BIT_DURATION));
+            }
+            osc.start(now); osc.stop(now + duration);
+            const renderedBuffer = await offlineCtx.startRendering();
+            const wavBlob = bufferToWav(renderedBuffer);
+            const url = URL.createObjectURL(wavBlob);
+            const a = document.createElement('a'); a.href = url; a.download = "fsk_storm.wav"; a.click();
+        } else {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); gain.connect(analyzer);
+            const now = audioCtx.currentTime;
+            for (let i = 0; i < binary.length; i++) {
+                osc.frequency.setValueAtTime(binary[i] === '1' ? FREQ_MARK : FREQ_SPACE, now + (i * BIT_DURATION));
+            }
+            osc.start(now); osc.stop(now + duration);
+        }
+    }
+
+    async function toggleListening() {
+        initContext();
+        if (!isListening) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                microphoneSource = audioCtx.createMediaStreamSource(stream);
+                microphoneSource.connect(analyzer);
+                isListening = true;
+                document.getElementById('rxBtn').innerText = "STOP";
+            } catch (err) { alert(err); }
+        } else { location.reload(); }
+    }
+
+    async function playFile() {
+        initContext();
+        const file = document.getElementById('audioFile').files[0];
+        if (!file) return;
+        const buffer = await audioCtx.decodeAudioData(await file.arrayBuffer());
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer; src.connect(audioCtx.destination); src.connect(analyzer);
+        src.start();
+    }
+
+    function setupVisualizer() {
+        const canvas = document.getElementById('scope');
+        const ctx = canvas.getContext('2d');
+        analyzer = audioCtx.createAnalyser();
+        analyzer.fftSize = 1024;
+        const data = new Uint8Array(analyzer.frequencyBinCount);
+        function draw() {
+            requestAnimationFrame(draw);
+            analyzer.getByteTimeDomainData(data);
+            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 2; ctx.strokeStyle = '#00ff88'; ctx.beginPath();
+            let x = 0, slice = canvas.width / data.length;
+            for(let i=0; i<data.length; i++) {
+                let v = data[i]/128.0, y = v*canvas.height/2;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                x+=slice;
+            }
+            ctx.stroke();
+        }
+        draw();
+    }
+
+    function startDecodingLoop() {
+        const freqData = new Float32Array(analyzer.frequencyBinCount);
+        setInterval(() => {
+            analyzer.getFloatFrequencyData(freqData);
+            const idx1 = Math.round(FREQ_MARK / (audioCtx.sampleRate/analyzer.fftSize));
+            const idx0 = Math.round(FREQ_SPACE / (audioCtx.sampleRate/analyzer.fftSize));
+            if (freqData[idx1] > -70 || freqData[idx0] > -70) {
+                document.getElementById('decodedOutput').innerText = freqData[idx1] > freqData[idx0] ? "BIT: 1" : "BIT: 0";
+            }
+        }, 100);
+    }
+
+    // --- UTILS : THEME & WAV ---
+    function toggleTheme() {
+        const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeButtonText();
+    }
+
+    function updateThemeButtonText() {
+        const lang = localStorage.getItem('preferredLang') || 'en';
+        const theme = localStorage.getItem('theme') || 'light';
+        document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+    }
+
+    function bufferToWav(abuffer) {
+        let n = abuffer.numberOfChannels, len = abuffer.length*n*2+44, buf = new ArrayBuffer(len), view = new DataView(buf), offset=0;
+        const u32 = (d) => { view.setUint32(offset,d,true); offset+=4; }, u16 = (d) => { view.setUint16(offset,d,true); offset+=2; };
+        u32(0x46464952); u32(len-8); u32(0x45564157); u32(0x20746d66); u32(16); u16(1); u16(n);
+        u32(abuffer.sampleRate); u32(abuffer.sampleRate*2*n); u16(n*2); u16(16); u32(0x61746164); u32(len-44);
+        for(let i=0; i<abuffer.length; i++) {
+            for(let c=0; c<n; c++) {
+                let s = Math.max(-1, Math.min(1, abuffer.getChannelData(c)[i]));
+                view.setInt16(offset, s<0?s*0x8000:s*0x7FFF, true); offset+=2;
+            }
+        }
+        return new Blob([buf], {type: "audio/wav"});
+    }
+
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedLang = localStorage.getItem('preferredLang') || 'en';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('langSelect').value = savedLang;
+        changeLanguage(savedLang);
+    };
+</script>
+</body>
+</html>
