@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Extensions Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --blue-main: #007aff;
+            --blue-light: #5db0ff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .controls {
+            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
+        }
+
+        select, .theme-toggle {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+            font-family: inherit; font-weight: 600;
+        }
+
+        .bento-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+            max-width: 1100px; width: 100%;
+        }
+
+        .card {
+            border-radius: 35px; padding: 30px; display: flex; flex-direction: column;
+            justify-content: space-between; text-decoration: none; color: inherit;
+            border: 1px solid transparent; background: var(--card-white);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: var(--blue-main);
+        }
+
+        .header-card { background: var(--card-dark); color: #fff; grid-column: span 4; }
+        .blue { background: var(--blue-main); color: #fff; }
+        
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; }
+        h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        p { font-size: 0.95rem; line-height: 1.5; opacity: 0.9; }
+
+        .tag {
+            background: rgba(255,255,255,0.2); padding: 5px 12px;
+            border-radius: 10px; font-size: 0.75rem; display: inline-block; margin-bottom: 15px;
+        }
+
+        .btn-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn {
+            padding: 10px 20px; border-radius: 12px; text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; background: var(--blue-main); color: white;
+            border: none; cursor: pointer; text-align: center;
+        }
+
+        .btn-copy { background: rgba(0,0,0,0.1); color: var(--text-dark); border: 1px solid var(--text-dim); }
+        [data-theme="dark"] .btn-copy { background: rgba(255,255,255,0.1); color: #fff; }
+
+        footer { grid-column: span 4; text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-dim); }
+
+        .loader {
+            grid-column: span 4; text-align: center; padding: 50px; font-weight: 600;
+        }
+
+        @media (max-width: 850px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .header-card, footer { grid-column: span 2; }
+        }
+        @media (max-width: 550px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .header-card, footer { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+    </div>
+
+    <div class="bento-grid" id="main-grid">
+        <div class="card header-card">
+            <div>
+                <h1 id="txt-lib-title">Extensions Library</h1>
+                <span class="tag">TurboWarp / CC0 1.0</span>
+                <p id="txt-lib-desc">Custom block extensions for TurboWarp, served securely via jsDelivr CDN.</p>
+            </div>
+        </div>
+
+        <div id="loader" class="loader">Loading extensions...</div>
+
+        <footer id="txt-footer">
+            © 2026 Stormwindsky | MIT License | Built with Passion & Autism Pride
+        </footer>
+    </div>
+
+    <script>
+        const REPO_OWNER = 'Stormwindsky';
+        const REPO_NAME = 'My-Extension-Blocks-under-license-CC0-1.0-for-Turbowarp';
+        const FOLDER_PATH = 'List';
+        const BRANCH = 'main';
+
+        const translations = {
+            'en': {
+                libTitle: "Extensions Library", libDesc: "Custom block extensions for TurboWarp, served via jsDelivr.",
+                open: "Open in TurboWarp", copy: "Copy Link", loading: "Loading extensions...",
+                footer: "© 2026 Stormwindsky | MIT License", themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode"
+            },
+            'fr-FR': {
+                libTitle: "Bibliothèque d'Extensions", libDesc: "Extensions de blocs pour TurboWarp, via jsDelivr.",
+                open: "Ouvrir dans TurboWarp", copy: "Copier le lien", loading: "Chargement...",
+                footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'fr-CA': {
+                libTitle: "Ma Librairie de Blocs", libDesc: "Mes extensions pour TurboWarp, servies par jsDelivr.",
+                open: "Lancer TurboWarp", copy: "Copier l'URL", loading: "On charge ça...",
+                footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'es-ES': {
+                libTitle: "Librería de Extensiones", libDesc: "Extensiones de bloques para TurboWarp, vía jsDelivr.",
+                open: "Abrir en TurboWarp", copy: "Copiar enlace", loading: "Cargando...",
+                footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            },
+            'es-AM': {
+                libTitle: "Librería de Extensiones", libDesc: "Extensiones para TurboWarp, distribuidas por jsDelivr.",
+                open: "Abrir en TurboWarp", copy: "Copiar link", loading: "Cargando...",
+                footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-lib-title').innerText = t.libTitle;
+            document.getElementById('txt-lib-desc').innerText = t.libDesc;
+            document.getElementById('txt-footer').innerText = t.footer;
+            if(document.getElementById('loader')) document.getElementById('loader').innerText = t.loading;
+            
+            localStorage.setItem('preferredLang', lang);
+            updateThemeButtonText();
+            refreshExtensionButtons();
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
+        }
+
+        function updateThemeButtonText() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const theme = localStorage.getItem('theme') || 'light';
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+        }
+
+        function refreshExtensionButtons() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            document.querySelectorAll('.btn-open-tw').forEach(b => b.innerText = translations[lang].open);
+            document.querySelectorAll('.btn-copy-tw').forEach(b => b.innerText = translations[lang].copy);
+        }
+
+        async function fetchExtensions() {
+            const grid = document.getElementById('main-grid');
+            const loader = document.getElementById('loader');
+            const footer = document.getElementById('txt-footer');
+            const lang = localStorage.getItem('preferredLang') || 'en';
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}?ref=${BRANCH}`);
+                const files = await response.json();
+                
+                if(loader) loader.remove();
+
+                files.filter(f => f.name.endsWith('.js')).forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    const displayName = decodeURIComponent(file.name.replace('.js', '').replace(/-/g, ' '));
+                    const jsUrl = `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}/${FOLDER_PATH}/${file.name}`;
+                    const twUrl = `https://turbowarp.org/editor?extension=${encodeURIComponent(jsUrl)}`;
+
+                    card.innerHTML = `
+                        <div>
+                            <h2>${displayName}</h2>
+                            <p style="font-size: 0.8rem; color: var(--text-dim);">CC0 1.0 License</p>
+                        </div>
+                        <div class="btn-container">
+                            <a href="${twUrl}" target="_blank" class="btn btn-open-tw">${translations[lang].open}</a>
+                            <button onclick="copyToClipboard('${jsUrl}')" class="btn btn-copy btn-copy-tw">${translations[lang].copy}</button>
+                        </div>
+                    `;
+                    grid.insertBefore(card, footer);
+                });
+            } catch (e) {
+                if(loader) loader.innerText = "Error loading extensions.";
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => alert("URL Copied!"));
+        }
+
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+            fetchExtensions();
+        };
+    </script>
+</body>
+</html>
