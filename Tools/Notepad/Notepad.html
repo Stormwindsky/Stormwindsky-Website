@@ -32,7 +32,7 @@
             background-color: var(--bg-body);
             color: var(--text-dark);
             margin: 0; padding: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.3s_ease;
             height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;
         }
 
@@ -47,7 +47,6 @@
 
         .nav-controls { display: flex; gap: 10px; align-items: center; }
 
-        /* Main Bento Card */
         .notepad-card {
             background: var(--card-white);
             border-radius: var(--radius);
@@ -62,7 +61,6 @@
             resize: none; outline: none; font-family: 'Consolas', monospace;
         }
 
-        /* Controls Grid */
         .controls-panel {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -80,7 +78,6 @@
 
         button:hover { background: var(--blue-main); color: white; border-color: var(--blue-main); }
 
-        /* Status & TTS */
         .status-message {
             padding: 10px; border-radius: 12px; margin-bottom: 10px; display: none;
             font-weight: 600; font-size: 0.9rem;
@@ -93,7 +90,6 @@
             margin-top: 15px; display: none; gap: 10px; align-items: center; flex-wrap: wrap;
         }
 
-        /* Modals */
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
@@ -103,7 +99,6 @@
             border-radius: var(--radius); width: 80%; max-width: 500px; text-align: center;
         }
 
-        /* Specific styles for Download/Zip */
         #downloadFilesBtn { background: #28a745; color: white; border: none; display: none; }
         #createZipBtn { background: #17a2b8; color: white; border: none; display: none; }
         
@@ -206,7 +201,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-    // --- LOGIQUE COMPLÈTE ---
     const translations = {
         en: { siteTitle: "StormNotepad", load: "Load", saveFile: "Save File", saveUrl: "Save URL", kits: "Kits", kitsTitle: "Select Kit", confirmTitle: "Confirm Download?", confirmBody: "No security guarantee.", themeL: "☀️ Light", themeD: "🌙 Dark", creatingZip: "Creating ZIP..." },
         "fr-FR": { siteTitle: "StormNotepad", load: "Charger", saveFile: "Enregistrer", saveUrl: "Lien URL", kits: "Kits", kitsTitle: "Sélectionner Kit", confirmTitle: "Confirmer ?", confirmBody: "Aucune garantie de sécurité.", themeL: "☀️ Clair", themeD: "🌙 Sombre", creatingZip: "Création du ZIP..." },
@@ -225,12 +219,9 @@
         const text = document.getElementById('editor').value;
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         const urls = text.match(urlRegex) || [];
-        
         detectedUrls = [...urls];
         document.getElementById('urlCounter').innerText = `${detectedUrls.length} Items`;
         document.getElementById('downloadFilesBtn').style.display = detectedUrls.length > 0 ? 'inline-block' : 'none';
-        
-        // Affichage du bouton ZIP si les balises sont présentes
         const hasZipTags = text.includes('*CZ =') && text.includes('*end*');
         document.getElementById('createZipBtn').style.display = hasZipTags ? 'inline-block' : 'none';
     }
@@ -239,12 +230,10 @@
         const text = document.getElementById('editor').value;
         const lang = localStorage.getItem('preferredLang') || 'en';
         showStatusMessage(translations[lang].creatingZip || "Creating ZIP...");
-
         const lines = text.split('\n');
         const zip = new JSZip();
         let zipName = "project";
         let currentFolder = zip;
-        
         for(let line of lines) {
             line = line.trim();
             if(line.startsWith('*CZ =')) zipName = line.substring(5).trim();
@@ -259,7 +248,6 @@
             }
             if(line === '*end*') currentFolder = zip;
         }
-
         zip.generateAsync({type: 'blob'}).then(c => {
             const link = document.createElement('a');
             link.href = URL.createObjectURL(c);
@@ -269,7 +257,6 @@
         });
     }
 
-    // Fonctions utilitaires conservées
     function showStatusMessage(msg, isError = false) {
         const s = document.getElementById('statusMessage');
         s.innerText = msg;
@@ -313,19 +300,27 @@
 
     function confirmDownload() { document.getElementById('confirmationModal').style.display = 'block'; }
     function cancelDownload() { document.getElementById('confirmationModal').style.display = 'none'; }
-    function proceedDownload() { cancelDownload(); /* Logic de téléchargement multiple ici */ }
+    function proceedDownload() { cancelDownload(); }
 
     function toggleCustomFormat() {
         document.getElementById('customFormat').style.display = 
             document.getElementById('fileFormat').value === 'custom' ? 'inline-block' : 'none';
     }
 
+    // --- ICI LA FIX DU FORMAT ---
     function saveAsFile() {
         const text = document.getElementById('editor').value;
+        const formatSelect = document.getElementById('fileFormat').value;
+        let extension = formatSelect;
+
+        if (formatSelect === 'custom') {
+            extension = document.getElementById('customFormat').value || 'txt';
+        }
+
         const blob = new Blob([text], {type: 'text/plain'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = "note.txt";
+        a.download = `note.${extension}`; // Utilise maintenant l'extension choisie !
         a.click();
     }
 
