@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormDither | Retro Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --blue-main: #007aff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --radius: 24px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0; padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        header {
+            background: var(--card-white);
+            padding: 15px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .nav-controls { display: flex; gap: 10px; }
+
+        select, .theme-btn, .action-btn {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+            font-weight: 600; outline: none;
+        }
+
+        .drop-zone {
+            background: var(--card-white);
+            border: 3px dashed var(--text-dim);
+            border-radius: var(--radius);
+            padding: 60px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            margin-bottom: 25px;
+        }
+
+        .drop-zone.drag-over { border-color: var(--blue-main); background: rgba(0,122,255,0.05); }
+
+        .editor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: var(--card-white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        canvas, img { max-width: 100%; border-radius: 12px; height: auto; }
+        
+        .hidden { display: none; }
+
+        footer { margin-top: 40px; text-align: center; color: var(--text-dim); font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2 id="txt-title">StormDither</h2>
+        <div class="nav-controls">
+            <select id="langSelect" onchange="updateLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="fr-FR">Français (FR)</option>
+                <option value="fr-CA">Français (QC)</option>
+                <option value="es-ES">Español (ES)</option>
+                <option value="es-AM">Español (AM)</option>
+            </select>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        </div>
+    </header>
+
+    <div class="drop-zone" id="dropZone">
+        <i class="fas fa-cloud-upload-alt fa-3x" style="color:var(--blue-main)"></i>
+        <p id="txt-drop">Drag & Drop image here (No SVG/GIF)</p>
+        <input type="file" id="fileInput" class="hidden" accept="image/png, image/jpeg">
+    </div>
+
+    <div class="editor-grid">
+        <div class="bento-card">
+            <h4 id="txt-before">Original</h4>
+            <div id="originalContainer"></div>
+        </div>
+        <div class="bento-card">
+            <h4 id="txt-after">Retro Dither</h4>
+            <canvas id="outputCanvas"></canvas>
+            <br>
+            <button class="action-btn" id="downloadBtn" style="margin-top:10px">Download</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Stormwindsky ArtLibre - Retro Processing Unit</p>
+    </footer>
+</div>
+
+<script>
+    const translations = {
+        en: { drop: "Drag & Drop image (No SVG/GIF)", before: "Original", after: "Retro Dither", themeL: "☀️ Light", themeD: "🌙 Dark" },
+        "fr-FR": { drop: "Glissez l'image (Pas de SVG/GIF)", before: "Original", after: "Tramage Rétro", themeL: "☀️ Clair", themeD: "🌙 Sombre" },
+        "fr-CA": { drop: "Garrochez l'image icitte (Pas de SVG/GIF)", before: "Original", after: "Effet Rétro", themeL: "☀️ Clair", themeD: "🌙 Noir" },
+        "es-ES": { drop: "Arrastra la imagen (No SVG/GIF)", before: "Original", after: "Dither Retro", themeL: "☀️ Claro", themeD: "🌙 Oscuro" },
+        "es-AM": { drop: "Suelta la imagen aquí (Sin SVG/GIF)", before: "Original", after: "Efecto Retro", themeL: "☀️ Claro", themeD: "🌙 Oscuro" }
+    };
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const canvas = document.getElementById('outputCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // --- ALGORITHME DE TRAMAGE (DITHERING) ---
+    function applyDither(imgData) {
+        const data = imgData.data;
+        const w = imgData.width;
+        const h = imgData.height;
+
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                let i = (y * w + x) * 4;
+                
+                // Calcul du pixel le plus proche (Noir ou Blanc pour cet effet)
+                let oldR = data[i], oldG = data[i+1], oldB = data[i+2];
+                let newR = oldR < 128 ? 0 : 255;
+                let newG = oldG < 128 ? 0 : 255;
+                let newB = oldB < 128 ? 0 : 255;
+                
+                data[i] = newR; data[i+1] = newG; data[i+2] = newB;
+
+                // Diffusion de l'erreur (Floyd-Steinberg)
+                let errR = oldR - newR, errG = oldG - newG, errB = oldB - newB;
+                distErr(data, x+1, y, w, h, errR, errG, errB, 7/16);
+                distErr(data, x-1, y+1, w, h, errR, errG, errB, 3/16);
+                distErr(data, x, y+1, w, h, errR, errG, errB, 5/16);
+                distErr(data, x+1, y+1, w, h, errR, errG, errB, 1/16);
+            }
+        }
+        return imgData;
+    }
+
+    function distErr(data, x, y, w, h, er, eg, eb, factor) {
+        if (x < 0 || x >= w || y >= h) return;
+        let i = (y * w + x) * 4;
+        data[i] += er * factor; data[i+1] += eg * factor; data[i+2] += eb * factor;
+    }
+
+    // --- GESTION DES FICHIERS ---
+    dropZone.onclick = () => fileInput.click();
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        handleFile(e.dataTransfer.files[0]);
+    };
+    fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+    function handleFile(file) {
+        if (!file) return;
+        // Blocage explicite des SVG et GIF
+        if (file.type.includes('svg') || file.type.includes('gif')) {
+            alert("Format non supporté / Not supported (.svg / .gif)");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                document.getElementById('originalContainer').innerHTML = `<img src="${e.target.result}">`;
+                canvas.width = img.width; canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                ctx.putImageData(applyDither(idata), 0, 0);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- INTERFACE ---
+    function updateLanguage(lang) {
+        const t = translations[lang] || translations.en;
+        document.getElementById('txt-drop').innerText = t.drop;
+        document.getElementById('txt-before').innerText = t.before;
+        document.getElementById('txt-after').innerText = t.after;
+        localStorage.setItem('preferredLang', lang);
+        updateThemeBtn();
+    }
+
+    function toggleTheme() {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        updateThemeBtn();
+    }
+
+    function updateThemeBtn() {
+        const lang = localStorage.getItem('preferredLang') || 'en';
+        const theme = localStorage.getItem('theme') || 'light';
+        document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+    }
+
+    window.onload = () => {
+        const L = localStorage.getItem('preferredLang') || 'en';
+        document.getElementById('langSelect').value = L;
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+        updateLanguage(L);
+    };
+
+    document.getElementById('downloadBtn').onclick = () => {
+        const link = document.createElement('a');
+        link.download = 'storm-dithered.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    };
+</script>
+</body>
+</html>
