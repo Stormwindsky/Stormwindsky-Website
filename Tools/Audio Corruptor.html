@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Audio Corruptor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --blue-main: #007aff;
+            --blue-light: #5db0ff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --warn-red: #ff3b30;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s ease; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* MODAL WARNING */
+        #warningModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--card-white); padding: 40px; border-radius: 35px;
+            max-width: 500px; text-align: center; border: 2px solid var(--warn-red);
+        }
+
+        .controls-top { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        select, .theme-toggle, .btn-action {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+            font-weight: 600;
+        }
+
+        .container { max-width: 800px; width: 100%; display: grid; gap: 20px; }
+
+        .card {
+            background: var(--card-white); border-radius: 30px; padding: 25px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 10px; font-weight: 800; }
+        label { display: block; margin: 15px 0 5px; font-size: 0.9rem; font-weight: 600; }
+
+        input[type="range"] { width: 100%; accent-color: var(--blue-main); }
+
+        .audio-preview {
+            margin-top: 20px; width: 100%; background: #000;
+            border-radius: 15px; padding: 10px;
+        }
+
+        .btn-main {
+            background: var(--blue-main); color: white; border: none;
+            padding: 12px 25px; border-radius: 12px; cursor: pointer;
+            width: 100%; margin-top: 15px; font-size: 1rem; font-weight: 600;
+        }
+
+        .btn-warn { background: var(--warn-red); color: white; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="warningModal">
+        <div class="modal-content">
+            <h2 style="color:var(--warn-red); margin-bottom: 15px;" id="pop-title">⚠️ LOUD AUDIO WARNING</h2>
+            <p id="pop-desc">Corrupting audio data can produce extremely loud, unpredictable, and harsh noises. Please lower your volume before starting.</p>
+            <button class="btn-main btn-warn" onclick="closeModal()" id="pop-btn">I Understand / Compris</button>
+        </div>
+    </div>
+
+    <div class="controls-top">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+        <a href="welcome.html" class="btn-action" style="text-decoration: none;">🏠 Home</a>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1 id="txt-title">Audio Corruptor</h1>
+            <p id="txt-desc">Upload a WAV or MP3 file to create digital noise and audio artifacts.</p>
+            <input type="file" id="audioUpload" accept="audio/*" style="margin-top: 15px;">
+        </div>
+
+        <div class="card">
+            <h2 id="txt-config">Configurations</h2>
+            
+            <label id="lbl-glitch">Glitch Density</label>
+            <input type="range" id="glitchLevel" min="1" max="50" value="5">
+            
+            <label id="lbl-chaos">Chaos Factor</label>
+            <input type="range" id="chaosLevel" min="1" max="255" value="128">
+
+            <button class="btn-main" onclick="corruptAudio()" id="btn-process">Process Audio</button>
+        </div>
+
+        <div class="card">
+            <h2 id="txt-player">Audio Result</h2>
+            <div class="audio-preview">
+                <audio id="audioPlayer" controls style="width: 100%;"></audio>
+            </div>
+            <a id="downloadLink" style="display:none;" class="btn-main" style="text-align: center; text-decoration: none; background: #333;">Download Corrupted Audio</a>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            'en': {
+                title: "Audio Corruptor", desc: "Corrupt audio data for experimental sound design.",
+                config: "Configurations", glitch: "Glitch Density", chaos: "Chaos Factor",
+                process: "Process Audio", player: "Audio Result",
+                popT: "⚠️ LOUD AUDIO WARNING", popD: "Experimental audio can be extremely loud. Protect your ears.", popB: "I Understand",
+                themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode"
+            },
+            'fr-FR': {
+                title: "Corrupteur Audio", desc: "Corrompez les données audio pour du design sonore expérimental.",
+                config: "Configurations", glitch: "Densité de Glitch", chaos: "Facteur Chaos",
+                process: "Traiter l'Audio", player: "Résultat Audio",
+                popT: "⚠️ ATTENTION : SONS FORTS", popD: "L'audio corrompu peut produire des sons imprévisibles et très forts.", popB: "Je comprends",
+                themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'fr-CA': {
+                title: "Corrupteur Audio", desc: "Brise ton son pour faire du bruitage expérimental.",
+                config: "Ajustements", glitch: "Quantité de Glitch", chaos: "Niveau de Chaos",
+                process: "Gousser l'Audio", player: "Résultat",
+                popT: "⚠️ ATTENTION : ÇA VA SONNER FORT", popD: "Le son peut devenir vraiment agressif et fort d'un coup. Fais attention à tes oreilles.", popB: "J'ai compris",
+                themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'es-ES': {
+                title: "Corruptor de Audio", desc: "Corrompe datos de audio para diseño sonoro experimental.",
+                config: "Configuración", glitch: "Densidad de Glitch", chaos: "Factor Caos",
+                process: "Procesar Audio", player: "Resultado",
+                popT: "⚠️ ADVERTENCIA: SONIDO FUERTE", popD: "El audio corrupto puede generar sonidos muy fuertes e impredecibles.", popB: "Entiendo",
+                themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            },
+            'es-AM': {
+                title: "Corruptor de Audio", desc: "Daña archivos de audio para crear ruidos experimentales.",
+                config: "Ajustes", glitch: "Nivel de Glitch", chaos: "Caos",
+                process: "Corromper Audio", player: "Resultado",
+                popT: "⚠️ ADVERTENCIA: VOLUMEN ALTO", popD: "El audio experimental puede ser extremadamente ruidoso. Cuida tus oídos.", popB: "Entiendo",
+                themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            }
+        };
+
+        let originalAudioBuffer = null;
+
+        function closeModal() {
+            document.getElementById('warningModal').style.display = 'none';
+        }
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-title').innerText = t.title;
+            document.getElementById('txt-desc').innerText = t.desc;
+            document.getElementById('txt-config').innerText = t.config;
+            document.getElementById('lbl-glitch').innerText = t.glitch;
+            document.getElementById('lbl-chaos').innerText = t.chaos;
+            document.getElementById('btn-process').innerText = t.process;
+            document.getElementById('txt-player').innerText = t.player;
+            document.getElementById('pop-title').innerText = t.popT;
+            document.getElementById('pop-desc').innerText = t.popD;
+            document.getElementById('pop-btn').innerText = t.popB;
+            localStorage.setItem('preferredLang', lang);
+            updateThemeButtonText();
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
+        }
+
+        function updateThemeButtonText() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const theme = localStorage.getItem('theme') || 'light';
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+        }
+
+        document.getElementById('audioUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => { originalAudioBuffer = ev.target.result; };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function corruptAudio() {
+            if (!originalAudioBuffer) return;
+            
+            let bytes = new Uint8Array(originalAudioBuffer);
+            const glitch = document.getElementById('glitchLevel').value / 1000;
+            const chaos = parseInt(document.getElementById('chaosLevel').value);
+            
+            // On saute le header (environ 44 octets pour WAV, plus pour MP3)
+            for (let i = 200; i < bytes.length; i++) {
+                if (Math.random() < glitch) {
+                    bytes[i] = Math.floor(Math.random() * chaos);
+                }
+            }
+
+            const blob = new Blob([bytes], { type: 'audio/mpeg' });
+            const url = URL.createObjectURL(blob);
+            const player = document.getElementById('audioPlayer');
+            player.src = url;
+            
+            const dl = document.getElementById('downloadLink');
+            dl.href = url;
+            dl.download = "stormwindsky_corrupted_audio.mp3";
+            dl.style.display = "block";
+        }
+
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+        };
+    </script>
+</body>
+</html>
