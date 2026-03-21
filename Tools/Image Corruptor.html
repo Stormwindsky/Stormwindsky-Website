@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Image Corruptor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --blue-main: #007aff;
+            --blue-light: #5db0ff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s ease; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .controls-top { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        select, .theme-toggle, .btn-action {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 900px; width: 100%;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+
+        .card {
+            background: var(--card-white);
+            border-radius: 30px;
+            padding: 25px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .full-width { grid-column: span 2; }
+
+        h1 { font-size: 1.8rem; margin-bottom: 15px; font-weight: 800; }
+        label { display: block; margin: 15px 0 5px; font-size: 0.9rem; font-weight: 600; }
+
+        input[type="range"] { width: 100%; accent-color: var(--blue-main); }
+
+        .preview-area {
+            width: 100%; min-height: 300px;
+            border: 2px dashed var(--text-dim);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin-top: 15px; background: #000;
+        }
+
+        canvas { max-width: 100%; height: auto; }
+
+        .btn-main {
+            background: var(--blue-main); color: white; border: none;
+            padding: 12px 25px; border-radius: 12px; cursor: pointer;
+            width: 100%; margin-top: 15px; font-size: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .container { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls-top">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+        <a href="welcome.html" class="btn-action" style="text-decoration: none;">🏠 Home</a>
+    </div>
+
+    <div class="container">
+        <div class="card full-width">
+            <h1 id="txt-title">Image Corruptor</h1>
+            <p id="txt-desc">Upload an image to apply digital glitch effects by corrupting its raw data.</p>
+            <input type="file" id="uploadInput" accept="image/jpeg, image/jpg" style="margin-top: 15px;">
+        </div>
+
+        <div class="card">
+            <h2 id="txt-config">Configurations</h2>
+            
+            <label id="lbl-amount">Corruption Amount</label>
+            <input type="range" id="glitchAmount" min="1" max="99" value="10">
+            
+            <label id="lbl-seed">Random Seed</label>
+            <input type="range" id="glitchSeed" min="1" max="100" value="50">
+
+            <button class="btn-main" onclick="corruptImage()" id="btn-glitch">Apply Glitch</button>
+            <button class="btn-main" style="background:var(--card-dark)" onclick="downloadImage()" id="btn-save">Save Image</button>
+        </div>
+
+        <div class="card">
+            <h2 id="txt-preview">Preview</h2>
+            <div class="preview-area" id="previewArea">
+                <canvas id="glitchCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            'en': {
+                title: "Image Corruptor", desc: "Upload a JPEG to apply digital glitch effects.",
+                config: "Configurations", amount: "Corruption Amount", seed: "Random Seed",
+                glitch: "Apply Glitch", save: "Save Image", preview: "Preview",
+                themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode"
+            },
+            'fr-FR': {
+                title: "Corrupteur d'Image", desc: "Téléchargez un JPEG pour appliquer des effets de glitch.",
+                config: "Configurations", amount: "Intensité de corruption", seed: "Graine aléatoire",
+                glitch: "Corrompre", save: "Sauvegarder", preview: "Aperçu",
+                themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'fr-CA': {
+                title: "Corrupteur d'Image", desc: "Mets un JPEG pour gousser l'image avec du glitch.",
+                config: "Ajustements", amount: "Force de corruption", seed: "Seed aléatoire",
+                glitch: "Gousser l'image", save: "Enregistrer", preview: "Aperçu",
+                themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'es-ES': {
+                title: "Corruptor de Imagen", desc: "Sube un JPEG para aplicar efectos glitch.",
+                config: "Configuración", amount: "Cantidad de corrupción", seed: "Semilla aleatoria",
+                glitch: "Corromper", save: "Guardar imagen", preview: "Vista previa",
+                themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            },
+            'es-AM': {
+                title: "Corruptor de Imagen", desc: "Sube tu imagen para aplicar efectos de error digital.",
+                config: "Ajustes", amount: "Nivel de daño", seed: "Semilla",
+                glitch: "Aplicar Glitch", save: "Descargar", preview: "Previsualización",
+                themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            }
+        };
+
+        let originalBytes = null;
+
+        // Sync Language
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-title').innerText = t.title;
+            document.getElementById('txt-desc').innerText = t.desc;
+            document.getElementById('txt-config').innerText = t.config;
+            document.getElementById('lbl-amount').innerText = t.amount;
+            document.getElementById('lbl-seed').innerText = t.seed;
+            document.getElementById('btn-glitch').innerText = t.glitch;
+            document.getElementById('btn-save').innerText = t.save;
+            document.getElementById('txt-preview').innerText = t.preview;
+            localStorage.setItem('preferredLang', lang);
+            updateThemeButtonText();
+        }
+
+        // Sync Theme
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
+        }
+
+        function updateThemeButtonText() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const theme = localStorage.getItem('theme') || 'light';
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+        }
+
+        // Glitch Logic
+        document.getElementById('uploadInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                originalBytes = new Uint8Array(event.target.result);
+                corruptImage(); 
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function corruptImage() {
+            if (!originalBytes) return;
+
+            let bytes = new Uint8Array(originalBytes);
+            const amount = document.getElementById('glitchAmount').value / 100;
+            const seed = document.getElementById('glitchSeed').value / 100;
+            
+            // On évite de toucher au header JPEG (les ~600 premiers octets) pour que l'image reste lisible
+            const headerOffset = 600; 
+
+            for (let i = headerOffset; i < bytes.length; i++) {
+                if (Math.random() < (amount / 100)) {
+                    bytes[i] = Math.floor(seed * 256);
+                }
+            }
+
+            const blob = new Blob([bytes], {type: 'image/jpeg'});
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.getElementById('glitchCanvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = url;
+        }
+
+        function downloadImage() {
+            const canvas = document.getElementById('glitchCanvas');
+            const link = document.createElement('a');
+            link.download = 'stormwindsky_glitch.jpg';
+            link.href = canvas.toDataURL('image/jpeg');
+            link.click();
+        }
+
+        // Initialization & Sync with Welcome.html
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+        };
+    </script>
+</body>
+</html>
