@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Morphing Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --blue-main: #007aff;
+            --accent: #5db0ff;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header-controls {
+            display: flex; gap: 10px; margin-bottom: 30px; width: 100%; max-width: 820px; justify-content: flex-end;
+        }
+
+        select, .btn-ui {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer; font-size: 0.9rem;
+        }
+
+        .main-container {
+            display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; max-width: 1100px;
+        }
+
+        canvas {
+            border: 4px solid var(--card-white);
+            background: black;
+            cursor: crosshair;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 20px;
+        }
+
+        .panel {
+            background: var(--card-white);
+            padding: 25px;
+            border-radius: 25px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        h2 { font-weight: 800; font-size: 1.4rem; margin-bottom: 5px; }
+        label { font-size: 0.8rem; font-weight: 600; color: var(--text-dim); margin-bottom: -10px; }
+
+        input[type="text"], input[type="file"] {
+            padding: 10px; border-radius: 10px; border: 1px solid var(--text-dim);
+            background: var(--bg-body); color: var(--text-dark);
+        }
+
+        .action-btn {
+            padding: 12px; border-radius: 12px; border: none; font-weight: 700;
+            cursor: pointer; background: var(--blue-main); color: white; transition: transform 0.2s;
+        }
+
+        .action-btn:active { transform: scale(0.98); }
+        .recording { background: #ff3b30 !important; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .footer { margin-top: auto; padding: 40px; font-size: 0.8rem; color: var(--text-dim); }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="btn-ui" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+    </div>
+
+    <h2 id="txt-main-title" style="margin-bottom: 20px;">Morphing Tool</h2>
+
+    <div class="main-container">
+        <canvas id="canvas"></canvas>
+
+        <div class="panel">
+            <div id="status" style="font-size: 0.8rem; color: var(--blue-main); font-weight: 600; min-height: 1.2em;"></div>
+            
+            <label id="lbl-url">1. Target Image (URL)</label>
+            <input type="text" id="urlInput" value="https://upload.wikimedia.org/wikipedia/commons/7/76/Leonardo_da_Vinci_-_Mona_Lisa.jpg">
+            
+            <label id="lbl-file">Or Local File</label>
+            <input type="file" id="fileInput" accept="image/*">
+            
+            <label id="lbl-speed">Transformation Speed</label>
+            <input type="range" id="speedInput" min="1" max="50" value="10">
+            
+            <button id="transformBtn" class="action-btn">Start Morphing</button>
+            <button id="recordBtn" class="action-btn" style="background: var(--text-dim);">⏺ Record (.webm)</button>
+            <button id="clearBtn" class="action-btn" style="background: none; color: var(--text-dark); border: 1px solid var(--text-dim);">Clear Canvas</button>
+        </div>
+    </div>
+
+    <div class="footer" id="txt-footer">© 2026 Stormwindsky | MIT License</div>
+
+    <script>
+        // --- SYNCHRONISATION & TRADUCTIONS ---
+        const translations = {
+            'en': {
+                title: "Morphing Tool", footer: "© 2026 Stormwindsky | MIT License",
+                lblUrl: "1. Target Image (URL)", lblFile: "Or Local File",
+                lblSpeed: "Transformation Speed", btnStart: "Start Morphing",
+                btnClear: "Clear Canvas", btnRec: "⏺ Record (.webm)", btnStop: "⏹ Stop & Save",
+                themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode", statusReady: "Ready!", statusRec: "Recording..."
+            },
+            'fr-FR': {
+                title: "Outil de Morphing", footer: "© 2026 Stormwindsky | Licence MIT",
+                lblUrl: "1. Image Cible (URL)", lblFile: "Ou Fichier Local",
+                lblSpeed: "Vitesse de transformation", btnStart: "Lancer le Morphing",
+                btnClear: "Effacer", btnRec: "⏺ Enregistrer (.webm)", btnStop: "⏹ Arrêter & Sauver",
+                themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair", statusReady: "Prêt !", statusRec: "Enregistrement..."
+            },
+            'fr-CA': {
+                title: "Outil de Morphing", footer: "© 2026 Stormwindsky | Licence MIT",
+                lblUrl: "1. Image Cible (URL)", lblFile: "Ou Fichier Local",
+                lblSpeed: "Vitesse du morphing", btnStart: "Go !",
+                btnClear: "Effacer", btnRec: "⏺ Enregistrer (.webm)", btnStop: "⏹ Arrêter & Sauver",
+                themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair", statusReady: "Prêt !", statusRec: "Enregistrement..."
+            },
+            'es-ES': {
+                title: "Herramienta de Morphing", footer: "© 2026 Stormwindsky | Licencia MIT",
+                lblUrl: "1. Imagen Objetivo (URL)", lblFile: "O Archivo Local",
+                lblSpeed: "Velocidad", btnStart: "Iniciar Morphing",
+                btnClear: "Borrar", btnRec: "⏺ Grabar (.webm)", btnStop: "⏹ Detener y Guardar",
+                themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro", statusReady: "¡Listo!", statusRec: "Grabando..."
+            },
+            'es-AM': {
+                title: "Herramienta de Morphing", footer: "© 2026 Stormwindsky | Licencia MIT",
+                lblUrl: "1. Imagen (URL)", lblFile: "O Archivo Local",
+                lblSpeed: "Velocidad", btnStart: "Iniciar",
+                btnClear: "Limpiar", btnRec: "⏺ Grabar (.webm)", btnStop: "⏹ Detener y Guardar",
+                themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro", statusReady: "¡Listo!", statusRec: "Grabando..."
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-main-title').innerText = t.title;
+            document.getElementById('lbl-url').innerText = t.lblUrl;
+            document.getElementById('lbl-file').innerText = t.lblFile;
+            document.getElementById('lbl-speed').innerText = t.lblSpeed;
+            document.getElementById('transformBtn').innerText = t.btnStart;
+            document.getElementById('clearBtn').innerText = t.btnClear;
+            document.getElementById('txt-footer').innerText = t.footer;
+            
+            const recBtn = document.getElementById('recordBtn');
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                recBtn.innerText = t.btnStop;
+            } else {
+                recBtn.innerText = t.btnRec;
+            }
+
+            localStorage.setItem('preferredLang', lang);
+            updateThemeButtonText();
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
+        }
+
+        function updateThemeButtonText() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const theme = localStorage.getItem('theme') || 'light';
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+        }
+
+        // --- LOGIQUE CORE DU CANEVAS ---
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const SIZE = 500;
+        canvas.width = SIZE; canvas.height = SIZE;
+
+        let particles = [], isDrawing = false, isMorphing = false;
+        let mediaRecorder, recordedChunks = [];
+
+        let targetImg = new Image();
+        targetImg.crossOrigin = "Anonymous";
+        targetImg.src = document.getElementById('urlInput').value;
+
+        ctx.strokeStyle = "white"; ctx.lineWidth = 8; ctx.lineJoin = "round"; ctx.lineCap = "round";
+
+        canvas.onmousedown = (e) => {
+            if(isMorphing) return;
+            isDrawing = true;
+            ctx.beginPath();
+            const rect = canvas.getBoundingClientRect();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        };
+        window.onmouseup = () => isDrawing = false;
+        canvas.onmousemove = (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        };
+
+        document.getElementById('fileInput').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => { targetImg.src = ev.target.result; };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        function animate() {
+            if (!isMorphing) return;
+            ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+            ctx.fillRect(0, 0, SIZE, SIZE);
+            const speed = document.getElementById('speedInput').value / 1000;
+            particles.forEach(p => {
+                p.vx += (p.targetX - p.x) * speed;
+                p.vy += (p.targetY - p.y) * speed;
+                p.vx *= 0.85; p.vy *= 0.85;
+                p.x += p.vx; p.y += p.vy;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 2, 2);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        // --- GESTION ENREGISTREMENT (START/STOP) ---
+        document.getElementById('recordBtn').onclick = function() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                this.classList.remove('recording');
+                this.innerText = translations[lang].btnRec;
+                return;
+            }
+
+            recordedChunks = [];
+            const stream = canvas.captureStream(30);
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            
+            mediaRecorder.ondataavailable = (e) => recordedChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `stormwindsky-morph-${Date.now()}.webm`;
+                a.click();
+                document.getElementById('status').innerText = translations[lang].statusReady;
+            };
+
+            mediaRecorder.start();
+            this.classList.add('recording');
+            this.innerText = translations[lang].btnStop;
+            document.getElementById('status').innerText = translations[lang].statusRec;
+            
+            if(!isMorphing) document.getElementById('transformBtn').click();
+        };
+
+        document.getElementById('transformBtn').onclick = () => {
+            const imageData = ctx.getImageData(0, 0, SIZE, SIZE);
+            particles = [];
+            for (let y = 0; y < SIZE; y += 4) {
+                for (let x = 0; x < SIZE; x += 4) {
+                    if (imageData.data[(y * SIZE + x) * 4 + 3] > 128) {
+                        particles.push({ x, y, vx: 0, vy: 0, targetX: 0, targetY: 0, color: "white" });
+                    }
+                }
+            }
+            if (particles.length === 0) return;
+
+            const tempC = document.createElement('canvas');
+            tempC.width = SIZE; tempC.height = SIZE;
+            const tCtx = tempC.getContext('2d');
+            tCtx.drawImage(targetImg, 0, 0, SIZE, SIZE);
+            const data = tCtx.getImageData(0, 0, SIZE, SIZE).data;
+
+            particles.forEach(p => {
+                p.targetX = Math.floor(Math.random() * SIZE);
+                p.targetY = Math.floor(Math.random() * SIZE);
+                const idx = (p.targetY * SIZE + p.targetX) * 4;
+                p.color = `rgb(${data[idx]}, ${data[idx+1]}, ${data[idx+2]})`;
+            });
+
+            isMorphing = true;
+            animate();
+        };
+
+        document.getElementById('clearBtn').onclick = () => {
+            isMorphing = false;
+            ctx.clearRect(0, 0, SIZE, SIZE);
+            particles = [];
+        };
+
+        // --- INITIALISATION SYNCHRONISÉE ---
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+        };
+    </script>
+</body>
+</html>
