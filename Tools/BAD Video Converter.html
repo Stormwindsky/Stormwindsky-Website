@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stormwindsky | BAD!!! Video Converter</title>
+    <title>Stormwindsky | Video Converter</title>
+    
+    <script src="https://rawcdn.githack.com/gzuidhof/coi-serviceworker/6db833216844914da671f6630f68480373e9a7e0/coi-serviceworker.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    
     <style>
         :root {
             --bg-body: #f0f0f0;
@@ -52,13 +56,15 @@
             border-radius: 35px;
             text-align: center;
             box-shadow: 0 10px 30px var(--border-color);
+            border: 1px solid var(--border-color);
         }
 
-        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 20px; color: var(--blue-main); }
+        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; color: var(--blue-main); }
+        .subtitle { color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem; }
 
         #drop-zone {
             width: 100%;
-            height: 200px;
+            height: 220px;
             border: 2px dashed var(--blue-light);
             border-radius: 25px;
             display: flex;
@@ -68,32 +74,40 @@
             cursor: pointer;
             color: var(--text-dim);
             margin-bottom: 20px;
-            background: rgba(0, 122, 255, 0.05);
+            background: rgba(0, 122, 255, 0.03);
         }
 
         #drop-zone:hover {
-            background: rgba(0, 122, 255, 0.1);
+            background: rgba(0, 122, 255, 0.08);
             border-color: var(--blue-main);
-            transform: scale(1.02);
+            transform: translateY(-5px);
         }
 
-        .status { margin-top: 15px; font-weight: 600; font-size: 0.9rem; }
+        .status-box {
+            background: rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        [data-theme="dark"] .status-box { background: rgba(255,255,255,0.05); }
+
+        .status { font-weight: 600; font-size: 0.9rem; }
         
         .loader { 
             display: none; 
             margin-top: 10px;
             color: var(--blue-main);
             font-weight: 800;
+            letter-spacing: 1px;
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+            0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; }
         }
 
-        .footer { margin-top: 30px; font-size: 0.75rem; color: var(--text-dim); }
+        footer { margin-top: 40px; font-size: 0.75rem; color: var(--text-dim); text-align: center; }
     </style>
 </head>
 <body>
@@ -110,65 +124,80 @@
     </div>
 
     <div class="container">
-        <h1 id="txt-title">BAD!!! Video Converter</h1>
+        <h1 id="txt-title">Video Converter</h1>
+        <p class="subtitle">Ultra-Low Res (120x100) Optimizer</p>
 
         <div id="drop-zone">
-            <span id="txt-drop">DRAG MP4 HERE</span>
-            <small style="margin-top:10px; opacity:0.7">120x100 | 24fps | 32kbps</small>
+            <b id="txt-drop" style="font-size: 1.1rem;">DRAG MP4 HERE</b>
+            <div style="margin-top:15px; font-size: 0.8rem; line-height: 1.4;">
+                120x100 | 24fps | 32kbps<br>
+                Audio: Mono 8kbps
+            </div>
         </div>
 
         <input type="file" id="file-input" accept=".mp4" style="display: none;">
         
-        <div id="status" class="status">Status: Ready</div>
-        <div id="loader" class="loader">CONVERTING...</div>
-
-        <p class="footer">© 2026 Stormwindsky | Built with Passion & Autism Pride</p>
+        <div class="status-box">
+            <div id="status" class="status">Status: Initializing...</div>
+            <div id="loader" class="loader">PROCESSING VIDEO...</div>
+        </div>
     </div>
 
+    <footer id="txt-footer">
+        © 2026 Stormwindsky | MIT License | Built with Passion & Autism Pride
+    </footer>
+
     <script>
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        
+        // Configuration de FFmpeg avec corePath explicite pour éviter les erreurs CORS
+        const ffmpeg = createFFmpeg({ 
+            log: true,
+            corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+        });
+
         const translations = {
             'en': {
-                title: "💩 Video Converter", drop: "DRAG MP4 HERE", ready: "Status: Ready", 
+                title: "Video Converter", drop: "DRAG MP4 HERE", ready: "Status: Ready", 
                 working: "Converting...", error: "Error: MP4 files only", init: "Initializing FFmpeg...",
-                done: "FINISHED!", themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode"
+                done: "FINISHED!", themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode", footer: "© 2026 Stormwindsky | MIT License"
             },
             'fr-FR': {
-                title: "💩 Convertisseur Vidéo", drop: "GLISSEZ LE MP4 ICI", ready: "Statut : Prêt", 
+                title: "Convertisseur Vidéo", drop: "GLISSEZ LE MP4 ICI", ready: "Statut : Prêt", 
                 working: "Conversion...", error: "Erreur : MP4 uniquement", init: "Initialisation...",
-                done: "TERMINÉ !", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+                done: "TERMINÉ !", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair", footer: "© 2026 Stormwindsky | Licence MIT"
             },
             'fr-CA': {
-                title: "💩 Convertisseur Vidéo", drop: "GOSSE TON MP4 ICI", ready: "Statut : Prêt", 
+                title: "Convertisseur Vidéo", drop: "GOSSE TON MP4 ICI", ready: "Statut : Prêt", 
                 working: "On lâche pas...", error: "Erreur : Juste des .mp4", init: "Chargement...",
-                done: "C'EST FAIT !", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+                done: "C'EST FAIT !", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair", footer: "© 2026 Stormwindsky | Licence MIT"
             },
             'es-ES': {
-                title: "💩 Convertidor de Vídeo", drop: "ARRASTRA EL MP4 AQUÍ", ready: "Estado: Listo", 
+                title: "Convertidor de Vídeo", drop: "ARRASTRA EL MP4 AQUÍ", ready: "Estado: Listo", 
                 working: "Convirtiendo...", error: "Error: Solo archivos .mp4", init: "Iniciando...",
-                done: "¡TERMINADO!", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+                done: "¡TERMINADO!", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro", footer: "© 2026 Stormwindsky | Licencia MIT"
             },
             'es-AM': {
-                title: "💩 Convertidor de Video", drop: "ARRASTRA EL MP4 ACÁ", ready: "Estado: Listo", 
+                title: "Convertidor de Video", drop: "ARRASTRA EL MP4 ACÁ", ready: "Estado: Listo", 
                 working: "Procesando...", error: "Error: Solo .mp4", init: "Cargando...",
-                done: "¡LISTO!", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+                done: "¡LISTO!", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro", footer: "© 2026 Stormwindsky | Licencia MIT"
             }
         };
 
-        const { createFFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = createFFmpeg({ log: false });
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const status = document.getElementById('status');
         const loader = document.getElementById('loader');
 
-        // --- GESTION THÈME & LANGUES ---
+        // --- THEME & LANG ---
         function changeLanguage(lang) {
             const t = translations[lang];
             document.getElementById('txt-title').innerText = t.title;
             document.getElementById('txt-drop').innerText = t.drop;
-            updateStatus(t.ready);
+            document.getElementById('txt-footer').innerText = t.footer;
             localStorage.setItem('preferredLang', lang);
             updateThemeButtonText();
+            if(ffmpeg.isLoaded()) updateStatus(t.ready);
         }
 
         function toggleTheme() {
@@ -190,9 +219,10 @@
             status.style.color = color;
         }
 
-        // --- LOGIQUE DE CONVERSION ---
+        // --- LOGIC ---
         dropZone.onclick = () => fileInput.click();
-        dropZone.ondragover = (e) => { e.preventDefault(); };
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--blue-main)"; };
+        dropZone.ondragleave = () => { dropZone.style.borderColor = "var(--blue-light)"; };
         dropZone.ondrop = (e) => {
             e.preventDefault();
             const file = e.dataTransfer.files[0];
@@ -205,15 +235,15 @@
         async function processVideo(file) {
             const lang = localStorage.getItem('preferredLang') || 'en';
             try {
-                updateStatus(translations[lang].init, "var(--blue-main)");
                 loader.style.display = "block";
+                updateStatus(translations[lang].working, "var(--blue-main)");
+
                 if (!ffmpeg.isLoaded()) await ffmpeg.load();
 
                 const inputName = 'input.mp4';
-                const outputName = 'output_fixed.mp4';
+                const outputName = 'output.mp4';
+                
                 ffmpeg.FS('writeFile', inputName, await fetchFile(file));
-
-                updateStatus(translations[lang].working, "var(--blue-main)");
 
                 await ffmpeg.run(
                     '-i', inputName,
@@ -232,18 +262,27 @@
 
                 updateStatus(translations[lang].done, "#2ECC71");
             } catch (e) {
-                updateStatus("Error", "#FF5555");
+                console.error(e);
+                updateStatus("Error / Isolation Issue", "#FF5555");
             } finally {
                 loader.style.display = "none";
             }
         }
 
-        window.onload = () => {
+        window.onload = async () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             const savedLang = localStorage.getItem('preferredLang') || 'en';
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.getElementById('langSelect').value = savedLang;
             changeLanguage(savedLang);
+            
+            try {
+                updateStatus(translations[savedLang].init, "var(--blue-main)");
+                await ffmpeg.load();
+                updateStatus(translations[savedLang].ready);
+            } catch(e) {
+                updateStatus("SharedArrayBuffer Blocked - Check Browser Settings", "#FF5555");
+            }
         };
     </script>
 </body>
