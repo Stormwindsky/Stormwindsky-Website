@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | BAD!!! Video Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --blue-main: #007aff;
+            --blue-light: #5db0ff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --border-color: rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+
+        select, .theme-toggle {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer; font-family: inherit;
+        }
+
+        .container {
+            max-width: 600px; width: 100%;
+            background: var(--card-white);
+            padding: 40px;
+            border-radius: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px var(--border-color);
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 20px; color: var(--blue-main); }
+
+        #drop-zone {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed var(--blue-light);
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        #drop-zone:hover {
+            background: rgba(0, 122, 255, 0.1);
+            border-color: var(--blue-main);
+            transform: scale(1.02);
+        }
+
+        .status { margin-top: 15px; font-weight: 600; font-size: 0.9rem; }
+        
+        .loader { 
+            display: none; 
+            margin-top: 10px;
+            color: var(--blue-main);
+            font-weight: 800;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .footer { margin-top: 30px; font-size: 0.75rem; color: var(--text-dim); }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+    </div>
+
+    <div class="container">
+        <h1 id="txt-title">BAD!!! Video Converter</h1>
+
+        <div id="drop-zone">
+            <span id="txt-drop">DRAG MP4 HERE</span>
+            <small style="margin-top:10px; opacity:0.7">120x100 | 24fps | 32kbps</small>
+        </div>
+
+        <input type="file" id="file-input" accept=".mp4" style="display: none;">
+        
+        <div id="status" class="status">Status: Ready</div>
+        <div id="loader" class="loader">CONVERTING...</div>
+
+        <p class="footer">© 2026 Stormwindsky | Built with Passion & Autism Pride</p>
+    </div>
+
+    <script>
+        const translations = {
+            'en': {
+                title: "💩 Video Converter", drop: "DRAG MP4 HERE", ready: "Status: Ready", 
+                working: "Converting...", error: "Error: MP4 files only", init: "Initializing FFmpeg...",
+                done: "FINISHED!", themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode"
+            },
+            'fr-FR': {
+                title: "💩 Convertisseur Vidéo", drop: "GLISSEZ LE MP4 ICI", ready: "Statut : Prêt", 
+                working: "Conversion...", error: "Erreur : MP4 uniquement", init: "Initialisation...",
+                done: "TERMINÉ !", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'fr-CA': {
+                title: "💩 Convertisseur Vidéo", drop: "GOSSE TON MP4 ICI", ready: "Statut : Prêt", 
+                working: "On lâche pas...", error: "Erreur : Juste des .mp4", init: "Chargement...",
+                done: "C'EST FAIT !", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'es-ES': {
+                title: "💩 Convertidor de Vídeo", drop: "ARRASTRA EL MP4 AQUÍ", ready: "Estado: Listo", 
+                working: "Convirtiendo...", error: "Error: Solo archivos .mp4", init: "Iniciando...",
+                done: "¡TERMINADO!", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            },
+            'es-AM': {
+                title: "💩 Convertidor de Video", drop: "ARRASTRA EL MP4 ACÁ", ready: "Estado: Listo", 
+                working: "Procesando...", error: "Error: Solo .mp4", init: "Cargando...",
+                done: "¡LISTO!", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            }
+        };
+
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        const ffmpeg = createFFmpeg({ log: false });
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const status = document.getElementById('status');
+        const loader = document.getElementById('loader');
+
+        // --- GESTION THÈME & LANGUES ---
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-title').innerText = t.title;
+            document.getElementById('txt-drop').innerText = t.drop;
+            updateStatus(t.ready);
+            localStorage.setItem('preferredLang', lang);
+            updateThemeButtonText();
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
+        }
+
+        function updateThemeButtonText() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const theme = localStorage.getItem('theme') || 'light';
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+        }
+
+        function updateStatus(text, color = "var(--text-dark)") {
+            status.innerText = text;
+            status.style.color = color;
+        }
+
+        // --- LOGIQUE DE CONVERSION ---
+        dropZone.onclick = () => fileInput.click();
+        dropZone.ondragover = (e) => { e.preventDefault(); };
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.toLowerCase().endsWith('.mp4')) processVideo(file);
+            else updateStatus(translations[localStorage.getItem('preferredLang') || 'en'].error, "#FF5555");
+        };
+
+        fileInput.onchange = (e) => { if (e.target.files[0]) processVideo(e.target.files[0]); };
+
+        async function processVideo(file) {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            try {
+                updateStatus(translations[lang].init, "var(--blue-main)");
+                loader.style.display = "block";
+                if (!ffmpeg.isLoaded()) await ffmpeg.load();
+
+                const inputName = 'input.mp4';
+                const outputName = 'output_fixed.mp4';
+                ffmpeg.FS('writeFile', inputName, await fetchFile(file));
+
+                updateStatus(translations[lang].working, "var(--blue-main)");
+
+                await ffmpeg.run(
+                    '-i', inputName,
+                    '-vf', 'scale=120:100:force_original_aspect_ratio=decrease,pad=120:100:(ow-iw)/2:(oh-ih)/2',
+                    '-r', '24', '-c:v', 'libx264', '-b:v', '32k',
+                    '-ac', '1', '-ar', '22050', '-b:a', '8k',
+                    outputName
+                );
+
+                const data = ffmpeg.FS('readFile', outputName);
+                const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name.replace(".mp4", "_lowres.mp4");
+                a.click();
+
+                updateStatus(translations[lang].done, "#2ECC71");
+            } catch (e) {
+                updateStatus("Error", "#FF5555");
+            } finally {
+                loader.style.display = "none";
+            }
+        }
+
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+        };
+    </script>
+</body>
+</html>
