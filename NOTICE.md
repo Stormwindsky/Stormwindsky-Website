@@ -16,6 +16,7 @@ Below is the list of third-party resources used in this project:
 * **JSZip**: Distributed under the [MIT License](https://github.com/Stuk/jszip/blob/master/LICENSE.markdown) or [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html).
 * **Midi-Writer-JS**: Distributed under the [MIT License](https://github.com/grimmdude/MidiWriterJS/blob/master/LICENSE).
 * **@tonejs/midi**: Distributed under the [MIT License](https://github.com/Tonejs/Midi/blob/master/LICENSE.md).
+* **FFmpeg.wasm**: WebAssembly port of FFmpeg used for client-side video conversion. Distributed under the [MIT License]([https://github.com/ffmpegwasm/ffmpeg.wasm?tab=MIT-1-ov-file])
 
 ### APIs and External Services
 * **GitHub API**: Used to fetch repository content and file lists.
@@ -38,6 +39,6 @@ Great care is taken to ensure every author is correctly credited. However, if yo
 
 * **Discord**: Contact `Stormwindsky`
 * **Gamejolt** Contact Stormwindsky
-* **Email**: Via Gmail (Coming soon)
+* **Email**: Via ProtonMail Stormwindsky@proton.me
 
 We will update the information and rectify the omission as soon as possible.
