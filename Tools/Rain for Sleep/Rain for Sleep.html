@@ -3,392 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rain for Sleep</title>
+    <title>Rain for Sleep | 3D Lines & Legacy</title>
     <style>
-        /* --- CSS STYLES --- */
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: 'Inter', sans-serif; color: white; }
+        .ui-panel {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 100; background: rgba(0, 0, 0, 0.8); padding: 20px;
+            border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center; min-width: 320px;
+        }
+        .slider-group { margin: 10px 0; display: flex; flex-direction: column; align-items: center; }
+        .btn-toggle {
+            background: #007aff; color: white; border: none; padding: 10px 20px;
+            border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px;
+        }
+        input[type=range] { width: 80%; cursor: pointer; accent-color: #007aff; }
+
+        #experience-3d { position: absolute; width: 100%; height: 100%; z-index: 1; }
+        #legacy-version { 
+            display: none; position: absolute; width: 100%; height: 100%; 
+            z-index: 2; background: #000; 
         }
 
-        /* Rain Effect Container */
-        .rain-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            /* Simple, subtle rain effect using a linear gradient */
-            background-image: linear-gradient(
-                to bottom,
-                rgba(173, 216, 230, 0.1) 1px,
-                transparent 1px
-            );
-            background-size: 100% 50px;
-            animation: rain-fall 0.3s linear infinite;
+        /* LEGACY - LIGNES BLANCHES ORIGINALES */
+        .rain-legacy {
+            position: absolute; width: 100%; height: 100%;
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+            background-size: 100% 50px; animation: rain-fall 0.3s linear infinite;
         }
-
-        @keyframes rain-fall {
-            from {
-                background-position: 0 0;
-            }
-            to {
-                background-position: 0 50px;
-            }
-        }
-
-        /* Controls Section Styling */
-        .controls {
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .control-group {
-            margin-bottom: 20px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .control-group:last-child {
-            border-bottom: none;
-        }
-
-        .control-label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        
-        /* Volume Slider Styling */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 10px;
-            background: #555;
-            border-radius: 5px;
-            outline: none;
-            opacity: 0.7;
-            -webkit-transition: .2s;
-            transition: opacity .2s;
-        }
-
-        input[type=range]:hover {
-            opacity: 1;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #2196F3;
-            cursor: pointer;
-        }
-
-        /* Toggle Switch Styling */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-            vertical-align: middle;
-            margin-left: 10px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-
-        /* Credits Button */
-        #showCreditsButton {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50; /* Green */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s;
-        }
-
-        #showCreditsButton:hover {
-            background-color: #45a049;
-        }
-
-        /* Modal/Popup Styling */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: none; /* Hidden by default */
-            align-items: center;
-            justify-content: center;
-            z-index: 100; /* Above everything else */
-        }
-
-        .credits-modal {
-            background-color: rgba(0, 0, 0, 0.95);
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            color: #fff;
-        }
-
-        .credits-modal h3, .credits-modal h4 {
-            color: lightskyblue;
-            margin-top: 0;
-        }
-
-        .credits-modal a {
-            color: lightgreen;
-        }
-        
-        /* Close Button Styling */
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            color: #fff;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-            transition: color 0.3s;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: #ccc;
-            text-decoration: none;
-        }
-
-        /* Hide audio players */
-        audio {
-            display: none;
-        }
-
+        @keyframes rain-fall { from { background-position: 0 0; } to { background-position: 0 50px; } }
     </style>
 </head>
 <body>
 
-    <audio id="rainAudio" src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/Rain%20for%20Sleep/Rain%20sfx.wav" loop preload="auto"></audio>
-    <audio id="thunderAudio" src="https://github.com/Stormwindsky/Stormwindsky-website-the-part-under-license-by-sa-4.0/raw/main/sfx/Thunder/Thunder.wav" loop preload="auto"></audio>
+    <div id="experience-3d"></div>
 
-    <div class="rain-container"></div>
-
-    <h1>Rain for Sleep</h1>
-
-    <div class="controls">
-        <p>Click or tap anywhere to start the main rain sound.</p>
-        
-        <div class="control-group">
-            <label for="rainVolume" class="control-label">Rain Volume</label>
-            <input type="range" id="rainVolume" min="0" max="1" step="0.01" value="0.7">
-        </div>
-
-        <div class="control-group">
-            <label for="thunderToggle" class="control-label">
-                Thunder Sounds 
-                <div class="switch">
-                    <input type="checkbox" id="thunderToggle">
-                    <span class="slider"></span>
-                </div>
-            </label>
-            <input type="range" id="thunderVolume" min="0" max="1" step="0.01" value="0.5" disabled>
-        </div>
-
-        <button id="showCreditsButton">Show Audio Notes & Credits</button>
+    <div id="legacy-version">
+        <div class="rain-legacy"></div>
     </div>
 
-    <div id="creditsModalOverlay" class="modal-overlay">
-        <div class="credits-modal">
-            <span class="close-button" id="closeCreditsButton">&times;</span>
-            
-            <h3>AUDIO NOTES AND CREDITS</h3>
-
-            <h4>Rain Audio (Loopable)</h4>
-            <p>
-                **License:** CC0 - Public Domain.<br>
-                **Creator:** Ylmir (<a href="https://opengameart.org/users/ylmir" target="_blank">opengameart.org/users/ylmir</a>).<br>
-                **Source:** <a href="https://opengameart.org/content/rain-loopable" target="_blank">opengameart.org/content/rain-loopable</a>
-            </p>
-
-            <h4>Thunder Audio (Extract)</h4>
-            <p>
-                **Original Creator:** Wikimedia user: Спасимир.<br>
-                **License:** Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
-                **Details:** <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" target="_blank">CC BY-SA 4.0</a><br>
-                **Source of Original Material:** Modified version of an extract from a video file (<a href="https://commons.wikimedia.org/wiki/File:Thunder_in_Sofia,_07.06.2017.webm" target="_blank">Source on Wikimedia Commons</a>).
-            </p>
+    <div class="ui-panel">
+        <h2 id="txt-title">Rain for Sleep</h2>
+        <div class="slider-group">
+            <label id="txt-rain-vol">Rain Volume</label>
+            <input type="range" id="rainVol" min="0" max="1" step="0.01" value="0.7">
         </div>
+        <div class="slider-group">
+            <label id="txt-thunder-vol">Thunder Volume</label>
+            <input type="range" id="thunderVol" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <button class="btn-toggle" onclick="toggleVersion()" id="txt-btn-toggle">Switch to Legacy</button>
     </div>
 
+    <audio id="rainAudio" src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/Rain%20for%20Sleep/Rain%20sfx.wav" loop></audio>
+    <audio id="thunderAudio" src="https://github.com/Stormwindsky/Stormwindsky-website-the-part-under-license-by-sa-4.0/raw/main/sfx/Thunder/Thunder.wav" loop></audio>
 
-    <script>
-        // --- JAVASCRIPT LOGIC ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const rainAudio = document.getElementById('rainAudio');
-            const thunderAudio = document.getElementById('thunderAudio');
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+
+        const translations = {
+            'en': { title: "Rain for Sleep 3D", rain: "Rain Volume", thunder: "Thunder Volume", btnLegacy: "Switch to Legacy", btn3D: "Switch to 3D" },
+            'fr-FR': { title: "Pluie 3D", rain: "Volume Pluie", thunder: "Volume Tonnerre", btnLegacy: "Version Legacy", btn3D: "Version 3D" },
+            'fr-CA': { title: "Pluie 3D", rain: "Volume Pluie", thunder: "Volume Tonnerre", btnLegacy: "Version Legacy", btn3D: "Version 3D" },
+            'es-ES': { title: "Lluvia 3D", rain: "Volumen Lluvia", thunder: "Volumen Trueno", btnLegacy: "Versión Legacy", btn3D: "Versión 3D" }
+        };
+
+        const currentLang = localStorage.getItem('preferredLang') || 'en';
+        const t = translations[currentLang] || translations['en'];
+
+        const updateUI = (is3D) => {
+            document.getElementById('txt-title').innerText = is3D ? t.title : t.title.replace("3D", "Legacy");
+            document.getElementById('txt-btn-toggle').innerText = is3D ? t.btnLegacy : t.btn3D;
+        };
+        updateUI(true);
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050505, 0.15);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1.6, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('experience-3d').appendChild(renderer.domElement);
+
+        // --- PLUIE MODERNE : VRAIES LIGNES (PAS DE CUBES) ---
+        const rainCount = 5000;
+        const lineGeometry = new THREE.BufferGeometry();
+        const linePositions = new Float32Array(rainCount * 6); // 2 points (début et fin) par ligne
+
+        for(let i=0; i < rainCount * 6; i+=6) {
+            let x = (Math.random() - 0.5) * 60;
+            let y = Math.random() * 40;
+            let z = (Math.random() - 0.5) * 60;
             
-            const rainVolumeSlider = document.getElementById('rainVolume');
-            const thunderToggle = document.getElementById('thunderToggle');
-            const thunderVolumeSlider = document.getElementById('thunderVolume');
+            linePositions[i] = x;     linePositions[i+1] = y;     linePositions[i+2] = z;     // Haut de la ligne
+            linePositions[i+3] = x;   linePositions[i+4] = y - 0.8; linePositions[i+5] = z;   // Bas de la ligne
+        }
+
+        lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x007aff, transparent: true, opacity: 0.5 });
+        const rainLines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        scene.add(rainLines);
+
+        // SPLASHES
+        const splashGeo = new THREE.RingGeometry(0.01, 0.05, 10);
+        const splashMat = new THREE.MeshBasicMaterial({ color: 0x007aff, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        const splashes = [];
+        for(let i=0; i<80; i++) {
+            const s = new THREE.Mesh(splashGeo, splashMat.clone());
+            s.rotation.x = Math.PI/2;
+            s.visible = false;
+            scene.add(s);
+            splashes.push(s);
+        }
+
+        const rainAudio = document.getElementById('rainAudio');
+        const thunderAudio = document.getElementById('thunderAudio');
+        document.body.addEventListener('click', () => { rainAudio.play(); thunderAudio.play(); }, {once: true});
+
+        document.getElementById('rainVol').oninput = (e) => rainAudio.volume = e.target.value;
+        document.getElementById('thunderVol').oninput = (e) => thunderAudio.volume = e.target.value;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const pos = lineGeometry.attributes.position.array;
             
-            // Modal Elements
-            const showCreditsButton = document.getElementById('showCreditsButton');
-            const closeCreditsButton = document.getElementById('closeCreditsButton');
-            const creditsModalOverlay = document.getElementById('creditsModalOverlay');
-            
-            // --- 1. Initial Volume Setup ---
-            // Set initial volume based on slider values (0.7 for rain, 0.5 for thunder)
-            rainAudio.volume = parseFloat(rainVolumeSlider.value);
-            thunderAudio.volume = parseFloat(thunderVolumeSlider.value);
+            for(let i=0; i < pos.length; i+=6) {
+                pos[i+1] -= 1.0; // Vitesse de chute
+                pos[i+4] -= 1.0;
 
-
-            // --- 2. Autoplay Handler (Required by most browsers) ---
-            function startRainSound() {
-                const playPromise = rainAudio.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log("Rain sound playing.");
-                    }).catch(error => {
-                        console.log("Autoplay blocked. Retrying on interaction...");
-                    });
-                }
-                // Remove listeners after the first interaction attempt
-                document.body.removeEventListener('click', startRainSound);
-                document.body.removeEventListener('keydown', startRainSound);
-            }
-            // Attach a listener to start the audio on the first detected user action
-            document.body.addEventListener('click', startRainSound, { once: true });
-            document.body.addEventListener('keydown', startRainSound, { once: true });
-
-
-            // --- 3. Volume Slider Handlers ---
-            
-            // Rain Volume
-            rainVolumeSlider.addEventListener('input', (event) => {
-                rainAudio.volume = parseFloat(event.target.value);
-            });
-
-            // Thunder Volume
-            thunderVolumeSlider.addEventListener('input', (event) => {
-                thunderAudio.volume = parseFloat(event.target.value);
-            });
-
-
-            // --- 4. Thunder Toggle Handler ---
-            thunderToggle.addEventListener('change', (event) => {
-                const isChecked = event.target.checked;
-                
-                // Toggle Thunder Audio Playback
-                if (isChecked) {
-                    thunderAudio.play().catch(e => {
-                        console.error("Error playing thunder audio:", e);
-                    });
-                    console.log("Thunder sound ON.");
+                if(pos[i+1] < 0) {
+                    pos[i+1] = 40;
+                    pos[i+4] = 39.2;
                     
-                } else {
-                    thunderAudio.pause();
-                    thunderAudio.currentTime = 0; // Reset for next play
-                    console.log("Thunder sound OFF.");
+                    const s = splashes.find(sp => !sp.visible);
+                    if(s) {
+                        s.position.set(pos[i], 0.01, pos[i+2]);
+                        s.visible = true;
+                        s.scale.set(1, 1, 1);
+                        s.material.opacity = 0.5;
+                    }
                 }
-
-                // Toggle Thunder Volume Slider availability
-                thunderVolumeSlider.disabled = !isChecked;
-                // If turning off, set the slider opacity low; if turning on, let CSS handle it.
-                thunderVolumeSlider.style.opacity = isChecked ? '1' : '0.5';
-            });
+            }
+            lineGeometry.attributes.position.needsUpdate = true;
             
-            // Initially set thunder volume slider to disabled and low opacity
-            thunderVolumeSlider.disabled = true;
-            thunderVolumeSlider.style.opacity = '0.5';
-
-            // --- 5. Credits Modal Handlers ---
-            
-            // Function to open the modal
-            showCreditsButton.addEventListener('click', () => {
-                creditsModalOverlay.style.display = 'flex';
-            });
-            
-            // Function to close the modal
-            closeCreditsButton.addEventListener('click', () => {
-                creditsModalOverlay.style.display = 'none';
-            });
-
-            // Close the modal if the user clicks outside of the modal content
-            creditsModalOverlay.addEventListener('click', (event) => {
-                if (event.target === creditsModalOverlay) {
-                    creditsModalOverlay.style.display = 'none';
+            splashes.forEach(s => {
+                if(s.visible) {
+                    s.scale.x += 0.2; s.scale.y += 0.2;
+                    s.material.opacity -= 0.04;
+                    if(s.material.opacity <= 0) s.visible = false;
                 }
             });
-            
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.toggleVersion = () => {
+            const v3d = document.getElementById('experience-3d');
+            const vLegacy = document.getElementById('legacy-version');
+            const is3D = v3d.style.display !== 'none';
+            v3d.style.display = is3D ? 'none' : 'block';
+            vLegacy.style.display = is3D ? 'block' : 'none';
+            updateUI(!is3D);
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
-
     </script>
 </body>
 </html>

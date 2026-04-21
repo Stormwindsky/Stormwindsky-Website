@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky Box | Base64 Share</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f;
+            --text-dim: #86868b; --accent: #007aff; --border: #d2d2d7;
+            --drop-bg: #f0f8ff; --success: #34c759;
+        }
+
+        /* Dark Mode par détection système OU par attribut data-theme */
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0a0a0a; --card: #1c1c1e; --text: #f5f5f7;
+                --text-dim: #a1a1a6; --accent: #5db0ff; --border: #38383a;
+                --drop-bg: #1a2635;
+            }
+        }
+
+        [data-theme="dark"] {
+            --bg: #0a0a0a; --card: #1c1c1e; --text: #f5f5f7;
+            --text-dim: #a1a1a6; --accent: #5db0ff; --border: #38383a;
+            --drop-bg: #1a2635;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.2s ease; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 20px;
+        }
+
+        .container { max-width: 800px; width: 100%; text-align: center; }
+        .header { margin-bottom: 40px; }
+        .box {
+            background: var(--card); border: 2px dashed var(--border);
+            border-radius: 30px; padding: 50px 30px; margin-bottom: 30px;
+        }
+        .btn {
+            background: var(--accent); color: white; border: none;
+            padding: 14px 28px; border-radius: 14px; font-weight: 600;
+            cursor: pointer; display: inline-block; text-decoration: none;
+        }
+        .url-display {
+            margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.05);
+            border-radius: 10px; font-size: 0.7rem; word-break: break-all;
+            border: 1px solid var(--border); display: none; color: var(--text-dim);
+        }
+        .info-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; text-align: left; }
+        .info-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
+        .info-card h3 { font-size: 0.9rem; margin-bottom: 8px; color: var(--accent); }
+        .info-card p { font-size: 0.8rem; color: var(--text-dim); }
+        .hidden { display: none; }
+        footer { margin-top: 40px; font-size: 0.75rem; color: var(--text-dim); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1 id="txt-title">Stormwindsky Box</h1>
+            <p id="txt-subtitle">Loading...</p>
+        </header>
+
+        <div id="view-upload" class="box">
+            <span style="font-size: 40px;">📤</span>
+            <h2 id="txt-drop" style="margin-bottom:20px;">Select a file to encode</h2>
+            <label class="btn">
+                <span id="txt-browse">Choose File</span>
+                <input type="file" id="fileInput" class="hidden">
+            </label>
+            <div id="urlContainer" class="url-display">
+                <p><strong style="color:var(--text)">URL copied to clipboard!</strong></p>
+                <code id="resultUrl"></code>
+            </div>
+        </div>
+
+        <div id="view-download" class="box hidden" style="border-style: solid; border-color: var(--success);">
+            <span style="font-size: 40px;">📥</span>
+            <h2 id="txt-ready">File Ready!</h2>
+            <p id="fileNameDisplay" style="margin: 20px 0; font-weight: 600; font-size: 1.2rem;"></p>
+            <a id="downloadBtn" class="btn" style="background: var(--success);">Download Now</a>
+            <br>
+            <a href="?" style="display:inline-block; margin-top:20px; font-size:0.8rem; color:var(--text-dim); text-decoration:none;">← Upload another file</a>
+        </div>
+
+        <div class="info-box">
+            <div class="info-card">
+                <h3 id="txt-i1-t">Serverless</h3>
+                <p id="txt-i1-d">Data is stored in the URL fragment. No server-side storage.</p>
+            </div>
+            <div class="info-card">
+                <h3 id="txt-i2-t">Limitations</h3>
+                <p id="txt-i2-d">Maximum size depends on browser URL limits (~2MB). Ideal for small assets.</p>
+            </div>
+        </div>
+
+        <footer>
+            © 2026 Stormwindsky | MIT License | Built with Passion & Autism Pride
+        </footer>
+    </div>
+
+    <script>
+        const translations = {
+            'en': {
+                title: "Stormwindsky Box", subtitle: "Share files via Base64 URLs",
+                drop: "Select a file to encode", browse: "Choose File",
+                ready: "File Ready!", i1t: "Serverless", i1d: "Data is stored in the URL fragment. No server-side storage.",
+                i2t: "Limitations", i2d: "Maximum size depends on browser URL limits (~2MB). Ideal for small assets."
+            },
+            'fr': {
+                title: "Stormwindsky Box", subtitle: "Partage de fichiers via Base64",
+                drop: "Sélectionnez un fichier", browse: "Parcourir",
+                ready: "Fichier prêt !", i1t: "Sans serveur", i1d: "Les données sont dans l'URL. Rien n'est stocké chez nous.",
+                i2t: "Limites", i2d: "Taille max selon le navigateur (~2Mo). Idéal pour petits fichiers."
+            }
+        };
+
+        // --- 1. GESTION DU THEME (Dark Mode) ---
+        function applyTheme() {
+            const savedTheme = localStorage.getItem('theme'); // Récupère le thème de stormwindsky.com
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        }
+
+        // --- 2. GESTION LANGUE (Anglais par défaut) ---
+        function applyLanguage() {
+            // On vérifie si une langue est forcée dans l'URL ou le storage, sinon 'en'
+            let lang = localStorage.getItem('preferredLang') || 'en'; 
+            const t = translations[lang];
+
+            document.getElementById('txt-title').innerText = t.title;
+            document.getElementById('txt-subtitle').innerText = t.subtitle;
+            document.getElementById('txt-drop').innerText = t.drop;
+            document.getElementById('txt-browse').innerText = t.browse;
+            document.getElementById('txt-ready').innerText = t.ready;
+            document.getElementById('txt-i1-t').innerText = t.i1t;
+            document.getElementById('txt-i1-d').innerText = t.i1d;
+            document.getElementById('txt-i2-t').innerText = t.i2t;
+            document.getElementById('txt-i2-d').innerText = t.i2d;
+        }
+
+        // --- 3. LOGIQUE UPLOAD ---
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64String = event.target.result;
+                const shareUrl = window.location.origin + window.location.pathname + "#" + 
+                                 encodeURIComponent(file.name) + "|" + base64String;
+                
+                document.getElementById('urlContainer').style.display = "block";
+                document.getElementById('resultUrl').innerText = shareUrl;
+                
+                navigator.clipboard.writeText(shareUrl);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // --- 4. INITIALISATION ---
+        window.onload = () => {
+            applyTheme();
+            applyLanguage();
+
+            const hash = window.location.hash.substring(1);
+            if (hash && hash.includes('|')) {
+                const parts = hash.split('|');
+                const fileName = decodeURIComponent(parts[0]);
+                const base64Data = parts[1];
+
+                document.getElementById('view-upload').classList.add('hidden');
+                document.getElementById('view-download').classList.remove('hidden');
+                document.getElementById('fileNameDisplay').innerText = fileName;
+
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.href = base64Data;
+                downloadBtn.download = fileName;
+            }
+        };
+    </script>
+</body>
+</html>

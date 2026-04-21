@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Community Rules</title>
+    <style>
+        /* Modern CSS Reset & Variables */
+        :root {
+            --primary: #fbff00; /* Gamejolt Yellowish color */
+            --bg-dark: #0b0e14;
+            --glass: rgba(255, 255, 255, 0.05);
+            --text-main: #e0e0e0;
+            --transition: all 0.3s ease;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        /* Animated Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            perspective: 1000px;
+        }
+
+        /* Glass Card */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header & Settings */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        select {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid var(--primary);
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Content Styling */
+        .rules-section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: "◈";
+            margin-right: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            padding-left: 20px;
+            border-left: 2px solid rgba(251, 255, 0, 0.3);
+            transition: var(--transition);
+        }
+
+        li:hover {
+            border-left: 2px solid var(--primary);
+            transform: translateX(5px);
+        }
+
+        .important {
+            color: #ff5555;
+            font-weight: bold;
+        }
+
+        .example {
+            display: block;
+            font-size: 0.9rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: var(--primary);
+            color: black;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 20px;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(251, 255, 0, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .card { padding: 20px; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1 id="title">Community Rules</h1>
+                <select id="langSwitcher">
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+
+            <div id="content">
+                </div>
+
+            <a href="https://gamejolt.com/c/LC-6vqt3d/all" class="btn" id="btn-text">Visit Community</a>
+        </div>
+    </div>
+
+    <script>
+        // --- Translations ---
+        const translations = {
+            en: {
+                title: "Linux Rules",
+                btn: "Join the Community",
+                sections: [
+                    {
+                        title: "General Conduct",
+                        items: [
+                            "Content must be strictly related to **Linux**.",
+                            "Avoid mentioning FreeBSD, Windows, or Mac OS unless it serves as a direct technical comparison (e.g., *Linux vs. FreeBSD*).",
+                            "Freedom of opinion is respected, provided it is expressed professionally. <span class='example'>Avoid: 'THIS IS THE WORST...'</span>",
+                            "For security, direct **.iso** download URLs are prohibited. Please link to the official project's homepage.",
+                            "<span class='important'>Strict Ban:</span> Malicious sites or suspicious distributions (e.g., Winux/Wubuntu) are strictly forbidden."
+                        ]
+                    },
+                    {
+                        title: "Moderation Policy",
+                        items: [
+                            "News must remain objective and Linux-centric.",
+                            "Avoid clickbait or aggressive marketing (e.g., 'THIS NEW LINUX KILLS WINDOWS').",
+                            "Articles should be concise summaries and include credible sources."
+                        ]
+                    }
+                ]
+            },
+            fr: {
+                title: "Règles Linux",
+                btn: "Rejoindre la Communauté",
+                sections: [
+                    {
+                        title: "Conduite Générale",
+                        items: [
+                            "Le contenu doit être strictement lié à **Linux**.",
+                            "Ne mentionnez pas FreeBSD, Windows ou Mac OS, sauf si cela sert de comparaison technique directe (ex: *Linux vs. FreeBSD*).",
+                            "Le droit à l'opinion est respecté, à condition qu'il soit exprimé de manière professionnelle. <span class='example'>Évitez : 'C'EST LE PIRE...'</span>",
+                            "Pour des raisons de sécurité, les liens directs de téléchargement **.iso** sont interdits. Merci de lier vers la page officielle du projet.",
+                            "<span class='important'>Interdiction stricte :</span> Les sites malveillants ou distributions suspectes (ex: Winux/Wubuntu) sont formellement proscrits."
+                        ]
+                    },
+                    {
+                        title: "Règles de Modération",
+                        items: [
+                            "Les actualités doivent rester objectives et centrées sur Linux.",
+                            "Évitez les titres racoleurs ou le ton publicitaire (ex: 'CE NOUVEAU LINUX EST MEILLEUR QUE WINDOWS').",
+                            "Les articles doivent être des résumés concis avec des sources crédibles."
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // --- Logic ---
+        const langSwitcher = document.getElementById('langSwitcher');
+        const contentDiv = document.getElementById('content');
+        const titleEl = document.getElementById('title');
+        const btnEl = document.getElementById('btn-text');
+
+        function updateLanguage(lang) {
+            const data = translations[lang];
+            titleEl.textContent = data.title;
+            btnEl.textContent = data.btn;
+            
+            contentDiv.innerHTML = data.sections.map(sec => `
+                <div class="rules-section">
+                    <h2>${sec.title}</h2>
+                    <ul>
+                        ${sec.items.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        langSwitcher.addEventListener('change', (e) => updateLanguage(e.target.value));
+        
+        // Init default
+        updateLanguage('en');
+
+        // --- Background Animation (Particles) ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(251, 255, 0, 0.2)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < 80; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>

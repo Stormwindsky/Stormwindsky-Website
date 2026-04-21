@@ -3,167 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found</title>
+    <title>404 - Stormwindsky</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        /* Basic Reset and Setup */
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #ff7b72;
+            --btn-bg: #58a6ff;
+        }
+
+        /* Thème Clair */
+        [data-theme="light"] {
+            --bg-color: #f0f0f0;
+            --text-color: #1d1d1f;
+            --accent-color: #d32f2f;
+            --btn-bg: #007aff;
+        }
+
         body {
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            background-color: #0d1117; /* Dark background for modern look */
-            color: #c9d1d9; /* Light text color */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; /* Prevent scrollbars from animation */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            transition: background-color 0.4s ease;
         }
 
-        .container {
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* 404 Header Styling */
-        h1 {
-            font-size: 10em;
-            margin: 0;
-            line-height: 1;
-            position: relative;
-            color: #ff7b72; /* Error color */
-            text-shadow: 0 0 10px rgba(255, 123, 114, 0.5); /* Subtle glow */
-        }
-
-        /* Subtitle and Paragraph */
-        h2 {
-            font-size: 2em;
-            margin: 10px 0 20px;
-        }
-
-        p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-        }
-
-        /* Button Styling */
-        .home-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #58a6ff; /* Primary color */
-            color: #0d1117;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s ease, transform 0.2s;
-        }
-
-        .home-button:hover {
-            background-color: #79c0ff;
-            transform: translateY(-2px);
-        }
-
-        /* Animation Keyframes - Simple 'Glitch' Effect */
-        @keyframes glitch {
-            0% {
-                transform: translate(0);
-                opacity: 1;
-            }
-            20% {
-                transform: translate(-3px, 3px);
-                opacity: 0.8;
-            }
-            40% {
-                transform: translate(-3px, -3px);
-                opacity: 0.9;
-            }
-            60% {
-                transform: translate(3px, 3px);
-                opacity: 0.7;
-            }
-            80% {
-                transform: translate(3px, -3px);
-                opacity: 0.85;
-            }
-            100% {
-                transform: translate(0);
-                opacity: 1;
-            }
-        }
-
-        /* Apply Animation to the 404 text */
-        .glitch-text {
-            animation: glitch 0.5s infinite alternate steps(2, start);
-        }
-
-        /* Particle/Star Field Background Effect (Subtle) */
-        .stars {
+        #canvas-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: -1; /* Keep behind content */
+            z-index: 1;
         }
-        
-        /* JavaScript will create and style the individual particles */
 
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(4px);
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        h1 {
+            font-size: 8em;
+            margin: 0;
+            color: var(--accent-color);
+            animation: glitch 1s infinite alternate;
+        }
+
+        .home-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: var(--btn-bg);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .home-button:hover { transform: scale(1.05); }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            100% { transform: translate(2px, -2px); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="stars" id="star-field"></div>
+    <div id="canvas-container"></div>
+
     <div class="container">
-        <h1 class="glitch-text">404</h1>
-        <h2>Oops! Page Not Found.</h2>
-        <p>It seems you've lost your way in the digital void. The page you are looking for might be elsewhere.</p>
-        <a href="https://stormwindsky.com" class="home-button">Try to get back to Stormwindsky.com</a>
+        <h1 id="404-title">404</h1>
+        <h2 id="txt-oops">Oops! Page Not Found.</h2>
+        <p id="txt-message">It seems you've lost your way in the digital void.</p>
+        <a href="https://stormwindsky.com" class="home-button" id="btn-back">Back Home</a>
     </div>
 
     <script>
-        // --- JavaScript for the particle/star animation ---
+        // --- 1. GESTION DU THÈME ET DES LANGUES ---
+        const translations = {
+            'en': { oops: "Oops! Page Not Found.", msg: "It seems you've lost your way in the digital void.", back: "Back Home" },
+            'fr-FR': { oops: "Oups ! Page Introuvable.", msg: "Il semble que vous soyez perdu dans le vide numérique.", back: "Retour à l'accueil" },
+            'fr-CA': { oops: "Aïe ! Page introuvable.", msg: "On dirait que tu t'es perdu dans l'néant numérique.", back: "Retourner au bercail" },
+            'es-ES': { oops: "¡Oops! Página no encontrada.", msg: "Parece que te has perdido en el vacío digital.", back: "Volver al inicio" },
+            'es-AM': { oops: "¡Ups! No encontramos la página.", msg: "Parece que te perdiste en el vacío digital.", back: "Regresar" }
+        };
 
-        const starField = document.getElementById('star-field');
-        const numStars = 50; // Number of 'stars'
-
-        // Function to create a single star
-        function createStar() {
-            const star = document.createElement('div');
-            star.style.position = 'absolute';
-            star.style.width = star.style.height = `${Math.random() * 2 + 1}px`; // Random size
-            star.style.backgroundColor = '#ffffff';
-            star.style.borderRadius = '50%';
-            star.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.8)';
+        function initSync() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
             
-            // Random position
-            star.style.top = `${Math.random() * 100}vh`;
-            star.style.left = `${Math.random() * 100}vw`;
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const t = translations[savedLang] || translations['en'];
+            document.getElementById('txt-oops').innerText = t.oops;
+            document.getElementById('txt-message').innerText = t.msg;
+            document.getElementById('btn-back').innerText = t.back;
 
-            // Random subtle twinkling animation
-            star.style.animation = `twinkle ${Math.random() * 5 + 3}s infinite alternate`;
-
-            starField.appendChild(star);
+            return savedTheme;
         }
 
-        // Create the stars
-        for (let i = 0; i < numStars; i++) {
-            createStar();
-        }
+        const currentTheme = initSync();
 
-        // Define the twinkling animation keyframes in CSS (using JS to inject it, 
-        // as keyframes must be defined)
-        const styleSheet = document.createElement('style');
-        styleSheet.type = 'text/css';
-        styleSheet.innerText = `
-            @keyframes twinkle {
-                0% { opacity: 0.5; }
-                50% { opacity: 1; }
-                100% { opacity: 0.5; }
-            }
-        `;
-        document.head.appendChild(styleSheet);
+        // --- 2. MOTEUR 3D THREE.JS ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
         
-        // --- End of JS ---
-    </script>
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
 
+        // Création des particules
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1500;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        // Couleur des points selon le thème
+        const dotColor = (currentTheme === 'light') ? 0x007aff : 0xffffff;
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            color: dotColor,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 3;
+
+        // Animation de rotation
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) - 0.5;
+            mouseY = (e.clientY / window.innerHeight) - 0.5;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particlesMesh.rotation.y += 0.002;
+            particlesMesh.rotation.x += 0.001;
+
+            // Interaction légère avec la souris
+            particlesMesh.rotation.y += mouseX * 0.1;
+            particlesMesh.rotation.x += -mouseY * 0.1;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Redimensionnement
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>

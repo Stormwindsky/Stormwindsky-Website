@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | GB Sprite Maker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-bg: #ffffff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --accent: #007aff;
+            
+            /* Palette GameBoy */
+            --gb-transparent: #8bac0f;
+            --gb-light: #9bbc0f;
+            --gb-dark: #306230;
+            --gb-black: #0f380f;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-bg: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .controls {
+            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
+        }
+
+        select, .theme-toggle, .btn-main {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-bg); color: var(--text-dark); cursor: pointer;
+            font-family: 'Inter', sans-serif; font-weight: 600;
+        }
+
+        .editor-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 900px;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            border: 2px solid var(--text-dark);
+            width: 400px;
+            height: 400px;
+        }
+
+        .pixel {
+            width: 25px;
+            height: 25px;
+            border: 0.1px solid rgba(0,0,0,0.05);
+            background-color: var(--gb-transparent);
+            cursor: crosshair;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 200px;
+        }
+
+        .palette {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .color-btn {
+            height: 45px;
+            border-radius: 10px;
+            border: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .color-btn.active {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .preview-box {
+            text-align: center;
+            background: rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        #preview-canvas {
+            image-rendering: pixelated;
+            background: var(--gb-transparent);
+            border: 1px solid var(--text-dim);
+            margin-top: 10px;
+        }
+
+        .btn-main {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+        }
+
+        footer { margin-top: 40px; font-size: 0.75rem; color: var(--text-dim); text-align: center; }
+
+        @media (max-width: 600px) {
+            #grid { width: 300px; height: 300px; }
+            .pixel { width: 18.75px; height: 18.75px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+    </div>
+
+    <div class="editor-container">
+        <div id="grid"></div>
+
+        <div class="sidebar">
+            <h2 id="txt-palette">Palette</h2>
+            <div class="palette">
+                <div class="color-btn active" style="background: var(--gb-black);" data-color="#0f380f"></div>
+                <div class="color-btn" style="background: var(--gb-dark);" data-color="#306230"></div>
+                <div class="color-btn" style="background: var(--gb-light);" data-color="#9bbc0f"></div>
+                <div class="color-btn" style="background: var(--gb-transparent);" data-color="#8bac0f"></div>
+            </div>
+
+            <button class="btn-main" onclick="exportPNG()" id="btn-export">Export PNG</button>
+            <button class="theme-toggle" onclick="clearGrid()" id="btn-clear">Clear Grid</button>
+
+            <div class="preview-box">
+                <span id="txt-preview">Preview (16x16)</span><br>
+                <canvas id="preview-canvas" width="16" height="16"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <footer id="txt-footer">
+        © 2026 Stormwindsky | MIT License
+    </footer>
+
+    <script>
+        // --- SYNCHRONISATION & TRADUCTION ---
+        const translations = {
+            'en': {
+                palette: "Palette", export: "Export PNG", clear: "Clear Grid", preview: "Preview (16x16)",
+                footer: "© 2026 Stormwindsky | MIT License", themeL: "🌙 Dark Mode", themeD: "☀️ Light Mode"
+            },
+            'fr-FR': {
+                palette: "Palette", export: "Exporter PNG", clear: "Effacer", preview: "Aperçu (16x16)",
+                footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'fr-CA': {
+                palette: "Couleurs", export: "Télécharger PNG", clear: "Tout effacer", preview: "Aperçu (16x16)",
+                footer: "© 2026 Stormwindsky | Licence MIT", themeL: "🌙 Mode Sombre", themeD: "☀️ Mode Clair"
+            },
+            'es-ES': {
+                palette: "Paleta", export: "Exportar PNG", clear: "Limpiar", preview: "Previsualizar",
+                footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            },
+            'es-AM': {
+                palette: "Paleta", export: "Exportar PNG", clear: "Borrar todo", preview: "Vista previa",
+                footer: "© 2026 Stormwindsky | Licencia MIT", themeL: "🌙 Modo Oscuro", themeD: "☀️ Modo Claro"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-palette').innerText = t.palette;
+            document.getElementById('btn-export').innerText = t.export;
+            document.getElementById('btn-clear').innerText = t.clear;
+            document.getElementById('txt-preview').innerText = t.preview;
+            document.getElementById('txt-footer').innerText = t.footer;
+            localStorage.setItem('preferredLang', lang);
+            updateThemeButtonText();
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
+        }
+
+        function updateThemeButtonText() {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            const theme = localStorage.getItem('theme') || 'light';
+            document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+        }
+
+        // --- LOGIQUE DE L'ÉDITEUR ---
+        const grid = document.getElementById('grid');
+        const previewCanvas = document.getElementById('preview-canvas');
+        const ctx = previewCanvas.getContext('2d');
+        let currentColor = '#0f380f';
+        let isDrawing = false;
+
+        function initGrid() {
+            for (let i = 0; i < 256; i++) {
+                const pixel = document.createElement('div');
+                pixel.classList.add('pixel');
+                pixel.addEventListener('mousedown', () => { isDrawing = true; paint(pixel); });
+                pixel.addEventListener('mouseover', () => { if(isDrawing) paint(pixel); });
+                grid.appendChild(pixel);
+            }
+        }
+
+        function paint(el) {
+            el.style.backgroundColor = currentColor;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const pixels = document.querySelectorAll('.pixel');
+            pixels.forEach((p, i) => {
+                const x = i % 16;
+                const y = Math.floor(i / 16);
+                ctx.fillStyle = p.style.backgroundColor || '#8bac0f';
+                ctx.fillRect(x, y, 1, 1);
+            });
+        }
+
+        function clearGrid() {
+            document.querySelectorAll('.pixel').forEach(p => p.style.backgroundColor = 'var(--gb-transparent)');
+            updatePreview();
+        }
+
+        function exportPNG() {
+            const link = document.createElement('a');
+            link.download = 'gb-sprite.png';
+            link.href = previewCanvas.toDataURL();
+            link.click();
+        }
+
+        // --- INITIALISATION ---
+        window.addEventListener('mouseup', () => isDrawing = false);
+
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.color-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                currentColor = btn.getAttribute('data-color');
+            });
+        });
+
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('langSelect').value = savedLang;
+            
+            initGrid();
+            changeLanguage(savedLang);
+            updatePreview();
+        };
+    </script>
+</body>
+</html>

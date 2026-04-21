@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Utilisation des mêmes variables que Welcome.html pour la synchronisation */
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --blue-main: #007aff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s ease; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calc-container {
+            background: var(--card-white);
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            border-radius: 35px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(128,128,128,0.1);
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--blue-main);
+        }
+
+        #display {
+            width: 100%;
+            height: 80px;
+            background: rgba(128,128,128,0.05);
+            border: none;
+            border-radius: 15px;
+            color: var(--text-dark);
+            text-align: right;
+            padding: 15px;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            height: 60px;
+            border-radius: 16px;
+            border: none;
+            background: var(--bg-body);
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover { transform: scale(1.05); background: var(--blue-main); color: white; }
+        
+        .btn-sci { color: var(--blue-main); font-size: 0.9rem; background: rgba(0,122,255,0.1); }
+        .btn-op { background: var(--card-dark); color: white; }
+        .btn-equal { grid-column: span 2; background: var(--blue-main); color: white; }
+        .btn-clear { color: #ff453a; }
+
+        /* Mobile adaptation */
+        @media (max-width: 450px) {
+            .calc-container { max-width: 100%; height: 90vh; display: flex; flex-direction: column; }
+            .grid { flex-grow: 1; }
+            button { height: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calc-container">
+    <div class="header-info">
+        <span id="txt-brand">STORMWINDSKY</span>
+        <span id="txt-mode">SCIENTIFIC</span>
+    </div>
+    
+    <input type="text" id="display" disabled placeholder="0">
+    
+    <div class="grid">
+        <button class="btn-sci" onclick="push('Math.sin(')">sin</button>
+        <button class="btn-sci" onclick="push('Math.cos(')">cos</button>
+        <button class="btn-sci" onclick="push('Math.PI')">π</button>
+        <button class="btn-clear" onclick="clearDisplay()">AC</button>
+
+        <button class="btn-sci" onclick="push('Math.log10(')">log</button>
+        <button class="btn-sci" onclick="push('**')">xʸ</button>
+        <button class="btn-sci" onclick="push('(')">(</button>
+        <button class="btn-op" onclick="push('/')">÷</button>
+
+        <button onclick="push('7')">7</button>
+        <button onclick="push('8')">8</button>
+        <button onclick="push('9')">9</button>
+        <button class="btn-op" onclick="push('*')">×</button>
+
+        <button onclick="push('4')">4</button>
+        <button onclick="push('5')">5</button>
+        <button onclick="push('6')">6</button>
+        <button class="btn-op" onclick="push('-')">-</button>
+
+        <button onclick="push('1')">1</button>
+        <button onclick="push('2')">2</button>
+        <button onclick="push('3')">3</button>
+        <button class="btn-op" onclick="push('+')">+</button>
+
+        <button onclick="push('0')">0</button>
+        <button onclick="push('.')">.</button>
+        <button class="btn-equal" onclick="calculate()">=</button>
+    </div>
+</div>
+
+<script>
+    // --- SYNCHRONISATION AVEC WELCOME.HTML ---
+    const translations = {
+        'en': { brand: "STORMWINDSKY", mode: "SCIENTIFIC", error: "Error" },
+        'fr-FR': { brand: "STORMWINDSKY", mode: "SCIENTIFIQUE", error: "Erreur" },
+        'fr-CA': { brand: "STORMWINDSKY", mode: "SCIENTIFIQUE", error: "Erreur" },
+        'es-ES': { brand: "STORMWINDSKY", mode: "CIENTÍFICA", error: "Error" },
+        'es-AM': { brand: "STORMWINDSKY", mode: "CIENTÍFICA", error: "Error" }
+    };
+
+    function applySettings() {
+        // Récupère le thème et la langue du LocalStorage (définis par Welcome.html)
+        const theme = localStorage.getItem('theme') || 'light';
+        const lang = localStorage.getItem('preferredLang') || 'en';
+
+        // Applique le thème
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // Applique la langue
+        const t = translations[lang] || translations['en'];
+        document.getElementById('txt-brand').innerText = t.brand;
+        document.getElementById('txt-mode').innerText = t.mode;
+    }
+
+    // --- LOGIQUE CALCULATRICE ---
+    const display = document.getElementById('display');
+
+    function push(v) { display.value += v; }
+    function clearDisplay() { display.value = ''; }
+
+    function calculate() {
+        try {
+            let result = eval(display.value);
+            display.value = Number(result.toFixed(8));
+        } catch {
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            display.value = translations[lang].error;
+            setTimeout(clearDisplay, 1000);
+        }
+    }
+
+    // Écoute les changements si l'utilisateur change de thème dans un autre onglet
+    window.addEventListener('storage', applySettings);
+    
+    // Initialisation au chargement
+    window.onload = applySettings;
+</script>
+
+</body>
+</html>

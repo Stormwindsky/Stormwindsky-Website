@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Stormwindsky</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #ff7b72;
+            --btn-bg: #58a6ff;
+            --particle-color: rgba(255, 255, 255, 0.15);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f0f0f0;
+            --text-color: #1d1d1f;
+            --accent-color: #d32f2f;
+            --btn-bg: #007aff;
+            --particle-color: rgba(0, 122, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            transition: background-color 0.4s ease;
+        }
+
+        /* Fond animé en CSS pur (remplace Three.js) */
+        .background-animate {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .circle {
+            position: absolute;
+            background: var(--particle-color);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+            filter: blur(1px);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            max-width: 90%;
+        }
+
+        h1 {
+            font-size: clamp(5em, 15vw, 8em);
+            margin: 0;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        h2 { font-size: 1.5rem; margin-top: 10px; }
+        p { opacity: 0.8; margin-bottom: 30px; }
+
+        .home-button {
+            display: inline-block;
+            padding: 14px 30px;
+            background-color: var(--btn-bg);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .home-button:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(88, 166, 255, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-animate" id="bg-dots">
+        </div>
+
+    <div class="container">
+        <h1 id="404-title">404</h1>
+        <h2 id="txt-oops">Oops! Page Not Found.</h2>
+        <p id="txt-message">It seems you've lost your way in the digital void.</p>
+        <a href="https://stormwindsky.com" class="home-button" id="btn-back">Back Home</a>
+    </div>
+
+    <script>
+        // 1. Traductions (Identique à votre version)
+        const translations = {
+            'en': { oops: "Oops! Page Not Found.", msg: "It seems you've lost your way in the digital void.", back: "Back Home" },
+            'fr-FR': { oops: "Oups ! Page Introuvable.", msg: "Il semble que vous soyez perdu dans le vide numérique.", back: "Retour à l'accueil" },
+            'fr-CA': { oops: "Aïe ! Page introuvable.", msg: "On dirait que tu t'es perdu dans l'néant numérique.", back: "Retourner au bercail" },
+            'es-ES': { oops: "¡Oops! Página no encontrada.", msg: "Parece que te has perdido en el vacío digital.", back: "Volver al inicio" },
+            'es-AM': { oops: "¡Ups! No encontramos la página.", msg: "Parece que te perdiste en el vacío digital.", back: "Regresar" }
+        };
+
+        // 2. Initialisation Thème et Langue
+        function init() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const t = translations[savedLang] || translations['en'];
+            document.getElementById('txt-oops').innerText = t.oops;
+            document.getElementById('txt-message').innerText = t.msg;
+            document.getElementById('btn-back').innerText = t.back;
+
+            createParticles();
+        }
+
+        // 3. Système de particules CSS (Remplace le moteur Three.js)
+        function createParticles() {
+            const bg = document.getElementById('bg-dots');
+            const count = 30; // Nombre de particules
+
+            for (let i = 0; i < count; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('circle');
+                
+                // Taille et position aléatoire
+                const size = Math.random() * 60 + 10 + 'px';
+                circle.style.width = size;
+                circle.style.height = size;
+                circle.style.left = Math.random() * 100 + '%';
+                circle.style.top = Math.random() * 100 + 100 + '%';
+                
+                // Délai et durée aléatoire
+                circle.style.animationDelay = Math.random() * 15 + 's';
+                circle.style.animationDuration = Math.random() * 10 + 10 + 's';
+                circle.style.opacity = Math.random();
+
+                bg.appendChild(circle);
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

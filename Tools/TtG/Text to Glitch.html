@@ -3,232 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text to Glitch Converter</title>
+    <title>Ṯἑꭕꓔ ʈỗ ǤᒪῒẗḉᏲ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-body: #0a0a0a;
+            --card-dark: #1c1c1e;
+            --matrix-green: #00ff41;
+            --matrix-glow: rgba(0, 255, 65, 0.3);
+            --text-dark: #f5f5f7;
+            --text-dim: #86868b;
+            --accent-pink: #f0f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
         body {
-            font-family: 'Courier New', monospace;
-            background-color: #121212;
-            color: #0f0;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        h1 {
-            color: #f0f;
-            text-shadow: 0 0 5px #f0f;
-        }
-        
-        .container {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
         }
-        
-        textarea, input {
-            background-color: #222;
-            color: #0f0;
-            border: 1px solid #0f0;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
+
+        /* Arrière-plan animé discret */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            animation: moveBackground 20s linear infinite;
         }
-        
+
+        @keyframes moveBackground {
+            from { background-position: 0 0; }
+            to { background-position: 30px 30px; }
+        }
+
+        .controls {
+            display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center;
+        }
+
+        select {
+            padding: 10px 20px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-dark); color: var(--text-dark); cursor: pointer;
+            outline: none;
+        }
+
+        .container {
+            max-width: 800px; width: 100%;
+            background: var(--card-dark);
+            padding: 40px;
+            border-radius: 35px;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        h1 {
+            font-weight: 800; font-size: 2rem; margin-bottom: 25px;
+            color: var(--matrix-green);
+            text-shadow: 0 0 10px var(--matrix-glow);
+            text-align: center;
+        }
+
+        .input-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-dim); font-size: 0.9rem; }
+
         textarea {
-            min-height: 100px;
-            resize: vertical;
+            width: 100%; min-height: 120px;
+            background: #000; border: 1px solid #333;
+            border-radius: 15px; padding: 15px;
+            color: var(--matrix-green); font-family: 'Fira Code', monospace;
+            font-size: 1rem; resize: vertical; outline: none;
         }
-        
-        button {
-            background-color: #333;
-            color: #0f0;
-            border: 1px solid #0f0;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            transition: all 0.3s;
+
+        textarea:focus { border-color: var(--matrix-green); box-shadow: 0 0 10px var(--matrix-glow); }
+
+        .slider-container {
+            display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.05);
+            padding: 15px; border-radius: 15px; margin-bottom: 25px;
         }
-        
-        button:hover {
-            background-color: #0f0;
-            color: #000;
-            text-shadow: 0 0 5px #fff;
+
+        input[type="range"] { flex-grow: 1; accent-color: var(--matrix-green); cursor: pointer; }
+
+        .btn-main {
+            width: 100%; padding: 15px; border-radius: 15px; border: none;
+            background: var(--matrix-green); color: #000;
+            font-weight: 800; font-size: 1rem; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 25px;
         }
-        
-        .result {
-            border: 1px dashed #f0f;
-            padding: 15px;
-            min-height: 50px;
-            word-wrap: break-word;
+
+        .btn-main:hover { transform: scale(1.02); filter: brightness(1.1); box-shadow: 0 0 20px var(--matrix-glow); }
+
+        .result-box {
+            background: #000; border: 1px dashed var(--accent-pink);
+            border-radius: 15px; padding: 20px; min-height: 80px;
+            position: relative; word-wrap: break-word;
+            font-family: 'Fira Code', monospace; color: var(--matrix-green);
         }
-        
+
         .copy-btn {
-            margin-top: 10px;
+            margin-top: 15px; background: transparent; border: 1px solid var(--text-dim);
+            color: var(--text-dim); padding: 8px 15px; border-radius: 8px; cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .copy-btn:hover { border-color: var(--matrix-green); color: var(--matrix-green); }
+
+        footer { margin-top: 40px; text-align: center; font-size: 0.75rem; color: var(--text-dim); }
+
+        /* Animation Glitch sur le titre */
+        .glitch-text:hover { animation: glitch 0.3s infinite; }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); text-shadow: 2px 0 var(--accent-pink); }
+            40% { transform: translate(-2px, -2px); text-shadow: -2px 0 #0ff; }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
     </style>
 </head>
 <body>
+
+    <div class="controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+    </div>
+
     <div class="container">
-        <h1>Text to Glitch Converter</h1>
+        <h1 id="txt-title" class="glitch-text">Text to Glitch</h1>
         
-        <div>
-            <label for="inputText">Enter your text:</label>
-            <textarea id="inputText" placeholder="Type your text here..."></textarea>
+        <div class="input-group">
+            <label id="lbl-input" for="inputText">Enter your text:</label>
+            <textarea id="inputText" placeholder="..."></textarea>
         </div>
         
-        <div>
-            <label for="glitchLevel">Glitch level:</label>
-            <input type="range" id="glitchLevel" min="1" max="10" value="5">
-            <span id="levelValue">5</span>
+        <div class="input-group">
+            <label id="lbl-level">Glitch Intensity</label>
+            <div class="slider-container">
+                <input type="range" id="glitchLevel" min="1" max="10" value="5">
+                <span id="levelValue" style="font-family: 'Fira Code'; color: var(--matrix-green);">5</span>
+            </div>
         </div>
         
-        <button id="convertBtn">Convert to Glitch</button>
+        <button id="convertBtn" class="btn-main">CONVERT_SYSTEM.EXE</button>
         
-        <div>
-            <h3>Result:</h3>
-            <div id="result" class="result"></div>
-            <button id="copyBtn" class="copy-btn">Copy Result</button>
+        <div class="input-group">
+            <label id="lbl-result">Corrupted Output:</label>
+            <div id="result" class="result-box"></div>
+            <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
         </div>
     </div>
 
+    <footer id="txt-footer">
+        © 2026 Stormwindsky | Built with Passion & Autism Pride
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputText = document.getElementById('inputText');
-            const glitchLevel = document.getElementById('glitchLevel');
-            const levelValue = document.getElementById('levelValue');
-            const convertBtn = document.getElementById('convertBtn');
-            const result = document.getElementById('result');
-            const copyBtn = document.getElementById('copyBtn');
-            
-            // List of glitch character combinations for each character
-            const glitchChars = {
-                'a': ['ā', 'ă', 'ą', 'ǎ', 'а', 'ä', 'å', 'α', 'ά', 'ὰ', 'ἀ', 'ἁ', 'ᾶ', 'ⱥ', 'ɑ', 'ᴀ', 'ₐ', 'ḁ', 'ẚ', 'ạ', 'ả', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'а'],
-                'b': ['ƅ', 'ɓ', 'ḃ', 'ḅ', 'ḇ', 'ƀ', 'ᵬ', 'ᶀ', 'ʙ', 'ᴃ', 'в', 'ḇ', 'ҍ', 'ъ', 'ь', 'Ꮟ', 'Ᏼ', 'ᑲ', 'ᖯ', '♭', '␢', '␢', '฿'],
-                'c': ['ć', 'ĉ', 'ċ', 'č', 'ƈ', 'с', 'ç', 'ḉ', 'ᴄ', '¢', '€', '₵', 'ⅽ', '⊂', 'Ↄ', 'ᑕ', 'ᒼ', 'ᔆ', 'ꮯ', '𐐽'],
-                'd': ['ď', 'đ', 'ƌ', 'ɖ', 'ɗ', 'ḋ', 'ḍ', 'ḏ', 'ḑ', 'ḓ', 'ᵭ', 'ᶁ', 'ᶑ', 'ᴅ', 'ᴆ', 'ⅾ', '∂', 'ꓒ', 'ꓷ', 'ᑯ', 'ᗪ', 'ᗬ', 'ᗡ', 'ᘔ', 'ᙇ', 'ᛑ'],
-                'e': ['ē', 'ĕ', 'ė', 'ę', 'ě', 'ȅ', 'ȇ', 'ȩ', 'ḕ', 'ḗ', 'ḙ', 'ḛ', 'ḝ', 'ẹ', 'ẻ', 'ẽ', 'ế', 'ề', 'ể', 'ễ', 'ệ', 'ᵉ', 'ₑ', 'ᴇ', 'є', 'ҽ', 'ɛ', 'ε', 'έ', 'ἐ', 'ἑ', 'ἒ', 'ἓ', 'ὲ', 'е', 'э', 'ё', 'є', 'ҽ'],
-                'f': ['ƒ', 'ḟ', 'ᵮ', 'ᶂ', 'ꜰ', 'ꬵ', 'ꞙ', 'ꟻ', 'ꓞ', 'ᖴ', 'ᖵ', 'ꘘ', 'Ꝼ', 'ꝼ', 'ﬀ', 'ﬃ', 'ﬄ', 'ﬁ', 'ﬂ', 'ｆ'],
-                'g': ['ĝ', 'ğ', 'ġ', 'ģ', 'ǥ', 'ǧ', 'ǵ', 'ɠ', 'ḡ', 'ᵷ', 'ᵹ', 'ᶃ', 'ɢ', 'ɡ', 'ɢ', 'ց', 'Ꮆ', 'Ꮐ', 'Ᏻ', 'ᏻ', 'ꓖ', 'ꮆ', 'Ᵹ', 'Ꝿ'],
-                'h': ['ĥ', 'ħ', 'ȟ', 'ḣ', 'ḥ', 'ḧ', 'ḩ', 'ḫ', 'ẖ', 'ᵸ', 'ʰ', 'ʜ', 'н', 'һ', 'հ', 'Ꮒ', 'Ᏺ', 'ᚺ', 'ᚻ', 'ꓧ', 'ꜧ', 'Ɦ', 'Ⱨ', 'Ⱶ'],
-                'i': ['ī', 'ĭ', 'į', 'ǐ', 'ȉ', 'ȋ', 'ɨ', 'ḭ', 'ḯ', 'ỉ', 'ị', 'ᵢ', 'ᵼ', 'ᶖ', 'ɪ', 'і', 'ї', 'ΐ', 'ί', 'ι', 'ϊ', 'ἰ', 'ἱ', 'ἲ', 'ἳ', 'ἴ', 'ἵ', 'ἶ', 'ἷ', 'ὶ', 'ί', 'ῐ', 'ῑ', 'ῒ', 'ΐ', 'ῖ', 'ῗ', 'і', 'ӏ', 'Ꭵ', 'ᛁ', 'ꓲ', 'ꭵ'],
-                'j': ['ĵ', 'ǰ', 'ȷ', 'ɉ', 'ʝ', 'ᶨ', 'ᴊ', 'ј', 'յ', 'Ꭻ', 'Ꮷ', 'ᒍ', 'ꓙ', 'ꜹ', 'Ʝ', 'ⱼ'],
-                'k': ['ķ', 'ǩ', 'ḱ', 'ḳ', 'ḵ', 'ƙ', 'ᶄ', 'ᴋ', 'к', 'κ', 'ќ', 'ҝ', 'ҟ', 'к', 'Ꮶ', 'ᖽ', 'ᖿ', 'ꓗ', 'ꝁ', 'ꝃ', 'ꝅ', 'ꞣ', 'ⱪ'],
-                'l': ['ĺ', 'ļ', 'ľ', 'ŀ', 'ł', 'ƚ', 'ȴ', 'ɫ', 'ɬ', 'ḷ', 'ḹ', 'ḻ', 'ḽ', 'ᶅ', 'ʟ', 'ᴌ', 'ℓ', 'ⱡ', 'ꓡ', 'ꝉ', 'ꞁ', 'ꝇ', 'ꮭ', 'ᒪ', 'ᛚ'],
-                'm': ['ḿ', 'ṁ', 'ṃ', 'ɱ', 'ᵯ', 'ᶆ', 'ᴍ', 'м', 'μ', 'ṃ', 'Ꮇ', 'Ꮤ', 'ᙢ', 'ꓟ', 'ꟽ', 'ꟿ', 'ꝳ'],
-                'n': ['ñ', 'ń', 'ņ', 'ň', 'ŉ', 'ŋ', 'ǹ', 'ȵ', 'ɲ', 'ɳ', 'ṅ', 'ṇ', 'ṉ', 'ṋ', 'ⁿ', 'ᵰ', 'ᶇ', 'ɴ', 'ᴎ', 'п', 'π', 'ո', 'ն', 'Ꮑ', 'Ꮓ', 'Ꮔ', 'Ꮛ', 'ᑎ', 'ᘉ', 'ꓠ', 'ꞑ', 'ꞥ'],
-                'o': ['ō', 'ŏ', 'ő', 'ŏ', 'ō', 'ȍ', 'ȏ', 'ȫ', 'ȭ', 'ȯ', 'ȱ', 'ṍ', 'ṏ', 'ṑ', 'ṓ', 'ọ', 'ỏ', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ớ', 'ờ', 'ở', 'ỡ', 'ợ', 'ᵒ', 'ₒ', 'ᴏ', 'о', 'ο', 'ό', 'о', 'ө', 'ӧ', 'օ', 'ס', 'ه', 'Ꭷ', 'Ꮻ', 'Ꮎ', 'ᣟ', 'ꓳ', 'ꬽ', 'ꭴ', 'ﭢ'],
-                'p': ['ṕ', 'ṗ', 'ƥ', 'ᵱ', 'ᵽ', 'ᶈ', 'ᴘ', 'р', 'ρ', 'р', 'ҏ', 'թ', 'Ꭾ', 'Ꮲ', 'Ᏼ', 'ᑉ', 'ᑊ', 'ᑿ', 'ꓑ', 'ꝑ', 'ꝓ', 'ꝕ', 'ꟼ', 'ꮲ'],
-                'q': ['ɋ', 'ʠ', 'ᵠ', 'ᶐ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ', 'ꝗ', 'ꝙ'],
-                'r': ['ŕ', 'ŗ', 'ř', 'ȑ', 'ȓ', 'ɍ', 'ɽ', 'ɾ', 'ṙ', 'ṛ', 'ṝ', 'ṟ', 'ᵣ', 'ᵲ', 'ᶉ', 'ʀ', 'ʀ', 'ʁ', 'ᴙ', 'ᴚ', 'г', 'я', 'ѓ', 'ґ', 'г', 'Ꮢ', 'ᖇ', 'ꓣ', 'ꞧ', 'ꞃ', 'ꭱ', 'ꭈ'],
-                's': ['ś', 'ŝ', 'ş', 'š', 'ș', 'ṡ', 'ṣ', 'ṥ', 'ṧ', 'ṩ', 'ʂ', 'ᵴ', 'ᶊ', 'ꜱ', 'ꞅ', 'Ꞩ', 'ꮪ', 'ｓ'],
-                't': ['ţ', 'ť', 'ŧ', 'ƫ', 'ƭ', 'ț', 'ʈ', 'ṫ', 'ṭ', 'ṯ', 'ṱ', 'ẗ', 'ᵵ', 'ƾ', 'ᶵ', 'ᴛ', 'т', 'τ', 'т', 'ҭ', 'Ꭲ', 'Ꮖ', 'Ꮦ', 'Ꮬ', 'ᖷ', 'ᖸ', 'ꓔ', 'ꞇ', 'ꝥ'],
-                'u': ['ū', 'ŭ', 'ů', 'ű', 'ų', 'ư', 'ǔ', 'ȕ', 'ȗ', 'Ʉ', 'ʉ', 'ṳ', 'ṵ', 'ṷ', 'ṹ', 'ṻ', 'ụ', 'ủ', 'ứ', 'ừ', 'ử', 'ữ', 'ự', 'ᵤ', 'ᵫ', 'ᶙ', 'ᴜ', 'у', 'υ', 'ύ', 'ϋ', 'ὐ', 'ὑ', 'ὒ', 'ὓ', 'ὔ', 'ὕ', 'ὖ', 'ὗ', 'ὺ', 'ύ', 'ῠ', 'ῡ', 'ῢ', 'ΰ', 'ῦ', 'ῧ', 'у', 'ў', 'ү', 'ұ', 'ұ', 'Ꭴ', 'Ꮽ', 'ᑌ', 'ᑘ', 'ᑰ', '᙮', 'ꓴ', '꒤', '꒦', 'ꓵ'],
-                'v': ['ṽ', 'ṿ', 'ʋ', 'ᶌ', 'ᴠ', 'ᴠ', 'ν', 'ѵ', 'ѷ', 'Ꮩ', 'ᐺ', 'ꓦ', 'ꝟ', 'ꞹ', 'ꮙ', 'ﮦ', 'ﮧ', 'ﮨ', 'ﮩ', 'ﮪ', 'ﮫ', 'ﮬ', 'ﮭ'],
-                'w': ['ŵ', 'ẁ', 'ẃ', 'ẅ', 'ẇ', 'ẉ', 'ẘ', 'ʍ', 'ᵂ', 'ᴡ', 'ш', 'щ', 'ѡ', 'ѿ', 'Ꮃ', 'Ꮤ', 'Ꮚ', 'Ꮗ', 'Ꮿ', 'ꓪ', 'ꞷ', 'ꝡ', 'ꝧ'],
-                'x': ['ẋ', 'ẍ', 'ₓ', 'ᶍ', 'ᴋ', 'х', 'χ', 'ጀ', 'ጸ', 'Ꭹ', 'Ꮖ', 'ᚷ', 'ꓫ', 'ꭓ', 'ꭕ', 'Ꭓ', 'ⵝ'],
-                'y': ['ý', 'ÿ', 'ŷ', 'ȳ', 'ɏ', 'ẏ', 'ỳ', 'ỵ', 'ỷ', 'ỹ', 'ʏ', 'ʎ', 'ᶌ', 'ƴ', 'ᵞ', 'ᵧ', 'ᶏ', 'ᴠ', 'у', 'γ', 'ү', 'ყ', 'Ꭹ', 'Ꮍ', 'ꓬ', 'ꭚ'],
-                'z': ['ź', 'ż', 'ž', 'ƶ', 'ȥ', 'ɀ', 'ʐ', 'ʑ', 'ẑ', 'ẓ', 'ẕ', 'ᵶ', 'ᶎ', 'ᴢ', 'ᴣ', 'ᴢ', 'з', 'ζ', 'ʐ', 'Ꮓ', 'ᙆ', 'ꓜ', 'ꝣ', 'Ᶎ', 'Ⱬ'],
-                'A': ['Ā', 'Ă', 'Ą', 'Ǎ', 'Ǟ', 'Ǡ', 'Ǻ', 'Ȁ', 'Ȃ', 'Ȧ', 'Ⱥ', 'Ḁ', 'Ḃ', 'Ḅ', 'Ḇ', 'Ạ', 'Ả', 'Ấ', 'Ầ', 'Ẩ', 'Ẫ', 'Ậ', 'Ắ', 'Ằ', 'Ẳ', 'Ẵ', 'Ặ', 'ᴀ', 'ᴬ', 'ₐ', 'Ḁ', 'Ạ', 'Ả', 'Ấ', 'Ầ', 'Ẩ', 'Ẫ', 'Ậ', 'Ắ', 'Ằ', 'Ẳ', 'Ẵ', 'Ặ', 'Α', 'А', 'Ӑ', 'Ӓ', 'Ꭺ', 'ᗅ', 'ꓮ'],
-                'B': ['Ɓ', 'Ƃ', 'Ƀ', 'Ḁ', 'Ḃ', 'Ḅ', 'Ḇ', 'ʙ', 'ᴃ', 'ᴮ', 'Ᏼ', 'ᗷ', 'ꓐ', 'Ꞵ', 'Ꞷ'],
-                'C': ['Ć', 'Ĉ', 'Ċ', 'Č', 'Ƈ', 'Ȼ', 'Ḉ', 'ᴄ', 'Ꮯ', 'ᑕ', 'ꓚ', 'Ꞓ', 'Ꞔ', 'Ꞔ', 'ℂ', '℃'],
-                'D': ['Ď', 'Đ', 'Ɖ', 'Ɗ', 'Ƌ', 'Ḋ', 'Ḍ', 'Ḏ', 'Ḑ', 'Ḓ', 'ᴅ', 'ᴆ', 'ᴰ', 'Ꭰ', 'ᗞ', 'ᗪ', 'ꓓ', 'Ꝺ', 'ꝺ'],
-                'E': ['Ē', 'Ĕ', 'Ė', 'Ę', 'Ě', 'Ǝ', 'Ɛ', 'Ʃ', 'Ȅ', 'Ȇ', 'Ȩ', 'Ɇ', 'Ḕ', 'Ḗ', 'Ḙ', 'Ḛ', 'Ḝ', 'Ẹ', 'Ẻ', 'Ẽ', 'Ế', 'Ề', 'Ể', 'Ễ', 'Ệ', 'ᴇ', 'ᴱ', 'ᴲ', 'Ε', 'Е', 'Ё', 'Є', 'Ӗ', 'Ԑ', 'Ꭼ', 'Ꮛ', 'ꓰ', 'ꭼ'],
-                'F': ['Ƒ', 'Ḟ', 'ꜰ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ', 'Ꞙ', 'ꞙ', 'ꟻ', 'Ꝼ'],
-                'G': ['Ĝ', 'Ğ', 'Ġ', 'Ģ', 'Ɠ', 'Ǥ', 'Ǧ', 'Ǵ', 'ɢ', 'ʛ', 'Ḡ', 'ᴳ', 'Ꮐ', 'Ᏻ', 'ꓖ', 'Ᵹ', 'Ꝿ', 'Ꞡ'],
-                'H': ['Ĥ', 'Ħ', 'Ȟ', 'ʜ', 'Ḣ', 'Ḥ', 'Ḧ', 'Ḩ', 'Ḫ', 'ᴴ', 'ᴺ', 'Ꮋ', 'ᕼ', 'ꓧ', 'Ɥ', 'Ⱨ', 'Ⱶ'],
-                'I': ['Ĩ', 'Ī', 'Ĭ', 'Į', 'İ', 'Ɩ', 'Ɨ', 'Ǐ', 'Ȉ', 'Ȋ', 'ɪ', 'Ḭ', 'Ḯ', 'Ỉ', 'Ị', 'ᴵ', 'ᴵ', 'ᴵ', 'Ι', 'І', 'Ӏ', 'ӏ', 'Ꭵ', 'ᛁ', 'ꓲ'],
-                'J': ['Ĵ', 'Ɉ', 'ᴊ', 'ᴶ', 'Ꭻ', 'ᒍ', 'ꓙ', 'Ʝ', 'Ꭓ', 'ⱼ'],
-                'K': ['Ķ', 'Ƙ', 'Ǩ', 'ᴋ', 'ᴷ', 'Ꮶ', 'Ḱ', 'Ḳ', 'Ḵ', 'Ⱪ', 'ꓗ', 'Ꝁ', 'Ꝃ', 'Ꝅ', 'Ꞣ'],
-                'L': ['Ĺ', 'Ļ', 'Ľ', 'Ŀ', 'Ł', 'Ƚ', 'ʟ', 'ᴌ', 'ᴸ', 'Ꮮ', 'ᒪ', 'ᛚ', 'ꓡ', 'Ꝇ', 'Ꝉ', 'Ꞁ', 'ꞎ'],
-                'M': ['Ḿ', 'Ṁ', 'Ṃ', 'ᴍ', 'ᴹ', 'Ꮇ', 'ᗰ', 'ᙢ', 'ꓟ', 'ꟽ', 'ꟿ', 'ꝳ'],
-                'N': ['Ñ', 'Ń', 'Ņ', 'Ň', 'Ɲ', 'Ǹ', 'Ƞ', 'ɴ', 'Ṅ', 'Ṇ', 'Ṉ', 'Ṋ', 'ᴺ', 'ᴻ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ', 'Ꮑ'],
-                'O': ['Ō', 'Ŏ', 'Ő', 'Ɔ', 'Ɵ', 'Ơ', 'Ǒ', 'Ǫ', 'Ǭ', 'Ǿ', 'Ȍ', 'Ȏ', 'Ȫ', 'Ȭ', 'Ȯ', 'Ȱ', 'Ṍ', 'Ṏ', 'Ṑ', 'Ṓ', 'Ọ', 'Ỏ', 'Ố', 'Ồ', 'Ổ', 'Ỗ', 'Ộ', 'Ớ', 'Ờ', 'Ở', 'Ỡ', 'ᴏ', 'ᴼ', 'Ꮎ', 'Ꮻ', 'ꓳ', 'Ꝋ', 'Ꝍ', 'Ꞷ', 'ꭴ'],
-                'P': ['Ƥ', 'Ṕ', 'Ṗ', 'ᴘ', 'ᴾ', 'Ꮲ', 'ᑭ', 'ᑷ', 'ꓑ', 'Ꝑ', 'Ꝓ', 'Ꝕ', 'ꟼ'],
-                'Q': ['Ɋ', 'ʠ', 'ᴾ', 'Ꮮ', 'ᑫ', 'Ꝗ', 'Ꝙ', 'ꝗ', 'ꝙ'],
-                'R': ['Ŕ', 'Ŗ', 'Ř', 'Ʀ', 'Ȑ', 'Ȓ', 'Ɍ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʁ', 'ʀ', 'ʀ'],
-                'S': ['Ś', 'Ŝ', 'Ş', 'Š', 'Ș', 'Ṡ', 'Ṣ', 'Ṥ', 'Ṧ', 'Ṩ', 'ꜱ', 'Ꞩ', 'Ɦ', 'Ʂ', 'ꮪ', 'Ｓ'],
-                'T': ['Ţ', 'Ť', 'Ŧ', 'Ƭ', 'Ʈ', 'Ț', 'Ⱦ', 'Ṫ', 'Ṭ', 'Ṯ', 'Ṱ', 'ᴛ', 'ᵀ', 'Ꭲ', 'Ꮖ', 'Ꮦ', 'Ꮬ', 'ꓔ', 'Ꞇ', 'Ꝩ'],
-                'U': ['Ũ', 'Ū', 'Ŭ', 'Ů', 'Ű', 'Ų', 'Ư', 'Ǔ', 'Ǖ', 'Ǘ', 'Ǚ', 'Ǜ', 'Ȕ', 'Ȗ', 'Ʉ', 'Ṳ', 'Ṵ', 'Ṷ', 'Ṹ', 'Ṻ', 'Ụ', 'Ủ', 'Ứ', 'Ừ', 'Ử', 'Ữ', 'Ự', 'ᴜ', 'ᵁ', 'ᵾ', 'ᶙ', '∪', 'ꓴ'],
-                'V': ['Ʋ', 'Ṽ', 'Ṿ', 'ᴠ', 'ᵛ', 'ᶌ', 'Ꮩ', 'ꓦ', 'Ꝟ', 'Ꞹ', 'Ꝩ'],
-                'W': ['Ŵ', 'Ẁ', 'Ẃ', 'Ẅ', 'Ẇ', 'Ẉ', 'ᴡ', 'ᵂ', 'Ꮃ', 'Ꮤ', 'ꓪ', 'Ꝡ', 'ꝡ'],
-                'X': ['Ẋ', 'Ẍ', 'ₓ', 'ᶍ', '᙭', 'ꓫ', 'Ꭓ', 'Ｘ'],
-                'Y': ['Ŷ', 'Ÿ', 'Ƴ', 'Ȳ', 'Ɏ', 'Ẏ', 'Ỳ', 'Ỵ', 'Ỷ', 'Ỹ', 'ʏ', 'ʎ', 'ʸ', 'Ꭹ', 'Ꮍ', 'ꓬ'],
-                'Z': ['Ź', 'Ż', 'Ž', 'Ƶ', 'Ȥ', 'ɀ', 'ᴢ', 'ᶻ', 'Ꮓ', 'ꓜ', 'Ꝣ']
-            };
-            
-            // Update displayed glitch level value
-            glitchLevel.addEventListener('input', function() {
-                levelValue.textContent = this.value;
-            });
-            
-            // Function to convert text to glitch version
-            function textToGlitch(text, level) {
-                level = Math.min(Math.max(level, 1), 10);
-                let result = '';
-                
-                for (let i = 0; i < text.length; i++) {
-                    const char = text[i];
-                    
-                    // If the character has glitch variants
-                    if (glitchChars[char]) {
-                        // Glitch probability based on level
-                        const shouldGlitch = Math.random() < (level * 0.1);
-                        
-                        if (shouldGlitch) {
-                            // Choose a random variant
-                            const variants = glitchChars[char];
-                            const randomIndex = Math.floor(Math.random() * variants.length);
-                            result += variants[randomIndex];
-                        } else {
-                            result += char;
-                        }
-                    } else {
-                        result += char;
-                    }
-                }
-                
-                return result;
+        const translations = {
+            'en': {
+                title: "Text to Glitch", input: "Enter your text:", level: "Glitch Intensity",
+                btn: "CONVERT_SYSTEM.EXE", result: "Corrupted Output:", copy: "Copy to Clipboard",
+                copied: "Copied!", footer: "© 2026 Stormwindsky | MIT License"
+            },
+            'fr-FR': {
+                title: "Convertisseur Glitch", input: "Entrez votre texte :", level: "Intensité du Glitch",
+                btn: "CONVERTIR_SYSTEME.EXE", result: "Sortie Corrompue :", copy: "Copier le résultat",
+                copied: "Copié !", footer: "© 2026 Stormwindsky | Licence MIT"
+            },
+            'fr-CA': {
+                title: "Glitcher du texte", input: "Écris de quoi :", level: "Force du Glitch",
+                btn: "GOSSER_LE_TEXTE.EXE", result: "Texte fucké :", copy: "Copier ça",
+                copied: "C'est fait !", footer: "© 2026 Stormwindsky | Licence MIT"
+            },
+            'es-ES': {
+                title: "Conversor Glitch", input: "Introduce tu texto:", level: "Intensidad Glitch",
+                btn: "CONVERTIR_SISTEMA.EXE", result: "Resultado Corrupto:", copy: "Copiar Resultado",
+                copied: "¡Copiado!", footer: "© 2026 Stormwindsky | Licencia MIT"
+            },
+            'es-AM': {
+                title: "Conversor Glitch", input: "Escribe tu texto:", level: "Nivel de Glitch",
+                btn: "EJECUTAR_CONVERSION.EXE", result: "Resultado Corrupto:", copy: "Copiar Texto",
+                copied: "¡Listo!", footer: "© 2026 Stormwindsky | Licencia MIT"
             }
-            
-            // Convert text when button is clicked
-            convertBtn.addEventListener('click', function() {
-                const text = inputText.value;
-                const level = parseInt(glitchLevel.value);
-                
-                if (text) {
-                    result.textContent = textToGlitch(text, level);
+        };
+
+        const glitchChars = {
+            'a': ['ā', 'ă', 'ą', 'ǎ', 'а', 'ä', 'å', 'α', 'ά', 'ὰ', 'ⱥ', 'ɑ', 'ᴀ', 'ạ', 'ả', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ'],
+            'b': ['ƅ', 'ɓ', 'ḃ', 'ḅ', 'ḇ', 'ƀ', 'ᵬ', 'ᶀ', 'ʙ', 'в', 'ъ', 'ь', 'Ꮟ', '฿'],
+            'c': ['ć', 'ĉ', 'ċ', 'č', 'ƈ', 'с', 'ç', 'ḉ', 'ᴄ', '¢', '€', 'ⅽ', '⊂', 'Ↄ'],
+            'd': ['ď', 'đ', 'ƌ', 'ɖ', 'ɗ', 'ḋ', 'ḍ', 'ḏ', 'ḑ', 'ḓ', 'ᵭ', 'ᴅ', '∂', 'ꓓ'],
+            'e': ['ē', 'ĕ', 'ė', 'ę', 'ě', 'ȅ', 'ȩ', 'ḕ', 'ḗ', 'ẹ', 'ẻ', 'ẽ', 'ế', 'ề', 'ể', 'ễ', 'ệ', 'є', 'ε', 'ё'],
+            'f': ['ƒ', 'ḟ', 'ᵮ', 'ᶂ', 'ꜰ', 'ꬵ', 'ꟻ', 'ꓞ', 'ᖴ', 'ﬀ', 'ﬁ'],
+            'g': ['ĝ', 'ğ', 'ġ', 'ģ', 'ǥ', 'ǧ', 'ǵ', 'ɠ', 'ḡ', 'ɢ', 'ɡ', 'ց', 'Ꮆ', 'ꓖ'],
+            'h': ['ĥ', 'ħ', 'ȟ', 'ḣ', 'ḥ', 'ḧ', 'ḩ', 'ḫ', 'ʰ', 'ʜ', 'н', 'հ', 'Ꮒ', 'ᚺ', 'ꓧ'],
+            'i': ['ī', 'ĭ', 'į', 'ǐ', 'ȉ', 'ɨ', 'ḭ', 'ḯ', 'ỉ', 'ị', 'ɪ', 'і', 'ї', 'ι', 'ί', 'ἰ', 'ῖ'],
+            'j': ['ĵ', 'ǰ', 'ȷ', 'ɉ', 'ʝ', 'ᴊ', 'ј', 'յ', 'Ꭻ', 'ꓙ'],
+            'k': ['ķ', 'ǩ', 'ḱ', 'ḳ', 'ḵ', 'ƙ', 'ᴋ', 'к', 'κ', 'ќ', 'Ꮶ', 'ꓗ'],
+            'l': ['ĺ', 'ļ', 'ľ', 'ŀ', 'ł', 'ƚ', 'ȴ', 'ɫ', 'ɬ', 'ḷ', 'ḹ', 'ḻ', 'ʟ', 'ℓ', 'ꓡ'],
+            'm': ['ḿ', 'ṁ', 'ṃ', 'ɱ', 'ᵯ', 'ᴍ', 'м', 'μ', 'Ꮇ', 'ꓟ'],
+            'n': ['ñ', 'ń', 'ņ', 'ň', 'ŋ', 'ǹ', 'ɲ', 'ɳ', 'ṅ', 'ṇ', 'ṉ', 'ɴ', 'ᴎ', 'п', 'π', 'ն', 'Ꮑ'],
+            'o': ['ō', 'ŏ', 'ő', 'ȍ', 'ȫ', 'ȭ', 'ọ', 'ỏ', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ớ', 'ờ', 'ᴏ', 'о', 'ο', 'ө'],
+            'p': ['ṕ', 'ṗ', 'ƥ', 'ᵱ', 'ᵽ', 'ᴘ', 'р', 'ρ', 'թ', 'Ꭾ', 'ꓑ'],
+            'q': ['ɋ', 'ʠ', 'ᵠ', 'ꝗ', 'ꝙ'],
+            'r': ['ŕ', 'ŗ', 'ř', 'ȑ', 'ȓ', 'ɍ', 'ɽ', 'ɾ', 'ṙ', 'ṛ', 'ṟ', 'ʀ', 'ʁ', 'ᴙ', 'г', 'я', 'Ꮢ'],
+            's': ['ś', 'ŝ', 'ş', 'š', 'ș', 'ṡ', 'ṣ', 'ʂ', 'ᵴ', 'ꜱ', 'ꞅ', 'ꮪ'],
+            't': ['ţ', 'ť', 'ŧ', 'ƫ', 'ƭ', 'ț', 'ʈ', 'ṫ', 'ṭ', 'ṯ', 'ᴛ', 'т', 'τ', 'Ꭲ', 'ꓔ'],
+            'u': ['ū', 'ŭ', 'ů', 'ű', 'ų', 'ư', 'ǔ', 'ȕ', 'Ʉ', 'ʉ', 'ṳ', 'ụ', 'ủ', 'ứ', 'ừ', 'ử', 'ᴜ', 'у', 'υ'],
+            'v': ['ṽ', 'ṿ', 'ʋ', 'ᴠ', 'ν', 'ѵ', 'Ꮩ', 'ꓦ'],
+            'w': ['ŵ', 'ẁ', 'ẃ', 'ẅ', 'ẇ', 'ẉ', 'ʍ', 'ᴡ', 'ш', 'щ', 'Ꮃ', 'ꓪ'],
+            'x': ['ẋ', 'ẍ', 'ₓ', 'ᶍ', 'ᴋ', 'х', 'χ', 'ጀ', 'ꓫ'],
+            'y': ['ý', 'ÿ', 'ŷ', 'ȳ', 'ɏ', 'ẏ', 'ỳ', 'ỵ', 'ỷ', 'ỹ', 'ʏ', 'ʎ', 'ƴ', 'у', 'γ', 'Ꭹ'],
+            'z': ['ź', 'ż', 'ž', 'ƶ', 'ȥ', 'ɀ', 'ʐ', 'ʑ', 'ẑ', 'ẓ', 'ᴢ', 'з', 'ζ', 'Ꮓ']
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-title').innerText = t.title;
+            document.getElementById('lbl-input').innerText = t.input;
+            document.getElementById('lbl-level').innerText = t.level;
+            document.getElementById('convertBtn').innerText = t.btn;
+            document.getElementById('lbl-result').innerText = t.result;
+            document.getElementById('copyBtn').innerText = t.copy;
+            document.getElementById('txt-footer').innerText = t.footer;
+            localStorage.setItem('preferredLang', lang);
+        }
+
+        function textToGlitch(text, level) {
+            let result = '';
+            for (let char of text) {
+                const lowerChar = char.toLowerCase();
+                if (glitchChars[lowerChar] && Math.random() < (level * 0.1)) {
+                    const variants = glitchChars[lowerChar];
+                    result += variants[Math.floor(Math.random() * variants.length)];
                 } else {
-                    result.textContent = 'Please enter text to convert';
+                    result += char;
                 }
-            });
-            
-            // Copy result
-            copyBtn.addEventListener('click', function() {
-                const textToCopy = result.textContent;
-                
-                if (textToCopy) {
-                    navigator.clipboard.writeText(textToCopy)
-                        .then(() => {
-                            copyBtn.textContent = 'Copied!';
-                            setTimeout(() => {
-                                copyBtn.textContent = 'Copy Result';
-                            }, 2000);
-                        })
-                        .catch(err => {
-                            console.error('Error copying text: ', err);
-                        });
-                }
-            });
-            
-            // Convert automatically while typing (optional)
-            inputText.addEventListener('input', function() {
-                if (this.value.length > 0) {
-                    const level = parseInt(glitchLevel.value);
-                    result.textContent = textToGlitch(this.value, level);
-                } else {
-                    result.textContent = '';
-                }
-            });
+            }
+            return result;
+        }
+
+        // Event Listeners
+        const input = document.getElementById('inputText');
+        const levelSlider = document.getElementById('glitchLevel');
+        const levelVal = document.getElementById('levelValue');
+        const resultDiv = document.getElementById('result');
+        const convertBtn = document.getElementById('convertBtn');
+
+        levelSlider.addEventListener('input', () => levelVal.innerText = levelSlider.value);
+
+        const process = () => {
+            if (input.value) {
+                resultDiv.innerText = textToGlitch(input.value, levelSlider.value);
+            } else {
+                resultDiv.innerText = "";
+            }
+        };
+
+        convertBtn.addEventListener('click', process);
+        input.addEventListener('input', process);
+
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const text = resultDiv.innerText;
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const lang = localStorage.getItem('preferredLang') || 'en';
+                    this.innerText = translations[lang].copied;
+                    setTimeout(() => this.innerText = translations[lang].copy, 2000);
+                });
+            }
         });
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+        };
     </script>
 </body>
 </html>

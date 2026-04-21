@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>''Roblox'' Old horror Music Retake</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            font-family: 'Inter', sans-serif;
+            color: #7f8c8d;
+        }
+
+        /* Fond Ciel Gris et Pluie */
+        #viewport {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom, #333 0%, #111 100%);
+            z-index: -1;
+        }
+
+        #rainCanvas { position: absolute; top: 0; left: 0; }
+
+        /* Interface */
+        #ui {
+            position: relative;
+            text-align: center;
+            padding: 40px 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .controls { margin-bottom: 30px; }
+        
+        select {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid #444;
+            background: #2c2c2e; color: #f5f5f7; cursor: pointer;
+        }
+
+        h1 {
+            color: #ecf0f1;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-size: 1.5em;
+            opacity: 0.6;
+            margin-bottom: 20px;
+        }
+
+        .credits-box {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 25px;
+            border: 1px solid #333;
+            max-width: 600px;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        #start-btn {
+            background: #007aff;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 800;
+            transition: 0.3s;
+        }
+
+        #start-btn:hover { transform: scale(1.05); background: #5db0ff; }
+
+        a { color: #5db0ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        strong { color: #eee; }
+    </style>
+</head>
+<body>
+
+    <div id="viewport">
+        <canvas id="rainCanvas"></canvas>
+    </div>
+
+    <div id="ui">
+        <div class="controls">
+            <select id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="fr-FR">Français (France)</option>
+                <option value="fr-CA">Français (Québec)</option>
+                <option value="es-ES">Español (España)</option>
+                <option value="es-AM">Español (América)</option>
+            </select>
+        </div>
+
+        <h1 id="page-title">''Roblox'' Old Horror Music Retake</h1>
+        
+        <button id="start-btn">PLAY</button>
+
+        <div class="credits-box" id="credits-content">
+            </div>
+    </div>
+
+    <script>
+        const translations = {
+            'en': {
+                start: "START EXPERIENCE",
+                title: "Notes & Credits",
+                loopNote: "The background loop (Spooky Winds) is under <strong>CC0 1.0</strong> license by <a href='https://freesound.org/people/kevinklang/sounds/841982/' target='_blank'>kevinklang</a>.",
+                randomNote: "The random retake sounds are under <strong>Attribution 3.0 Unported</strong> license, created by <a href='https://freesound.org/people/DJPhizz/' target='_blank'>DJPhizz</a> & modified by me.",
+                sources: "Original sources:"
+            },
+            'fr-FR': {
+                start: "LANCER L'EXPÉRIENCE",
+                title: "Notes & Crédits",
+                loopNote: "Le son en boucle (Spooky Winds) est sous licence <strong>CC0 1.0</strong> par <a href='https://freesound.org/people/kevinklang/sounds/841982/' target='_blank'>kevinklang</a>.",
+                randomNote: "Les sons aléatoires sont sous licence <strong>Attribution 3.0 Unported</strong>, créés par <a href='https://freesound.org/people/DJPhizz/' target='_blank'>DJPhizz</a> & modifiés par moi.",
+                sources: "Sources originales :"
+            },
+            'fr-CA': {
+                start: "PARTIR L'EXPÉRIENCE",
+                title: "Notes & Crédits",
+                loopNote: "Le son qui joue en boucle (Spooky Winds) est sous licence <strong>CC0 1.0</strong> par <a href='https://freesound.org/people/kevinklang/sounds/841982/' target='_blank'>kevinklang</a>.",
+                randomNote: "Les sons de 'retake' aléatoires sont sous licence <strong>Attribution 3.0 Unported</strong>, créés par <a href='https://freesound.org/people/DJPhizz/' target='_blank'>DJPhizz</a> et modifiés par moi.",
+                sources: "Sources originales :"
+            },
+            'es-ES': {
+                start: "INICIAR EXPERIENCIA",
+                title: "Notas y Créditos",
+                loopNote: "El bucle de fondo (Spooky Winds) tiene licencia <strong>CC0 1.0</strong> de <a href='https://freesound.org/people/kevinklang/sounds/841982/' target='_blank'>kevinklang</a>.",
+                randomNote: "Los sonidos aleatorios tienen licencia <strong>Attribution 3.0 Unported</strong>, creados por <a href='https://freesound.org/people/DJPhizz/' target='_blank'>DJPhizz</a> y modificados por mí.",
+                sources: "Fuentes originales:"
+            },
+            'es-AM': {
+                start: "INICIAR EXPERIENCIA",
+                title: "Notas y Créditos",
+                loopNote: "El loop de fondo (Spooky Winds) está bajo licencia <strong>CC0 1.0</strong> por <a href='https://freesound.org/people/kevinklang/sounds/841982/' target='_blank'>kevinklang</a>.",
+                randomNote: "Los sonidos aleatorios están bajo licencia <strong>Attribution 3.0 Unported</strong>, creados por <a href='https://freesound.org/people/DJPhizz/' target='_blank'>DJPhizz</a> y modificados por mí.",
+                sources: "Fuentes originales:"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('start-btn').innerText = t.start;
+            document.getElementById('credits-content').innerHTML = `
+                <h3 style="margin-top:0">${t.title}</h3>
+                <p>${t.loopNote}</p>
+                <p>${t.randomNote}</p>
+                <p><strong>${t.sources}</strong> 
+                    <a href="https://freesound.org/people/DJPhizz/sounds/52373/" target="_blank">1</a>, 
+                    <a href="https://freesound.org/people/DJPhizz/sounds/52372/" target="_blank">2</a>, 
+                    <a href="https://freesound.org/people/DJPhizz/sounds/52371/" target="_blank">3</a>
+                </p>
+            `;
+            localStorage.setItem('preferredLang', lang);
+        }
+
+        // --- Logique Audio ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const loopUrl = "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Files/sfx/Spooky%20Winds%20Loop.wav";
+        const randomSounds = [
+            "https://raw.githubusercontent.com/Stormwindsky/Attribution-3.0-Unported-Files-used-for-my-website/main/horror%20retake/horror%20retake.wav",
+            "https://raw.githubusercontent.com/Stormwindsky/Attribution-3.0-Unported-Files-used-for-my-website/main/horror%20retake/horror%20retake2.wav",
+            "https://raw.githubusercontent.com/Stormwindsky/Attribution-3.0-Unported-Files-used-for-my-website/main/horror%20retake/horror%20retake3.wav",
+            "https://raw.githubusercontent.com/Stormwindsky/Attribution-3.0-Unported-Files-used-for-my-website/main/horror%20retake/horror%20retake4.wav"
+        ];
+
+        let lastPlayedIndex = -1;
+
+        async function getBuffer(url) {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            return await audioCtx.decodeAudioData(arrayBuffer);
+        }
+
+        async function startAmbience() {
+            const loopBuffer = await getBuffer(loopUrl);
+            const loopSource = audioCtx.createBufferSource();
+            loopSource.buffer = loopBuffer;
+            loopSource.loop = true;
+            loopSource.connect(audioCtx.destination);
+            loopSource.start(0);
+            triggerNextRandom();
+        }
+
+        async function triggerNextRandom() {
+            let randomIndex;
+            do { randomIndex = Math.floor(Math.random() * randomSounds.length); } while (randomIndex === lastPlayedIndex);
+            lastPlayedIndex = randomIndex;
+
+            try {
+                const buffer = await getBuffer(randomSounds[randomIndex]);
+                const source = audioCtx.createBufferSource();
+                source.buffer = buffer;
+                const pitches = [1, 1.5, 0.5];
+                source.playbackRate.value = pitches[Math.floor(Math.random() * pitches.length)];
+                source.connect(audioCtx.destination);
+                source.start(0);
+                source.onended = () => { setTimeout(triggerNextRandom, Math.random() * 4000 + 3000); };
+            } catch (e) { setTimeout(triggerNextRandom, 2000); }
+        }
+
+        document.getElementById('start-btn').addEventListener('click', function() {
+            audioCtx.resume();
+            startAmbience();
+            this.style.display = 'none';
+        });
+
+        // --- Animation Pluie ---
+        const canvas = document.getElementById('rainCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, rain = [];
+
+        function initCanvas() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            rain = [];
+            for(let i = 0; i < 150; i++) {
+                rain.push({x: Math.random()*w, y: Math.random()*h, v: Math.random()*12+8, l: Math.random()*20+10});
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(26, 26, 26, 0.3)';
+            ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            rain.forEach(p => {
+                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + p.l); ctx.stroke();
+                p.y += p.v; if(p.y > h) p.y = -p.l;
+            });
+            requestAnimationFrame(draw);
+        }
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+            initCanvas();
+            draw();
+        };
+        window.onresize = initCanvas;
+    </script>
+</body>
+</html>

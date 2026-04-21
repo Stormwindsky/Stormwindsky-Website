@@ -9,11 +9,25 @@
         :root {
             --primary: #ff0000;
             --primary-dark: #cc0000;
-            --secondary: #282828;
-            --light: #f9f9f9;
-            --dark: #212121;
-            --gray: #606060;
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            /* Thème Clair */
+            --bg-body: #f4f4f4;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #212121;
+            --input-bg: rgba(0, 0, 0, 0.05);
+            --input-text: #212121;
+            --instr-color: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Thème Sombre */
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-bg: rgba(40, 40, 40, 0.9);
+            --text-main: #f9f9f9;
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --input-text: #ffffff;
+            --instr-color: rgba(255, 255, 255, 0.7);
         }
 
         * {
@@ -24,33 +38,28 @@
 
         body {
             font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            color: var(--light);
+            background: var(--bg-body);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .container {
             text-align: center;
-            background: rgba(40, 40, 40, 0.9);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 800px;
-            transform: translateY(0);
             transition: var(--transition);
             border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
         }
 
         h1 {
@@ -66,7 +75,6 @@
         .input-group {
             display: flex;
             margin-bottom: 1.5rem;
-            position: relative;
         }
 
         input {
@@ -74,21 +82,15 @@
             padding: 15px 20px;
             border: none;
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: var(--input-bg);
+            color: var(--input-text);
             font-size: 1rem;
             transition: var(--transition);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         input:focus {
             outline: none;
-            background: rgba(255, 255, 255, 0.15);
             box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
-        }
-
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
         }
 
         button {
@@ -100,50 +102,12 @@
             border-radius: 50px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1rem;
             transition: var(--transition);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
         }
 
         button:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 7px 14px rgba(255, 0, 0, 0.3);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
-        }
-
-        button:focus:not(:active)::after {
-            animation: ripple 0.6s ease-out;
-        }
-
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(20, 20);
-                opacity: 0;
-            }
         }
 
         .video-container {
@@ -151,216 +115,118 @@
             position: relative;
             overflow: hidden;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            transform: scaleX(-1);
-            transition: var(--transition);
             aspect-ratio: 16/9;
             background: #000;
+            transform: scaleX(-1); /* L'effet miroir original */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
-        .video-container:hover {
-            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.25);
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 10;
-            opacity: 0;
-            pointer-events: none;
-            transition: var(--transition);
-        }
-
-        .loading.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        iframe { width: 100%; height: 100%; border: none; }
 
         .instructions {
             margin-top: 1.5rem;
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
+            color: var(--instr-color);
         }
 
-        .error {
-            color: #ff6b6b;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: var(--transition);
-        }
+        .error { color: #ff6b6b; margin-top: 1rem; font-size: 0.9rem; display: none; }
+        .error.show { display: block; }
 
-        .error.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1.5rem;
-                border-radius: 12px;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .input-group {
-                flex-direction: column;
-            }
-
-            button {
-                margin-left: 0;
-                margin-top: 10px;
-                width: 100%;
-            }
+        @media (max-width: 600px) {
+            .input-group { flex-direction: column; }
+            button { margin-left: 0; margin-top: 10px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>MirrorTube</h1>
+        <h1 id="txt-title">MirrorTube</h1>
         <div class="input-group">
             <input type="text" id="videoUrl" placeholder="Paste YouTube URL or Video ID">
             <button id="loadBtn">Mirror Video</button>
         </div>
-        <div class="error" id="error"></div>
+        <div id="error" class="error"></div>
         <div class="video-container">
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-            </div>
             <iframe id="youtubeVideo" allowfullscreen></iframe>
         </div>
-        <div class="instructions">
-            Tip: You can paste either the full YouTube URL (like https://youtu.be/dQw4w9WgXcQ) or just the video ID (dQw4w9WgXcQ)
+        <div class="instructions" id="txt-instructions">
+            Tip: You can paste the full URL or just the video ID.
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const videoUrlInput = document.getElementById('videoUrl');
-            const loadBtn = document.getElementById('loadBtn');
-            const youtubeVideo = document.getElementById('youtubeVideo');
-            const loading = document.getElementById('loading');
-            const errorDisplay = document.getElementById('error');
-
-            // Function to extract YouTube video ID from various URL formats
-            function extractVideoId(url) {
-                // Regular URL patterns
-                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                const match = url.match(regExp);
-                
-                // Short youtu.be URL
-                if (match && match[2].length === 11) {
-                    return match[2];
-                }
-                
-                // Direct video ID (if user pastes just the ID)
-                if (url.length === 11 && !url.includes('/') && !url.includes('=') && !url.includes('?')) {
-                    return url;
-                }
-                
-                return null;
+        // --- 1. GESTION DE LA TRADUCTION ET DU THÈME ---
+        const translations = {
+            'en': {
+                placeholder: "Paste YouTube URL or Video ID",
+                button: "Mirror Video",
+                tip: "Tip: You can paste either the full YouTube URL or just the video ID.",
+                error: "Invalid YouTube URL or Video ID"
+            },
+            'fr-FR': {
+                placeholder: "Collez l'URL YouTube ou l'ID",
+                button: "Miroir Vidéo",
+                tip: "Astuce : Vous pouvez coller l'URL complète ou seulement l'ID de la vidéo.",
+                error: "URL ou ID YouTube invalide"
+            },
+            'fr-CA': {
+                placeholder: "Colle ton lien YouTube ou l'ID",
+                button: "Vidéo Miroir",
+                tip: "Truc : Tu peux coller l'URL au complet ou juste l'ID du vidéo.",
+                error: "Lien ou ID YouTube pas bon"
+            },
+            'es-ES': {
+                placeholder: "Pega la URL de YouTube o ID",
+                button: "Reflejar Vídeo",
+                tip: "Consejo: Puedes pegar la URL completa o solo el ID del video.",
+                error: "URL o ID de YouTube no válido"
+            },
+            'es-AM': {
+                placeholder: "Pega el link de YouTube o ID",
+                button: "Reflejar Video",
+                tip: "Tip: Puedes pegar el link completo o solo el ID del video.",
+                error: "Link o ID de YouTube no válido"
             }
+        };
 
-            // Load video function with animations
-            function loadVideo() {
-                const videoUrl = videoUrlInput.value.trim();
-                
-                if (!videoUrl) {
-                    showError('Please enter a YouTube URL or Video ID');
-                    return;
-                }
-                
-                const videoId = extractVideoId(videoUrl);
-                
-                if (!videoId) {
-                    showError('Invalid YouTube URL or Video ID');
-                    return;
-                }
-                
-                // Show loading animation
-                loading.classList.add('active');
+        function applySettings() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            const t = translations[savedLang] || translations['en'];
+
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('videoUrl').placeholder = t.placeholder;
+            document.getElementById('loadBtn').innerText = t.button;
+            document.getElementById('txt-instructions').innerText = t.tip;
+            
+            return t;
+        }
+
+        const currentTrans = applySettings();
+
+        // --- 2. LOGIQUE MIRRORTUBE ---
+        const videoUrlInput = document.getElementById('videoUrl');
+        const loadBtn = document.getElementById('loadBtn');
+        const youtubeVideo = document.getElementById('youtubeVideo');
+        const errorDisplay = document.getElementById('error');
+
+        function loadVideo() {
+            const url = videoUrlInput.value.trim();
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            const videoId = (match && match[2].length === 11) ? match[2] : (url.length === 11 ? url : null);
+
+            if (videoId) {
                 errorDisplay.classList.remove('show');
-                
-                // Small delay to allow loading animation to show
-                setTimeout(() => {
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                    youtubeVideo.src = embedUrl;
-                    
-                    // Hide loading when video is ready
-                    youtubeVideo.onload = function() {
-                        loading.classList.remove('active');
-                    };
-                    
-                    // Fallback in case onload doesn't fire
-                    setTimeout(() => {
-                        loading.classList.remove('active');
-                    }, 3000);
-                }, 500);
-            }
-
-            // Show error message with animation
-            function showError(message) {
-                errorDisplay.textContent = message;
+                youtubeVideo.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            } else {
+                errorDisplay.innerText = currentTrans.error;
                 errorDisplay.classList.add('show');
-                
-                // Shake animation for input
-                videoUrlInput.style.animation = 'none';
-                void videoUrlInput.offsetWidth; // Trigger reflow
-                videoUrlInput.style.animation = 'shake 0.5s';
             }
+        }
 
-            // Event listeners
-            loadBtn.addEventListener('click', loadVideo);
-            
-            videoUrlInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    loadVideo();
-                }
-            });
-            
-            // Add shake animation to CSS
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0); }
-                    20%, 60% { transform: translateX(-5px); }
-                    40%, 80% { transform: translateX(5px); }
-                }
-            `;
-            document.head.appendChild(style);
-        });
+        loadBtn.addEventListener('click', loadVideo);
+        videoUrlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(); });
     </script>
 </body>
 </html>

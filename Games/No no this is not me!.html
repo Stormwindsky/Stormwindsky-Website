@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No no this is not me!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --accent: #007aff; --border: rgba(0,0,0,0.1); }
+        @media (prefers-color-scheme: dark) { :root { --bg: #0a0a0a; --card: #1c1c1e; --text: #f5f5f7; --accent: #0a84ff; --border: rgba(255,255,255,0.1); } }
+        
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .main-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; max-width: 1200px; width: 100%; }
+        
+        /* Colonne de Gauche (Carte Clonée) */
+        .side-panel { position: sticky; top: 20px; height: fit-content; }
+        .clone-slot { 
+            background: var(--card); border: 4px dashed var(--accent); border-radius: 24px; 
+            min-height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .clone-slot i { font-size: 3rem; opacity: 0.2; }
+        .clone-media { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Colonne de Droite (Grille) */
+        .content { display: flex; flex-direction: column; gap: 20px; }
+        .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+        .input-group { background: var(--card); padding: 12px; border-radius: 14px; border: 1px solid var(--border); flex: 1; display: flex; gap: 8px; }
+        input { background: transparent; border: none; color: var(--text); width: 100%; outline: none; }
+        
+        .btn { background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .card { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); position: relative; transition: 0.2s; }
+        .card.off { opacity: 0.3; filter: grayscale(1); } /* Pour "éliminer" un perso */
+        
+        .preview { width: 100%; height: 130px; object-fit: cover; background: #8882; display: block; cursor: pointer; }
+        .card-info { padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: bold; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: #ff3b30; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; z-index: 5; }
+
+        #t { position: fixed; bottom: 20px; right: 20px; background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 20px; display: none; }
+
+        @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } .side-panel { position: relative; } }
+    </style>
+</head>
+<body>
+
+<div class="main-layout">
+    <div class="side-panel">
+        <div class="clone-slot" id="cloneSlot">
+            <i class="fas fa-id-card"></i>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="toolbar">
+            <div class="input-group"><i class="fas fa-font" style="opacity:0.4"></i><input type="text" id="nI" placeholder="..."></div>
+            <div class="input-group"><i class="fas fa-link" style="opacity:0.4"></i><input type="text" id="uI" placeholder="..."></div>
+            <button class="btn" onclick="a()"><i class="fas fa-plus"></i></button>
+            <button class="btn" style="background:#5856d6" onclick="p()"><i class="fas fa-dice"></i></button>
+            <button class="btn" style="background:#34c759" onclick="s()"><i class="fas fa-share-nodes"></i></button>
+        </div>
+        <div id="g" class="grid"></div>
+    </div>
+</div>
+
+<div id="t"><i class="fas fa-check"></i></div>
+
+<script>
+    let d = [];
+    const clean = u => (u.includes('github.com') && !u.includes('raw.githubusercontent')) ? u.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/') : u;
+    
+    function save() {
+        const b64 = btoa(encodeURIComponent(JSON.stringify(d)).replace(/%([0-9A-F]{2})/g, (m, p) => String.fromCharCode('0x' + p)));
+        window.location.hash = b64;
+    }
+
+    function load() {
+        const h = window.location.hash.substring(1);
+        if (h) { try { d = JSON.parse(decodeURIComponent(atob(h).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch (e) { d = []; } }
+        else { d = [{ n: "Storm", u: "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky/main/avatar.png" }]; }
+        render();
+    }
+
+    function a() {
+        const ni = document.getElementById('nI'), ui = document.getElementById('uI');
+        if (ni.value && ui.value) { d.push({ n: ni.value, u: clean(ui.value) }); ni.value = ''; ui.value = ''; save(); render(); }
+    }
+
+    // PIOCHER ET CLONER À GAUCHE
+    function p() {
+        if (!d.length) return;
+        const x = d[Math.floor(Math.random() * d.length)];
+        const slot = document.getElementById('cloneSlot');
+        const v = x.u.match(/\.(webm|mp4)$/i);
+        
+        slot.innerHTML = v 
+            ? `<video class="clone-media" autoplay loop muted playsinline><source src="${x.u}"></video>` 
+            : `<img src="${x.u}" class="clone-media">`;
+        slot.innerHTML += `<div style="padding:10px; font-weight:bold">${x.n}</div>`;
+    }
+
+    function s() {
+        navigator.clipboard.writeText(window.location.href);
+        const t = document.getElementById('t'); t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000);
+    }
+
+    function render() {
+        const g = document.getElementById('g'); g.innerHTML = '';
+        d.forEach((x, i) => {
+            const v = x.u.match(/\.(webm|mp4)$/i), c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `<button class="del-btn" onclick="event.stopPropagation(); d.splice(${i},1);save();render()">×</button>` + 
+                (v ? `<video class="preview" muted autoplay loop playsinline><source src="${x.u}"></video>` : `<img src="${x.u}" class="preview" loading="lazy">`) +
+                `<div class="card-info"><span>${x.n}</span><i class="fas fa-eye" style="opacity:0.3"></i></div>`;
+            
+            // Toggle élimination au clic
+            c.addEventListener('click', () => c.classList.toggle('off'));
+            g.appendChild(c);
+        });
+    }
+
+    window.onload = load;
+    window.onhashchange = load;
+</script>
+</body>
+</html>

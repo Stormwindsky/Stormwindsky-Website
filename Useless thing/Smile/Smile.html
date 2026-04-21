@@ -6,12 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>•ᴗ•</title>
   <style>
+    :root {
+      --bg-body: #f0f0f0;
+      --text-main: #333;
+      --text-source: #666;
+      --link-color: #0077cc;
+    }
+
+    /* Variables pour le Mode Sombre */
+    [data-theme="dark"] {
+      --bg-body: #0a0a0a;
+      --text-main: #f5f5f7;
+      --text-source: #a1a1a6;
+      --link-color: #5db0ff;
+    }
+
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 0;
-      background-color: #f0f0f0;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .container {
@@ -30,17 +47,18 @@
 
     .text {
       font-size: 1.2em;
-      color: #333;
+      color: var(--text-main);
+      max-width: 80%;
     }
 
     .source {
       font-size: 0.9em;
-      color: #666;
+      color: var(--text-source);
       margin-top: 20px;
     }
 
     .source a {
-      color: #0077cc;
+      color: var(--link-color);
       text-decoration: none;
     }
 
@@ -52,14 +70,62 @@
 <body>
   <div class="container">
     <img src="https://web.archive.org/web/20250317105613if_/https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Leonardo_da_Vinci_043-mod.jpg/800px-Leonardo_da_Vinci_043-mod.jpg" alt="Mona Lisa">
-    <div class="text">
+    <div class="text" id="txt-useful">
       You'll really think this page is really useful?... but thanks to Wikipedia for the Zoom image in the Public Domain of Mona Lisa created by Leonardo da Vinci.
     </div>
     <div class="source">
-      Image source: <a href="https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_043-mod.jpg" target="_blank">Wikimedia Commons</a>
+      <span id="txt-source-label">Image source:</span> <a href="https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_043-mod.jpg" target="_blank">Wikimedia Commons</a>
       <br>
-      Archived by: <a href="https://archive.org/" target="_blank">Internet Archive</a>
+      <span id="txt-archived-by">Archived by:</span> <a href="https://archive.org/" target="_blank">Internet Archive</a>
     </div>
   </div>
+
+  <script>
+    // Dictionnaire de traduction
+    const translations = {
+      'en': {
+        useful: "You'll really think this page is really useful?... but thanks to Wikipedia for the Zoom image in the Public Domain of Mona Lisa created by Leonardo da Vinci.",
+        source: "Image source:",
+        archived: "Archived by:"
+      },
+      'fr-FR': {
+        useful: "Vous pensez vraiment que cette page est utile ?... mais merci à Wikipédia pour l'image zoomée du domaine public de la Joconde créée par Léonard de Vinci.",
+        source: "Source de l'image :",
+        archived: "Archivée par :"
+      },
+      'fr-CA': {
+        useful: "Tu penses pour de vrai que c'te page est utile ?... mais merci à Wikipédia pour l'image zoomée du domaine public de la Mona Lisa faite par Léonard de Vinci.",
+        source: "Source de l'image :",
+        archived: "Archivée par :"
+      },
+      'es-ES': {
+        useful: "¿Realmente crees que esta página es útil?... pero gracias a Wikipedia por la imagen en zoom del dominio público de la Mona Lisa creada por Leonardo da Vinci.",
+        source: "Fuente de la imagen:",
+        archived: "Archivada por:"
+      },
+      'es-AM': {
+        useful: "¿De verdad crees que esta página es útil?... pero gracias a Wikipedia por la imagen de dominio público de la Mona Lisa creada por Leonardo da Vinci.",
+        source: "Fuente de la imagen:",
+        archived: "Archivada por:"
+      }
+    };
+
+    function applySettings() {
+      // 1. Détection et application du Thème
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+
+      // 2. Détection et application de la Langue
+      const savedLang = localStorage.getItem('preferredLang') || 'en';
+      const t = translations[savedLang] || translations['en'];
+
+      document.getElementById('txt-useful').innerText = t.useful;
+      document.getElementById('txt-source-label').innerText = t.source;
+      document.getElementById('txt-archived-by').innerText = t.archived;
+    }
+
+    // Lancement au chargement de la page
+    window.onload = applySettings;
+  </script>
 </body>
 </html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Image Size Inspector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --blue-main: #007aff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --border: #d2d2d7;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+            --border: #38383a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s ease; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--card-white);
+            padding: 30px;
+            border-radius: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        h1 { font-weight: 800; margin-bottom: 20px; font-size: 1.5rem; }
+
+        .drop-zone {
+            border: 2px dashed var(--blue-main);
+            border-radius: 20px;
+            padding: 40px 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .drop-zone:hover { background: rgba(0, 122, 255, 0.1); }
+
+        .result-box {
+            display: none;
+            background: var(--bg-body);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .size-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--blue-main);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .btn-copy {
+            background: var(--blue-main);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-copy:active { transform: scale(0.95); }
+
+        #preview {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        footer { margin-top: 20px; font-size: 0.75rem; color: var(--text-dim); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="title">Image Size Inspector</h1>
+        
+        <div class="drop-zone" id="dropZone">
+            <p id="drop-text">Drag & drop an image or click to browse</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <img id="preview" alt="Preview">
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <span class="size-text" id="sizeOutput">0 x 0</span>
+            <button class="btn-copy" id="copyBtn" onclick="copyToClipboard()">Copy Dimensions</button>
+        </div>
+
+        <footer id="footer">© 2026 Stormwindsky | MIT License</footer>
+    </div>
+
+    <script>
+        const translations = {
+            'en': {
+                title: "Image Size Inspector",
+                drop: "Drag & drop an image or click to browse",
+                copy: "Copy Dimensions",
+                copied: "Copied!",
+                footer: "© 2026 Stormwindsky | MIT License"
+            },
+            'fr-FR': {
+                title: "Inspecteur de Taille",
+                drop: "Glissez une image ou cliquez ici",
+                copy: "Copier la taille",
+                copied: "Copié !",
+                footer: "© 2026 Stormwindsky | Licence MIT"
+            },
+            'fr-CA': {
+                title: "Check la taille de l'image",
+                drop: "Lâche ton image ici ou clique pour chercher",
+                copy: "Copier les dimensions",
+                copied: "C'est copié !",
+                footer: "© 2026 Stormwindsky | Licence MIT"
+            },
+            'es-ES': {
+                title: "Inspector de Tamaño",
+                drop: "Arrastra una imagen o haz clic",
+                copy: "Copiar dimensiones",
+                copied: "¡Copiado!",
+                footer: "© 2026 Stormwindsky | Licencia MIT"
+            },
+            'es-AM': {
+                title: "Inspector de Tamaño",
+                drop: "Suelta tu imagen aquí o busca una",
+                copy: "Copiar tamaño",
+                copied: "¡Listo!",
+                footer: "© 2026 Stormwindsky | Licencia MIT"
+            }
+        };
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const resultBox = document.getElementById('resultBox');
+        const sizeOutput = document.getElementById('sizeOutput');
+        const preview = document.getElementById('preview');
+
+        // Initialisation de la langue et du thème basée sur ton site principal
+        function init() {
+            const savedLang = localStorage.getItem('preferredLang') || 'en';
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            applyLanguage(savedLang);
+        }
+
+        function applyLanguage(lang) {
+            const t = translations[lang] || translations['en'];
+            document.getElementById('title').innerText = t.title;
+            document.getElementById('drop-text').innerText = t.drop;
+            document.getElementById('copyBtn').innerText = t.copy;
+            document.getElementById('footer').innerText = t.footer;
+        }
+
+        // Gestion des fichiers
+        dropZone.onclick = () => fileInput.click();
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = "#5db0ff"; };
+        dropZone.ondragleave = () => { dropZone.style.borderColor = "var(--blue-main)"; };
+        
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        };
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        };
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    sizeOutput.innerText = `${img.width} x ${img.height}`;
+                    resultBox.style.display = 'block';
+                    preview.src = event.target.result;
+                    preview.style.display = 'inline-block';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function copyToClipboard() {
+            const text = sizeOutput.innerText;
+            const lang = localStorage.getItem('preferredLang') || 'en';
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = translations[lang].copy;
+                btn.innerText = translations[lang].copied;
+                setTimeout(() => btn.innerText = originalText, 2000);
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

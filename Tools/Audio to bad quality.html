@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio to bad quality</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #f0f0f0; --card-white: #ffffff; --blue-main: #007aff;
+            --text-dark: #1d1d1f; --text-dim: #86868b; --radius: 24px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05); --red-crust: #ff453a;
+        }
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a; --card-white: #1c1c1e;
+            --text-dark: #f5f5f7; --text-dim: #a1a1a6; --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--bg-body);
+            color: var(--text-dark); margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; transition: 0.3s;
+        }
+        .container { max-width: 600px; width: 100%; }
+        header {
+            background: var(--card-white); padding: 15px 25px; border-radius: var(--radius);
+            box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .bento-card {
+            background: var(--card-white); border-radius: var(--radius);
+            padding: 30px; box-shadow: var(--shadow); text-align: center; margin-bottom: 20px;
+        }
+        .drop-zone { border: 3px dashed var(--text-dim); cursor: pointer; padding: 40px; border-radius: var(--radius); transition: 0.2s; }
+        .drop-zone.active { border-color: var(--red-crust); background: rgba(255, 69, 58, 0.1); }
+        .crust-btn {
+            background: var(--red-crust); color: white; border: none; padding: 15px;
+            width: 100%; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1.1rem;
+        }
+        audio { width: 100%; margin-top: 20px; }
+        select, .theme-btn { padding: 8px; border-radius: 10px; border: 1px solid var(--text-dim); background: var(--card-white); color: var(--text-dark); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2 id="txt-title">Audio to bad quality</h2>
+        <div style="display:flex; gap:10px;">
+            <select id="langSelect" onchange="updateLang(this.value)">
+                <option value="en">English</option>
+                <option value="fr-FR">Français (FR)</option>
+                <option value="fr-CA">Français (QC)</option>
+                <option value="es-ES">Español (ES)</option>
+                <option value="es-AM">Español (AM)</option>
+            </select>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        </div>
+    </header>
+
+    <div class="bento-card drop-zone" id="dropZone">
+        <i class="fas fa-biohazard fa-3x" style="color:var(--red-crust); margin-bottom: 15px;"></i>
+        <p id="txt-drop">DROP AUDIO TO DESTROY</p>
+        <input type="file" id="fileInput" hidden accept="audio/*">
+    </div>
+
+    <div class="bento-card" id="editor" style="display:none;">
+        <p id="txt-ready">AUDIO LOADED. READY.</p>
+        <button class="crust-btn" onclick="startDestruction()" id="txt-btn">RUN 10x PITCH DESTRUCTION</button>
+        <p id="status" style="margin-top: 10px; font-weight: bold; color: var(--red-crust);"></p>
+        <audio id="player" controls></audio>
+        <button class="theme-btn" onclick="downloadResult()" style="margin-top:15px; width:100%;" id="txt-dl">DOWNLOAD .WAV</button>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        en: { drop: "DROP AUDIO TO DESTROY", ready: "READY FOR CORRUPTION", btn: "RUN 10x PITCH DESTRUCTION", dl: "DOWNLOAD .WAV", work: "CRUSHING...", themeL: "☀️ Light", themeD: "🌙 Dark" },
+        "fr-FR": { drop: "GLISSE L'AUDIO ICI", ready: "PRÊT POUR LA DESTRUCTION", btn: "LANCER LA DESTRUCTION 10x", dl: "TÉLÉCHARGER .WAV", work: "CORRUPTION EN COURS...", themeL: "☀️ Clair", themeD: "🌙 Sombre" },
+        "fr-CA": { drop: "GARROCHE TON SON ICITTE", ready: "ON VA TOUT SCRAPPER ÇA", btn: "PITCH UP 10x ET COMPRESSE", dl: "TÉLÉCHARGER LE SON DE MARDE", work: "Ç'A TRAVAILLE FORT...", themeL: "☀️ Clair", themeD: "🌙 Noir" },
+        "es-ES": { drop: "ARRASTRA EL AUDIO", ready: "LISTO PARA DESTRUIR", btn: "INICIAR DESTRUCCIÓN 10x", dl: "DESCARGAR .WAV", work: "DESTRUYENDO...", themeL: "☀️ Claro", themeD: "🌙 Oscuro" },
+        "es-AM": { drop: "SUELTA TU AUDIO", ready: "LISTO PARA LA CORRUPCIÓN", btn: "CORROMPER 10x", dl: "DESCARGAR .WAV", work: "TRABAJANDO...", themeL: "☀️ Claro", themeD: "🌙 Oscuro" }
+    };
+
+    let audioCtx, sourceBuf, resultBlob;
+
+    // --- LOGIQUE DE DESTRUCTION ---
+    async function startDestruction() {
+        if (!sourceBuf) return;
+        const lang = localStorage.getItem('preferredLang') || 'en';
+        document.getElementById('status').innerText = translations[lang].work;
+        
+        // Pass 1: Speed up 10x + Compresse
+        const pass1 = await runPass(sourceBuf, 10.0);
+        // Pass 2: Speed down 0.1x + Compresse
+        const pass2 = await runPass(pass1, 0.1);
+        
+        const wavData = bufferToWav(pass2);
+        resultBlob = new Blob([wavData], { type: 'audio/wav' });
+        document.getElementById('player').src = URL.createObjectURL(resultBlob);
+        document.getElementById('status').innerText = "DONE.";
+    }
+
+    async function runPass(input, rate) {
+        const newLen = Math.floor(input.length / rate);
+        const offline = new OfflineAudioContext(input.numberOfChannels, newLen, input.sampleRate);
+        const source = offline.createBufferSource();
+        source.buffer = input;
+        source.playbackRate.value = rate;
+
+        const comp = offline.createDynamicsCompressor();
+        comp.threshold.setValueAtTime(-50, 0);
+        comp.ratio.setValueAtTime(20, 0);
+        comp.attack.setValueAtTime(0, 0);
+        comp.release.setValueAtTime(0.01, 0);
+
+        source.connect(comp);
+        comp.connect(offline.destination);
+        source.start(0);
+        return await offline.startRendering();
+    }
+
+    // --- DRAG & DROP & FILES ---
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('active'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('active');
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('active');
+        handleFile(e.dataTransfer.files[0]);
+    };
+
+    async function handleFile(file) {
+        if (!file) return;
+        const arrayBuf = await file.arrayBuffer();
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx.decodeAudioData(arrayBuf, (buf) => {
+            sourceBuf = buf;
+            document.getElementById('editor').style.display = 'block';
+        });
+    }
+
+    // --- SYNC THEME & LANG ---
+    function toggleTheme() {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        updateThemeBtn();
+    }
+
+    function updateLang(lang) {
+        const t = translations[lang] || translations.en;
+        document.getElementById('txt-drop').innerText = t.drop;
+        document.getElementById('txt-ready').innerText = t.ready;
+        document.getElementById('txt-btn').innerText = t.btn;
+        document.getElementById('txt-dl').innerText = t.dl;
+        localStorage.setItem('preferredLang', lang);
+        updateThemeBtn();
+    }
+
+    function updateThemeBtn() {
+        const lang = localStorage.getItem('preferredLang') || 'en';
+        const theme = localStorage.getItem('theme') || 'light';
+        document.getElementById('themeBtn').innerText = theme === 'dark' ? translations[lang].themeD : translations[lang].themeL;
+    }
+
+    function bufferToWav(abuffer) {
+        let n = abuffer.numberOfChannels, len = abuffer.length * n * 2 + 44,
+        buf = new ArrayBuffer(len), view = new DataView(buf), pos = 0;
+        const s32 = (d) => { view.setUint32(pos, d, true); pos += 4; };
+        const s16 = (d) => { view.setUint16(pos, d, true); pos += 2; };
+        s32(0x46464952); s32(len - 8); s32(0x45564157); s32(0x20746d66);
+        s32(16); s16(1); s16(n); s32(abuffer.sampleRate);
+        s32(abuffer.sampleRate * 2 * n); s16(n * 2); s16(16);
+        s32(0x61746164); s32(len - pos - 4);
+        for(let i=0; i<abuffer.length; i++) {
+            for(let j=0; j<n; j++) {
+                let s = Math.max(-1, Math.min(1, abuffer.getChannelData(j)[i]));
+                view.setInt16(pos, s < 0 ? s * 0x8000 : s * 0x7FFF, true); pos += 2;
+            }
+        }
+        return buf;
+    }
+
+    function downloadResult() {
+        if(!resultBlob) return;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(resultBlob);
+        a.download = "storm_destroyed.wav";
+        a.click();
+    }
+
+    window.onload = () => {
+        const L = localStorage.getItem('preferredLang') || 'en';
+        document.getElementById('langSelect').value = L;
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+        updateLang(L);
+    };
+</script>
+</body>
+</html>
