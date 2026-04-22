@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Community - Rules</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --container-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Lightweight Animated Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 90%;
+            margin: 40px 20px;
+            padding: 40px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        #content {
+            line-height: 1.6;
+        }
+
+        #content h1, #content h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+        #content a { color: var(--accent-color); text-decoration: none; }
+        #content a:hover { text-decoration: underline; }
+        #content code { background: #21262d; padding: 0.2em 0.4em; border-radius: 6px; }
+        #content pre { background: #010409; padding: 16px; border-radius: 8px; overflow: auto; }
+
+        .btn-github {
+            display: inline-block;
+            background-color: #238636;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .btn-github:hover {
+            background-color: #2ea043;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 0.85em;
+            text-align: center;
+            color: #8b949e;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <h1>Linux Community Rules</h1>
+            <a href="https://github.com/Stormwindsky/Linux-Community-Gamejolt-Rules" class="btn-github" target="_blank">
+                View on GitHub
+            </a>
+        </header>
+
+        <div id="loader" class="loader"></div>
+        <div id="content"></div>
+
+        <footer>
+            <p>ReadMe.md is licensed under <strong>CC0 1.0 Universal</strong></p>
+            <p>This page interface is licensed under <strong>MIT License</strong></p>
+        </footer>
+    </div>
+
+    <script>
+        // --- ANIMATED BACKGROUND LOGIC (Low Impact) ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedY = Math.random() * 0.5;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initBg() {
+            for (let i = 0; i < 50; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        initBg();
+        animate();
+
+        // --- GITHUB API LOGIC ---
+        async function fetchReadme() {
+            const url = 'https://api.github.com/repos/Stormwindsky/Linux-Community-Gamejolt-Rules/contents/README.md';
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                // GitHub API sends content in Base64
+                const markdown = atob(data.content);
+                
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').innerHTML = marked.parse(markdown);
+                
+                // Highlight code blocks
+                document.querySelectorAll('pre code').forEach((el) => {
+                    hljs.highlightElement(el);
+                });
+            } catch (error) {
+                console.error('Error fetching README:', error);
+                document.getElementById('content').innerHTML = '<p style="color:red">Failed to load content. Please check your connection.</p>';
+            }
+        }
+
+        fetchReadme();
+    </script>
+</body>
+</html>
