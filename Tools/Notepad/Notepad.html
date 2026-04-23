@@ -202,9 +202,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
     const translations = {
-        en: { siteTitle: "StormNotepad", load: "Load", saveFile: "Save File", saveUrl: "Save URL", kits: "Kits", kitsTitle: "Select Kit", confirmTitle: "Confirm Download?", confirmBody: "No security guarantee.", themeL: "☀️ Light", themeD: "🌙 Dark", creatingZip: "Creating ZIP..." },
-        "fr-FR": { siteTitle: "StormNotepad", load: "Charger", saveFile: "Enregistrer", saveUrl: "Lien URL", kits: "Kits", kitsTitle: "Sélectionner Kit", confirmTitle: "Confirmer ?", confirmBody: "Aucune garantie de sécurité.", themeL: "☀️ Clair", themeD: "🌙 Sombre", creatingZip: "Création du ZIP..." },
-        "fr-CA": { siteTitle: "StormNotepad", load: "Charger", saveFile: "Enregistrer", saveUrl: "Lien URL", kits: "Kits", kitsTitle: "Choisir un Kit", confirmTitle: "Télécharger ?", confirmBody: "Fais attention à tes affaires.", themeL: "☀️ Clair", themeD: "🌙 Noir", creatingZip: "On fait le ZIP..." }
+        en: { siteTitle: "StormNotepad", load: "Load", saveFile: "Save File", saveUrl: "Save URL", kits: "Kits", kitsTitle: "Select Kit", confirmTitle: "Confirm Download?", confirmBody: "No security guarantee.", themeL: "☀️ Light", themeD: "🌙 Dark", creatingZip: "Creating ZIP...", urlSaved: "URL Updated!" },
+        "fr-FR": { siteTitle: "StormNotepad", load: "Charger", saveFile: "Enregistrer", saveUrl: "Lien URL", kits: "Kits", kitsTitle: "Sélectionner Kit", confirmTitle: "Confirmer ?", confirmBody: "Aucune garantie de sécurité.", themeL: "☀️ Clair", themeD: "🌙 Sombre", creatingZip: "Création du ZIP...", urlSaved: "Lien mis à jour !" },
+        "fr-CA": { siteTitle: "StormNotepad", load: "Charger", saveFile: "Enregistrer", saveUrl: "Lien URL", kits: "Kits", kitsTitle: "Choisir un Kit", confirmTitle: "Télécharger ?", confirmBody: "Fais attention à tes affaires.", themeL: "☀️ Clair", themeD: "🌙 Noir", creatingZip: "On fait le ZIP...", urlSaved: "Lien prêt !" }
     };
 
     const kits = {
@@ -307,27 +307,51 @@
             document.getElementById('fileFormat').value === 'custom' ? 'inline-block' : 'none';
     }
 
-    // --- ICI LA FIX DU FORMAT ---
     function saveAsFile() {
         const text = document.getElementById('editor').value;
         const formatSelect = document.getElementById('fileFormat').value;
         let extension = formatSelect;
-
         if (formatSelect === 'custom') {
             extension = document.getElementById('customFormat').value || 'txt';
         }
-
         const blob = new Blob([text], {type: 'text/plain'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `note.${extension}`; // Utilise maintenant l'extension choisie !
+        a.download = `note.${extension}`;
         a.click();
+    }
+
+    // --- FIX: AJOUT DE LA FONCTION saveAsURL ---
+    function saveAsURL() {
+        const text = document.getElementById('editor').value;
+        const lang = localStorage.getItem('preferredLang') || 'en';
+        try {
+            const base64 = btoa(unescape(encodeURIComponent(text)));
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?data=" + base64;
+            window.history.pushState({path: newUrl}, '', newUrl);
+            showStatusMessage(translations[lang].urlSaved || "URL Updated!");
+        } catch (e) {
+            showStatusMessage("Error saving URL", true);
+        }
+    }
+
+    function loadFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('data');
+        if (data) {
+            try {
+                const decoded = decodeURIComponent(escape(atob(data)));
+                document.getElementById('editor').value = decoded;
+                detectURLs();
+            } catch (e) { console.error("URL Decode Error"); }
+        }
     }
 
     window.onload = () => {
         const savedLang = localStorage.getItem('preferredLang') || 'en';
         document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
         changeLanguage(savedLang);
+        loadFromURL(); // Charge les données de l'URL au démarrage
         document.getElementById('editor').addEventListener('input', detectURLs);
     };
 </script>
