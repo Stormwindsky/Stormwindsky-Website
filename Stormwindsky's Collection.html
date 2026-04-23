@@ -115,9 +115,33 @@
         .media-preview { width: 100%; border-radius: 15px; margin-bottom: 15px; object-fit: cover; }
         
         footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
+
+        /* CC0 Popup Styling */
+        #cc0-popup {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-white);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 300px;
+            z-index: 1000;
+            border: 2px solid var(--blue-main);
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .cc0-close { float: right; cursor: pointer; color: var(--text-dim); }
     </style>
 </head>
 <body>
+
+<div id="cc0-popup">
+    <span class="cc0-close" onclick="closePopup()">&times;</span>
+    <p id="cc0-text"></p>
+    <a id="cc0-link" href="https://github.com/Stormwindsky/OeuvreLibre" target="_blank" style="color:var(--blue-main); font-weight:bold;">GitHub License</a>
+</div>
 
 <div class="container">
     <header>
@@ -155,7 +179,6 @@
 </div>
 
 <script>
-    // --- TRANSLATIONS (From Welcome(2).html) ---
     const translations = {
         en: {
             siteTitle: "StormExplorer",
@@ -166,7 +189,8 @@
             tabVideos: "Videos",
             footer: "Data retrieved from Stormwindsky GitHub API",
             themeL: "☀️ Light Mode",
-            themeD: "🌙 Dark Mode"
+            themeD: "🌙 Dark Mode",
+            cc0: "All assets in this category are under CC0 1.0 Universal License."
         },
         "fr-FR": {
             siteTitle: "StormExplorer",
@@ -177,7 +201,20 @@
             tabVideos: "Vidéos",
             footer: "Données récupérées via l'API GitHub de Stormwindsky",
             themeL: "☀️ Mode Clair",
-            themeD: "🌙 Mode Sombre"
+            themeD: "🌙 Mode Sombre",
+            cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle."
+        },
+        "fr-CA": {
+            siteTitle: "StormExplorer",
+            searchPlh: "Rechercher des assets...",
+            tabFiles: "Fichiers",
+            tabImages: "Images",
+            tabAudios: "Audios",
+            tabVideos: "Vidéos",
+            footer: "Données récupérées via l'API GitHub de Stormwindsky",
+            themeL: "☀️ Mode Clair",
+            themeD: "🌙 Mode Sombre",
+            cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle."
         },
         "es-ES": {
             siteTitle: "StormExplorer",
@@ -188,14 +225,27 @@
             tabVideos: "Videos",
             footer: "Datos obtenidos de la API de GitHub de Stormwindsky",
             themeL: "☀️ Modo Claro",
-            themeD: "🌙 Modo Oscuro"
+            themeD: "🌙 Modo Oscuro",
+            cc0: "Todas las obras de esta categoría están bajo la licencia CC0 1.0 Universal."
         }
     };
 
     let currentMode = 'files';
     const RAW_BASE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
 
-    // --- CORE FUNCTIONS ---
+    // --- NEW: URL UPDATE LOGIC ---
+    function updateURL() {
+        const query = document.getElementById('searchInput').value;
+        const url = new URL(window.location);
+        url.searchParams.set('mode', currentMode);
+        if(query) url.searchParams.set('q', query);
+        else url.searchParams.delete('q');
+        window.history.replaceState({}, '', url);
+    }
+
+    function closePopup() {
+        document.getElementById('cc0-popup').style.display = 'none';
+    }
 
     function changeLanguage(lang) {
         const t = translations[lang] || translations.en;
@@ -206,6 +256,7 @@
         document.getElementById('tab-audios').innerText = t.tabAudios;
         document.getElementById('tab-videos').innerText = t.tabVideos;
         document.getElementById('txt-footer').innerText = t.footer;
+        document.getElementById('cc0-text').innerText = t.cc0;
         
         localStorage.setItem('preferredLang', lang);
         updateThemeButtonText();
@@ -226,12 +277,15 @@
         document.getElementById('themeBtn').innerText = theme === 'dark' ? t.themeD : t.themeL;
     }
 
-    // --- DATA FETCHING (Unified Logic) ---
-
     async function fetchData(query = '') {
         const grid = document.getElementById('results-grid');
         grid.innerHTML = '<p>Loading...</p>';
         
+        // Popup Management
+        const popup = document.getElementById('cc0-popup');
+        if(['images', 'audios', 'videos'].includes(currentMode)) popup.style.display = 'block';
+        else popup.style.display = 'none';
+
         const api = (currentMode === 'files') 
             ? "https://api.github.com/repos/Stormwindsky/Stormwindsky-Website/git/trees/main?recursive=1"
             : "https://api.github.com/repos/Stormwindsky/ArtLibre/git/trees/main?recursive=1";
@@ -241,7 +295,6 @@
             const data = await res.json();
             let items = data.tree.filter(i => i.type === 'blob');
 
-            // Filter extensions
             if(currentMode === 'files') items = items.filter(i => i.path.endsWith('.html'));
             else if(currentMode === 'images') items = items.filter(i => i.path.match(/\.(jpg|jpeg|png|gif|svg|JPG)$/i));
             else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
@@ -250,6 +303,7 @@
             if(query) items = items.filter(i => i.path.toLowerCase().includes(query.toLowerCase()));
 
             renderGrid(items);
+            updateURL();
         } catch(e) { grid.innerHTML = '<p>Error loading data.</p>'; }
     }
 
@@ -276,7 +330,6 @@
     }
 
     // --- EVENTS ---
-
     document.getElementById('searchInput').addEventListener('input', (e) => fetchData(e.target.value));
 
     document.querySelectorAll('.tab').forEach(tab => {
@@ -284,18 +337,35 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             currentMode = tab.dataset.mode;
-            fetchData();
+            fetchData(document.getElementById('searchInput').value);
         });
     });
 
-    // --- INIT ---
+    // --- INIT WITH URL PARAMETERS ---
     window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const modeParam = urlParams.get('mode');
+        const queryParam = urlParams.get('q');
+        
         const savedTheme = localStorage.getItem('theme') || 'light';
         const savedLang = localStorage.getItem('preferredLang') || 'en';
+        
         document.documentElement.setAttribute('data-theme', savedTheme);
         document.getElementById('langSelect').value = savedLang;
         changeLanguage(savedLang);
-        fetchData();
+
+        if(modeParam) {
+            currentMode = modeParam;
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+                if(t.dataset.mode === modeParam) t.classList.add('active');
+            });
+        }
+        if(queryParam) {
+            document.getElementById('searchInput').value = queryParam;
+        }
+
+        fetchData(queryParam || '');
     };
 </script>
 
