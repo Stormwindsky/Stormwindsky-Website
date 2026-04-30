@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6Stormwindsky | Collection Minecraft</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- BENTO UI SYSTEM --- */
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --blue-main: #007aff;
+            --radius: 24px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0; padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Header & Logo Animation */
+        header {
+            background: var(--card-white);
+            padding: 15px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        #logo-digit {
+            display: inline-block;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flip-to-9 { transform: rotate(180deg); }
+
+        /* Bento Tabs */
+        .tabs {
+            display: flex; gap: 10px; justify-content: center;
+            margin-bottom: 30px; flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 20px; background: var(--card-white);
+            border-radius: 100px; cursor: pointer; font-weight: 600;
+            box-shadow: var(--shadow); transition: 0.3s;
+        }
+
+        .tab.active { background: var(--blue-main); color: white; }
+
+        /* Grid */
+        #results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: var(--card-white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        .bento-card:hover { transform: translateY(-5px); }
+
+        /* Video Popup (9minecraft alert) */
+        #malware-popup {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; max-width: 800px;
+            background: black;
+            z-index: 9999;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(255,0,0,0.5);
+        }
+
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+        .video-container iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9998;
+        }
+
+        .nav-controls { display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closePopup()"></div>
+<div id="malware-popup">
+    <div class="video-container">
+        <iframe 
+            id="yt-player"
+            src="" 
+            frameborder="0" 
+            allow="autoplay; encrypted-media" 
+            allowfullscreen>
+        </iframe>
+    </div>
+    <div style="padding: 10px; color: white; text-align: center; background: #ce1126; font-weight: bold;">
+        ⚠️ ALERTE : Évitez 9minecraft et les sites similaires !
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <div class="logo-container" onclick="triggerTransition()">
+            <span id="logo-digit">6</span>Stormwindsky
+        </div>
+        <div class="nav-controls">
+            <select id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="fr-FR" selected>Français (FR)</option>
+                <option value="fr-CA">Français (QC)</option>
+                <option value="es-ES">Español</option>
+            </select>
+            <button class="tab" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        </div>
+    </header>
+
+    <div class="tabs" id="category-tabs">
+        <div class="tab active" data-path="ModsAndModPacks">Mods</div>
+        <div class="tab" data-path="ResourcesPacksAndShadersAndMore/Minecraft (Java)/Resource Pack">Resource Pack</div>
+        <div class="tab" data-path="ResourcesPacksAndShadersAndMore/Minecraft (Java)/Datapacks">Datapack</div>
+        <div class="tab" data-path="ModsAndModPacks/Scripts">Scripts</div>
+        <div class="tab" data-path="ResourcesPacksAndShadersAndMore/Minecraft (Java)/Maps">Maps</div>
+        <div class="tab" data-path="ResourcesPacksAndShadersAndMore/Minecraft (Java)/Shaders">Shaders</div>
+    </div>
+
+    <div id="results-grid"></div>
+</div>
+
+<script>
+    const translations = {
+        en: { title: "6Stormwindsky", alert: "⚠️ ALERT: Avoid 9minecraft!", loading: "Loading..." },
+        "fr-FR": { title: "6Stormwindsky", alert: "⚠️ ALERTE : Évitez 9minecraft !", loading: "Chargement..." },
+        "fr-CA": { title: "6Stormwindsky", alert: "⚠️ ALERTE : Évitez 9minecraft !", loading: "Chargement..." },
+        "es-ES": { title: "6Stormwindsky", alert: "⚠️ ALERTA: ¡Evita 9minecraft!", loading: "Cargando..." }
+    };
+
+    let currentCategory = "ModsAndModPacks";
+
+    // --- LOGO TRANSITION & POPUP ---
+    function triggerTransition() {
+        const digit = document.getElementById('logo-digit');
+        digit.classList.add('flip-to-9');
+        
+        setTimeout(() => {
+            digit.innerText = "9";
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('malware-popup').style.display = 'block';
+            document.getElementById('yt-player').src = "https://www.youtube.com/embed/wyJO7aZldEA?autoplay=1&mute=0&loop=1&playlist=wyJO7aZldEA";
+        }, 600);
+    }
+
+    function closePopup() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('malware-popup').style.display = 'none';
+        document.getElementById('yt-player').src = "";
+        const digit = document.getElementById('logo-digit');
+        digit.classList.remove('flip-to-9');
+        digit.innerText = "6";
+    }
+
+    // --- GITHUB API DATA ---
+    async function fetchMinecraftData() {
+        const grid = document.getElementById('results-grid');
+        grid.innerHTML = '<p>Loading...</p>';
+
+        // Les deux URLs de base fournies
+        const basePaths = [
+            "https://api.github.com/repos/Stormwindsky/OeuvreLibre/contents/ArtLibre/ArtLibre/ModsAndModPacks",
+            "https://api.github.com/repos/Stormwindsky/OeuvreLibre/contents/ArtLibre/ArtLibre/ResourcesPacksAndShadersAndMore/Minecraft%20(Java)"
+        ];
+
+        try {
+            // On récupère les données de façon récursive via l'API Tree pour détecter tous les dossiers
+            const repoApi = "https://api.github.com/repos/Stormwindsky/OeuvreLibre/git/trees/main?recursive=1";
+            const res = await fetch(repoApi);
+            const data = await res.json();
+            
+            // Filtrer selon la catégorie sélectionnée (le chemin contient le nom de la catégorie)
+            const items = data.tree.filter(item => 
+                item.path.includes(currentCategory) && item.type === "blob"
+            );
+
+            renderGrid(items);
+        } catch (e) {
+            grid.innerHTML = '<p>Error loading files from GitHub.</p>';
+        }
+    }
+
+    function renderGrid(items) {
+        const grid = document.getElementById('results-grid');
+        grid.innerHTML = items.length ? '' : '<p>No items found in this category.</p>';
+        
+        items.forEach(item => {
+            const fileName = item.path.split('/').pop();
+            const card = document.createElement('div');
+            card.className = 'bento-card';
+            card.innerHTML = `
+                <i class="fas fa-file-archive" style="font-size:2rem; color:var(--blue-main)"></i>
+                <h3 style="font-size:1rem; margin:15px 0 5px 0">${fileName}</h3>
+                <p style="font-size:0.8rem; color:var(--text-dim)">${item.path.split('/').slice(-2, -1)}</p>
+                <a href="https://github.com/Stormwindsky/OeuvreLibre/blob/main/${item.path}" target="_blank" style="text-decoration:none; color:var(--blue-main); font-weight:bold; font-size:0.9rem;">Download</a>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // --- THEME & LANG ---
+    function toggleTheme() {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.getElementById('themeBtn').innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function changeLanguage(lang) {
+        // Logique de changement de texte si nécessaire
+        fetchMinecraftData();
+    }
+
+    // --- TABS LOGIC ---
+    document.querySelectorAll('.tab[data-path]').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentCategory = tab.dataset.path;
+            fetchMinecraftData();
+        });
+    });
+
+    window.onload = fetchMinecraftData;
+</script>
+
+</body>
+</html>
