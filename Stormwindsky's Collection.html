@@ -16,6 +16,7 @@
             --text-dim: #86868b;
             --radius: 24px;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --ai-blue: #87CEEB; /* Bleu ciel pour l'IA */
         }
 
         [data-theme="dark"] {
@@ -51,11 +52,14 @@
 
         .nav-controls { display: flex; gap: 10px; align-items: center; }
 
-        select, .theme-btn {
+        select, .theme-btn, .ai-toggle-btn {
             padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
             background: var(--card-white); color: var(--text-dark); cursor: pointer;
-            font-weight: 600; outline: none;
+            font-weight: 600; outline: none; transition: 0.3s;
         }
+
+        .ai-toggle-btn.inactive { background: #ccc; color: #666; border-color: #999; }
+        .ai-toggle-btn.active { background: var(--ai-blue); color: white; border-color: var(--ai-blue); }
 
         /* Search Section */
         .search-section {
@@ -108,16 +112,31 @@
             box-shadow: var(--shadow);
             transition: 0.3s;
             display: flex; flex-direction: column; justify-content: space-between;
+            position: relative;
         }
 
         .bento-card:hover { transform: translateY(-5px); }
 
         .media-preview { width: 100%; border-radius: 15px; margin-bottom: 15px; object-fit: cover; }
         
+        .ai-badge {
+            background: var(--ai-blue);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
 
-        /* CC0 Popup Styling */
-        #cc0-popup {
+        /* Popups Styling */
+        #cc0-popup, #ai-readme-popup {
             display: none;
             position: fixed;
             bottom: 20px;
@@ -126,13 +145,17 @@
             padding: 20px;
             border-radius: var(--radius);
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            max-width: 300px;
+            max-width: 350px;
             z-index: 1000;
             border: 2px solid var(--blue-main);
             animation: slideIn 0.5s ease-out;
         }
+
+        #ai-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
+
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        .cc0-close { float: right; cursor: pointer; color: var(--text-dim); }
+        .cc0-close, .ai-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
+        .ai-close { color: red; font-size: 1.5rem; line-height: 1; }
     </style>
 </head>
 <body>
@@ -143,10 +166,18 @@
     <a id="cc0-link" href="https://github.com/Stormwindsky/OeuvreLibre" target="_blank" style="color:var(--blue-main); font-weight:bold;">GitHub License</a>
 </div>
 
+<div id="ai-readme-popup">
+    <span class="ai-close" onclick="closeAiPopup()">X</span>
+    <div id="ai-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
+</div>
+
 <div class="container">
     <header>
         <h2 id="txt-site-title" style="margin:0">StormExplorer</h2>
         <div class="nav-controls">
+            <!-- AI Toggle Button -->
+            <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()">Show AI Creations</button>
+            
             <select id="langSelect" onchange="changeLanguage(this.value)">
                 <option value="en">English</option>
                 <option value="fr-FR">Français (FR)</option>
@@ -190,7 +221,8 @@
             footer: "Data retrieved from Stormwindsky GitHub API",
             themeL: "☀️ Light Mode",
             themeD: "🌙 Dark Mode",
-            cc0: "All assets in this category are under CC0 1.0 Universal License."
+            cc0: "All assets in this category are under CC0 1.0 Universal License.",
+            aiBtn: "Show AI Creations"
         },
         "fr-FR": {
             siteTitle: "StormExplorer",
@@ -202,7 +234,8 @@
             footer: "Données récupérées via l'API GitHub de Stormwindsky",
             themeL: "☀️ Mode Clair",
             themeD: "🌙 Mode Sombre",
-            cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle."
+            cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle.",
+            aiBtn: "Afficher Créations IA"
         },
         "fr-CA": {
             siteTitle: "StormExplorer",
@@ -214,7 +247,8 @@
             footer: "Données récupérées via l'API GitHub de Stormwindsky",
             themeL: "☀️ Mode Clair",
             themeD: "🌙 Mode Sombre",
-            cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle."
+            cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle.",
+            aiBtn: "Voir Créations IA"
         },
         "es-ES": {
             siteTitle: "StormExplorer",
@@ -226,14 +260,15 @@
             footer: "Datos obtenidos de la API de GitHub de Stormwindsky",
             themeL: "☀️ Modo Claro",
             themeD: "🌙 Modo Oscuro",
-            cc0: "Todas las obras de esta categoría están bajo la licencia CC0 1.0 Universal."
+            cc0: "Todas las obras de esta catégorie están bajo la licencia CC0 1.0 Universal.",
+            aiBtn: "Mostrar Creaciones IA"
         }
     };
 
     let currentMode = 'files';
+    let showAI = false;
     const RAW_BASE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
 
-    // --- NEW: URL UPDATE LOGIC ---
     function updateURL() {
         const query = document.getElementById('searchInput').value;
         const url = new URL(window.location);
@@ -247,6 +282,36 @@
         document.getElementById('cc0-popup').style.display = 'none';
     }
 
+    function closeAiPopup() {
+        document.getElementById('ai-readme-popup').style.display = 'none';
+    }
+
+    // Toggle AI Function
+    async function toggleAI() {
+        showAI = !showAI;
+        const btn = document.getElementById('aiToggleBtn');
+        const popup = document.getElementById('ai-readme-popup');
+        
+        if(showAI) {
+            btn.classList.replace('inactive', 'active');
+            popup.style.display = 'block';
+            fetchAiReadme();
+        } else {
+            btn.classList.replace('active', 'inactive');
+            popup.style.display = 'none';
+        }
+        fetchData(document.getElementById('searchInput').value);
+    }
+
+    async function fetchAiReadme() {
+        const contentDiv = document.getElementById('ai-readme-content');
+        try {
+            const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/OeuvreLibre/refs/heads/main/ArtLibre/ArtLibre/AI%20Creations/README.md");
+            const text = await res.text();
+            contentDiv.innerText = text;
+        } catch (e) { contentDiv.innerText = "Error loading Readme."; }
+    }
+
     function changeLanguage(lang) {
         const t = translations[lang] || translations.en;
         document.getElementById('txt-site-title').innerText = t.siteTitle;
@@ -257,6 +322,7 @@
         document.getElementById('tab-videos').innerText = t.tabVideos;
         document.getElementById('txt-footer').innerText = t.footer;
         document.getElementById('cc0-text').innerText = t.cc0;
+        document.getElementById('aiToggleBtn').innerText = t.aiBtn;
         
         localStorage.setItem('preferredLang', lang);
         updateThemeButtonText();
@@ -281,10 +347,17 @@
         const grid = document.getElementById('results-grid');
         grid.innerHTML = '<p>Loading...</p>';
         
-        // Popup Management
+        // Popup and Button Management
         const popup = document.getElementById('cc0-popup');
-        if(['images', 'audios', 'videos'].includes(currentMode)) popup.style.display = 'block';
-        else popup.style.display = 'none';
+        const aiBtn = document.getElementById('aiToggleBtn');
+
+        if(currentMode === 'files') {
+            popup.style.display = 'none';
+            aiBtn.style.display = 'none';
+        } else {
+            popup.style.display = 'block';
+            aiBtn.style.display = 'block';
+        }
 
         const api = (currentMode === 'files') 
             ? "https://api.github.com/repos/Stormwindsky/Stormwindsky-Website/git/trees/main?recursive=1"
@@ -300,6 +373,14 @@
             else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
             else if(currentMode === 'videos') items = items.filter(i => i.path.match(/\.(mp4|webm)$/i));
 
+            // Logic for AI filtering
+            if (currentMode !== 'files') {
+                if (!showAI) {
+                    // Hide items in "AI Creations" folder if toggle is off
+                    items = items.filter(i => !i.path.includes('AI Creations'));
+                }
+            }
+
             if(query) items = items.filter(i => i.path.toLowerCase().includes(query.toLowerCase()));
 
             renderGrid(items);
@@ -314,12 +395,19 @@
         items.forEach(item => {
             const card = document.createElement('div');
             card.className = 'bento-card';
+            const isAI = item.path.includes('AI Creations');
+            
             const url = (currentMode === 'files') 
                 ? `https://stormwindsky.com/${item.path}` 
                 : RAW_BASE + item.path;
             
             let content = `<div><small style="opacity:0.5">${currentMode.toUpperCase()}</small><h3>${item.path.split('/').pop()}</h3>`;
             
+            // Add AI Robot Badge if it's an AI creation
+            if(isAI) {
+                content += `<div class="ai-badge">🤖</div>`;
+            }
+
             if(currentMode === 'images') content = `<img src="${url}" class="media-preview">` + content;
             if(currentMode === 'audios') content += `<audio controls style="width:100%"><source src="${url}"></audio>`;
             if(currentMode === 'videos') content = `<video controls class="media-preview"><source src="${url}"></video>` + content;
@@ -341,7 +429,6 @@
         });
     });
 
-    // --- INIT WITH URL PARAMETERS ---
     window.onload = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const modeParam = urlParams.get('mode');
