@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,7 +34,6 @@
 
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* Header & Logo Animation */
         header {
             background: var(--card-white);
             padding: 15px 30px;
@@ -62,7 +61,6 @@
 
         .flip-to-9 { transform: rotate(180deg); }
 
-        /* Bento Tabs */
         .tabs {
             display: flex; gap: 10px; justify-content: center;
             margin-bottom: 30px; flex-wrap: wrap;
@@ -76,7 +74,6 @@
 
         .tab.active { background: var(--blue-main); color: white; }
 
-        /* Grid */
         #results-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -90,9 +87,8 @@
             box-shadow: var(--shadow);
             transition: transform 0.3s ease;
         }
-        .bento-card:hover { transform: translateY(-5px); }
 
-        /* Video Popup (9minecraft alert) */
+        /* --- VIDEO POPUP (LOCKED & LOOPED) --- */
         #malware-popup {
             display: none;
             position: fixed;
@@ -106,9 +102,35 @@
             box-shadow: 0 0 50px rgba(255,0,0,0.5);
         }
 
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+        .video-container { 
+            position: relative; 
+            padding-bottom: 56.25%; 
+            height: 0; 
+            background: #000;
+        }
+
+        /* Bloqueur tactile / souris */
+        .video-container::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+            background: transparent;
+            pointer-events: auto; /* Empêche l'interaction avec l'iframe dessous */
+        }
+
         .video-container iframe {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        #alert-banner {
+            padding: 15px; 
+            color: var(--text-dark); 
+            text-align: center; 
+            background: var(--card-white); 
+            font-weight: bold;
+            border-top: 2px solid #ce1126;
         }
 
         .overlay {
@@ -133,9 +155,7 @@
             allowfullscreen>
         </iframe>
     </div>
-    <div style="padding: 10px; color: white; text-align: center; background: #ce1126; font-weight: bold;">
-        ⚠️ ALERTE : Évitez 9minecraft et les sites similaires !
-    </div>
+    <div id="alert-banner"></div>
 </div>
 
 <div class="container">
@@ -168,24 +188,29 @@
 
 <script>
     const translations = {
-        en: { title: "6Stormwindsky", alert: "⚠️ ALERT: Avoid 9minecraft!", loading: "Loading..." },
-        "fr-FR": { title: "6Stormwindsky", alert: "⚠️ ALERTE : Évitez 9minecraft !", loading: "Chargement..." },
-        "fr-CA": { title: "6Stormwindsky", alert: "⚠️ ALERTE : Évitez 9minecraft !", loading: "Chargement..." },
-        "es-ES": { title: "6Stormwindsky", alert: "⚠️ ALERTA: ¡Evita 9minecraft!", loading: "Cargando..." }
+        en: { alert: "⚠️ ALERT: Avoid 9minecraft and similar sites!", loading: "Loading...", error: "Error loading files." },
+        "fr-FR": { alert: "⚠️ ALERTE : Évitez 9minecraft et les sites similaires !", loading: "Chargement...", error: "Erreur de chargement." },
+        "fr-CA": { alert: "⚠️ ALERTE : Évitez 9minecraft et les sites similaires !", loading: "Chargement...", error: "Erreur de chargement." },
+        "es-ES": { alert: "⚠️ ALERTA: ¡Evita 9minecraft y sitios similares!", loading: "Cargando...", error: "Error al cargar." }
     };
 
     let currentCategory = "ModsAndModPacks";
 
-    // --- LOGO TRANSITION & POPUP ---
+    // --- LOGIQUE POPUP ---
     function triggerTransition() {
         const digit = document.getElementById('logo-digit');
+        const lang = document.getElementById('langSelect').value;
         digit.classList.add('flip-to-9');
         
+        document.getElementById('alert-banner').innerText = translations[lang].alert;
+
         setTimeout(() => {
             digit.innerText = "9";
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('malware-popup').style.display = 'block';
-            document.getElementById('yt-player').src = "https://www.youtube.com/embed/wyJO7aZldEA?autoplay=1&mute=0&loop=1&playlist=wyJO7aZldEA";
+            const videoId = "wyJO7aZldEA";
+            // Autoplay + Mute + Loop + No Controls
+            document.getElementById('yt-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1`;
         }, 600);
     }
 
@@ -198,37 +223,32 @@
         digit.innerText = "6";
     }
 
-    // --- GITHUB API DATA ---
+    // --- GITHUB API DATA (RESTAURÉE) ---
     async function fetchMinecraftData() {
         const grid = document.getElementById('results-grid');
-        grid.innerHTML = '<p>Loading...</p>';
-
-        // Les deux URLs de base fournies
-        const basePaths = [
-            "https://api.github.com/repos/Stormwindsky/OeuvreLibre/contents/ArtLibre/ArtLibre/ModsAndModPacks",
-            "https://api.github.com/repos/Stormwindsky/OeuvreLibre/contents/ArtLibre/ArtLibre/ResourcesPacksAndShadersAndMore/Minecraft%20(Java)"
-        ];
+        const lang = document.getElementById('langSelect').value;
+        grid.innerHTML = `<p>${translations[lang].loading}</p>`;
 
         try {
-            // On récupère les données de façon récursive via l'API Tree pour détecter tous les dossiers
+            // Utilisation de l'API récursive comme dans vos sources[cite: 1, 2]
             const repoApi = "https://api.github.com/repos/Stormwindsky/OeuvreLibre/git/trees/main?recursive=1";
             const res = await fetch(repoApi);
             const data = await res.json();
             
-            // Filtrer selon la catégorie sélectionnée (le chemin contient le nom de la catégorie)
+            // Filtrage basé sur la catégorie active
             const items = data.tree.filter(item => 
                 item.path.includes(currentCategory) && item.type === "blob"
             );
 
             renderGrid(items);
         } catch (e) {
-            grid.innerHTML = '<p>Error loading files from GitHub.</p>';
+            grid.innerHTML = `<p>${translations[lang].error}</p>`;
         }
     }
 
     function renderGrid(items) {
         const grid = document.getElementById('results-grid');
-        grid.innerHTML = items.length ? '' : '<p>No items found in this category.</p>';
+        grid.innerHTML = items.length ? '' : '<p>No items found.</p>';
         
         items.forEach(item => {
             const fileName = item.path.split('/').pop();
@@ -244,7 +264,7 @@
         });
     }
 
-    // --- THEME & LANG ---
+    // --- INTERFACE ---
     function toggleTheme() {
         const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
@@ -252,11 +272,12 @@
     }
 
     function changeLanguage(lang) {
-        // Logique de changement de texte si nécessaire
+        if(document.getElementById('malware-popup').style.display === 'block') {
+            document.getElementById('alert-banner').innerText = translations[lang].alert;
+        }
         fetchMinecraftData();
     }
 
-    // --- TABS LOGIC ---
     document.querySelectorAll('.tab[data-path]').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
