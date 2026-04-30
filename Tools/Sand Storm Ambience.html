@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambiance Sandstorm</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #1a0f00; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #e0c090; }
+        
+        #experience-3d { position: absolute; width: 100%; height: 100%; z-index: 1; }
+
+        /* UI PANEL */
+        .ui-panel {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(20, 10, 0, 0.85); padding: 25px;
+            border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(210, 180, 140, 0.3);
+            text-align: center; min-width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .controls-row { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 15px; }
+        
+        .icon-btn {
+            background: none; border: 1px solid rgba(210, 180, 140, 0.5); color: #e0c090;
+            padding: 10px; border-radius: 50%; cursor: pointer; font-size: 20px;
+            transition: all 0.3s; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+        }
+        .icon-btn:hover { background: #e0c090; color: #1a0f00; }
+
+        input[type=range] { width: 150px; cursor: pointer; accent-color: #d2b48c; }
+
+        /* MODAL */
+        .modal {
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9); overflow-y: auto;
+        }
+        .modal-content {
+            background-color: #2a1b0a; margin: 10% auto; padding: 30px; border: 1px solid #d2b48c;
+            width: 80%; max-width: 600px; border-radius: 20px; color: #f5deb3;
+        }
+        .close { color: #d2b48c; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        a { color: #ffcc80; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div id="experience-3d"></div>
+
+    <div class="ui-panel">
+        <h2 style="margin:0; font-size: 1.2rem; letter-spacing: 2px;">SANDSTORM AMBIANCE</h2>
+        
+        <div class="controls-row">
+            <!-- Icone Volume (Audio) -->
+            <span>🔊</span>
+            <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.5">
+            <!-- Icone Info (Credits) -->
+            <button class="icon-btn" onclick="openModal()">ℹ️</button>
+        </div>
+    </div>
+
+    <!-- Modal Crédits -->
+    <div id="creditsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Crédits & Sources</h2>
+            <hr style="border: 0.5px solid #d2b48c;">
+            <p><strong>Audio:</strong></p>
+            <ul>
+                <li>Sandstorm Loop made by <strong>gbayles</strong> - <a href="https://freesound.org/people/gbayles/sounds/632771/" target="_blank">Source</a></li>
+                <li>Dark Ambiance made by <strong>goulven</strong> - <a href="https://freesound.org/people/goulven/sounds/371277/" target="_blank">Source</a></li>
+            </ul>
+            <p><strong>Licence (Audio files):</strong> CC0 1.0 Universal (Public Domain)</p>
+            <p><strong>Licence from this website:</strong> MIT</p>
+            <p><strong>Engine:</strong> Three.js (Sandstorm Particle System)</p>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="audio1" loop src="https://github.com/Stormwindsky/Stormwindsky-Website/raw/main/Files/sfx/sandstorm%20loop%20(edited).wav"></audio>
+    <audio id="audio2" loop src="https://github.com/Stormwindsky/Stormwindsky-Website/raw/main/Files/sfx/sandstorm%20loop.mp3"></audio>
+    <audio id="audio3" src="https://github.com/Stormwindsky/Stormwindsky-Website/raw/main/Files/sfx/dark%20ambiance%20loop.wav"></audio>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+
+        // --- MOTEUR 3D (TEMPÊTE DE SABLE) ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x2a1b0a, 0.05); // Brouillard de sable
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x1a0f00);
+        document.getElementById('experience-3d').appendChild(renderer.domElement);
+
+        // Particules de sable
+        const sandCount = 15000;
+        const sandGeo = new THREE.BufferGeometry();
+        const sandPos = new Float32Array(sandCount * 3);
+        const sandSpeeds = new Float32Array(sandCount);
+
+        for(let i=0; i<sandCount*3; i+=3) {
+            sandPos[i] = (Math.random() - 0.5) * 50;     // X
+            sandPos[i+1] = (Math.random() - 0.5) * 30;   // Y
+            sandPos[i+2] = (Math.random() - 0.5) * 40;   // Z
+            sandSpeeds[i/3] = 0.5 + Math.random() * 0.8; // Vitesse individuelle
+        }
+
+        sandGeo.setAttribute('position', new THREE.BufferAttribute(sandPos, 3));
+        
+        const sandMat = new THREE.PointsMaterial({
+            size: 0.15,
+            color: 0xd2b48c,
+            transparent: true,
+            opacity: 0.4,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const sandStorm = new THREE.Points(sandGeo, sandMat);
+        scene.add(sandStorm);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const pos = sandGeo.attributes.position.array;
+            
+            for(let i=0; i<sandCount; i++) {
+                const idx = i * 3;
+                // Mouvement latéral rapide (vent)
+                pos[idx] -= sandSpeeds[i];
+                // Mouvement vertical léger (oscillation)
+                pos[idx+1] += Math.sin(Date.now() * 0.001 + i) * 0.02;
+
+                // Reset si hors écran
+                if(pos[idx] < -25) pos[idx] = 25;
+            }
+            
+            sandGeo.attributes.position.needsUpdate = true;
+            sandStorm.rotation.y += 0.001;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- GESTION AUDIO ---
+        const a1 = document.getElementById('audio1');
+        const a2 = document.getElementById('audio2');
+        const a3 = document.getElementById('audio3');
+        const volSlider = document.getElementById('masterVol');
+
+        // Initialisation au clic
+        document.body.addEventListener('click', () => {
+            a1.play();
+            a2.play();
+            scheduleDarkAmbiance(); // Lance la boucle spéciale pour le son 3
+        }, {once: true});
+
+        // Fonction pour le 3ème son (50 à 160 sec de pause)
+        function scheduleDarkAmbiance() {
+            a3.play();
+            a3.onended = () => {
+                const delay = Math.floor(Math.random() * (160000 - 50000 + 1)) + 50000;
+                console.log(`Prochain son ambiance dans: ${delay/1000}s`);
+                setTimeout(() => {
+                    a3.play();
+                }, delay);
+            };
+        }
+
+        volSlider.oninput = (e) => {
+            const v = e.target.value;
+            a1.volume = v;
+            a2.volume = v;
+            a3.volume = v;
+        };
+
+        // --- UI ---
+        window.openModal = () => document.getElementById('creditsModal').style.display = "block";
+        window.closeModal = () => document.getElementById('creditsModal').style.display = "none";
+        window.onclick = (e) => { if(e.target == document.getElementById('creditsModal')) closeModal(); }
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
