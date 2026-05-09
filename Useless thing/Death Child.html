@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robert Doll Project</title>
+    <style>
+        /* Reset et base */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+        }
+
+        /* Écran noir initial */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        /* Conteneur principal après clic */
+        #content {
+            display: none; /* Caché au début */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100%;
+            padding: 20px 0;
+        }
+
+        /* L'image centrée et grande */
+        .image-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-grow: 1; /* Prend l'espace disponible */
+        }
+
+        img {
+            max-width: 100vw;
+            max-height: 85vh; /* Laisse de la place pour le texte en bas */
+            display: block;
+        }
+
+        /* Section texte et licenses */
+        .license-container {
+            width: 90%;
+            max-width: 900px;
+            text-align: left;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #444;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        h1, h2 { color: #fff; margin-top: 0; }
+        a { color: #4da6ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <!-- Overlay de départ -->
+    <div id="overlay">
+        <h1 style="font-size: 20px; opacity: 0.5;">CLICK ANYWHERE</h1>
+    </div>
+
+    <!-- Contenu qui apparaît au clic -->
+    <div id="content">
+        <div class="image-wrapper">
+            <img src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-website-the-part-under-license-by-sa-2.0/main/arts%20edit%20by%20me/Robert%20Doll%20Glitchted/Robert%20Doll.jpg" alt="Robert Doll Glitched">
+        </div>
+
+        <div class="license-container">
+            <p><strong>Music Credits:</strong> This music (a cover of "À la claire fontaine") was created by <strong>Stormwindsky</strong> via a MIDI file on Wikimedia under license CC0 1.0. This cover is also released under license <strong>CC0 1.0</strong>. The website is under <strong>MIT license</strong>.</p>
+            
+            <hr>
+
+            <h1>Image Licensing Information</h1>
+            <p>This image is licensed under the <strong>Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0)</strong> license.</p>
+
+            <h2>Original Work</h2>
+            <ul>
+                <li><strong>Original Image URL:</strong> <a href="https://www.flickr.com/photos/cayobo/5999680656/" target="_blank">https://www.flickr.com/photos/cayobo/5999680656/</a></li>
+                <li><strong>Original Creator:</strong> <a href="https://www.flickr.com/photos/cayobo/" target="_blank">Cayobo</a></li>
+            </ul>
+
+            <h2>Derivative Work (Edit)</h2>
+            <p>This file is an edit of the original work mentioned above. In accordance with the terms of the original license, this derivative work is also released under the same license:</p>
+            <ul>
+                <li><strong>License:</strong> <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank">Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0)</a></li>
+                <li><strong>Edited by:</strong> Cayobo</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="bg-audio" loop>
+        <source src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Creepy%20Flute%20Song.wav" type="audio/wav">
+    </audio>
+
+    <script>
+        const overlay = document.getElementById('overlay');
+        const content = document.getElementById('content');
+        const audio = document.getElementById('bg-audio');
+
+        overlay.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            content.style.display = 'flex';
+            audio.play().catch(err => console.log("Audio play blocked: ", err));
+        });
+    </script>
+</body>
+</html>
