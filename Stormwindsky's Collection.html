@@ -133,6 +133,19 @@
             gap: 5px;
         }
 
+        /* Badge pour le sous-dossier spécifié */
+        .folder-badge {
+            background: #87CEEB; /* Bleu ciel */
+            color: white; /* Texte blanc */
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
         footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
 
         /* Popups Styling */
@@ -175,7 +188,6 @@
     <header>
         <h2 id="txt-site-title" style="margin:0">StormExplorer</h2>
         <div class="nav-controls">
-            <!-- AI Toggle Button -->
             <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()">Show AI Creations</button>
             
             <select id="langSelect" onchange="changeLanguage(this.value)">
@@ -257,7 +269,7 @@
             tabImages: "Imágenes",
             tabAudios: "Audios",
             tabVideos: "Videos",
-            footer: "Datos obtenidos de la API de GitHub de Stormwindsky",
+            footer: "Datos obtenus de la API de GitHub de Stormwindsky",
             themeL: "☀️ Modo Claro",
             themeD: "🌙 Modo Oscuro",
             cc0: "Todas las obras de esta catégorie están bajo la licencia CC0 1.0 Universal.",
@@ -403,6 +415,20 @@
             
             let content = `<div><small style="opacity:0.5">${currentMode.toUpperCase()}</small><h3>${item.path.split('/').pop()}</h3>`;
             
+            // Détection stricte du sous-dossier dans "ArtLibre/ArtLibre/files/"
+            const targetPrefix = "ArtLibre/ArtLibre/files/";
+            if (item.path.startsWith(targetPrefix)) {
+                // On extrait la partie du chemin située après le préfixe ciblé
+                const relativePath = item.path.substring(targetPrefix.length);
+                const pathParts = relativePath.split('/');
+                
+                // Si la longueur est supérieure à 1, cela signifie qu'il y a un sous-dossier avant le fichier
+                if (pathParts.length > 1) {
+                    const subFolderName = pathParts[0]; // Récupère le premier dossier directement sous /files/
+                    content += `<div class="folder-badge">${subFolderName}</div>`;
+                }
+            }
+
             // Add AI Robot Badge if it's an AI creation
             if(isAI) {
                 content += `<div class="ai-badge">🤖</div>`;
