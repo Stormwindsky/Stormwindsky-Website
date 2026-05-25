@@ -52,14 +52,14 @@
 
         .nav-controls { display: flex; gap: 10px; align-items: center; }
 
-        select, .theme-btn, .ai-toggle-btn {
+        select, .theme-btn, .ai-toggle-btn, .pd-toggle-btn {
             padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
             background: var(--card-white); color: var(--text-dark); cursor: pointer;
             font-weight: 600; outline: none; transition: 0.3s;
         }
 
-        .ai-toggle-btn.inactive { background: #ccc; color: #666; border-color: #999; }
-        .ai-toggle-btn.active { background: var(--ai-blue); color: white; border-color: var(--ai-blue); }
+        .ai-toggle-btn.inactive, .pd-toggle-btn.inactive { background: #ccc; color: #666; border-color: #999; }
+        .ai-toggle-btn.active, .pd-toggle-btn.active { background: var(--ai-blue); color: white; border-color: var(--ai-blue); }
 
         /* Search Section */
         .search-section {
@@ -149,7 +149,7 @@
         footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
 
         /* Popups Styling */
-        #cc0-popup, #ai-readme-popup {
+        #cc0-popup, #ai-readme-popup, #pd-readme-popup {
             display: none;
             position: fixed;
             bottom: 20px;
@@ -164,11 +164,11 @@
             animation: slideIn 0.5s ease-out;
         }
 
-        #ai-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
+        #ai-readme-popup, #pd-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
 
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        .cc0-close, .ai-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
-        .ai-close { color: red; font-size: 1.5rem; line-height: 1; }
+        .cc0-close, .ai-close, .pd-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
+        .ai-close, .pd-close { color: red; font-size: 1.5rem; line-height: 1; }
     </style>
 </head>
 <body>
@@ -184,11 +184,17 @@
     <div id="ai-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
 </div>
 
+<div id="pd-readme-popup">
+    <span class="pd-close" onclick="closePdPopup()">X</span>
+    <div id="pd-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
+</div>
+
 <div class="container">
     <header>
         <h2 id="txt-site-title" style="margin:0">StormExplorer</h2>
         <div class="nav-controls">
             <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()">Show AI Creations</button>
+            <button id="pdToggleBtn" class="pd-toggle-btn inactive" onclick="togglePD()">Public Domain art i based or i edited</button>
             
             <select id="langSelect" onchange="changeLanguage(this.value)">
                 <option value="en">English</option>
@@ -234,7 +240,8 @@
             themeL: "☀️ Light Mode",
             themeD: "🌙 Dark Mode",
             cc0: "All assets in this category are under CC0 1.0 Universal License.",
-            aiBtn: "Show AI Creations"
+            aiBtn: "Show AI Creations",
+            pdBtn: "Public Domain art i based or i edited"
         },
         "fr-FR": {
             siteTitle: "StormExplorer",
@@ -247,7 +254,8 @@
             themeL: "☀️ Mode Clair",
             themeD: "🌙 Mode Sombre",
             cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle.",
-            aiBtn: "Afficher Créations IA"
+            aiBtn: "Afficher Créations IA",
+            pdBtn: "Art du domaine public basé ou édité"
         },
         "fr-CA": {
             siteTitle: "StormExplorer",
@@ -260,7 +268,8 @@
             themeL: "☀️ Mode Clair",
             themeD: "🌙 Mode Sombre",
             cc0: "Toutes les œuvres de cette catégorie sont sous licence CC0 1.0 universelle.",
-            aiBtn: "Voir Créations IA"
+            aiBtn: "Voir Créations IA",
+            pdBtn: "Art du domaine public basé ou édité"
         },
         "es-ES": {
             siteTitle: "StormExplorer",
@@ -273,12 +282,14 @@
             themeL: "☀️ Modo Claro",
             themeD: "🌙 Modo Oscuro",
             cc0: "Todas las obras de esta catégorie están bajo la licencia CC0 1.0 Universal.",
-            aiBtn: "Mostrar Creaciones IA"
+            aiBtn: "Mostrar Creaciones IA",
+            pdBtn: "Arte de dominio público basado o editado"
         }
     };
 
     let currentMode = 'files';
     let showAI = false;
+    let showPD = false;
     const RAW_BASE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
 
     function updateURL() {
@@ -298,6 +309,10 @@
         document.getElementById('ai-readme-popup').style.display = 'none';
     }
 
+    function closePdPopup() {
+        document.getElementById('pd-readme-popup').style.display = 'none';
+    }
+
     // Toggle AI Function
     async function toggleAI() {
         showAI = !showAI;
@@ -315,10 +330,36 @@
         fetchData(document.getElementById('searchInput').value);
     }
 
+    // Toggle Public Domain Function
+    async function togglePD() {
+        showPD = !showPD;
+        const btn = document.getElementById('pdToggleBtn');
+        const popup = document.getElementById('pd-readme-popup');
+        
+        if(showPD) {
+            btn.classList.replace('inactive', 'active');
+            popup.style.display = 'block';
+            fetchPdReadme();
+        } else {
+            btn.classList.replace('active', 'inactive');
+            popup.style.display = 'none';
+        }
+        fetchData(document.getElementById('searchInput').value);
+    }
+
     async function fetchAiReadme() {
         const contentDiv = document.getElementById('ai-readme-content');
         try {
             const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/OeuvreLibre/refs/heads/main/ArtLibre/ArtLibre/AI%20Creations/README.md");
+            const text = await res.text();
+            contentDiv.innerText = text;
+        } catch (e) { contentDiv.innerText = "Error loading Readme."; }
+    }
+
+    async function fetchPdReadme() {
+        const contentDiv = document.getElementById('pd-readme-content');
+        try {
+            const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/OeuvreLibre/refs/heads/main/ArtLibre/ArtLibre/files/Public%20Domain%20Edit%20or%20Based%20i%20made/readme.md");
             const text = await res.text();
             contentDiv.innerText = text;
         } catch (e) { contentDiv.innerText = "Error loading Readme."; }
@@ -335,6 +376,7 @@
         document.getElementById('txt-footer').innerText = t.footer;
         document.getElementById('cc0-text').innerText = t.cc0;
         document.getElementById('aiToggleBtn').innerText = t.aiBtn;
+        document.getElementById('pdToggleBtn').innerText = t.pdBtn;
         
         localStorage.setItem('preferredLang', lang);
         updateThemeButtonText();
@@ -362,13 +404,16 @@
         // Popup and Button Management
         const popup = document.getElementById('cc0-popup');
         const aiBtn = document.getElementById('aiToggleBtn');
+        const pdBtn = document.getElementById('pdToggleBtn');
 
         if(currentMode === 'files') {
             popup.style.display = 'none';
             aiBtn.style.display = 'none';
+            pdBtn.style.display = 'none';
         } else {
             popup.style.display = 'block';
             aiBtn.style.display = 'block';
+            pdBtn.style.display = 'block';
         }
 
         const api = (currentMode === 'files') 
@@ -385,11 +430,15 @@
             else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
             else if(currentMode === 'videos') items = items.filter(i => i.path.match(/\.(mp4|webm)$/i));
 
-            // Logic for AI filtering
+            // Logic for AI and Public Domain filtering
             if (currentMode !== 'files') {
                 if (!showAI) {
                     // Hide items in "AI Creations" folder if toggle is off
                     items = items.filter(i => !i.path.includes('AI Creations'));
+                }
+                if (!showPD) {
+                    // Hide items in "Public Domain Edit or Based i made" folder if toggle is off
+                    items = items.filter(i => !i.path.includes('Public Domain Edit or Based i made'));
                 }
             }
 
