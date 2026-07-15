@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormExplorer | Collection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- BENTO UI SYSTEM --- */
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --blue-main: #007aff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --radius: 24px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --ai-blue: #87CEEB; /* Bleu ciel pour l'IA */
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0; padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Header Bento */
+        header {
+            background: var(--card-white);
+            padding: 15px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .nav-controls { display: flex; gap: 10px; align-items: center; }
+
+        select, .theme-btn, .ai-toggle-btn, .pd-toggle-btn {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+            font-weight: 600; outline: none; transition: 0.3s;
+        }
+
+        .ai-toggle-btn.inactive, .pd-toggle-btn.inactive { background: #ccc; color: #666; border-color: #999; }
+        .ai-toggle-btn.active, .pd-toggle-btn.active { background: var(--ai-blue); color: white; border-color: var(--ai-blue); }
+
+        /* Search Section */
+        .search-section {
+            background: var(--card-white);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .search-bar {
+            display: flex; background: var(--bg-body);
+            max-width: 600px; margin: 0 auto;
+            padding: 12px 20px; border-radius: 100px;
+            align-items: center;
+        }
+
+        .search-bar input {
+            border: none; background: transparent; width: 100%;
+            padding: 10px; font-size: 1.1rem; color: var(--text-dark); outline: none;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex; gap: 10px; justify-content: center;
+            margin-bottom: 30px; flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px; background: var(--card-white);
+            border-radius: 100px; cursor: pointer; font-weight: 600;
+            box-shadow: var(--shadow); transition: 0.3s;
+        }
+
+        .tab.active { background: var(--blue-main); color: white; border-color: var(--blue-main); }
+
+        /* Bento Grid */
+        #results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-auto-rows: minmax(180px, auto);
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: var(--card-white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: 0.3s;
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: relative;
+        }
+
+        .bento-card:hover { transform: translateY(-5px); }
+
+        .media-preview { width: 100%; border-radius: 15px; margin-bottom: 15px; object-fit: cover; }
+        
+        .ai-badge {
+            background: var(--ai-blue);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Badge pour le sous-dossier spécifié */
+        .folder-badge {
+            background: #87CEEB; /* Bleu ciel */
+            color: white; /* Texte blanc */
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
+
+        /* Popups Styling */
+        #cc0-popup, #ai-readme-popup, #pd-readme-popup {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-white);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 350px;
+            z-index: 1000;
+            border: 2px solid var(--blue-main);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        #ai-readme-popup, #pd-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
+
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .cc0-close, .ai-close, .pd-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
+        .ai-close, .pd-close { color: red; font-size: 1.5rem; line-height: 1; }
+    </style>
+</head>
+<body>
+
+<div id="cc0-popup">
+    <span class="cc0-close" onclick="closePopup()">&times;</span>
+    <p id="cc0-text" data-i18n="cc0_text">All assets in this category are under CC0 1.0 Universal License.</p>
+    <a id="cc0-link" href="https://github.com/Stormwindsky/OeuvreLibre" target="_blank" style="color:var(--blue-main); font-weight:bold;">GitHub License</a>
+</div>
+
+<div id="ai-readme-popup">
+    <span class="ai-close" onclick="closeAiPopup()">X</span>
+    <div id="ai-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;" data-i18n="loading">Loading...</div>
+</div>
+
+<div id="pd-readme-popup">
+    <span class="pd-close" onclick="closePdPopup()">X</span>
+    <div id="pd-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;" data-i18n="loading">Loading...</div>
+</div>
+
+<div class="container">
+    <header>
+        <h2 id="txt-site-title" style="margin:0" data-i18n="collection_site_title">StormExplorer</h2>
+        <div class="nav-controls">
+            <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()" data-i18n="ai_btn">Show AI Creations</button>
+            <button id="pdToggleBtn" class="pd-toggle-btn inactive" onclick="togglePD()" data-i18n="pd_btn">Public Domain art i based or i edited</button>
+            
+            <select id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="fr-FR">Français (FR)</option>
+                <option value="fr-CA">Français (QC)</option>
+                <option value="es-ES">Español</option>
+            </select>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        </div>
+    </header>
+
+    <section class="search-section">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search assets...">
+        </div>
+    </section>
+
+    <div class="tabs">
+        <div class="tab active" data-mode="files" id="tab-files" data-i18n="tab_files">Files</div>
+        <div class="tab" data-mode="images" id="tab-images" data-i18n="tab_images">Images</div>
+        <div class="tab" data-mode="audios" id="tab-audios" data-i18n="tab_audios">Audios</div>
+        <div class="tab" data-mode="videos" id="tab-videos" data-i18n="tab_videos">Videos</div>
+    </div>
+
+    <div id="results-grid"></div>
+
+    <footer>
+        <p id="txt-footer" data-i18n="collection_footer">Data from Stormwindsky GitHub API</p>
+    </footer>
+</div>
+
+<script>
+    const defaultLang = 'en';
+    let currentTranslations = {}; // Contiendra les traductions chargées
+    let currentMode = 'files';
+    let showAI = false;
+    let showPD = false;
+    const RAW_BASE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
+
+    // Charger un fichier JSON de langue dynamiquement
+    async function loadLanguage(lang) {
+        try {
+            // Requête vers le dossier /lang à la racine
+            const response = await fetch(`./lang/${lang}.json`);
+            if (!response.ok) throw new Error('Could not load translation file');
+            
+            currentTranslations = await response.json();
+            
+            // Mettre à jour tous les éléments HTML ayant l'attribut data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (currentTranslations[key]) {
+                    element.textContent = currentTranslations[key];
+                }
+            });
+
+            // Gérer le placeholder de la barre de recherche dynamiquement
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && currentTranslations['search_placeholder']) {
+                searchInput.placeholder = currentTranslations['search_placeholder'];
+            }
+
+            // Sauvegarder la langue préférée
+            localStorage.setItem('preferredLang', lang);
+            document.getElementById('langSelect').value = lang;
+            document.documentElement.lang = lang;
+
+            // Mettre à jour le bouton de thème
+            updateThemeButtonText();
+
+            // Re-charger les données de l'API pour mettre à jour la langue des éléments générés à la volée (ex: "Open Asset")
+            fetchData(document.getElementById('searchInput').value);
+
+        } catch (error) {
+            console.error(`Error loading language (${lang}), falling back to ${defaultLang}:`, error);
+            if (lang !== defaultLang) {
+                loadLanguage(defaultLang);
+            }
+        }
+    }
+
+    function changeLanguage(lang) {
+        loadLanguage(lang);
+    }
+
+    function updateURL() {
+        const query = document.getElementById('searchInput').value;
+        const url = new URL(window.location);
+        url.searchParams.set('mode', currentMode);
+        if(query) url.searchParams.set('q', query);
+        else url.searchParams.delete('q');
+        window.history.replaceState({}, '', url);
+    }
+
+    function closePopup() {
+        document.getElementById('cc0-popup').style.display = 'none';
+    }
+
+    function closeAiPopup() {
+        document.getElementById('ai-readme-popup').style.display = 'none';
+    }
+
+    function closePdPopup() {
+        document.getElementById('pd-readme-popup').style.display = 'none';
+    }
+
+    async function toggleAI() {
+        showAI = !showAI;
+        const btn = document.getElementById('aiToggleBtn');
+        const popup = document.getElementById('ai-readme-popup');
+        
+        if(showAI) {
+            btn.classList.replace('inactive', 'active');
+            popup.style.display = 'block';
+            fetchAiReadme();
+        } else {
+            btn.classList.replace('active', 'inactive');
+            popup.style.display = 'none';
+        }
+        fetchData(document.getElementById('searchInput').value);
+    }
+
+    async function togglePD() {
+        showPD = !showPD;
+        const btn = document.getElementById('pdToggleBtn');
+        const popup = document.getElementById('pd-readme-popup');
+        
+        if(showPD) {
+            btn.classList.replace('inactive', 'active');
+            popup.style.display = 'block';
+            fetchPdReadme();
+        } else {
+            btn.classList.replace('active', 'inactive');
+            popup.style.display = 'none';
+        }
+        fetchData(document.getElementById('searchInput').value);
+    }
+
+    async function fetchAiReadme() {
+        const contentDiv = document.getElementById('ai-readme-content');
+        try {
+            const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/OeuvreLibre/refs/heads/main/ArtLibre/ArtLibre/AI%20Creations/README.md");
+            const text = await res.text();
+            contentDiv.innerText = text;
+        } catch (e) { contentDiv.innerText = "Error loading Readme."; }
+    }
+
+    async function fetchPdReadme() {
+        const contentDiv = document.getElementById('pd-readme-content');
+        try {
+            const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/OeuvreLibre/refs/heads/main/ArtLibre/ArtLibre/files/Public%20Domain%20Edit%20or%20Based%20i%20made/readme.md");
+            const text = await res.text();
+            contentDiv.innerText = text;
+        } catch (e) { contentDiv.innerText = "Error loading Readme."; }
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateThemeButtonText();
+    }
+
+    function updateThemeButtonText() {
+        const theme = localStorage.getItem('theme') || 'light';
+        const btn = document.getElementById('themeBtn');
+        
+        if (theme === 'dark') {
+            btn.innerText = currentTranslations['theme_dark'] || '☀️ Light Mode';
+        } else {
+            btn.innerText = currentTranslations['theme_light'] || '🌙 Dark Mode';
+        }
+    }
+
+    async function fetchData(query = '') {
+        const grid = document.getElementById('results-grid');
+        const loadingText = currentTranslations['loading'] || 'Loading...';
+        grid.innerHTML = `<p>${loadingText}</p>`;
+        
+        const popup = document.getElementById('cc0-popup');
+        const aiBtn = document.getElementById('aiToggleBtn');
+        const pdBtn = document.getElementById('pdToggleBtn');
+
+        if(currentMode === 'files') {
+            popup.style.display = 'none';
+            aiBtn.style.display = 'none';
+            pdBtn.style.display = 'none';
+        } else {
+            popup.style.display = 'block';
+            aiBtn.style.display = 'block';
+            pdBtn.style.display = 'block';
+        }
+
+        const api = (currentMode === 'files') 
+            ? "https://api.github.com/repos/Stormwindsky/Stormwindsky-Website/git/trees/main?recursive=1"
+            : "https://api.github.com/repos/Stormwindsky/ArtLibre/git/trees/main?recursive=1";
+
+        try {
+            const res = await fetch(api);
+            const data = await res.json();
+            let items = data.tree.filter(i => i.type === 'blob');
+
+            if(currentMode === 'files') items = items.filter(i => i.path.endsWith('.html'));
+            else if(currentMode === 'images') items = items.filter(i => i.path.match(/\.(jpg|jpeg|png|gif|svg|JPG)$/i));
+            else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
+            else if(currentMode === 'videos') items = items.filter(i => i.path.match(/\.(mp4|webm)$/i));
+
+            if (currentMode !== 'files') {
+                if (!showAI) {
+                    items = items.filter(i => !i.path.includes('AI Creations'));
+                }
+                if (!showPD) {
+                    items = items.filter(i => !i.path.includes('Public Domain Edit or Based i made'));
+                }
+            }
+
+            if(query) items = items.filter(i => i.path.toLowerCase().includes(query.toLowerCase()));
+
+            renderGrid(items);
+            updateURL();
+        } catch(e) { 
+            const errorText = currentTranslations['error_loading'] || 'Error loading data.';
+            grid.innerHTML = `<p>${errorText}</p>`; 
+        }
+    }
+
+    function renderGrid(items) {
+        const grid = document.getElementById('results-grid');
+        grid.innerHTML = '';
+        
+        const openText = currentTranslations['open_asset'] || 'Open Asset';
+
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'bento-card';
+            const isAI = item.path.includes('AI Creations');
+            
+            const url = (currentMode === 'files') 
+                ? `https://stormwindsky.com/${item.path}` 
+                : RAW_BASE + item.path;
+            
+            let content = `<div><small style="opacity:0.5">${currentMode.toUpperCase()}</small><h3>${item.path.split('/').pop()}</h3>`;
+            
+            const targetPrefix = "ArtLibre/ArtLibre/files/";
+            if (item.path.startsWith(targetPrefix)) {
+                const relativePath = item.path.substring(targetPrefix.length);
+                const pathParts = relativePath.split('/');
+                if (pathParts.length > 1) {
+                    const subFolderName = pathParts[0];
+                    content += `<div class="folder-badge">${subFolderName}</div>`;
+                }
+            }
+
+            if(isAI) {
+                content += `<div class="ai-badge">🤖</div>`;
+            }
+
+            if(currentMode === 'images') content = `<img src="${url}" class="media-preview">` + content;
+            if(currentMode === 'audios') content += `<audio controls style="width:100%"><source src="${url}"></audio>`;
+            if(currentMode === 'videos') content = `<video controls class="media-preview"><source src="${url}"></video>` + content;
+
+            card.innerHTML = content + `</div><a href="${url}" target="_blank" style="color:var(--blue-main); font-weight:bold; margin-top:15px; text-decoration:none;">${openText}</a>`;
+            grid.appendChild(card);
+        });
+    }
+
+    // --- EVENTS ---
+    document.getElementById('searchInput').addEventListener('input', (e) => fetchData(e.target.value));
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentMode = tab.dataset.mode;
+            fetchData(document.getElementById('searchInput').value);
+        });
+    });
+
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const modeParam = urlParams.get('mode');
+        const queryParam = urlParams.get('q');
+        
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedLang = localStorage.getItem('preferredLang') || defaultLang;
+        
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        if(modeParam) {
+            currentMode = modeParam;
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+                if(t.dataset.mode === modeParam) t.classList.add('active');
+            });
+        }
+        if(queryParam) {
+            document.getElementById('searchInput').value = queryParam;
+        }
+
+        // Charger les traductions et lier avec les langues
+        loadLanguage(savedLang);
+    };
+</script>
+
+</body>
+</html>

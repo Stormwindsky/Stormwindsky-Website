@@ -1,171 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Select Your Website Version</title>
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stormwindsky | Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --bg-body: #f4f4f4;
-        --card-bg: white;
-        --text-color: #333;
-        --title-color: #3498db;
-        --link-bg: #3498db;
-        --link-hover: #2980b9;
-        --github-color: #555;
-      }
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --card-dark: #2d333b;
+            --blue-main: #007aff;
+            --blue-light: #5db0ff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+        }
 
-      /* Variables pour le Mode Sombre */
-      [data-theme="dark"] {
-        --bg-body: #0a0a0a;
-        --card-bg: #1c1c1e;
-        --text-color: #f5f5f7;
-        --title-color: #5db0ff;
-        --link-bg: #007aff;
-        --link-hover: #0056b3;
-        --github-color: #a1a1a6;
-      }
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+        }
 
-      body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        background-color: var(--bg-body);
-        color: var(--text-color);
-        text-align: center;
-        transition: all 0.3s ease;
-      }
-      .container {
-        padding: 40px;
-        background: var(--card-bg);
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      }
-      h1 {
-        color: var(--title-color);
-        margin-bottom: 20px;
-      }
-      .version-link {
-        display: block;
-        margin: 15px 0;
-        padding: 15px 30px;
-        background-color: var(--link-bg);
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-size: 1.2em;
-        transition: background-color 0.3s;
-      }
-      .version-link:hover {
-        background-color: var(--link-hover);
-      }
-      .github-link {
-        margin-top: 25px;
-        display: inline-block;
-        color: var(--github-color);
-        text-decoration: none;
-        font-size: 0.9em;
-        transition: color 0.3s;
-      }
-      .github-link:hover {
-        color: var(--text-color);
-        text-decoration: underline;
-      }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .controls {
+            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
+        }
+
+        select, .theme-toggle {
+            padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .bento-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+            max-width: 1100px; width: 100%;
+        }
+
+        .card {
+            border-radius: 35px; padding: 30px; display: flex; flex-direction: column;
+            justify-content: space-between; text-decoration: none; color: inherit;
+            border: 1px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: var(--blue-main);
+        }
+
+        .white { background: var(--card-white); }
+        .dark-card { background: var(--card-dark); color: #fff; }
+        .blue { background: var(--blue-main); color: #fff; }
+        .sky { background: var(--blue-light); color: #fff; }
+
+        .col-2 { grid-column: span 2; }
+        .row-2 { grid-row: span 2; }
+
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; }
+        h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        p { font-size: 0.95rem; line-height: 1.5; opacity: 0.9; }
+
+        .tag {
+            background: rgba(255,255,255,0.2); padding: 5px 12px;
+            border-radius: 10px; font-size: 0.75rem; display: inline-block; margin-bottom: 15px;
+        }
+
+        .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            padding: 10px 20px; border-radius: 12px; text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; background: var(--blue-main); color: white;
+        }
+
+        .link-item {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+            text-decoration: none; color: inherit; font-weight: 500;
+        }
+
+        footer { grid-column: span 4; text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-dim); }
+
+        @media (max-width: 850px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .col-2, footer { grid-column: span 2; }
+        }
+        @media (max-width: 550px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .col-2, .row-2, footer { grid-column: span 1; }
+        }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1 id="txt-title">Select Your Preferred Website Version</h1>
-      <p id="txt-desc">Please choose the version that best suits your device and connection speed:</p>
+</head>
+<body>
 
-      <a class="version-link" href="https://www.stormwindsky.com/Welcome" id="link-welcome">
-        Welcome Version (Standard/Mobile)
-      </a>
+    <div class="controls">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="fr-FR">Français (France)</option>
+            <option value="fr-CA">Français (Québec)</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="es-AM">Español (América)</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+    </div>
 
-      <a class="version-link" href="https://www.stormwindsky.com/Lite" id="link-lite">
-        Lite Version (Standard PC Performance)
-      </a>
+    <div class="bento-grid">
+        <div class="card dark-card col-2">
+            <div>
+                <h1>Stormwindsky</h1>
+                <span class="tag" data-i18n="tag">Available for Projects</span>
+                <p data-i18n="bio">Digital archivist and creator interested in history and indie gaming.</p>
+            </div>
+            <div class="btn-container">
+                <a href="#" class="btn" id="btn-profile" data-i18n="btn_profile">View Profile</a>
+                <a href="https://polytoria.com/u/Stormwindsky" class="btn" style="background:rgba(255,255,255,0.1)">Polytoria</a>
+            </div>
+        </div>
 
-      <a class="version-link" href="https://www.stormwindsky.com/UltraLite" id="link-ultra">
-        UltraLite Version (Low-Performance PC)
-      </a>
+        <div class="card blue col-2">
+            <h2 data-i18n="pres_title">Digital Preservation</h2>
+            <p data-i18n="pres_desc">Open Source contributor & fan of Wayback Machine and Lost Media Wiki.</p>
+        </div>
 
-      <hr style="border: 0; border-top: 1px solid #eee; margin-top: 20px;">
+        <div class="card blue row-2">
+            <h2 data-i18n="social_title">Find Me Online</h2>
+            <div style="margin-top: 20px;">
+                <a href="https://bsky.app/profile/Stormwindsky.mastodon.social.ap.brid.gy" class="link-item">🦋 Bluesky</a>
+                <a href="https://mastodon.social/@Stormwindsky" class="link-item">🐘 Mastodon</a>
+                <a href="https://gamejolt.com/@Stormwindsky" class="link-item">⚡ Gamejolt</a>
+                <a href="https://polytoria.com/u/Stormwindsky" class="link-item">🎮 Polytoria</a>
+                <a href="https://www.youtube.com/watch?v=H8ZH_mkfPUY" class="link-item">IMPORTANT VIDEO!!!</a>
+            </div>
+        </div>
 
-      <a class="github-link" href="https://github.com/Stormwindsky/Stormwindsky-Website" target="_blank" id="link-github">
-        View source code on GitHub
-      </a>
+        <div class="card white">
+            <h2 data-i18n="name_title">The Name</h2>
+            <p data-i18n="name_desc">Originating from Animal Jam via my mom, it became my unique identity.</p>
+        </div>
+
+        <a href="./StormExplorer.html" class="card white">
+            <h2 data-i18n="coll_title">🌐 Navigator</h2>
+            <p data-i18n="coll_desc">Access the digital collection and experimental tools.</p>
+        </a>
+
+        <div class="card sky">
+            <h2>RoleChat</h2>
+            <p data-i18n="role_desc">An application tailored for roleplay and social interactions.</p>
+        </div>
+
+        <div class="card white">
+            <h2 data-i18n="site_title">This Site</h2>
+            <p data-i18n="site_desc">A playground for coding, gaming, and digital archiving experiments.</p>
+        </div>
+
+        <footer id="txt-footer" data-i18n="footer">
+            © 2026 Stormwindsky | MIT License | Built with Passion & Autism Pride
+        </footer>
     </div>
 
     <script>
-      // Dictionnaire de traduction identique à Welcome.html
-      const translations = {
-        'en': {
-          title: "Select Your Preferred Website Version",
-          desc: "Please choose the version that best suits your device and connection speed:",
-          welcome: "Welcome Version (Standard/Mobile)",
-          lite: "Lite Version (Standard PC Performance)",
-          ultra: "UltraLite Version (Low-Performance PC)",
-          github: "View source code on GitHub"
-        },
-        'fr-FR': {
-          title: "Choisissez votre version préférée",
-          desc: "Veuillez choisir la version qui convient le mieux à votre appareil :",
-          welcome: "Version Welcome (Standard/Mobile)",
-          lite: "Version Lite (Performance PC Standard)",
-          ultra: "Version UltraLite (PC basse performance)",
-          github: "Voir le code source sur GitHub"
-        },
-        'fr-CA': {
-          title: "Choisis ta version préférée",
-          desc: "Prends la version qui marche le mieux sur ton appareil :",
-          welcome: "Version Welcome (Standard/Mobile)",
-          lite: "Version Lite (Performance PC Standard)",
-          ultra: "Version UltraLite (Vieille canisse/PC lent)",
-          github: "Voir le code source sur GitHub"
-        },
-        'es-ES': {
-          title: "Selecciona tu versión preferida",
-          desc: "Por favor, elige la versión que mejor se adapte a tu dispositivo:",
-          welcome: "Versión Welcome (Estándar/Móvil)",
-          lite: "Versión Lite (Rendimiento PC Estándar)",
-          ultra: "Versión UltraLite (PC de bajo rendimiento)",
-          github: "Ver código fuente en GitHub"
-        },
-        'es-AM': {
-          title: "Elige tu versión preferida",
-          desc: "Por favor, elige la versión que mejor se adapte a tu dispositivo:",
-          welcome: "Versión Welcome (Estándar/Móvil)",
-          lite: "Versión Lite (Rendimiento PC Estándar)",
-          ultra: "Versión UltraLite (PC de bajo rendimiento)",
-          github: "Ver código fuente en GitHub"
+        const defaultLang = 'en';
+        let currentTranslations = {}; // Contiendra les traductions chargées
+
+        // Charger un fichier JSON de langue dynamiquement
+        async function loadLanguage(lang) {
+            try {
+                const response = await fetch(`./lang/${lang}.json`);
+                if (!response.ok) throw new Error('Could not load translation file');
+                
+                currentTranslations = await response.json();
+                
+                // Mettre à jour tous les éléments HTML avec data-i18n
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (currentTranslations[key]) {
+                        element.textContent = currentTranslations[key];
+                    }
+                });
+
+                // Sauvegarder la langue préférée
+                localStorage.setItem('preferredLang', lang);
+                document.getElementById('langSelect').value = lang;
+                document.documentElement.lang = lang;
+
+                // Mettre à jour le texte du bouton de thème selon la langue active
+                updateThemeButtonText();
+
+            } catch (error) {
+                console.error(`Error loading language (${lang}), falling back to ${defaultLang}:`, error);
+                if (lang !== defaultLang) {
+                    loadLanguage(defaultLang);
+                }
+            }
         }
-      };
 
-      function applySettings() {
-        // 1. Appliquer le thème (Dark/Light)
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        function changeLanguage(lang) {
+            loadLanguage(lang);
+        }
 
-        // 2. Appliquer la traduction
-        const savedLang = localStorage.getItem('preferredLang') || 'en';
-        const t = translations[savedLang] || translations['en'];
+        // Gestion du Thème sombre / clair
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText();
+        }
 
-        document.getElementById('txt-title').innerText = t.title;
-        document.getElementById('txt-desc').innerText = t.desc;
-        document.getElementById('link-welcome').innerText = t.welcome;
-        document.getElementById('link-lite').innerText = t.lite;
-        document.getElementById('link-ultra').innerText = t.ultra;
-        document.getElementById('link-github').innerText = t.github;
-      }
+        function updateThemeButtonText() {
+            const theme = localStorage.getItem('theme') || 'light';
+            const btn = document.getElementById('themeBtn');
+            
+            if (theme === 'dark') {
+                btn.innerText = currentTranslations['theme_dark'] || '☀️ Light Mode';
+            } else {
+                btn.innerText = currentTranslations['theme_light'] || '🌙 Dark Mode';
+            }
+        }
 
-      // Exécuter au chargement
-      window.onload = applySettings;
+        // Au chargement initial
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const savedLang = localStorage.getItem('preferredLang') || defaultLang;
+            loadLanguage(savedLang);
+        };
     </script>
-  </body>
+</body>
 </html>
