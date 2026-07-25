@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hytale Cancelled 2025 Archive</title>
+    <style>
+        /* CSS Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Iframe styling with blur effect */
+        #archive-frame {
+            flex-grow: 1;
+            border: none;
+            filter: blur(8px);
+            transition: filter 0.5s ease;
+        }
+
+        #archive-frame.clear {
+            filter: blur(0px);
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: #000;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 2px solid #333;
+        }
+
+        footer a {
+            color: #d4af37;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .disclaimer {
+            display: block;
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Popup Overlay */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup {
+            background: #2c2c2c;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid #d4af37;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .popup h2 {
+            margin-top: 0;
+            color: #d4af37;
+        }
+
+        .popup p {
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .popup button {
+            background: #d4af37;
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .popup button:hover {
+            background: #f1c40f;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <div class="popup">
+            <h2>Archive Notice</h2>
+            <p>This is an archive of a past announcement. Please be aware that <strong>Hytale is now officially back!</strong> This page is for historical purposes only.</p>
+            <button onclick="dismissPopup()">Understand</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <iframe id="archive-frame" src="https://web.archive.org/web/20250623160958/https://hytale.com/news/2025/6/a-difficult-update-about-hytale"></iframe>
+
+        <footer>
+            All rights reserved to <a href="https://hytale.com/about" target="_blank">Hypixel Studios</a>.
+            <span class="disclaimer">This page is not affiliated with the Hytale Team or Hypixel Studios & Internet Archive (Wayback Machine)</span>
+        </footer>
+    </div>
+
+    <script>
+        // JavaScript to handle the popup and unblur
+        function dismissPopup() {
+            // Hide the overlay
+            document.getElementById('overlay').style.display = 'none';
+            
+            // Remove the blur from the iframe
+            document.getElementById('archive-frame').classList.add('clear');
+        }
+    </script>
+
+</body>
+</html>
