@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P.a.r.t.y</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+        }
+
+        /* Animation du fond - Transition fluide pour la sécurité */
+        @keyframes colorCycle {
+            0% { background-color: #ff0000; }
+            20% { background-color: #00ff00; }
+            40% { background-color: #0000ff; }
+            60% { background-color: #ffff00; }
+            80% { background-color: #ff00ff; }
+            100% { background-color: #ff0000; }
+        }
+
+        .party-bg {
+            animation: colorCycle 4s infinite linear;
+        }
+
+        /* Overlay d'entrée */
+        #overlay {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            background: rgba(0,0,0,0.8);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* L'image SVG */
+        #creepy-svg {
+            width: 300px;
+            height: 300px;
+            display: none; /* Caché au début */
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+            animation: 
+                rotateClockwise 12s infinite linear, 
+                shake 0.1s infinite;
+        }
+
+        /* Rotation type aiguille d'horloge */
+        @keyframes rotateClockwise {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tremblement (Shake) */
+        @keyframes shake {
+            0% { transform: rotate(inherit) translate(0, 0); }
+            25% { transform: rotate(inherit) translate(2px, -2px); }
+            50% { transform: rotate(inherit) translate(-2px, 2px); }
+            75% { transform: rotate(inherit) translate(2px, 2px); }
+            100% { transform: rotate(inherit) translate(-2px, -2px); }
+        }
+
+        .credits {
+            position: absolute;
+            bottom: 10px;
+            font-size: 12px;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            text-align: center;
+            display: none;
+        }
+
+        a { color: #00ffff; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay" onclick="startParty()">
+        <h1>PREME IN SCREEN VEL CLICKE SINISTRA UT INTRES IN CONVIVIUM</h1>
+        <p>(Press to enter the party)</p>
+<p>(Appuyez pour entrer dans la fête)</p>
+<p>(Pulsa para entrar en la fiesta)</p>
+<p>(Presione para entrar a la fiesta)</p>
+    </div>
+
+    <img id="creepy-svg" src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Creepy%20Smiley%20SVG.svg" alt="Creepy Smiley">
+
+    <div id="credits" class="credits">
+        Music by: edemson86 | License: CC0 1.0 <br>
+        Source: <a href="https://freesound.org/people/edemson86/sounds/322071/" target="_blank">Freesound.org</a>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Files/musics/322071__edemson86__rainbowdiscobears.ogg" type="audio/ogg">
+    </audio>
+
+    <script>
+        function startParty() {
+            // Masquer l'overlay
+            document.getElementById('overlay').style.display = 'none';
+            
+            // Activer le fond animé
+            document.body.classList.add('party-bg');
+            
+            // Afficher l'image et les crédits
+            document.getElementById('creepy-svg').style.display = 'block';
+            document.getElementById('credits').style.display = 'block';
+            
+            // Lancer la musique
+            const music = document.getElementById('bg-music');
+            music.play().catch(error => {
+                console.log("L'auto-play a été bloqué par le navigateur, mais l'interaction devrait l'autoriser.");
+            });
+        }
+    </script>
+</body>
+</html>
