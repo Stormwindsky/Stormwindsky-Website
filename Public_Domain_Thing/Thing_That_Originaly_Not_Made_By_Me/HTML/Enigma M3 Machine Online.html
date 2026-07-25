@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enigma M3 Online</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .config-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .config-item {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2980b9;
+        }
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            min-height: 50px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .rotor-select-group {
+            display: flex;
+            gap: 5px;
+        }
+        .rotor-select-group select {
+            flex: 1;
+        }
+        #notes-credits {
+            margin-top: 30px;
+            padding: 15px;
+            border-top: 1px solid #ccc;
+            font-size: 0.9em;
+            color: #666;
+        }
+        #notes-credits p {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enigma M3 Machine Online</h1>
+
+        <div class="config-group">
+            <div class="config-item">
+                <label for="rotors">Rotors (Left to Right)</label>
+                <div class="rotor-select-group">
+                    <select id="rotor1">
+                        <option value="I">I</option>
+                        <option value="II">II</option>
+                        <option value="III" selected>III</option>
+                        <option value="IV">IV</option>
+                        <option value="V">V</option>
+                    </select>
+                    <select id="rotor2">
+                        <option value="I">I</option>
+                        <option value="II" selected>II</option>
+                        <option value="III">III</option>
+                        <option value="IV">IV</option>
+                        <option value="V">V</option>
+                    </select>
+                    <select id="rotor3">
+                        <option value="I" selected>I</option>
+                        <option value="II">II</option>
+                        <option value="III">III</option>
+                        <option value="IV">IV</option>
+                        <option value="V">V</option>
+                    </select>
+                </div>
+            </div>
+            <div class="config-item">
+                <label for="reflector">Reflector</label>
+                <select id="reflector">
+                    <option value="B" selected>B</option>
+                    <option value="C">C</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="config-group">
+            <div class="config-item">
+                <label for="positions">Initial Positions (A-Z)</label>
+                <input type="text" id="positions" value="A,A,A" placeholder="Ex: A,B,C">
+            </div>
+            <div class="config-item">
+                <label for="steckerboard">Steckerboard (Pairs)</label>
+                <input type="text" id="steckerboard" value="" placeholder="Ex: AB,CD,EF (max 10 pairs)">
+            </div>
+        </div>
+
+        <label for="input-text">Text to Encrypt / Decrypt</label>
+        <textarea id="input-text" rows="5" placeholder="Enter your message here. Only A-Z letters will be processed. Spaces are converted to X."></textarea>
+
+        <button onclick="runEnigma()">Encrypt / Decrypt</button>
+
+        <h2>Result</h2>
+        <div id="output"></div>
+
+        <div id="notes-credits">
+            <h3 style="margin-top:0;">Notes & Credits (CC0 1.0 Universal / Public Domain)</h3>
+            <p>This Enigma M3 emulator is based on the Go project by <strong>mirkoperillo</strong> under the <strong>CC0 Public Domain Dedication</strong> license.</p>
+            <p>Original Project Source: <a href="https://github.com/mirkoperillo/enigma" target="_blank">https://github.com/mirkoperillo/enigma</a></p>
+            <p>This web-ported version is dedicated to the public domain under the <strong>CC0 1.0 Universal</strong> license.</p>
+            <p>Learn more about the Enigma machine: <a href="https://en.wikipedia.org/wiki/Enigma_machine" target="_blank">Enigma Machine on Wikipedia</a></p>
+        </div>
+    </div>
+
+    <script>
+        const LETTERS_IN_ALPHABET = 26;
+        const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        function Rotor(letters, notch) {
+            this.letters = letters;
+            this.notch = notch;
+        }
+
+        const rotorI = new Rotor('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'R');
+        const rotorII = new Rotor('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'F');
+        const rotorIII = new Rotor('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'W');
+        const rotorIV = new Rotor('ESOVPZJAYQUIRHXONFTGKDCMLW', 'K');
+        const rotorV = new Rotor('VZBRGITYUPSDNHLXAWMJQOFECG', 'A');
+        const reflectorB = new Rotor('YRUHQSLDPXNGOKMIEBFZCWVJAT', '0');
+        const reflectorC = new Rotor('FVPJIAOYEDRZXWNGCTKUQSBMHL', '0');
+
+        const availableRotors = {
+            'I': rotorI, 'II': rotorII, 'III': rotorIII, 'IV': rotorIV, 'V': rotorV
+        };
+        const availableReflectors = {
+            'B': reflectorB, 'C': reflectorC
+        };
+
+        function charToIndex(char) {
+            return char.charCodeAt(0) - 'A'.charCodeAt(0);
+        }
+
+        function indexToChar(index) {
+            return ALPHABET[index];
+        }
+
+        function normalizeMessage(msg) {
+            return msg.toUpperCase().replace(/[^A-Z]/g, '').replace(/ /g, 'X');
+        }
+
+        function parseSteckerboard(steckerInput) {
+            const plugs = {};
+            const pairs = steckerInput.toUpperCase().split(',').filter(p => p.length === 2 && /^[A-Z]{2}$/.test(p));
+            
+            for (const pair of pairs) {
+                const a = pair[0];
+                const b = pair[1];
+                if (plugs[a] || plugs[b] || a === b) continue;
+                plugs[a] = b;
+                plugs[b] = a;
+            }
+            return plugs;
+        }
+
+        function steckerboardEncrypt(letter, plugs) {
+            return plugs[letter] || letter;
+        }
+
+        class Enigma {
+            constructor(rotorIDs, reflectorID, positionsStr, steckerboardStr) {
+                this.rotors = rotorIDs.map(id => ({ rotor: availableRotors[id], id: id }));
+                this.reflector = availableReflectors[reflectorID];
+                this.positions = positionsStr.toUpperCase().split(',').map(c => charToIndex(c[0]));
+                this.steckerboard = parseSteckerboard(steckerboardStr);
+            }
+
+            rotorsMovement() {
+                const notch1 = charToIndex(this.rotors[1].rotor.notch);
+                const notch2 = charToIndex(this.rotors[2].rotor.notch);
+                const pos1 = this.positions[1];
+                const pos2 = this.positions[2];
+
+                if (pos1 === notch1) {
+                    this.positions[0] = (this.positions[0] + 1) % LETTERS_IN_ALPHABET;
+                }
+                
+                if (pos2 === notch2 || pos1 === notch1) {
+                    this.positions[1] = (this.positions[1] + 1) % LETTERS_IN_ALPHABET;
+                }
+
+                this.positions[2] = (this.positions[2] + 1) % LETTERS_IN_ALPHABET;
+            }
+
+            encryptLetter(inputLetter) {
+                this.rotorsMovement();
+                let char = inputLetter;
+
+                char = steckerboardEncrypt(char, this.steckerboard);
+                let signal = charToIndex(char);
+
+                for (let i = 2; i >= 0; i--) {
+                    const rotor = this.rotors[i].rotor;
+                    const pos = this.positions[i];
+                    let entryIndex = (signal + pos) % LETTERS_IN_ALPHABET;
+                    let exitIndex = charToIndex(rotor.letters[entryIndex]);
+                    signal = (exitIndex - pos + LETTERS_IN_ALPHABET) % LETTERS_IN_ALPHABET;
+                }
+
+                signal = charToIndex(this.reflector.letters[signal]);
+
+                for (let i = 0; i <= 2; i++) {
+                    const rotor = this.rotors[i].rotor;
+                    const pos = this.positions[i];
+                    let indexWithPos = (signal + pos) % LETTERS_IN_ALPHABET;
+                    let inverseEntryIndex = rotor.letters.indexOf(indexToChar(indexWithPos));
+                    signal = (inverseEntryIndex - pos + LETTERS_IN_ALPHABET) % LETTERS_IN_ALPHABET;
+                }
+
+                char = indexToChar(signal);
+                char = steckerboardEncrypt(char, this.steckerboard);
+
+                return char;
+            }
+
+            encrypt(message) {
+                let result = '';
+                for (const char of message) {
+                    if (char >= 'A' && char <= 'Z') {
+                        result += this.encryptLetter(char);
+                    }
+                }
+                return result;
+            }
+        }
+
+        function runEnigma() {
+            try {
+                const rotorIDs = [
+                    document.getElementById('rotor1').value,
+                    document.getElementById('rotor2').value,
+                    document.getElementById('rotor3').value
+                ];
+                const reflectorID = document.getElementById('reflector').value;
+                const positionsStr = document.getElementById('positions').value.toUpperCase().replace(/[^A-Z,]/g, '');
+                const steckerboardStr = document.getElementById('steckerboard').value.toUpperCase().replace(/[^A-Z,]/g, '');
+                const inputText = document.getElementById('input-text').value;
+
+                if (positionsStr.split(',').length !== 3 || positionsStr.match(/[A-Z]/g).length !== 3) {
+                    document.getElementById('output').innerHTML = "Error: Initial positions must be 3 comma-separated letters (e.g., A,B,C).";
+                    return;
+                }
+
+                const normalizedMessage = normalizeMessage(inputText);
+                
+                if (normalizedMessage.length === 0) {
+                     document.getElementById('output').innerHTML = "Please enter a message containing letters.";
+                     return;
+                }
+
+                const enigma = new Enigma(rotorIDs, reflectorID, positionsStr, steckerboardStr);
+                const encryptedMessage = enigma.encrypt(normalizedMessage);
+
+                document.getElementById('output').innerText = encryptedMessage;
+            } catch (e) {
+                document.getElementById('output').innerHTML = "An error occurred: " + e.message;
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

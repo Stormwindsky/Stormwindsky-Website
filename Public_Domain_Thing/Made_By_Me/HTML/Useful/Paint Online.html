@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Paint Online</title>
+  <style>
+    :root {
+      --bg-color: #f0f0f2;
+      --panel-bg: #ffffff;
+      --border-color: #cccccc;
+      --active-color: #007bff;
+      --text-color: #333333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background-color: var(--panel-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      z-index: 10;
+    }
+
+    .tool-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-right: 1px solid var(--border-color);
+      padding-right: 12px;
+    }
+
+    .tool-group:last-child {
+      border-right: none;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    button {
+      background: #f8f9fa;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      background: #e9ecef;
+    }
+
+    button.active {
+      background: var(--active-color);
+      color: white;
+      border-color: var(--active-color);
+    }
+
+    input[type="color"] {
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      background: none;
+    }
+
+    input[type="range"] {
+      width: 80px;
+      cursor: pointer;
+    }
+
+    #canvas-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      overflow: auto;
+      background: #e5e5e5;
+    }
+
+    canvas {
+      background-color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      cursor: crosshair;
+      border-radius: 2px;
+      /* Prevents touch scrolling on the canvas */
+      touch-action: none;
+    }
+
+    .size-indicator {
+      font-size: 0.8rem;
+      width: 24px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <!-- File Actions -->
+    <div class="tool-group">
+      <button id="btn-clear" title="Clear all">🗑️ Clear</button>
+      <button id="btn-save" title="Download image">💾 Save</button>
+      <button id="btn-load" title="Open an image">📂 Open</button>
+      <input type="file" id="file-input" accept="image/*" style="display:none">
+    </div>
+
+    <!-- History -->
+    <div class="tool-group">
+      <button id="btn-undo" title="Undo (Ctrl+Z)">↩️</button>
+      <button id="btn-redo" title="Redo (Ctrl+Y)">↪️</button>
+    </div>
+
+    <!-- Drawing Tools -->
+    <div class="tool-group">
+      <button id="tool-brush" class="active" title="Brush">🖌️ Brush</button>
+      <button id="tool-eraser" title="Eraser">🧽 Eraser</button>
+      <button id="tool-bucket" title="Paint Bucket">🪣 Fill</button>
+      <button id="tool-picker" title="Color Picker">🧪 Picker</button>
+      <button id="tool-line" title="Straight Line">📏 Line</button>
+      <button id="tool-rect" title="Rectangle">⬛ Rectangle</button>
+      <button id="tool-circle" title="Circle">⚪ Circle</button>
+    </div>
+
+    <!-- Color and Size Options -->
+    <div class="tool-group">
+      <label for="color-picker">Color:</label>
+      <input type="color" id="color-picker" value="#000000">
+      
+      <label for="size-slider" style="margin-left: 8px;">Size:</label>
+      <input type="range" id="size-slider" min="1" max="100" value="5">
+      <span class="size-indicator" id="size-val">5px</span>
+    </div>
+  </header>
+
+  <div id="canvas-container">
+    <canvas id="paint-canvas" width="1024" height="640"></canvas>
+  </div>
+
+  <script>
+    // CC0 1.0 - Pure JS Paint App (Mouse + Touch compatible)
+    const canvas = document.getElementById('paint-canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const colorPicker = document.getElementById('color-picker');
+    const sizeSlider = document.getElementById('size-slider');
+    const sizeVal = document.getElementById('size-val');
+
+    // App State
+    let currentTool = 'brush';
+    let isDrawing = false;
+    let startX = 0;
+    let startY = 0;
+    let snapshot = null;
+
+    // History
+    const historyStack = [];
+    const redoStack = [];
+    const MAX_HISTORY = 30;
+
+    // Initialization
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveState();
+
+    function saveState() {
+      if (historyStack.length >= MAX_HISTORY) {
+        historyStack.shift();
+      }
+      historyStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      redoStack.length = 0;
+    }
+
+    function undo() {
+      if (historyStack.length > 1) {
+        redoStack.push(historyStack.pop());
+        const state = historyStack[historyStack.length - 1];
+        ctx.putImageData(state, 0, 0);
+      }
+    }
+
+    function redo() {
+      if (redoStack.length > 0) {
+        const state = redoStack.pop();
+        historyStack.push(state);
+        ctx.putImageData(state, 0, 0);
+      }
+    }
+
+    sizeSlider.addEventListener('input', (e) => {
+      sizeVal.textContent = `${e.target.value}px`;
+    });
+
+    const toolButtons = document.querySelectorAll('.tool-group button[id^="tool-"]');
+    toolButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        toolButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTool = btn.id.replace('tool-', '');
+      });
+    });
+
+    // Extract coordinates (Mouse or Touch)
+    function getPointerPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      let clientX = e.clientX;
+      let clientY = e.clientY;
+
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      }
+
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
+    }
+
+    // Start action
+    function startDraw(e) {
+      isDrawing = true;
+      const pos = getPointerPos(e);
+      startX = pos.x;
+      startY = pos.y;
+
+      ctx.strokeStyle = currentTool === 'eraser' ? '#ffffff' : colorPicker.value;
+      ctx.fillStyle = colorPicker.value;
+      ctx.lineWidth = sizeSlider.value;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      if (currentTool === 'brush' || currentTool === 'eraser') {
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX, startY);
+        ctx.stroke();
+      } else if (currentTool === 'bucket') {
+        floodFill(Math.floor(startX), Math.floor(startY), colorPicker.value);
+        saveState();
+        isDrawing = false;
+      } else if (currentTool === 'picker') {
+        pickColor(Math.floor(startX), Math.floor(startY));
+        isDrawing = false;
+      }
+    }
+
+    // Move
+    function draw(e) {
+      if (!isDrawing) return;
+      const pos = getPointerPos(e);
+
+      if (currentTool === 'brush' || currentTool === 'eraser') {
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+      } else if (['line', 'rect', 'circle'].includes(currentTool)) {
+        ctx.putImageData(snapshot, 0, 0);
+        ctx.beginPath();
+
+        if (currentTool === 'line') {
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(pos.x, pos.y);
+        } else if (currentTool === 'rect') {
+          ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
+        } else if (currentTool === 'circle') {
+          const radius = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
+          ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+        }
+        ctx.stroke();
+      }
+    }
+
+    // Stop action
+    function stopDraw() {
+      if (isDrawing) {
+        isDrawing = false;
+        saveState();
+      }
+    }
+
+    // Mouse Events
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+
+    // Touch Events
+    canvas.addEventListener('touchstart', (e) => {
+      startDraw(e);
+      e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      draw(e);
+      e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      stopDraw();
+      e.preventDefault();
+    }, { passive: false });
+
+    // Flood Fill (Bucket)
+    function floodFill(startX, startY, fillColorHex) {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      const targetColor = getPixelColor(data, startX, startY);
+      const fillColor = hexToRgba(fillColorHex);
+
+      if (colorsMatch(targetColor, fillColor)) return;
+
+      const queue = [[startX, startY]];
+      const width = canvas.width;
+      const height = canvas.height;
+
+      while (queue.length > 0) {
+        const [x, y] = queue.pop();
+        const currentColor = getPixelColor(data, x, y);
+
+        if (colorsMatch(currentColor, targetColor)) {
+          setPixelColor(data, x, y, fillColor);
+
+          if (x > 0) queue.push([x - 1, y]);
+          if (x < width - 1) queue.push([x + 1, y]);
+          if (y > 0) queue.push([x, y - 1]);
+          if (y < height - 1) queue.push([x, y + 1]);
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    function getPixelColor(data, x, y) {
+      const index = (y * canvas.width + x) * 4;
+      return [data[index], data[index + 1], data[index + 2], data[index + 3]];
+    }
+
+    function setPixelColor(data, x, y, color) {
+      const index = (y * canvas.width + x) * 4;
+      data[index] = color[0];
+      data[index + 1] = color[1];
+      data[index + 2] = color[2];
+      data[index + 3] = 255;
+    }
+
+    function colorsMatch(c1, c2) {
+      return c1[0] === c2[0] && c1[1] === c2[1] && c1[2] === c2[2] && c1[3] === c2[3];
+    }
+
+    function hexToRgba(hex) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return [r, g, b, 255];
+    }
+
+    // Color Picker
+    function pickColor(x, y) {
+      const pixel = ctx.getImageData(x, y, 1, 1).data;
+      const hex = "#" + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1);
+      colorPicker.value = hex;
+      document.getElementById('tool-brush').click();
+    }
+
+    // Button Actions
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear the entire canvas?')) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        saveState();
+      }
+    });
+
+    document.getElementById('btn-save').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'my-drawing.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+
+    document.getElementById('btn-load').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        saveState();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    document.getElementById('btn-undo').addEventListener('click', undo);
+    document.getElementById('btn-redo').addEventListener('click', redo);
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z' || e.key === 'Z') {
+          if (e.shiftKey) redo();
+          else undo();
+          e.preventDefault();
+        } else if (e.key === 'y' || e.key === 'Y') {
+          redo();
+          e.preventDefault();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
