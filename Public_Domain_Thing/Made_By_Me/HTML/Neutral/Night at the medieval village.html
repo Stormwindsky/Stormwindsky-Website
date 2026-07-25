@@ -6,8 +6,9 @@
   
   http://creativecommons.org/publicdomain/zero/1.0/
 
-  Notice: External libraries (Three.js) loaded via CDN are governed 
-  by their respective licenses (Three.js is released under the MIT License).
+  LEGAL NOTICE ON THIRD-PARTY LIBRARIES:
+  - Three.js: Copyright © 2010-2026 Three.js Authors. Released under the MIT License.
+    https://github.com/mrdoob/three.js/blob/dev/LICENSE
 -->
 <html lang="en">
 <head>
@@ -145,11 +146,13 @@
             background: #121214;
             padding: 35px;
             border-radius: 28px;
-            max-width: 500px;
+            max-width: 550px;
+            max-height: 80vh;
+            overflow-y: auto;
             width: 90%;
             border: 1px solid #333;
             position: relative;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             line-height: 1.6;
         }
 
@@ -163,6 +166,12 @@
 
         a { color: var(--accent); text-decoration: none; }
         a:hover { text-decoration: underline; }
+        
+        .sound-entry {
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 2px solid var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -189,22 +198,45 @@
     <div id="credits-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2 style="font-family: 'Cinzel', serif; margin-top: 0;">Credits & Licensing</h2>
+            <h2 style="font-family: 'Cinzel', serif; margin-top: 0;">Credits & Legal Notices</h2>
             <hr style="border: 0.5px solid rgba(255,255,255,0.15); margin-bottom: 15px;">
             
-            <p><strong>Background Art:</strong><br>
-            <em>Night at my village</em> by Ranikhetboy.<br>
-            License: <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0 Universal (Public Domain)</a>.</p>
+            <p><strong>I. Visual Artwork</strong><br>
+            Title: <em>Night at my village</em><br>
+            Artist: Ranikhetboy<br>
+            License: <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">Creative Commons Zero (CC0 1.0 Universal)</a></p>
 
-            <p><strong>Audio Sources:</strong><br>
-            Sound effects created by <em>eniru</em>, <em>NaturesTemper</em>, and <em>Patrick_Corra</em>.<br>
-            License: <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0 Universal (Public Domain)</a>.</p>
+            <p><strong>II. Audio Assets</strong></p>
+            
+            <div class="sound-entry">
+                <strong>Sound:</strong> Wolf howl<br>
+                <strong>Credit:</strong> NaturesTemper<br>
+                <strong>Source:</strong> <a href="https://freesound.org/people/NaturesTemper/sounds/398430/" target="_blank" rel="noopener">Freesound (398430)</a><br>
+                <strong>License:</strong> CC0 1.0 Universal
+            </div>
 
-            <p><strong>Code & Project License:</strong><br>
-            This webpage script and its content are dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0 Universal</a>.</p>
+            <div class="sound-entry">
+                <strong>Sound:</strong> Deep wind night ambience in village<br>
+                <strong>Credit:</strong> eniru<br>
+                <strong>Source:</strong> <a href="https://freesound.org/people/eniru/sounds/640219/" target="_blank" rel="noopener">Freesound (640219)</a><br>
+                <strong>License:</strong> CC0 1.0 Universal
+            </div>
 
-            <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 15px;">
-                <em>Notice: 3D graphics rendered using <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a> (MIT License).</em>
+            <div class="sound-entry">
+                <strong>Sound:</strong> Tawny owl hooting<br>
+                <strong>Credit:</strong> Patrick Corrà (Freesound Username: Patrick_Corra)<br>
+                <strong>Source:</strong> <a href="https://freesound.org/people/Patrick_Corra/sounds/745208/" target="_blank" rel="noopener">Freesound (745208)</a><br>
+                <strong>License:</strong> CC0 1.0 Universal
+            </div>
+
+            <p><strong>III. Project License</strong><br>
+            This webpage script and original assets are dedicated to the public domain under the <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0 Universal Public Domain Dedication</a>.</p>
+
+            <p style="font-size: 0.8rem; opacity: 0.75; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                <strong>Third-Party Library Legal Notice:</strong><br>
+                3D particle effects rendered using <strong>Three.js</strong>.<br>
+                Copyright © 2010-2026 Three.js Authors.<br>
+                Released under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener">MIT License</a>.
             </p>
         </div>
     </div>
