@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<!--
+  To the extent possible under law, the author(s) have dedicated all copyright
+  and related and neighboring rights to this software to the public domain worldwide.
+  This software is distributed without any warranty.
+
+  You should have received a copy of the CC0 Legal Code along with this work.
+  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+
+  Notice: External libraries (such as Three.js) loaded via CDN are governed 
+  by their respective licenses (Three.js is released under the MIT License).
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow for Sleep | 3D & Legacy</title>
+    <style>
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: #000; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            color: white; 
+        }
+        
+        /* UI PANEL */
+        .ui-panel {
+            position: absolute; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            z-index: 1000; 
+            background: rgba(0, 0, 0, 0.85); 
+            padding: 20px 25px;
+            border-radius: 20px; 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center; 
+            min-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .slider-group { 
+            margin: 12px 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        .btn-toggle, .btn-credits {
+            background: #ffffff; 
+            color: #000000; 
+            border: none; 
+            padding: 10px 20px;
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin: 5px;
+            transition: background 0.2s ease;
+        }
+        .btn-toggle:hover, .btn-credits:hover {
+            background: #e0e0e0;
+        }
+        input[type=range] { 
+            width: 80%; 
+            cursor: pointer; 
+            accent-color: #ffffff; 
+        }
+
+        /* VIEWS */
+        #experience-3d { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 1; 
+            background: #000; 
+        }
+        
+        /* LEGACY VERSION STYLE */
+        #legacy-version { 
+            display: none; 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 2; 
+            background-image: url('https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/refs/heads/main/Tools/Snow%20for%20sleep/Snow.jpg');
+            background-size: cover; 
+            background-position: center;
+        }
+        #legacy-version::before {
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); 
+            z-index: 0;
+        }
+
+        .snowflake {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        @keyframes fall {
+            0% { top: -10px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* CREDITS MODAL */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 2000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); 
+            overflow-y: auto;
+        }
+        .modal-content {
+            background-color: #111111; 
+            margin: 8% auto; 
+            padding: 25px 30px; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 80%; 
+            max-width: 600px; 
+            border-radius: 16px; 
+            line-height: 1.6;
+            text-align: left;
+            color: #eee;
+            font-size: 0.95rem;
+        }
+        .close { 
+            color: #aaa; 
+            float: right; 
+            font-size: 24px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        .close:hover { color: #fff; }
+        a { color: #64b5f6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="experience-3d"></div>
+    <div id="legacy-version"></div>
+
+    <div class="ui-panel">
+        <h2 id="txt-title" style="margin: 0 0 10px 0; font-size: 1.25rem;">Snow for Sleep</h2>
+        <div class="slider-group">
+            <label id="txt-snow-vol" for="snowVol">Wind Volume</label>
+            <input type="range" id="snowVol" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 10px;">
+            <button class="btn-toggle" onclick="toggleVersion()" id="txt-btn-toggle">Switch to Legacy</button>
+            <button class="btn-credits" onclick="openModal()">Notes & Credits</button>
+        </div>
+    </div>
+
+    <!-- CREDITS MODAL -->
+    <div id="creditsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 style="margin-top: 0;">Public Domain & License Information</h3>
+            <hr style="border: 0.5px solid rgba(255,255,255,0.15);">
+            
+            <p><strong>I. Visual Artwork</strong><br>
+            Artwork Title: <em>Snow on the Sumida River (Sumida), from the series, Snow, Moon, and Flowers (Setsugekka)</em><br>
+            Artist: Katsushika Hokusai (Japanese, 1760–1849)<br>
+            Status: Public Domain (CC0 1.0 Universal)<br>
+            Source: <a href="https://commons.wikimedia.org/wiki/File:%E9%9B%AA%E6%9C%88%E8%8A%B1_%E9%9A%85%E7%94%B0-Snow_on_the_Sumida_River_(Sumida),_from_the_series,_Snow,_Moon,_and_Flowers_(Setsugekka)_MET_DP141240.jpg" target="_blank" rel="noopener">Wikimedia Commons</a></p>
+
+            <p><strong>II. Audio Source</strong><br>
+            Sound Title: <em>Howling winter storm ambient sounds (505999)</em><br>
+            Artist: DBlover<br>
+            Status: Public Domain (CC0 1.0 Universal)<br>
+            Source: <a href="https://freesound.org/people/DBlover/sounds/505999/" target="_blank" rel="noopener">Freesound</a></p>
+
+            <p><strong>III. Code & Licensing</strong><br>
+            This webpage script is dedicated to the public domain under the <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</a>.<br>
+            Engine Dependency: <a href="https://github.com/mrdoob/three.js" target="_blank" rel="noopener">Three.js</a> (Released under the MIT License).</p>
+            
+            <p style="font-size: 0.85rem; opacity: 0.75; margin-top: 15px;">
+                <em>Notice: Three.js is not licensed under CC0 1.0. The CC0 1.0 dedication applies exclusively to this project's custom source code and public domain assets. Third-party libraries like Three.js remain governed by their respective licenses (MIT License).</em>
+            </p>
+        </div>
+    </div>
+
+    <audio id="snowAudio" src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Tools/Snow%20for%20sleep/whiter.wav" loop></audio>
+
+    <script type="module">
+        /*
+          To the extent possible under law, the author(s) have dedicated all copyright
+          and related and neighboring rights to this software to the public domain worldwide.
+          CC0 1.0 Universal (CC0 1.0) Public Domain Dedication.
+
+          Note: External dependencies (Three.js) are subject to their own licenses (MIT License).
+        */
+
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+
+        // --- 3D ENGINE ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('experience-3d').appendChild(renderer.domElement);
+
+        const snowCount = 6000;
+        const snowGeo = new THREE.BufferGeometry();
+        const snowPos = new Float32Array(snowCount * 3);
+        const velocities = [];
+        for(let i = 0; i < snowCount * 3; i += 3) {
+            snowPos[i] = (Math.random() - 0.5) * 40; 
+            snowPos[i+1] = (Math.random() - 0.5) * 40; 
+            snowPos[i+2] = (Math.random() - 0.5) * 40;
+            velocities.push({ y: 0.01 + Math.random() * 0.02, x: 0.1 + Math.random() * 0.15 });
+        }
+        snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
+        const snowMap = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/circle.png');
+        const snowMat = new THREE.PointsMaterial({ size: 0.07, map: snowMap, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false });
+        const snow = new THREE.Points(snowGeo, snowMat);
+        scene.add(snow);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (document.getElementById('experience-3d').style.display !== 'none') {
+                const pos = snowGeo.attributes.position.array;
+                for(let i = 0; i < snowCount; i++) {
+                    const idx = i * 3; 
+                    pos[idx] -= velocities[i].x; 
+                    pos[idx+1] -= velocities[i].y;
+                    
+                    if(pos[idx+1] < -20) pos[idx+1] = 20; 
+                    if(pos[idx] < -20) pos[idx] = 20;
+                }
+                snowGeo.attributes.position.needsUpdate = true;
+                renderer.render(scene, camera);
+            }
+        }
+        animate();
+
+        // --- LEGACY ENGINE ---
+        const vLegacy = document.getElementById('legacy-version');
+        const numberOfSnowflakes = 100;
+
+        function createSnowflake() {
+            const snowflake = document.createElement('span');
+            snowflake.classList.add('snowflake');
+            const size = Math.random() * 5 + 2 + 'px';
+            snowflake.style.width = size;
+            snowflake.style.height = size;
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 10 + 5;
+            snowflake.style.animation = `fall ${duration}s linear infinite`;
+            const delay = Math.random() * -duration;
+            snowflake.style.animationDelay = `${delay}s`;
+            const windStrength = Math.random() * 10 - 5;
+            snowflake.style.transform = `translateX(${windStrength}px)`;
+            
+            vLegacy.appendChild(snowflake);
+        }
+
+        window.toggleVersion = () => {
+            const v3d = document.getElementById('experience-3d');
+            const is3D = v3d.style.display !== 'none';
+            const toggleBtn = document.getElementById('txt-btn-toggle');
+            
+            if (is3D) {
+                v3d.style.display = 'none';
+                vLegacy.style.display = 'block';
+                toggleBtn.innerText = "Switch to 3D";
+                for (let i = 0; i < numberOfSnowflakes; i++) { createSnowflake(); }
+            } else {
+                v3d.style.display = 'block';
+                vLegacy.style.display = 'none';
+                toggleBtn.innerText = "Switch to Legacy";
+                vLegacy.innerHTML = ''; // Clean up snowflakes on switch
+            }
+        };
+
+        const snowAudio = document.getElementById('snowAudio');
+        document.body.addEventListener('click', () => snowAudio.play().catch(() => {}), {once: true});
+        document.getElementById('snowVol').oninput = (e) => snowAudio.volume = e.target.value;
+        
+        window.openModal = () => document.getElementById('creditsModal').style.display = "block";
+        window.closeModal = () => document.getElementById('creditsModal').style.display = "none";
+        window.onclick = (e) => { if(e.target == document.getElementById('creditsModal')) closeModal(); }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
