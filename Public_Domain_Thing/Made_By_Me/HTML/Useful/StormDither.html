@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormDither | Retro Tool</title>
+    <style>
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --blue-main: #007aff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --radius: 24px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0; 
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+        }
+
+        header {
+            background: var(--card-white);
+            padding: 15px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .nav-controls { 
+            display: flex; 
+            gap: 10px; 
+        }
+
+        .theme-btn, .action-btn {
+            padding: 8px 15px; 
+            border-radius: 12px; 
+            border: 1px solid var(--text-dim);
+            background: var(--card-white); 
+            color: var(--text-dark); 
+            cursor: pointer;
+            font-weight: 600; 
+            outline: none;
+        }
+
+        .drop-zone {
+            background: var(--card-white);
+            border: 3px dashed var(--text-dim);
+            border-radius: var(--radius);
+            padding: 60px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            margin-bottom: 25px;
+        }
+
+        .drop-zone.drag-over { 
+            border-color: var(--blue-main); 
+            background: rgba(0, 122, 255, 0.05); 
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .editor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: var(--card-white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        canvas, img { 
+            max-width: 100%; 
+            border-radius: 12px; 
+            height: auto; 
+        }
+        
+        .hidden { 
+            display: none; 
+        }
+
+        footer { 
+            margin-top: 40px; 
+            text-align: center; 
+            color: var(--text-dim); 
+            font-size: 0.8rem; 
+            line-height: 1.5;
+        }
+
+        footer a {
+            color: var(--blue-main);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>StormDither</h2>
+        <div class="nav-controls">
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+        </div>
+    </header>
+
+    <div class="drop-zone" id="dropZone">
+        <span class="upload-icon">☁️</span>
+        <p id="txt-drop">Drag & Drop image here (No SVG/GIF)</p>
+        <input type="file" id="fileInput" class="hidden" accept="image/png, image/jpeg">
+    </div>
+
+    <div class="editor-grid">
+        <div class="bento-card">
+            <h4>Original</h4>
+            <div id="originalContainer"></div>
+        </div>
+        <div class="bento-card">
+            <h4>Retro Dither</h4>
+            <canvas id="outputCanvas"></canvas>
+            <br>
+            <button class="action-btn" id="downloadBtn" style="margin-top:10px">Download</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide under <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0 1.0 Universal</a>.</p>
+    </footer>
+</div>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const canvas = document.getElementById('outputCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // --- DITHERING ALGORITHM (Floyd-Steinberg) ---
+    function applyDither(imgData) {
+        const data = imgData.data;
+        const w = imgData.width;
+        const h = imgData.height;
+
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                let i = (y * w + x) * 4;
+                
+                // Find nearest color (Black or White)
+                let oldR = data[i], oldG = data[i+1], oldB = data[i+2];
+                let newR = oldR < 128 ? 0 : 255;
+                let newG = oldG < 128 ? 0 : 255;
+                let newB = oldB < 128 ? 0 : 255;
+                
+                data[i] = newR; 
+                data[i+1] = newG; 
+                data[i+2] = newB;
+
+                // Error diffusion
+                let errR = oldR - newR, errG = oldG - newG, errB = oldB - newB;
+                distErr(data, x+1, y, w, h, errR, errG, errB, 7/16);
+                distErr(data, x-1, y+1, w, h, errR, errG, errB, 3/16);
+                distErr(data, x, y+1, w, h, errR, errG, errB, 5/16);
+                distErr(data, x+1, y+1, w, h, errR, errG, errB, 1/16);
+            }
+        }
+        return imgData;
+    }
+
+    function distErr(data, x, y, w, h, er, eg, eb, factor) {
+        if (x < 0 || x >= w || y >= h) return;
+        let i = (y * w + x) * 4;
+        data[i] += er * factor; 
+        data[i+1] += eg * factor; 
+        data[i+2] += eb * factor;
+    }
+
+    // --- FILE HANDLING ---
+    dropZone.onclick = () => fileInput.click();
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        handleFile(e.dataTransfer.files[0]);
+    };
+    fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+    function handleFile(file) {
+        if (!file) return;
+        
+        if (file.type.includes('svg') || file.type.includes('gif')) {
+            alert("Format not supported (.svg / .gif)");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                document.getElementById('originalContainer').innerHTML = `<img src="${e.target.result}" alt="Original">`;
+                canvas.width = img.width; 
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                ctx.putImageData(applyDither(idata), 0, 0);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- INTERFACE / THEME ---
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeBtn(newTheme);
+    }
+
+    function updateThemeBtn(theme) {
+        const themeBtn = document.getElementById('themeBtn');
+        themeBtn.innerText = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+    }
+
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeBtn(savedTheme);
+    };
+
+    document.getElementById('downloadBtn').onclick = () => {
+        const link = document.createElement('a');
+        link.download = 'storm-dithered.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    };
+</script>
+</body>
+</html>
