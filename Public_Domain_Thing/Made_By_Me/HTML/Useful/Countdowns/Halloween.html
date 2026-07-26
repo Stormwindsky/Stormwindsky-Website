@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!--
+    Written in 2026 by the creator.
+    To the extent possible under law, the author(s) have dedicated all copyright 
+    and related and neighboring rights to this software to the public domain worldwide. 
+    This software is distributed without any warranty.
+
+    You should have received a copy of the CC0 Legal Code along with this work. 
+    If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halloween Countdown</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #000000, #1c0024, #2a1147);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            border: 2px solid #ff6600;
+            box-shadow: 0 10px 25px rgba(255, 102, 0, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ff6600, #800080);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: rgba(255, 102, 0, 0.2);
+            color: #ffaa00;
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+            min-width: 80px;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .countdown-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            color: #cccccc;
+        }
+
+        .leaf {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+            width: 15px;
+            height: 15px;
+            border-radius: 0 50% 50% 50%;
+            opacity: 0.7; 
+        }
+
+        .music-credit {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            z-index: 100;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .music-credit a {
+            color: #ff9900;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .countdown {
+                gap: 0.8rem;
+            }
+            
+            .countdown-number {
+                font-size: 2rem;
+                min-width: 60px;
+            }
+            
+            .countdown-label {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Halloween Countdown</h1>
+        <div class="countdown">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">Days</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="music-credit">
+        Music: "Lanterns in the Hollowed Forest" by Tsorthan Grove<br>
+        Released under <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank">CC0 1.0 Universal (Public Domain)</a><br>
+        Source: <a href="https://opengameart.org/content/lanterns-in-the-hollowed-forest" target="_blank">OpenGameArt.org</a>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://github.com/Stormwindsky/Stormwindsky-Website/raw/refs/heads/main/Public_Domain_Thing/Thing_I_NEVER_made/Musics%20&%20Sounds/OpenGameArtDotOrg/Tsorthan%20Grove/lanterns_in_the_hollowed_forest_loop.flac" type="audio/flac">
+    </audio>
+
+    <script>
+        function updateCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            let halloween = new Date(currentYear, 9, 31);
+            
+            if (now > halloween) {
+                halloween = new Date(currentYear + 1, 9, 31);
+            }
+            
+            const diff = halloween - now;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        
+        const leafColors = ['#ff4500', '#ffa500', '#8b0000', '#daaa00'];
+
+        function createLeaf() {
+            const leaf = document.createElement('div');
+            leaf.classList.add('leaf');
+            
+            leaf.style.backgroundColor = leafColors[Math.floor(Math.random() * leafColors.length)];
+
+            const size = Math.random() * 10 + 10;
+            leaf.style.width = `${size}px`;
+            leaf.style.height = `${size}px`;
+            
+            leaf.style.left = `${Math.random() * window.innerWidth}px`;
+            leaf.style.top = '-20px';
+            
+            leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            document.body.appendChild(leaf);
+            
+            const fallSpeed = Math.random() * 0.3 + 0.5;
+            const windSway = Math.random() * 10 + 5;
+            const rotationSpeed = Math.random() * 0.05 + 0.02;
+            const endPosition = window.innerHeight + 20;
+
+            let currentRotation = parseFloat(leaf.style.transform.replace('rotate(', '').replace('deg)', ''));
+            let currentXOffset = 0;
+            
+            const animate = () => {
+                let currentTop = parseFloat(leaf.style.top);
+                const progress = currentTop / endPosition;
+                
+                currentTop += fallSpeed;
+                leaf.style.top = `${currentTop}px`;
+                
+                currentXOffset = Math.sin(progress * Math.PI * 2) * windSway;
+                currentRotation += rotationSpeed;
+
+                leaf.style.transform = `translateX(${currentXOffset}px) rotate(${currentRotation}deg)`;
+                
+                if (currentTop < endPosition) {
+                    requestAnimationFrame(animate);
+                } else {
+                    leaf.remove();
+                }
+            };
+            
+            requestAnimationFrame(animate);
+        }
+        
+        setInterval(createLeaf, 250);
+
+        // Play audio on user interaction
+        document.addEventListener('click', function() {
+            const bgMusic = document.getElementById('bgMusic');
+            if (bgMusic.paused) {
+                bgMusic.volume = 0.4;
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
