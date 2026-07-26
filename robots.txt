@@ -1,2 +1,2 @@
 User-agent: *
-Disallow: /Useless%20thing/
+Disallow: /Stormwindsky's Collection.html/
