@@ -16,7 +16,7 @@
             --text-dim: #86868b;
             --radius: 24px;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            --ai-blue: #87CEEB; /* Bleu ciel pour l'IA */
+            --ai-blue: #87CEEB; /* Sky blue for AI and badges */
         }
 
         [data-theme="dark"] {
@@ -133,10 +133,10 @@
             gap: 5px;
         }
 
-        /* Badge pour le sous-dossier spécifié */
+        /* Badge for specific subfolders */
         .folder-badge {
-            background: #87CEEB; /* Bleu ciel */
-            color: white; /* Texte blanc */
+            background: #87CEEB; /* Sky blue */
+            color: white; /* White text */
             padding: 4px 10px;
             border-radius: 8px;
             font-size: 0.8rem;
@@ -229,22 +229,22 @@
 
 <script>
     const defaultLang = 'en';
-    let currentTranslations = {}; // Contiendra les traductions chargées
+    let currentTranslations = {}; 
     let currentMode = 'files';
     let showAI = false;
     let showPD = false;
-    const RAW_BASE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
 
-    // Charger un fichier JSON de langue dynamiquement
+    const RAW_BASE_ARTLIBRE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
+    const RAW_BASE_WEBSITE = "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/";
+
+    // Load language JSON dynamically
     async function loadLanguage(lang) {
         try {
-            // Requête vers le dossier /lang à la racine
             const response = await fetch(`./lang/${lang}.json`);
             if (!response.ok) throw new Error('Could not load translation file');
             
             currentTranslations = await response.json();
             
-            // Mettre à jour tous les éléments HTML ayant l'attribut data-i18n
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.getAttribute('data-i18n');
                 if (currentTranslations[key]) {
@@ -252,21 +252,16 @@
                 }
             });
 
-            // Gérer le placeholder de la barre de recherche dynamiquement
             const searchInput = document.getElementById('searchInput');
             if (searchInput && currentTranslations['search_placeholder']) {
                 searchInput.placeholder = currentTranslations['search_placeholder'];
             }
 
-            // Sauvegarder la langue préférée
             localStorage.setItem('preferredLang', lang);
             document.getElementById('langSelect').value = lang;
             document.documentElement.lang = lang;
 
-            // Mettre à jour le bouton de thème
             updateThemeButtonText();
-
-            // Re-charger les données de l'API pour mettre à jour la langue des éléments générés à la volée (ex: "Open Asset")
             fetchData(document.getElementById('searchInput').value);
 
         } catch (error) {
@@ -390,21 +385,34 @@
             pdBtn.style.display = 'block';
         }
 
-        const api = (currentMode === 'files') 
-            ? "https://api.github.com/repos/Stormwindsky/Stormwindsky-Website/git/trees/main?recursive=1"
-            : "https://api.github.com/repos/Stormwindsky/ArtLibre/git/trees/main?recursive=1";
-
         try {
-            const res = await fetch(api);
-            const data = await res.json();
-            let items = data.tree.filter(i => i.type === 'blob');
+            let items = [];
 
-            if(currentMode === 'files') items = items.filter(i => i.path.endsWith('.html'));
-            else if(currentMode === 'images') items = items.filter(i => i.path.match(/\.(jpg|jpeg|png|gif|svg|JPG)$/i));
-            else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
-            else if(currentMode === 'videos') items = items.filter(i => i.path.match(/\.(mp4|webm)$/i));
+            if (currentMode === 'files') {
+                const api = "https://api.github.com/repos/Stormwindsky/Stormwindsky-Website/git/trees/main?recursive=1";
+                const res = await fetch(api);
+                const data = await res.json();
+                items = data.tree.filter(i => i.type === 'blob' && i.path.endsWith('.html')).map(i => ({ ...i, repoSource: 'website_files' }));
+            } else {
+                // Fetch from ArtLibre repo
+                const apiArtLibre = "https://api.github.com/repos/Stormwindsky/ArtLibre/git/trees/main?recursive=1";
+                const resArtLibre = await fetch(apiArtLibre);
+                const dataArtLibre = await resArtLibre.json();
+                let itemsArtLibre = dataArtLibre.tree.filter(i => i.type === 'blob').map(i => ({ ...i, repoSource: 'artlibre' }));
 
-            if (currentMode !== 'files') {
+                // Fetch from Stormwindsky-Website repo (CC0 1.0 Content)
+                const apiWebsite = "https://api.github.com/repos/Stormwindsky/Stormwindsky-Website/git/trees/main?recursive=1";
+                const resWebsite = await fetch(apiWebsite);
+                const dataWebsite = await resWebsite.json();
+                const cc0FolderPath = "Public_Domain_Thing/Made_By_Me/Audios_And_Images_And_Other/";
+                let itemsWebsite = dataWebsite.tree.filter(i => i.type === 'blob' && i.path.startsWith(cc0FolderPath)).map(i => ({ ...i, repoSource: 'website_cc0' }));
+
+                items = [...itemsArtLibre, ...itemsWebsite];
+
+                if(currentMode === 'images') items = items.filter(i => i.path.match(/\.(jpg|jpeg|png|gif|svg|JPG)$/i));
+                else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
+                else if(currentMode === 'videos') items = items.filter(i => i.path.match(/\.(mp4|webm)$/i));
+
                 if (!showAI) {
                     items = items.filter(i => !i.path.includes('AI Creations'));
                 }
@@ -434,12 +442,18 @@
             card.className = 'bento-card';
             const isAI = item.path.includes('AI Creations');
             
-            const url = (currentMode === 'files') 
-                ? `https://stormwindsky.com/${item.path}` 
-                : RAW_BASE + item.path;
+            let url = "";
+            if (item.repoSource === 'website_files') {
+                url = `https://stormwindsky.com/${item.path}`;
+            } else if (item.repoSource === 'website_cc0') {
+                url = RAW_BASE_WEBSITE + encodeURI(item.path);
+            } else {
+                url = RAW_BASE_ARTLIBRE + encodeURI(item.path);
+            }
             
             let content = `<div><small style="opacity:0.5">${currentMode.toUpperCase()}</small><h3>${item.path.split('/').pop()}</h3>`;
             
+            // Subfolder badges for ArtLibre
             const targetPrefix = "ArtLibre/ArtLibre/files/";
             if (item.path.startsWith(targetPrefix)) {
                 const relativePath = item.path.substring(targetPrefix.length);
@@ -447,6 +461,27 @@
                 if (pathParts.length > 1) {
                     const subFolderName = pathParts[0];
                     content += `<div class="folder-badge">${subFolderName}</div>`;
+                }
+            }
+
+            // Subfolder badges for Sound, Music, Video, Bad (4 fun), Corruption (4 fun), etc.
+            const cc0FolderPath = "Public_Domain_Thing/Made_By_Me/Audios_And_Images_And_Other/";
+            if (item.path.startsWith(cc0FolderPath)) {
+                const relativePath = item.path.substring(cc0FolderPath.length);
+                const pathParts = relativePath.split('/');
+                
+                if (pathParts.length > 1) {
+                    // Check if file is nested inside Video subdirectories
+                    if (pathParts[0] === "Video") {
+                        if (pathParts.length > 2) {
+                            // Displays "Bad (4 fun)", "Corruption (4 fun)", etc.
+                            content += `<div class="folder-badge">${pathParts[1]}</div>`;
+                        } else {
+                            content += `<div class="folder-badge">Video</div>`;
+                        }
+                    } else {
+                        content += `<div class="folder-badge">${pathParts[0]}</div>`;
+                    }
                 }
             }
 
@@ -496,7 +531,6 @@
             document.getElementById('searchInput').value = queryParam;
         }
 
-        // Charger les traductions et lier avec les langues
         loadLanguage(savedLang);
     };
 </script>
