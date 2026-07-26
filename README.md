@@ -34,6 +34,10 @@ CC0 1.0 License:
 
 https://github.com/Stormwindsky/OeuvreLibre
 
+& also
+
+https://github.com/Stormwindsky/Stormwindsky-Website/tree/main/Public_Domain_Thing
+
 Attribution 3.0:
 
 https://github.com/Stormwindsky/Attribution-3.0-Unported-Files-used-for-my-website
