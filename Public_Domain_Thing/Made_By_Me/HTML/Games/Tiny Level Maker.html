@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<!--
+  Tiny Level Builder (Single-Screen)
+  License: CC0 1.0 Universal (Public Domain Dedication)
+  https://creativecommons.org/publicdomain/zero/1.0/
+
+  Credits & Sources (CC0 1.0):
+  - Overworld Theme by Louswan (https://opengameart.org/content/overworld-theme-0)
+  - Cave Theme by Frenchyboy (https://opengameart.org/content/8-bit-cave-loop-0)
+  - Castle / Mad Mad World Theme by MintoDog (https://opengameart.org/content/castle-stage)
+  - Jump SFX by jalastram (https://opengameart.org/content/8-bit-jump-1)
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiny Level Builder (CC0 1.0)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #1a1a24;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 24px;
+      color: #e2e8f0;
+      letter-spacing: 1px;
+    }
+
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      background: #2d3748;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 800px;
+      background: #1a202c;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .btn {
+      background-color: #4a5568;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: #718096;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-mode {
+      background-color: #3182ce;
+    }
+
+    .btn-mode:hover:not(:disabled) {
+      background-color: #2b6cb0;
+    }
+
+    .btn-danger {
+      background-color: #e53e3e;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background-color: #c53030;
+    }
+
+    .select-theme {
+      background-color: #2d3748;
+      color: #ffffff;
+      border: 1px solid #4a5568;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .select-theme:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .tile-palette {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: #2d3748;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .tile-btn {
+      width: 32px;
+      height: 32px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .tile-btn.selected {
+      border-color: #f6e05e;
+      transform: scale(1.1);
+    }
+
+    .tile-erase { background-color: #4a5568; }
+    .tile-block { background-color: #d69e2e; }
+    .tile-player { background-color: #000000; border: 1px solid #718096; }
+    .tile-goal { background-color: #38a169; }
+    .tile-hazard { background-color: #e53e3e; }
+
+    canvas {
+      background-color: #5380e6;
+      border-radius: 4px;
+      border: 2px solid #4a5568;
+      cursor: pointer;
+      display: block;
+    }
+
+    .code-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .code-modal-content {
+      background: #2d3748;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      background: #1a202c;
+      color: #38a169;
+      border: 1px solid #4a5568;
+      padding: 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      resize: none;
+    }
+
+    .controls-hint {
+      font-size: 12px;
+      color: #a0aec0;
+      text-align: center;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Tiny Level Builder</h1>
+
+  <div id="game-container">
+    <div class="toolbar">
+      <button id="mode-btn" class="btn btn-mode">Mode: EDITOR</button>
+      
+      <select id="theme-select" class="select-theme" title="Select Theme">
+        <option value="overworld">Theme: Overworld</option>
+        <option value="cave">Theme: Cave</option>
+        <option value="castle">Theme: Mad Mad World</option>
+      </select>
+
+      <div id="palette" class="tile-palette">
+        <div class="tile-btn tile-erase selected" data-tile="0" title="Eraser (Air)">Air</div>
+        <div class="tile-btn tile-block" data-tile="1" title="Solid Block">Wall</div>
+        <div class="tile-btn tile-player" data-tile="2" title="Player Start Position">Start</div>
+        <div class="tile-btn tile-goal" data-tile="3" title="Goal (Win)">Goal</div>
+        <div class="tile-btn tile-hazard" data-tile="4" title="Hazard (Lava/Spike)">Spike</div>
+      </div>
+
+      <button id="clear-btn" class="btn btn-danger">Clear</button>
+      <button id="code-btn" class="btn">Level Code (Export/Import)</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="480"></canvas>
+
+    <div class="controls-hint">
+      <strong>Play Controls (QWERTY & Arrows):</strong> Move: [A] / [D] or [Left] / [Right] | Jump: [W] or [Up] or [Space]
+    </div>
+  </div>
+
+  <!-- Level Code Import/Export Modal -->
+  <div id="codeModal" class="code-modal">
+    <div class="code-modal-content">
+      <h2>Level Code</h2>
+      <p style="font-size: 13px; color: #cbd5e0;">Copy your level code to save/share, or paste a new code below to load a level:</p>
+      <textarea id="levelCodeText"></textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="applyCodeBtn" class="btn btn-mode">Load Code</button>
+        <button id="closeModalBtn" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- CANVAS & GRID SETUP ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const TILE_SIZE = 32;
+    const COLS = canvas.width / TILE_SIZE; // 25 columns
+    const ROWS = canvas.height / TILE_SIZE; // 15 rows
+
+    // Tile Types: 0: Air, 1: Block, 2: Player Start, 3: Goal, 4: Hazard
+    let levelGrid = [];
+
+    // --- AUDIO CONFIGURATION ---
+    const JUMP_SFX_URL = 'https://github.com/Stormwindsky/Stormwindsky-Website/raw/refs/heads/main/Public_Domain_Thing/Thing_I_NEVER_made/Musics%20&%20Sounds/OpenGameArtDotOrg/jalastram/SFX_Jump_02.wav';
+
+    function playJumpSound() {
+      const jumpAudio = new Audio(JUMP_SFX_URL);
+      jumpAudio.play().catch(e => console.log('Audio playback prevented by browser:', e));
+    }
+
+    const THEMES = {
+      overworld: {
+        background: '#5380e6',
+        blockFill: '#d69e2e',
+        blockStroke: '#b7791f',
+        audioUrl: 'https://github.com/Stormwindsky/Stormwindsky-Website/raw/refs/heads/main/Public_Domain_Thing/Thing_I_NEVER_made/Musics%20&%20Sounds/OpenGameArtDotOrg/Louswan/platformer.ogg'
+      },
+      cave: {
+        background: '#0d0d15',
+        blockFill: '#2b6cb0',
+        blockStroke: '#1a365d',
+        audioUrl: 'https://github.com/Stormwindsky/Stormwindsky-Website/raw/refs/heads/main/Public_Domain_Thing/Thing_I_NEVER_made/Musics%20&%20Sounds/OpenGameArtDotOrg/Frenchyboy/CaveLoop.wav'
+      },
+      castle: {
+        background: '#220000',
+        blockFill: '#742a2a',
+        blockStroke: '#4a1515',
+        audioUrl: 'https://github.com/Stormwindsky/Stormwindsky-Website/raw/refs/heads/main/Public_Domain_Thing/Thing_I_NEVER_made/Musics%20&%20Sounds/OpenGameArtDotOrg/MintoDog/castle_stage_bpm180.mp3'
+      }
+    };
+
+    let currentTheme = 'overworld';
+    let currentAudio = null;
+
+    function playThemeAudio(themeKey) {
+      stopThemeAudio();
+      const theme = THEMES[themeKey];
+      if (theme && theme.audioUrl) {
+        currentAudio = new Audio(theme.audioUrl);
+        currentAudio.loop = true;
+        currentAudio.play().catch(e => console.log('Audio playback prevented by browser:', e));
+      }
+    }
+
+    function stopThemeAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+    }
+
+    function initDefaultGrid() {
+      levelGrid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+      
+      // Default ground
+      for (let c = 0; c < COLS; c++) {
+        levelGrid[ROWS - 1][c] = 1;
+      }
+      // Default Start & Goal
+      levelGrid[ROWS - 2][2] = 2; // Player
+      levelGrid[ROWS - 2][COLS - 3] = 3; // Goal
+    }
+
+    // --- STATE MANAGEMENT ---
+    let isPlayMode = false;
+    let selectedTile = 0; // Default: Air
+    let isMouseDown = false;
+
+    // --- PLAYER PHYSICS STATE ---
+    let player = {
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      width: 26,
+      height: 26,
+      grounded: false,
+      startCol: 2,
+      startRow: 13
+    };
+
+    const GRAVITY = 0.5;
+    const MOVE_SPEED = 4;
+    const JUMP_FORCE = -10;
+
+    const keys = {
+      left: false,
+      right: false,
+      jump: false
+    };
+
+    // --- INITIALIZATION ---
+    initDefaultGrid();
+    findPlayerStart();
+
+    // --- EVENT LISTENERS ---
+    
+    // Palette selection
+    document.querySelectorAll('.tile-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tile-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedTile = parseInt(btn.dataset.tile);
+      });
+    });
+
+    // Theme Selector
+    const themeSelect = document.getElementById('theme-select');
+    themeSelect.addEventListener('change', (e) => {
+      currentTheme = e.target.value;
+    });
+
+    // Mode Toggle
+    const modeBtn = document.getElementById('mode-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const palette = document.getElementById('palette');
+
+    modeBtn.addEventListener('click', toggleMode);
+
+    function toggleMode() {
+      isPlayMode = !isPlayMode;
+      if (isPlayMode) {
+        modeBtn.textContent = 'Mode: PLAYING (Click to Edit)';
+        modeBtn.style.backgroundColor = '#38a169';
+        palette.style.opacity = '0.4';
+        palette.style.pointerEvents = 'none';
+        clearBtn.disabled = true;
+        themeSelect.disabled = true;
+        resetPlayerToStart();
+        playThemeAudio(currentTheme);
+      } else {
+        modeBtn.textContent = 'Mode: EDITOR';
+        modeBtn.style.backgroundColor = '#3182ce';
+        palette.style.opacity = '1';
+        palette.style.pointerEvents = 'auto';
+        clearBtn.disabled = false;
+        themeSelect.disabled = false;
+        stopThemeAudio();
+      }
+    }
+
+    // Clear Canvas
+    clearBtn.addEventListener('click', () => {
+      if (isPlayMode) return;
+      if (confirm('Are you sure you want to clear the level?')) {
+        levelGrid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+      }
+    });
+
+    // Modal / Level Code Management
+    const codeModal = document.getElementById('codeModal');
+    const levelCodeText = document.getElementById('levelCodeText');
+
+    document.getElementById('code-btn').addEventListener('click', () => {
+      levelCodeText.value = exportLevelCode();
+      codeModal.style.display = 'flex';
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      codeModal.style.display = 'none';
+    });
+
+    document.getElementById('applyCodeBtn').addEventListener('click', () => {
+      if (importLevelCode(levelCodeText.value)) {
+        codeModal.style.display = 'none';
+        findPlayerStart();
+      } else {
+        alert('Invalid level code string!');
+      }
+    });
+
+    // Canvas Interactions (Editing)
+    canvas.addEventListener('mousedown', (e) => {
+      if (isPlayMode) return;
+      isMouseDown = true;
+      placeTile(e);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isPlayMode || !isMouseDown) return;
+      placeTile(e);
+    });
+
+    window.addEventListener('mouseup', () => isMouseDown = false);
+
+    function placeTile(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const col = Math.floor(x / TILE_SIZE);
+      const row = Math.floor(y / TILE_SIZE);
+
+      if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+        // Enforce single player start tile
+        if (selectedTile === 2) {
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+              if (levelGrid[r][c] === 2) levelGrid[r][c] = 0;
+            }
+          }
+        }
+        levelGrid[row][col] = selectedTile;
+      }
+    }
+
+    // Keyboard Controls (QWERTY A/D/W + Arrows)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
+      if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
+      if (e.code === 'KeyW' || e.code === 'ArrowUp' || e.code === 'Space') keys.jump = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
+      if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
+      if (e.code === 'KeyW' || e.code === 'ArrowUp' || e.code === 'Space') keys.jump = false;
+    });
+
+    // --- LEVEL CODE IMPORT / EXPORT (Includes Theme) ---
+    function exportLevelCode() {
+      const gridStr = levelGrid.map(row => row.join(',')).join('|');
+      return `${currentTheme};${gridStr}`;
+    }
+
+    function importLevelCode(codeStr) {
+      try {
+        const parts = codeStr.trim().split(';');
+        let themeKey = 'overworld';
+        let gridData = '';
+
+        if (parts.length === 2) {
+          themeKey = parts[0];
+          gridData = parts[1];
+        } else {
+          gridData = parts[0]; // Backward compatibility for old codes
+        }
+
+        const rows = gridData.split('|');
+        if (rows.length !== ROWS) return false;
+        
+        const newGrid = [];
+        for (let r = 0; r < ROWS; r++) {
+          const cols = rows[r].split(',').map(Number);
+          if (cols.length !== COLS || cols.some(isNaN)) return false;
+          newGrid.push(cols);
+        }
+
+        levelGrid = newGrid;
+        if (THEMES[themeKey]) {
+          currentTheme = themeKey;
+          themeSelect.value = themeKey;
+        }
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    // --- GAME LOGIC & PHYSICS ---
+    function findPlayerStart() {
+      player.startCol = 2;
+      player.startRow = ROWS - 2;
+
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (levelGrid[r][c] === 2) {
+            player.startCol = c;
+            player.startRow = r;
+            return;
+          }
+        }
+      }
+    }
+
+    function resetPlayerToStart() {
+      findPlayerStart();
+      player.x = player.startCol * TILE_SIZE + (TILE_SIZE - player.width) / 2;
+      player.y = player.startRow * TILE_SIZE + (TILE_SIZE - player.height);
+      player.vx = 0;
+      player.vy = 0;
+      player.grounded = false;
+    }
+
+    function updatePlayer() {
+      if (!isPlayMode) return;
+
+      // Horizontal movement
+      if (keys.left) player.vx = -MOVE_SPEED;
+      else if (keys.right) player.vx = MOVE_SPEED;
+      else player.vx = 0;
+
+      // Jump
+      if (keys.jump && player.grounded) {
+        player.vy = JUMP_FORCE;
+        player.grounded = false;
+        playJumpSound(); // Play jump sound effect
+      }
+
+      // Apply Gravity
+      player.vy += GRAVITY;
+
+      // Move X & Check Collision
+      player.x += player.vx;
+      checkTileCollisions(true);
+
+      // Move Y & Check Collision
+      player.y += player.vy;
+      player.grounded = false;
+      checkTileCollisions(false);
+
+      // Canvas boundary check
+      if (player.x < 0) player.x = 0;
+      if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+      if (player.y > canvas.height) {
+        // Fell out of bounds -> Respawn
+        resetPlayerToStart();
+      }
+    }
+
+    function checkTileCollisions(isHorizontal) {
+      const leftCol = Math.floor(player.x / TILE_SIZE);
+      const rightCol = Math.floor((player.x + player.width - 1) / TILE_SIZE);
+      const topRow = Math.floor(player.y / TILE_SIZE);
+      const bottomRow = Math.floor((player.y + player.height - 1) / TILE_SIZE);
+
+      for (let r = topRow; r <= bottomRow; r++) {
+        for (let c = leftCol; c <= rightCol; c++) {
+          if (r < 0 || r >= ROWS || c < 0 || c >= COLS) continue;
+
+          const tile = levelGrid[r][c];
+
+          // 3: Goal Tile (Green Square)
+          if (tile === 3) {
+            alert('🎉 Level Cleared! Great job!');
+            toggleMode();
+            return;
+          }
+
+          // 4: Hazard (Red Spike)
+          if (tile === 4) {
+            resetPlayerToStart();
+            return;
+          }
+
+          // 1: Solid Wall Block
+          if (tile === 1) {
+            if (isHorizontal) {
+              if (player.vx > 0) player.x = c * TILE_SIZE - player.width;
+              else if (player.vx < 0) player.x = (c + 1) * TILE_SIZE;
+            } else {
+              if (player.vy > 0) {
+                player.y = r * TILE_SIZE - player.height;
+                player.vy = 0;
+                player.grounded = true;
+              } else if (player.vy < 0) {
+                player.y = (r + 1) * TILE_SIZE;
+                player.vy = 0;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // --- RENDERING ---
+    function drawGrid() {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 1;
+      for (let c = 0; c <= COLS; c++) {
+        ctx.beginPath();
+        ctx.moveTo(c * TILE_SIZE, 0);
+        ctx.lineTo(c * TILE_SIZE, canvas.height);
+        ctx.stroke();
+      }
+      for (let r = 0; r <= ROWS; r++) {
+        ctx.beginPath();
+        ctx.moveTo(0, r * TILE_SIZE);
+        ctx.lineTo(canvas.width, r * TILE_SIZE);
+        ctx.stroke();
+      }
+    }
+
+    function render() {
+      const activeTheme = THEMES[currentTheme] || THEMES.overworld;
+
+      // Clear background based on selected theme
+      ctx.fillStyle = activeTheme.background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Grid in Editor Mode
+      if (!isPlayMode) {
+        drawGrid();
+      }
+
+      // Draw Tiles
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const tile = levelGrid[r][c];
+          const x = c * TILE_SIZE;
+          const y = r * TILE_SIZE;
+
+          if (tile === 1) {
+            // Solid Wall Block (Colors adapt to theme)
+            ctx.fillStyle = activeTheme.blockFill;
+            ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            ctx.strokeStyle = activeTheme.blockStroke;
+            ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+          } else if (tile === 2) {
+            // Player Start Marker (In Editor mode)
+            if (!isPlayMode) {
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+              ctx.fillRect(x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+              ctx.strokeStyle = '#000000';
+              ctx.strokeRect(x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+            }
+          } else if (tile === 3) {
+            // Goal Square (Green Square)
+            ctx.fillStyle = '#38a169';
+            ctx.fillRect(x + 2, y + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+            ctx.strokeStyle = '#276749';
+            ctx.strokeRect(x + 2, y + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+          } else if (tile === 4) {
+            // Hazard (Red Triangle Spike)
+            ctx.fillStyle = '#e53e3e';
+            ctx.beginPath();
+            ctx.moveTo(x + TILE_SIZE / 2, y + 4);
+            ctx.lineTo(x + TILE_SIZE - 4, y + TILE_SIZE);
+            ctx.lineTo(x + 4, y + TILE_SIZE);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+      }
+
+      // Draw Player (Black Square) in Play Mode
+      if (isPlayMode) {
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+      }
+    }
+
+    // --- MAIN GAME LOOP ---
+    function gameLoop() {
+      updatePlayer();
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start loop
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
