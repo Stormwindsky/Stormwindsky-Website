@@ -5,6 +5,8 @@ This is my website. The content is licensed under the MIT license, except for th
 
 which are all licensed under CC0 1.0.
 
+and also Public_Domain_Scripts_things these are licensed under the MIT-0 license and SHOULD NOT BE CONFUSED WITH THE MIT LICENSE
+
 except
 
 Here: https://www.stormwindsky.com
