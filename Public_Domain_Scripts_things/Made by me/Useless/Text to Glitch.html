@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<!--
+  MIT No Attribution (MIT-0)
+
+  Copyright (c) 2026 Stormwindsky
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this
+  software and associated documentation files (the "Software"), to deal in the Software
+  without restriction, including without limitation the rights to use, copy, modify,
+  merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+  INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Glitch</title>
+    <style>
+        :root {
+            --bg-body: #0a0a0a;
+            --card-dark: #1c1c1e;
+            --matrix-green: #00ff41;
+            --matrix-glow: rgba(0, 255, 65, 0.3);
+            --text-dark: #f5f5f7;
+            --text-dim: #86868b;
+            --accent-pink: #f0f;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        /* Discreet animated background grid */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            from { background-position: 0 0; }
+            to { background-position: 30px 30px; }
+        }
+
+        .container {
+            max-width: 800px; 
+            width: 100%;
+            background: var(--card-dark);
+            padding: 40px;
+            border-radius: 35px;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        h1 {
+            font-weight: 800; 
+            font-size: 2rem; 
+            margin-bottom: 25px;
+            color: var(--matrix-green);
+            text-shadow: 0 0 10px var(--matrix-glow);
+            text-align: center;
+        }
+
+        .input-group { 
+            margin-bottom: 25px; 
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 10px; 
+            font-weight: 600; 
+            color: var(--text-dim); 
+            font-size: 0.9rem; 
+        }
+
+        textarea {
+            width: 100%; 
+            min-height: 120px;
+            background: #000; 
+            border: 1px solid #333;
+            border-radius: 15px; 
+            padding: 15px;
+            color: var(--matrix-green); 
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem; 
+            resize: vertical; 
+            outline: none;
+        }
+
+        textarea:focus { 
+            border-color: var(--matrix-green); 
+            box-shadow: 0 0 10px var(--matrix-glow); 
+        }
+
+        .slider-container {
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            background: rgba(255,255,255,0.05);
+            padding: 15px; 
+            border-radius: 15px; 
+            margin-bottom: 25px;
+        }
+
+        input[type="range"] { 
+            flex-grow: 1; 
+            accent-color: var(--matrix-green); 
+            cursor: pointer; 
+        }
+
+        .btn-main {
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 15px; 
+            border: none;
+            background: var(--matrix-green); 
+            color: #000;
+            font-weight: 800; 
+            font-size: 1rem; 
+            cursor: pointer;
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+        }
+
+        .btn-main:hover { 
+            transform: scale(1.02); 
+            filter: brightness(1.1); 
+            box-shadow: 0 0 20px var(--matrix-glow); 
+        }
+
+        .result-box {
+            background: #000; 
+            border: 1px dashed var(--accent-pink);
+            border-radius: 15px; 
+            padding: 20px; 
+            min-height: 80px;
+            position: relative; 
+            word-wrap: break-word;
+            font-family: 'Fira Code', monospace; 
+            color: var(--matrix-green);
+        }
+
+        .copy-btn {
+            margin-top: 15px; 
+            background: transparent; 
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim); 
+            padding: 8px 15px; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .copy-btn:hover { 
+            border-color: var(--matrix-green); 
+            color: var(--matrix-green); 
+        }
+
+        footer { 
+            margin-top: 40px; 
+            text-align: center; 
+            font-size: 0.75rem; 
+            color: var(--text-dim); 
+        }
+
+        /* Glitch effect on title hover */
+        .glitch-text:hover { 
+            animation: glitch 0.3s infinite; 
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); text-shadow: 2px 0 var(--accent-pink); }
+            40% { transform: translate(-2px, -2px); text-shadow: -2px 0 #0ff; }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="txt-title" class="glitch-text">Text to Glitch</h1>
+        
+        <div class="input-group">
+            <label for="inputText">Enter your text:</label>
+            <textarea id="inputText" placeholder="Type or paste your text here..."></textarea>
+        </div>
+        
+        <div class="input-group">
+            <label>Glitch Intensity</label>
+            <div class="slider-container">
+                <input type="range" id="glitchLevel" min="1" max="10" value="5">
+                <span id="levelValue" style="font-family: 'Fira Code'; color: var(--matrix-green);">5</span>
+            </div>
+        </div>
+        
+        <button id="convertBtn" class="btn-main">CONVERT_SYSTEM.EXE</button>
+        
+        <div class="input-group">
+            <label>Corrupted Output:</label>
+            <div id="result" class="result-box"></div>
+            <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <footer id="txt-footer">
+        Released under the <a href="https://spdx.org/licenses/MIT-0.html" target="_blank" rel="noopener" style="color: var(--matrix-green);">MIT No Attribution (MIT-0) License</a>
+    </footer>
+
+    <script>
+        /*
+          This Software is released under the MIT No Attribution (MIT-0) License.
+        */
+        const glitchChars = {
+            'a': ['ā', 'ă', 'ą', 'ǎ', 'а', 'ä', 'å', 'α', 'ά', 'ὰ', 'ⱥ', 'ɑ', 'ᴀ', 'ạ', 'ả', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ'],
+            'b': ['ƅ', 'ɓ', 'ḃ', 'ḅ', 'ḇ', 'ƀ', 'ᵬ', 'ᶀ', 'ʙ', 'в', 'ъ', 'ь', 'Ꮟ', '฿'],
+            'c': ['ć', 'ĉ', 'ċ', 'č', 'ƈ', 'с', 'ç', 'ḉ', 'ᴄ', '¢', '€', 'ⅽ', '⊂', 'Ↄ'],
+            'd': ['ď', 'đ', 'ƌ', 'ɖ', 'ɗ', 'ḋ', 'ḍ', 'ḏ', 'ḑ', 'ḓ', 'ᵭ', 'ᴅ', '∂', 'ꓓ'],
+            'e': ['ē', 'ĕ', 'ė', 'ę', 'ě', 'ȅ', 'ȩ', 'ḕ', 'ḗ', 'ẹ', 'ẻ', 'ẽ', 'ế', 'ề', 'ể', 'ễ', 'ệ', 'є', 'ε', 'ё'],
+            'f': ['ƒ', 'ḟ', 'ᵮ', 'ᶂ', 'ꜰ', 'ꬵ', 'ꟻ', 'ꓞ', 'ᖴ', 'ﬀ', 'ﬁ'],
+            'g': ['ĝ', 'ğ', 'ġ', 'ģ', 'ǥ', 'ǧ', 'ǵ', 'ɠ', 'ḡ', 'ɢ', 'ɡ', 'ց', 'Ꮆ', 'ꓖ'],
+            'h': ['ĥ', 'ħ', 'ȟ', 'ḣ', 'ḥ', 'ḧ', 'ḩ', 'ḫ', 'ʰ', 'ʜ', 'н', 'հ', 'Ꮒ', 'ᚺ', 'ꓧ'],
+            'i': ['ī', 'ĭ', 'į', 'ǐ', 'ȉ', 'ɨ', 'ḭ', 'ḯ', 'ỉ', 'ị', 'ɪ', 'і', 'ї', 'ι', 'ί', 'ἰ', 'ῖ'],
+            'j': ['ĵ', 'ǰ', 'ȷ', 'ɉ', 'ʝ', 'ᴊ', 'ј', 'յ', 'Ꭻ', 'ꓙ'],
+            'k': ['ķ', 'ǩ', 'ḱ', 'ḳ', 'ḵ', 'ƙ', 'ᴋ', 'к', 'κ', 'ќ', 'Ꮶ', 'ꓗ'],
+            'l': ['ĺ', 'ļ', 'ľ', 'ŀ', 'ł', 'ƚ', 'ȴ', 'ɫ', 'ɬ', 'ḷ', 'ḹ', 'ḻ', 'ʟ', 'ℓ', 'ꓡ'],
+            'm': ['ḿ', 'ṁ', 'ṃ', 'ɱ', 'ᵯ', 'ᴍ', 'м', 'μ', 'Ꮇ', 'ꓟ'],
+            'n': ['ñ', 'ń', 'ņ', 'ň', 'ŋ', 'ǹ', 'ɲ', 'ɳ', 'ṅ', 'ṇ', 'ṉ', 'ɴ', 'ᴎ', 'п', 'π', 'ն', 'Ꮑ'],
+            'o': ['ō', 'ŏ', 'ő', 'ȍ', 'ȫ', 'ȭ', 'ọ', 'ỏ', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ớ', 'ờ', 'ᴏ', 'о', 'ο', 'ө'],
+            'p': ['ṕ', 'ṗ', 'ƥ', 'ᵱ', 'ᵽ', 'ᴘ', 'р', 'ρ', 'թ', 'Ꭾ', 'ꓑ'],
+            'q': ['ɋ', 'ʠ', 'ᵠ', 'ꝗ', 'ꝙ'],
+            'r': ['ŕ', 'ŗ', 'ř', 'ȑ', 'ȓ', 'ɍ', 'ɽ', 'ɾ', 'ṙ', 'ṛ', 'ṟ', 'ʀ', 'ʁ', 'ᴙ', 'г', 'я', 'Ꮢ'],
+            's': ['ś', 'ŝ', 'ş', 'š', 'ș', 'ṡ', 'ṣ', 'ʂ', 'ᵴ', 'ꜱ', 'ꞅ', 'ꮪ'],
+            't': ['ţ', 'ť', 'ŧ', 'ƫ', 'ƭ', 'ț', 'ʈ', 'ṫ', 'ṭ', 'ṯ', 'ᴛ', 'т', 'τ', 'Ꭲ', 'ꓔ'],
+            'u': ['ū', 'ŭ', 'ů', 'ű', 'ų', 'ư', 'ǔ', 'ȕ', 'Ʉ', 'ʉ', 'ṳ', 'ụ', 'ủ', 'ứ', 'ừ', 'ử', 'ᴜ', 'у', 'υ'],
+            'v': ['ṽ', 'ṿ', 'ʋ', 'ᴠ', 'ν', 'ѵ', 'Ꮩ', 'ꓦ'],
+            'w': ['ŵ', 'ẁ', 'ẃ', 'ẅ', 'ẇ', 'ẉ', 'ʍ', 'ᴡ', 'ш', 'щ', 'Ꮃ', 'ꓪ'],
+            'x': ['ẋ', 'ẍ', 'ₓ', 'ᶍ', 'ᴋ', 'х', 'χ', 'ጀ', 'ꓫ'],
+            'y': ['ý', 'ÿ', 'ŷ', 'ȳ', 'ɏ', 'ẏ', 'ỳ', 'ỵ', 'ỷ', 'ỹ', 'ʏ', 'ʎ', 'ƴ', 'у', 'γ', 'Ꭹ'],
+            'z': ['ź', 'ż', 'ž', 'ƶ', 'ȥ', 'ɀ', 'ʐ', 'ʑ', 'ẑ', 'ẓ', 'ᴢ', 'з', 'ζ', 'Ꮓ']
+        };
+
+        function textToGlitch(text, level) {
+            let result = '';
+            for (let char of text) {
+                const lowerChar = char.toLowerCase();
+                if (glitchChars[lowerChar] && Math.random() < (level * 0.1)) {
+                    const variants = glitchChars[lowerChar];
+                    result += variants[Math.floor(Math.random() * variants.length)];
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        // DOM Elements
+        const input = document.getElementById('inputText');
+        const levelSlider = document.getElementById('glitchLevel');
+        const levelVal = document.getElementById('levelValue');
+        const resultDiv = document.getElementById('result');
+        const convertBtn = document.getElementById('convertBtn');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Update displayed intensity value
+        levelSlider.addEventListener('input', () => {
+            levelVal.innerText = levelSlider.value;
+        });
+
+        // Process function
+        const process = () => {
+            if (input.value) {
+                resultDiv.innerText = textToGlitch(input.value, levelSlider.value);
+            } else {
+                resultDiv.innerText = "";
+            }
+        };
+
+        // Event listeners
+        convertBtn.addEventListener('click', process);
+        input.addEventListener('input', process);
+
+        // Copy functionality
+        copyBtn.addEventListener('click', function() {
+            const text = resultDiv.innerText;
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    this.innerText = "Copied!";
+                    setTimeout(() => this.innerText = "Copy to Clipboard", 2000);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
