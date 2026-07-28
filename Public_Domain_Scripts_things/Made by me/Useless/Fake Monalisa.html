@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--
+  MIT No Attribution (MIT-0)
+
+  Copyright (c) 2026 Stormwindsky
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this
+  software and associated documentation files (the "Software"), to deal in the Software
+  without restriction, including without limitation the rights to use, copy, modify,
+  merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+  INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Monalisa</title>
+    <style>
+        /* General styling */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            transition: background-color 0.2s ease;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Background animation: Flashes red then returns to black over 2 seconds */
+        @keyframes flashBackground {
+            0% { background-color: red; }
+            100% { background-color: black; }
+        }
+
+        .flashing {
+            animation: flashBackground 2s forwards;
+        }
+
+        /* Start overlay - Opaque black */
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black; /* Fully black background */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Central image (Monalisa) - Violent shaking */
+        .monalisa {
+            width: 300px;
+            z-index: 2;
+            animation: shake 0.1s infinite;
+        }
+
+        /* Orbiting images (Eyes) */
+        .orbiting-eye {
+            position: absolute;
+            width: 80px;
+            z-index: 3;
+            /* Combines orbit and slight shaking */
+            animation: orbit 4s linear infinite, mini-shake 0.2s infinite;
+        }
+
+        /* Offset for the 4 eyes along the circle */
+        .eye1 { animation-delay: 0s, 0s; }
+        .eye2 { animation-delay: 1s, 0s; }
+        .eye3 { animation-delay: 2s, 0s; }
+        .eye4 { animation-delay: 3s, 0s; }
+
+        /* Animation: Violent shaking */
+        @keyframes shake {
+            0% { transform: translate(3px, 3px) rotate(0deg); }
+            20% { transform: translate(-4px, -3px) rotate(-2deg); }
+            40% { transform: translate(-2px, -2px) rotate(2deg); }
+            60% { transform: translate(4px, 2px) rotate(0deg); }
+            80% { transform: translate(-2px, -2px) rotate(-2deg); }
+            100% { transform: translate(2px, 3px) rotate(0deg); }
+        }
+
+        /* Animation: Light shaking for the eyes */
+        @keyframes mini-shake {
+            0% { margin-top: 1px; }
+            50% { margin-top: -1px; }
+            100% { margin-top: 1px; }
+        }
+
+        /* Animation: Circular orbit (200px radius) */
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(200px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(200px) rotate(-360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-overlay">
+        <h1 style="letter-spacing: 5px;">CLICCA UT SPECTACULUM INTRAS</h1>
+    </div>
+
+    <div class="container">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/Fake%20Monalisa%20(Originaly%20made%20by%20Robert%20Henri).png" 
+             alt="Fake Monalisa" class="monalisa">
+
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye1">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye2">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye3">
+        <img src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/my%20creepy%20eye%202.png" class="orbiting-eye eye4">
+    </div>
+
+    <audio id="background-audio" src="https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/ArtLibre/ArtLibre/files/hell%20hell%20hell%20hell%20hell%20hell.wav"></audio>
+
+    <script>
+        /*
+          This Software is released under the MIT No Attribution (MIT-0) License.
+        */
+        const audio = document.getElementById('background-audio');
+        const body = document.body;
+        const overlay = document.getElementById('start-overlay');
+
+        // Function to trigger red flash (2s total duration via CSS)
+        function triggerFlash() {
+            body.classList.remove('flashing');
+            void body.offsetWidth; // Hack to restart CSS animation
+            body.classList.add('flashing');
+        }
+
+        // Action on clicking the black overlay
+        overlay.addEventListener('click', () => {
+            overlay.style.display = 'none'; // Hide the overlay screen
+            audio.play();
+            triggerFlash();
+            
+            // Periodically repeat the red flash (e.g., every 6 seconds)
+            setInterval(triggerFlash, 6000);
+        });
+
+        // Audio loop management with a 5-second pause between repeats
+        audio.addEventListener('ended', () => {
+            setTimeout(() => {
+                audio.play();
+                triggerFlash(); // Optional: flash again when audio restarts
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
