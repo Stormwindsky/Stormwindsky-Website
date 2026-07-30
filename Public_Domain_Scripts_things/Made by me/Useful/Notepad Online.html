@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormNotepad | Notepad Online</title>
+    <style>
+        /* --- FONT INTEGRATION --- */
+        @font-face {
+            font-family: 'Unitblock';
+            src: url('https://cdn.jsdelivr.net/gh/Stormwindsky/Public-Domain-thing-not-made-by-me@main/PublicDomain_thing/Fonts/Unitblock.ttf') format('truetype');
+        }
+
+        /* --- BENTO UI SYSTEM --- */
+        :root {
+            --bg-body: #f0f0f0;
+            --card-white: #ffffff;
+            --blue-main: #007aff;
+            --text-dark: #1d1d1f;
+            --text-dim: #86868b;
+            --radius: 24px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --status-success: #d4edda;
+            --status-error: #f8d7da;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --card-white: #1c1c1e;
+            --text-dark: #f5f5f7;
+            --text-dim: #a1a1a6;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Unitblock', -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0; padding: 20px;
+            transition: all 0.3s ease;
+            height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; flex-grow: 1; }
+
+        header {
+            background: var(--card-white);
+            padding: 15px 30px; border-radius: var(--radius);
+            box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-controls { display: flex; gap: 10px; align-items: center; }
+
+        .notepad-card {
+            background: var(--card-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px; flex-grow: 1; display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
+        }
+
+        textarea {
+            width: 100%; height: 100%; border: none; background: transparent;
+            color: var(--text-dark); font-size: 1.1rem; line-height: 1.6;
+            resize: none; outline: none; font-family: 'Consolas', monospace;
+        }
+
+        .controls-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-top: 20px; padding-top: 20px;
+            border-top: 1px solid var(--text-dim);
+        }
+
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+        button, select, input[type="text"] {
+            padding: 10px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
+            background: var(--card-white); color: var(--text-dark); cursor: pointer;
+            font-weight: 600; transition: 0.2s; font-size: 0.9rem;
+        }
+
+        button:hover { background: var(--blue-main); color: white; border-color: var(--blue-main); }
+
+        .status-message {
+            padding: 10px; border-radius: 12px; margin-bottom: 10px; display: none;
+            font-weight: 600; font-size: 0.9rem;
+        }
+        .status-success { background: var(--status-success); color: #155724; }
+        .status-error { background: var(--status-error); color: #721c24; }
+
+        .tts-panel {
+            background: var(--bg-body); padding: 15px; border-radius: 15px;
+            margin-top: 15px; display: none; gap: 10px; align-items: center; flex-wrap: wrap;
+        }
+
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: var(--card-white); margin: 10% auto; padding: 30px;
+            border-radius: var(--radius); width: 80%; max-width: 500px; text-align: center;
+        }
+
+        #downloadFilesBtn { background: #28a745; color: white; border: none; display: none; }
+        #createZipBtn { background: #17a2b8; color: white; border: none; display: none; }
+        
+        .drop-overlay {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 122, 255, 0.8); color: white;
+            justify-content: center; align-items: center; font-size: 2rem; z-index: 10;
+        }
+        .drop-overlay.active { display: flex; }
+
+        footer { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2 id="txt-site-title">StormNotepad</h2>
+        <div class="nav-controls">
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        </div>
+    </header>
+
+    <main class="notepad-card" id="dropZone">
+        <div class="drop-overlay" id="dropOverlay">DROP FILE HERE</div>
+        <div id="statusMessage" class="status-message"></div>
+        
+        <textarea id="editor" placeholder="Start typing..."></textarea>
+
+        <div class="tts-panel" id="ttsControls">
+            <select id="ttsVoice"></select>
+            <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
+            <button onclick="startTTS()">Play</button>
+            <button onclick="stopTTS()">Stop</button>
+        </div>
+
+        <div class="controls-panel">
+            <div class="btn-group">
+                <select id="fileFormat" onchange="toggleCustomFormat()">
+                    <option value="txt">.txt</option>
+                    <option value="html">.html</option>
+                    <option value="js">.js</option>
+                    <option value="json">.json</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="text" id="customFormat" placeholder="ext" style="display:none; width:60px">
+                <button onclick="saveAsFile()" id="txt-save-file">Save File</button>
+                <button onclick="saveAsURL()" id="txt-save-url">Save URL</button>
+            </div>
+
+            <div class="btn-group">
+                <button onclick="document.getElementById('fileInput').click()" id="txt-load">Load</button>
+                <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect(event)">
+                <button id="kitsBtn" onclick="showKitsModal()">Kits</button>
+                <button onclick="toggleTTSControls()">TTS</button>
+            </div>
+
+            <div class="btn-group" style="justify-content: flex-end;">
+                <span id="urlCounter" style="font-size: 0.8rem; margin-right: 10px;">0 Items</span>
+                <button id="downloadFilesBtn" onclick="confirmDownload()">Download Files</button>
+                <button id="createZipBtn" onclick="createZipFromNotepad()">Create .ZIP</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Stormwindsky (MIT-0 Public Domain)</p>
+    </footer>
+</div>
+
+<div id="kitsModal" class="modal">
+    <div class="modal-content">
+        <h3 id="txt-kits-title">Select Kit</h3>
+        <div class="btn-group" style="justify-content:center; margin-top:20px">
+            <button onclick="insertKit('zip')" style="background:#17a2b8; color:white">ZIP Creation</button>
+            <button onclick="insertKit('html')" style="background:#dc3545; color:white">HTML Page</button>
+            <button onclick="insertKit('json')" style="background:#ffc107">JSON Example</button>
+            <button onclick="closeKitsModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <h3 id="txt-confirm-title">Confirm Download?</h3>
+        <p id="txt-confirm-body">No security guarantee for external links.</p>
+        <div class="btn-group" style="justify-content:center">
+            <button onclick="proceedDownload()" style="background:#28a745; color:white">Yes</button>
+            <button onclick="cancelDownload()">No</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+    const kits = {
+        zip: `*CZ = MyProject*\n*F = mods*\n*File = https://example.com/mod.jar*\n*end*`,
+        html: `<!DOCTYPE html>\n<html>\n<body>\n<h1>Hello</h1>\n</body>\n</html>`,
+        json: `{\n  "name": "StormProject",\n  "version": "1.0"\n}`
+    };
+
+    let detectedUrls = [];
+
+    function detectURLs() {
+        const text = document.getElementById('editor').value;
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const urls = text.match(urlRegex) || [];
+        detectedUrls = [...urls];
+        document.getElementById('urlCounter').innerText = `${detectedUrls.length} Items`;
+        document.getElementById('downloadFilesBtn').style.display = detectedUrls.length > 0 ? 'inline-block' : 'none';
+        const hasZipTags = text.includes('*CZ =') && text.includes('*end*');
+        document.getElementById('createZipBtn').style.display = hasZipTags ? 'inline-block' : 'none';
+    }
+
+    async function createZipFromNotepad() {
+        const text = document.getElementById('editor').value;
+        showStatusMessage("Creating ZIP...");
+        const lines = text.split('\n');
+        const zip = new JSZip();
+        let zipName = "project";
+        let currentFolder = zip;
+        for(let line of lines) {
+            line = line.trim();
+            if(line.startsWith('*CZ =')) zipName = line.substring(5).trim();
+            if(line.startsWith('*F =')) currentFolder = zip.folder(line.substring(4).trim());
+            if(line.startsWith('*File =')) {
+                let url = line.substring(7).trim().replace(/\*$/, '');
+                try {
+                    const res = await fetch(url);
+                    const blob = await res.blob();
+                    currentFolder.file(url.split('/').pop(), blob);
+                } catch(e) { console.error("Error fetching: " + url); }
+            }
+            if(line === '*end*') currentFolder = zip;
+        }
+        zip.generateAsync({type: 'blob'}).then(c => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(c);
+            link.download = zipName + ".zip";
+            link.click();
+            showStatusMessage("ZIP Ready!", false);
+        });
+    }
+
+    function showStatusMessage(msg, isError = false) {
+        const s = document.getElementById('statusMessage');
+        s.innerText = msg;
+        s.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
+        s.style.display = 'block';
+        setTimeout(() => s.style.display = 'none', 3000);
+    }
+
+    function toggleTheme() {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }
+
+    function handleFileSelect(e) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            document.getElementById('editor').value = event.target.result;
+            detectURLs();
+        };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    function showKitsModal() { document.getElementById('kitsModal').style.display = 'block'; }
+    function closeKitsModal() { document.getElementById('kitsModal').style.display = 'none'; }
+    function insertKit(type) {
+        document.getElementById('editor').value = kits[type];
+        closeKitsModal();
+        detectURLs();
+    }
+
+    function confirmDownload() { document.getElementById('confirmationModal').style.display = 'block'; }
+    function cancelDownload() { document.getElementById('confirmationModal').style.display = 'none'; }
+    function proceedDownload() { cancelDownload(); }
+
+    function toggleCustomFormat() {
+        document.getElementById('customFormat').style.display = 
+            document.getElementById('fileFormat').value === 'custom' ? 'inline-block' : 'none';
+    }
+
+    function saveAsFile() {
+        const text = document.getElementById('editor').value;
+        const formatSelect = document.getElementById('fileFormat').value;
+        let extension = formatSelect;
+        if (formatSelect === 'custom') {
+            extension = document.getElementById('customFormat').value || 'txt';
+        }
+        const blob = new Blob([text], {type: 'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `note.${extension}`;
+        a.click();
+    }
+
+    function saveAsURL() {
+        const text = document.getElementById('editor').value;
+        try {
+            const base64 = btoa(unescape(encodeURIComponent(text)));
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?data=" + base64;
+            window.history.pushState({path: newUrl}, '', newUrl);
+            showStatusMessage("URL Updated!");
+        } catch (e) {
+            showStatusMessage("Error saving URL", true);
+        }
+    }
+
+    function loadFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('data');
+        if (data) {
+            try {
+                const decoded = decodeURIComponent(escape(atob(data)));
+                document.getElementById('editor').value = decoded;
+                detectURLs();
+            } catch (e) { console.error("URL Decode Error"); }
+        }
+    }
+
+    window.onload = () => {
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+        loadFromURL();
+        document.getElementById('editor').addEventListener('input', detectURLs);
+    };
+</script>
+</body>
+</html>
