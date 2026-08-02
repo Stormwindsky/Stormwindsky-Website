@@ -1,5 +1,3 @@
-# WARNING This website is currently being updated.
-
 # Stormwindsky Website
 This is my website. The content is licensed under the MIT license, except for the “Public_Domain_Thing” folder and its subfolders,
 
