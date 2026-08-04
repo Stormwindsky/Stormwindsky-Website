@@ -194,7 +194,7 @@
         <h2 id="txt-site-title" style="margin:0" data-i18n="collection_site_title">StormExplorer</h2>
         <div class="nav-controls">
             <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()" data-i18n="ai_btn">Show AI Creations</button>
-            <button id="pdToggleBtn" class="pd-toggle-btn inactive" onclick="togglePD()" data-i18n="pd_btn">Public Domain art i based or i edited</button>
+            <button id="pdToggleBtn" class="pd-toggle-btn inactive" onclick="togglePD()" data-i18n="pd_btn">Thing not really made by me but i edited</button>
             
             <select id="langSelect" onchange="changeLanguage(this.value)">
                 <option value="en">English</option>
@@ -341,7 +341,7 @@
     async function fetchPdReadme() {
         const contentDiv = document.getElementById('pd-readme-content');
         try {
-            const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/OeuvreLibre/refs/heads/main/ArtLibre/ArtLibre/files/Public%20Domain%20Edit%20or%20Based%20i%20made/readme.md");
+            const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/refs/heads/main/Public_Domain_Thing/Thing_That_Originaly_Not_Made_By_Me/Popup.md");
             const text = await res.text();
             contentDiv.innerText = text;
         } catch (e) { contentDiv.innerText = "Error loading Readme."; }
@@ -405,9 +405,13 @@
                 const resWebsite = await fetch(apiWebsite);
                 const dataWebsite = await resWebsite.json();
                 const cc0FolderPath = "Public_Domain_Thing/Made_By_Me/Audios_And_Images_And_Other/";
-                let itemsWebsite = dataWebsite.tree.filter(i => i.type === 'blob' && i.path.startsWith(cc0FolderPath)).map(i => ({ ...i, repoSource: 'website_cc0' }));
+                let itemsWebsiteCC0 = dataWebsite.tree.filter(i => i.type === 'blob' && i.path.startsWith(cc0FolderPath)).map(i => ({ ...i, repoSource: 'website_cc0' }));
 
-                items = [...itemsArtLibre, ...itemsWebsite];
+                // Fetch from Stormwindsky-Website repo (Edited/Not Originally Made By Me Content)
+                const editedFolderPath = "Public_Domain_Thing/Thing_That_Originaly_Not_Made_By_Me/Audios_And_Images_And_Other/";
+                let itemsWebsiteEdited = dataWebsite.tree.filter(i => i.type === 'blob' && i.path.startsWith(editedFolderPath)).map(i => ({ ...i, repoSource: 'website_cc0' }));
+
+                items = [...itemsArtLibre, ...itemsWebsiteCC0, ...itemsWebsiteEdited];
 
                 if(currentMode === 'images') items = items.filter(i => i.path.match(/\.(jpg|jpeg|png|gif|svg|JPG)$/i));
                 else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
@@ -417,7 +421,7 @@
                     items = items.filter(i => !i.path.includes('AI Creations'));
                 }
                 if (!showPD) {
-                    items = items.filter(i => !i.path.includes('Public Domain Edit or Based i made'));
+                    items = items.filter(i => !i.path.includes('Thing_That_Originaly_Not_Made_By_Me') && !i.path.includes('Public Domain Edit or Based i made'));
                 }
             }
 
@@ -464,17 +468,34 @@
                 }
             }
 
-            // Subfolder badges for Sound, Music, Video, Bad (4 fun), Corruption (4 fun), etc.
+            // Subfolder badges for CC0 "Made_By_Me" assets
             const cc0FolderPath = "Public_Domain_Thing/Made_By_Me/Audios_And_Images_And_Other/";
             if (item.path.startsWith(cc0FolderPath)) {
                 const relativePath = item.path.substring(cc0FolderPath.length);
                 const pathParts = relativePath.split('/');
                 
                 if (pathParts.length > 1) {
-                    // Check if file is nested inside Video subdirectories
                     if (pathParts[0] === "Video") {
                         if (pathParts.length > 2) {
-                            // Displays "Bad (4 fun)", "Corruption (4 fun)", etc.
+                            content += `<div class="folder-badge">${pathParts[1]}</div>`;
+                        } else {
+                            content += `<div class="folder-badge">Video</div>`;
+                        }
+                    } else {
+                        content += `<div class="folder-badge">${pathParts[0]}</div>`;
+                    }
+                }
+            }
+
+            // Subfolder badges for "Thing_That_Originaly_Not_Made_By_Me" assets
+            const editedFolderPath = "Public_Domain_Thing/Thing_That_Originaly_Not_Made_By_Me/Audios_And_Images_And_Other/";
+            if (item.path.startsWith(editedFolderPath)) {
+                const relativePath = item.path.substring(editedFolderPath.length);
+                const pathParts = relativePath.split('/');
+                
+                if (pathParts.length > 1) {
+                    if (pathParts[0] === "Video") {
+                        if (pathParts.length > 2) {
                             content += `<div class="folder-badge">${pathParts[1]}</div>`;
                         } else {
                             content += `<div class="folder-badge">Video</div>`;
