@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSD Community - Rules</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0d0b0d;
+            --container-bg: #161214;
+            --text-color: #e6edf3;
+            --accent-color: #ff4d4d;
+            --accent-hover: #e60000;
+            --border-color: #362226;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Lightweight Animated Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.35;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 90%;
+            margin: 40px 20px;
+            padding: 40px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.08);
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        #content {
+            line-height: 1.6;
+        }
+
+        #content h1, #content h2 { 
+            border-bottom: 1px solid var(--border-color); 
+            padding-bottom: 0.3em; 
+            color: var(--accent-color);
+        }
+
+        #content a { 
+            color: var(--accent-color); 
+            text-decoration: none; 
+        }
+
+        #content a:hover { 
+            text-decoration: underline; 
+        }
+
+        #content code { 
+            background: #24191c; 
+            padding: 0.2em 0.4em; 
+            border-radius: 6px; 
+            color: #ff9999;
+        }
+
+        #content pre { 
+            background: #0a0809; 
+            padding: 16px; 
+            border-radius: 8px; 
+            overflow: auto; 
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-github {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .btn-github:hover {
+            background-color: var(--accent-hover);
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 0.85em;
+            text-align: center;
+            color: #8b7d82;
+        }
+
+        .loader {
+            border: 4px solid #291a1d;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <h1>👿 BSD Community Rules 👿</h1>
+            <a href="https://github.com/Stormwindsky/Linux-Community-Gamejolt-Rules-and-Other-thing" class="btn-github" target="_blank">
+                View on GitHub
+            </a>
+        </header>
+
+        <div id="loader" class="loader"></div>
+        <div id="content"></div>
+
+        <footer>
+            <p>BSDCGJ-Rules.md & README.md & Archives.md are licensed under <strong>CC0 1.0 Universal</strong></p>
+            <p>This page interface is licensed under <strong>MIT License</strong></p>
+        </footer>
+    </div>
+
+    <script>
+        // --- ANIMATED BACKGROUND LOGIC (Red Particles) ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedY = Math.random() * 0.5;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255, 77, 77, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initBg() {
+            for (let i = 0; i < 50; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        initBg();
+        animate();
+
+        // --- FETCH MARKDOWN FILE LOGIC ---
+        async function fetchRules() {
+            const rawUrl = 'https://raw.githubusercontent.com/Stormwindsky/Linux-Community-Gamejolt-Rules-and-Other-thing/refs/heads/main/BSDCGJ-Rules.md';
+            try {
+                const response = await fetch(rawUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const markdown = await response.text();
+                
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').innerHTML = marked.parse(markdown);
+                
+                // Highlight code blocks
+                document.querySelectorAll('pre code').forEach((el) => {
+                    hljs.highlightElement(el);
+                });
+            } catch (error) {
+                console.error('Error fetching Markdown:', error);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').innerHTML = '<p style="color:#ff4d4d">Failed to load content. Please check your connection.</p>';
+            }
+        }
+
+        fetchRules();
+    </script>
+</body>
+</html>
