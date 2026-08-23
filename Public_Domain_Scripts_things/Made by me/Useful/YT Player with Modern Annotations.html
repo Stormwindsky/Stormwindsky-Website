@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Player with Modern Annotations</title>
+  <!--
+    Author: Stormwindsky
+    License: MIT-0 (No Attribution Required / Public Domain Equivalent)
+  -->
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: 1.8rem;
+    }
+
+    .author-badge {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    @media (min-width: 900px) {
+      .container {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    /* URL Input Bar */
+    .url-bar {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 10px;
+      background-color: var(--card-bg);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    input, textarea, select {
+      background-color: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent-color);
+    }
+
+    .url-bar input {
+      flex: 1;
+    }
+
+    button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    /* Player Container */
+    .player-section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    #youtube-player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Annotations Overlay */
+    #annotations-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Allows video interactions */
+      z-index: 10;
+    }
+
+    .modern-annotation {
+      position: absolute;
+      padding: 10px 16px;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: white;
+      font-weight: 500;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      animation: fadeIn 0.3s ease-in-out;
+      pointer-events: auto;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+
+    /* Annotation Styles */
+    .annotation-info { background: rgba(30, 41, 59, 0.85); border-left: 4px solid #3b82f6; }
+    .annotation-warning { background: rgba(120, 53, 15, 0.85); border-left: 4px solid #f59e0b; }
+    .annotation-success { background: rgba(20, 83, 45, 0.85); border-left: 4px solid #10b981; }
+
+    /* Positions */
+    .pos-top-left { top: 10%; left: 5%; }
+    .pos-top-right { top: 10%; right: 5%; }
+    .pos-bottom-left { bottom: 15%; left: 5%; }
+    .pos-bottom-right { bottom: 15%; right: 5%; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sidebar / Form & List */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 18px;
+      border-radius: 12px;
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    /* Annotations List */
+    .annotations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .list-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .list-item-time {
+      font-size: 0.75rem;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    .list-item-text {
+      font-size: 0.9rem;
+    }
+
+    .btn-delete {
+      background: transparent;
+      color: #ef4444;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    }
+
+    .btn-delete:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>YouTube Player with Modern Annotations</h1>
+    <div class="author-badge">Created by <strong>Stormwindsky</strong> • Licensed under <strong>MIT-0</strong></div>
+  </header>
+
+  <div class="container">
+    <!-- URL Input Bar -->
+    <div class="url-bar">
+      <input type="text" id="youtube-url" placeholder="Paste YouTube video URL here..." value="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+      <button id="load-btn">Load Video</button>
+    </div>
+
+    <!-- Video Player Section -->
+    <div class="player-section">
+      <div class="video-wrapper">
+        <div id="youtube-player"></div>
+        <div id="annotations-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Sidebar: Form & List -->
+    <div class="sidebar">
+      <!-- Creation Form -->
+      <div class="card">
+        <h2>Create Annotation</h2>
+        
+        <div class="form-group">
+          <label for="ann-text">Annotation Text</label>
+          <textarea id="ann-text" rows="2" placeholder="Enter your note or message..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ann-start">Start (sec)</label>
+            <input type="number" id="ann-start" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label for="ann-end">End (sec)</label>
+            <input type="number" id="ann-end" min="1" value="5">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ann-style">Style</label>
+            <select id="ann-style">
+              <option value="annotation-info">Info (Blue)</option>
+              <option value="annotation-success">Success (Green)</option>
+              <option value="annotation-warning">Alert (Orange)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ann-pos">Position</label>
+            <select id="ann-pos">
+              <option value="pos-bottom-left">Bottom Left</option>
+              <option value="pos-bottom-right">Bottom Right</option>
+              <option value="pos-top-left">Top Left</option>
+              <option value="pos-top-right">Top Right</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button id="set-current-time-btn" style="background-color: var(--border-color); flex: 1;">Current Time</button>
+          <button id="add-ann-btn" style="flex: 1;">Add Annotation</button>
+        </div>
+      </div>
+
+      <!-- Saved Annotations List -->
+      <div class="card">
+        <h2>Saved Annotations</h2>
+        <div class="annotations-list" id="annotations-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>MIT-0 License — Created by Stormwindsky. Free for commercial and non-commercial use with no attribution required.</p>
+  </footer>
+
+  <script>
+    // --- 1. Load YouTube IFrame API ---
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    let player;
+    let checkInterval;
+    let annotations = [
+      {
+        id: 1,
+        start: 2,
+        end: 6,
+        text: "Welcome! This is a modern Glassmorphism-styled overlay annotation.",
+        style: "annotation-info",
+        position: "pos-bottom-left"
+      }
+    ];
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('youtube-player', {
+        videoId: 'dQw4w9WgXcQ',
+        playerVars: {
+          'playsinline': 1,
+          'rel': 0
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady() {
+      renderAnnotationsList();
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        // Poll current playback time every 200ms
+        checkInterval = setInterval(updateAnnotationsOverlay, 200);
+      } else {
+        clearInterval(checkInterval);
+      }
+    }
+
+    // --- 2. Real-time Overlay Rendering ---
+    function updateAnnotationsOverlay() {
+      if (!player || !player.getCurrentTime) return;
+
+      const currentTime = player.getCurrentTime();
+      const overlay = document.getElementById('annotations-overlay');
+      overlay.innerHTML = ''; // Clear expired annotations
+
+      annotations.forEach(ann => {
+        if (currentTime >= ann.start && currentTime <= ann.end) {
+          const annEl = document.createElement('div');
+          annEl.className = `modern-annotation ${ann.style} ${ann.position}`;
+          annEl.innerText = ann.text;
+          overlay.appendChild(annEl);
+        }
+      });
+    }
+
+    // --- 3. Form & Event Handlers ---
+    function renderAnnotationsList() {
+      const listContainer = document.getElementById('annotations-list');
+      listContainer.innerHTML = '';
+
+      // Sort annotations chronologically
+      annotations.sort((a, b) => a.start - b.start);
+
+      annotations.forEach(ann => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+          <div class="list-item-info" onclick="seekToTime(${ann.start})">
+            <span class="list-item-time">${formatTime(ann.start)} - ${formatTime(ann.end)}</span>
+            <span class="list-item-text">${ann.text}</span>
+          </div>
+          <button class="btn-delete" onclick="deleteAnnotation(${ann.id})">✕</button>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    function addAnnotation() {
+      const text = document.getElementById('ann-text').value.trim();
+      const start = parseFloat(document.getElementById('ann-start').value);
+      const end = parseFloat(document.getElementById('ann-end').value);
+      const style = document.getElementById('ann-style').value;
+      const position = document.getElementById('ann-pos').value;
+
+      if (!text) {
+        alert('Please enter annotation text.');
+        return;
+      }
+
+      if (isNaN(start) || isNaN(end) || start >= end) {
+        alert('Please check time values (start time must be less than end time).');
+        return;
+      }
+
+      const newAnn = {
+        id: Date.now(),
+        text,
+        start,
+        end,
+        style,
+        position
+      };
+
+      annotations.push(newAnn);
+      renderAnnotationsList();
+
+      // Reset text input
+      document.getElementById('ann-text').value = '';
+    }
+
+    function deleteAnnotation(id) {
+      annotations = annotations.filter(a => a.id !== id);
+      renderAnnotationsList();
+      updateAnnotationsOverlay();
+    }
+
+    function seekToTime(seconds) {
+      if (player && player.seekTo) {
+        player.seekTo(seconds, true);
+        player.playVideo();
+      }
+    }
+
+    function extractVideoId(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Attach Event Listeners
+    document.getElementById('add-ann-btn').addEventListener('click', addAnnotation);
+
+    document.getElementById('set-current-time-btn').addEventListener('click', () => {
+      if (player && player.getCurrentTime) {
+        const current = Math.floor(player.getCurrentTime());
+        document.getElementById('ann-start').value = current;
+        document.getElementById('ann-end').value = current + 5;
+      }
+    });
+
+    document.getElementById('load-btn').addEventListener('click', () => {
+      const url = document.getElementById('youtube-url').value;
+      const videoId = extractVideoId(url);
+      if (videoId && player && player.loadVideoById) {
+        player.loadVideoById(videoId);
+        annotations = []; // Clear annotations for new video
+        renderAnnotationsList();
+      } else {
+        alert('Invalid YouTube URL.');
+      }
+    });
+  </script>
+</body>
+</html>
