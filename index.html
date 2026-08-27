@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stormwindsky | Welcome</title>
+
+    <!-- NetSurf Detection & Redirect Script -->
+    <script>
+        if (navigator.userAgent.indexOf("NetSurf") !== -1) {
+            window.location.replace("low.html");
+        }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -35,6 +43,24 @@
             align-items: center;
             min-height: 100vh;
             padding: 40px 20px;
+        }
+
+        /* Fallback Notice for NetSurf if JS is disabled */
+        .netsurf-fallback {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 1100px;
+            font-weight: 600;
+        }
+        .netsurf-fallback a {
+            color: #007aff;
+            text-decoration: underline;
         }
 
         .controls {
@@ -107,6 +133,14 @@
 </head>
 <body>
 
+    <!-- Fallback banner if JavaScript fails or is disabled -->
+    <noscript>
+        <div class="netsurf-fallback">
+            Notice: If you are using NetSurf or a lightweight browser, access the optimized version here: 
+            <a href="low.html">Low-bandwidth Version (low.html)</a>
+        </div>
+    </noscript>
+
     <div class="controls">
         <select id="langSelect" onchange="changeLanguage(this.value)">
             <option value="en">English</option>
@@ -177,9 +211,8 @@
 
     <script>
         const defaultLang = 'en';
-        let currentTranslations = {}; // Contiendra les traductions chargées
+        let currentTranslations = {};
 
-        // Charger un fichier JSON de langue dynamiquement
         async function loadLanguage(lang) {
             try {
                 const response = await fetch(`./lang/${lang}.json`);
@@ -187,7 +220,6 @@
                 
                 currentTranslations = await response.json();
                 
-                // Mettre à jour tous les éléments HTML avec data-i18n
                 document.querySelectorAll('[data-i18n]').forEach(element => {
                     const key = element.getAttribute('data-i18n');
                     if (currentTranslations[key]) {
@@ -195,12 +227,10 @@
                     }
                 });
 
-                // Sauvegarder la langue préférée
                 localStorage.setItem('preferredLang', lang);
                 document.getElementById('langSelect').value = lang;
                 document.documentElement.lang = lang;
 
-                // Mettre à jour le texte du bouton de thème selon la langue active
                 updateThemeButtonText();
 
             } catch (error) {
@@ -215,7 +245,6 @@
             loadLanguage(lang);
         }
 
-        // Gestion du Thème sombre / clair
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -235,7 +264,6 @@
             }
         }
 
-        // Au chargement initial
         window.onload = () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
