@@ -2,9 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stormwindsky</title>
+    <title>Stormwindsky | Basic Mode (NetSurf)</title>
+    <style>
+        /* Retro-compatible styles without CSS Grid or CSS Variables */
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            color: #1d1d1f;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .card-dark {
+            background-color: #2d333b;
+            color: #ffffff;
+        }
+
+        .card-blue {
+            background-color: #007aff;
+            color: #ffffff;
+        }
+
+        .card-sky {
+            background-color: #5db0ff;
+            color: #ffffff;
+        }
+
+        h1 { font-size: 1.8rem; margin-top: 0; }
+        h2 { font-size: 1.2rem; margin-top: 0; }
+        p { line-height: 1.4; font-size: 0.95rem; }
+
+        .tag {
+            background: #444;
+            color: #fff;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #007aff;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .btn-alt {
+            background: #555555;
+        }
+
+        ul.links {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul.links li {
+            margin-bottom: 8px;
+        }
+
+        ul.links a {
+            color: #ffffff;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666666;
+            margin-top: 20px;
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-    Coming MAYBE soon this website is made by Stormwindsky
+
+    <div class="container">
+
+        <!-- Main Profile Card -->
+        <div class="card card-dark">
+            <h1>Stormwindsky</h1>
+            <span class="tag">Available for Projects</span>
+            <p>Digital archivist and creator interested in history and indie gaming.</p>
+            <div>
+                <a href="https://polytoria.com/u/Stormwindsky" class="btn btn-alt">Polytoria</a>
+            </div>
+        </div>
+
+        <!-- Digital Preservation -->
+        <div class="card card-blue">
+            <h2>Digital Preservation</h2>
+            <p>Fan of Open Source & fan of Wayback Machine and Lost Media Wiki.</p>
+        </div>
+
+        <!-- Social Links -->
+        <div class="card card-blue">
+            <h2>Find Me Online</h2>
+            <ul class="links">
+                <li>🦋 <a href="https://bsky.app/profile/stormwindsky.bsky.social">Bluesky</a></li>
+                <li>🐘 <a href="https://mastodon.social/@Stormwindsky">Mastodon</a></li>
+                <li>⚡ <a href="https://gamejolt.com/@Stormwindsky">Gamejolt</a></li>
+                <li>🎮 <a href="https://polytoria.com/u/Stormwindsky">Polytoria</a></li>
+                <li>🔓 <a href="https://github.com/Stormwindsky/Stormwindsky-Website">Source code of my website</a></li>
+                <li>🐧 <a href="https://gamejolt.com/c/LC-6vqt3d/welcome">My Linux Gamejolt Community</a></li>
+                <li>𖤐 <a href="https://gamejolt.com/c/BSDC-xnbazr/Welcome">My BSD's Gamejolt Community</a></li>
+                <li>😱 <a href="https://www.youtube.com/shorts/_6HzLIJPH2A">IMPORTANT VIDEO!!!</a></li>
+            </ul>
+        </div>
+
+        <!-- The Name -->
+        <div class="card">
+            <h2>The Name</h2>
+            <p>Originating from Animal Jam via my mom, it became my unique identity.</p>
+        </div>
+
+        <!-- StormExplorer -->
+        <div class="card">
+            <h2>🌐 <a href="./StormExplorer.html" style="color: inherit;">Navigator</a></h2>
+            <p>Access the digital collection and experimental tools.</p>
+        </div>
+
+        <!-- RoleChat -->
+        <div class="card card-sky">
+            <h2>RoleChat</h2>
+            <p>An application tailored for roleplay and social interactions.</p>
+        </div>
+
+        <!-- This Site -->
+        <div class="card">
+            <h2>This Site</h2>
+            <p>A playground for coding, gaming, and digital archiving experiments.</p>
+        </div>
+
+        <footer>
+            © 2026 Stormwindsky | MIT License | Built with Passion & Autism Pride
+        </footer>
+
+    </div>
+
 </body>
 </html>
