@@ -1,6 +1,6 @@
 # Notice - Stormwindsky Website
 
-This project is primarily distributed under the **MIT License**. However, it utilizes third-party components and libraries that are subject to their own respective licenses, notably the **GNU GPL**.
+This project is primarily distributed under the **MIT License** & some HTML scripts under **MIT-0 License**. However, it utilizes third-party components and libraries that are subject to their own respective licenses, notably the **GNU GPL**.
 
 ## 📚 Libraries and Dependencies
 
