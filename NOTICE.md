@@ -24,14 +24,11 @@ This project is primarily distributed under the **MIT License** & some HTML scri
 * **Three.js**: Distributed under the [MIT License](https://github.com/mrdoob/three.js/blob/dev/LICENSE).
 * **JSZip**: Distributed under the [MIT License](https://github.com/Stuk/jszip/blob/master/LICENSE.markdown).
 * **Midi-Writer-JS**: Distributed under the [MIT License](https://github.com/grimmdude/MidiWriterJS/blob/master/LICENSE).
+* **skinview3d**: 3D Minecraft Skin Viewer library distributed under the [MIT License](https://github.com/bs-community/skinview3d/blob/master/LICENSE).
 
 ### APIs and External Services
 * **GitHub API**: Used to fetch repository content and file lists.
-* **MyMemory API**: Translation service (see [translated.net](https://mymemory.translated.net/doc/spec.php)).
-* **Pollinations.ai**: Distributed under the [MIT License](https://github.com/pollinations/pollinations/blob/master/LICENSE).
-* **Open Trivia DB (OpenTDB)**: Quiz data is provided under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-
----
+* ---
 
 ## 🎨 Multimedia Content
 All creative works (audio, images, or media) are properly credited directly on the relevant web page.
