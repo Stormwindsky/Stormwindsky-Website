@@ -50,16 +50,16 @@
             margin-bottom: 25px;
         }
 
-        .nav-controls { display: flex; gap: 10px; align-items: center; }
+        .nav-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-        select, .theme-btn, .ai-toggle-btn, .pd-toggle-btn {
+        select, .theme-btn, .ai-toggle-btn, .pd-toggle-btn, .never-toggle-btn {
             padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
             background: var(--card-white); color: var(--text-dark); cursor: pointer;
             font-weight: 600; outline: none; transition: 0.3s;
         }
 
-        .ai-toggle-btn.inactive, .pd-toggle-btn.inactive { background: #ccc; color: #666; border-color: #999; }
-        .ai-toggle-btn.active, .pd-toggle-btn.active { background: var(--ai-blue); color: white; border-color: var(--ai-blue); }
+        .ai-toggle-btn.inactive, .pd-toggle-btn.inactive, .never-toggle-btn.inactive { background: #ccc; color: #666; border-color: #999; }
+        .ai-toggle-btn.active, .pd-toggle-btn.active, .never-toggle-btn.active { background: var(--ai-blue); color: white; border-color: var(--ai-blue); }
 
         /* Search Section */
         .search-section {
@@ -146,10 +146,27 @@
             margin-bottom: 5px;
         }
 
+        .skin-3d-btn {
+            background: var(--blue-main);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .skin-3d-btn:hover {
+            opacity: 0.9;
+        }
+
         footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
 
         /* Popups Styling */
-        #cc0-popup, #ai-readme-popup, #pd-readme-popup {
+        #cc0-popup, #ai-readme-popup, #pd-readme-popup, #never-readme-popup {
             display: none;
             position: fixed;
             bottom: 20px;
@@ -164,11 +181,62 @@
             animation: slideIn 0.5s ease-out;
         }
 
-        #ai-readme-popup, #pd-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
+        #ai-readme-popup, #pd-readme-popup, #never-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
 
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        .cc0-close, .ai-close, .pd-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
-        .ai-close, .pd-close { color: red; font-size: 1.5rem; line-height: 1; }
+        .cc0-close, .ai-close, .pd-close, .never-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
+        .ai-close, .pd-close, .never-close { color: red; font-size: 1.5rem; line-height: 1; }
+
+        /* 3D Skin Viewer Modal Popup */
+        #skin-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .skin-modal-container {
+            position: relative;
+            background: var(--card-white);
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .skin-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: red;
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 2010;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .skin-modal-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -189,12 +257,26 @@
     <div id="pd-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;" data-i18n="loading">Loading...</div>
 </div>
 
+<div id="never-readme-popup">
+    <span class="never-close" onclick="closeNeverPopup()">X</span>
+    <div id="never-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;" data-i18n="loading">Loading...</div>
+</div>
+
+<!-- 3D Skin Viewer Modal Popup -->
+<div id="skin-modal-overlay">
+    <div class="skin-modal-container">
+        <button class="skin-modal-close" onclick="closeSkinModal()">X</button>
+        <iframe id="skinModalIframe" class="skin-modal-iframe" src=""></iframe>
+    </div>
+</div>
+
 <div class="container">
     <header>
         <h2 id="txt-site-title" style="margin:0" data-i18n="collection_site_title">StormExplorer</h2>
         <div class="nav-controls">
             <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()" data-i18n="ai_btn">Show AI Creations</button>
             <button id="pdToggleBtn" class="pd-toggle-btn inactive" onclick="togglePD()" data-i18n="pd_btn">Thing not really made by me but i edited</button>
+            <button id="neverToggleBtn" class="never-toggle-btn inactive" onclick="toggleNever()" data-i18n="never_btn">Thing I NEVER made</button>
             
             <select id="langSelect" onchange="changeLanguage(this.value)">
                 <option value="en">English</option>
@@ -233,6 +315,7 @@
     let currentMode = 'files';
     let showAI = false;
     let showPD = false;
+    let showNever = false;
 
     const RAW_BASE_ARTLIBRE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
     const RAW_BASE_WEBSITE = "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/";
@@ -297,6 +380,25 @@
         document.getElementById('pd-readme-popup').style.display = 'none';
     }
 
+    function closeNeverPopup() {
+        document.getElementById('never-readme-popup').style.display = 'none';
+    }
+
+    function openSkinModal(skinUrl) {
+        const modal = document.getElementById('skin-modal-overlay');
+        const iframe = document.getElementById('skinModalIframe');
+        const encodedSkinUrl = encodeURIComponent(skinUrl);
+        iframe.src = `https://www.stormwindsky.com/Public_Domain_Scripts_things/Made%20by%20me/Neutral/3D%20Skin%20Viewer.html?skin=${encodedSkinUrl}`;
+        modal.style.display = 'flex';
+    }
+
+    function closeSkinModal() {
+        const modal = document.getElementById('skin-modal-overlay');
+        const iframe = document.getElementById('skinModalIframe');
+        iframe.src = "";
+        modal.style.display = 'none';
+    }
+
     async function toggleAI() {
         showAI = !showAI;
         const btn = document.getElementById('aiToggleBtn');
@@ -329,6 +431,22 @@
         fetchData(document.getElementById('searchInput').value);
     }
 
+    async function toggleNever() {
+        showNever = !showNever;
+        const btn = document.getElementById('neverToggleBtn');
+        const popup = document.getElementById('never-readme-popup');
+        
+        if(showNever) {
+            btn.classList.replace('inactive', 'active');
+            popup.style.display = 'block';
+            fetchNeverReadme();
+        } else {
+            btn.classList.replace('active', 'inactive');
+            popup.style.display = 'none';
+        }
+        fetchData(document.getElementById('searchInput').value);
+    }
+
     async function fetchAiReadme() {
         const contentDiv = document.getElementById('ai-readme-content');
         try {
@@ -342,6 +460,15 @@
         const contentDiv = document.getElementById('pd-readme-content');
         try {
             const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/refs/heads/main/Public_Domain_Thing/Thing_That_Originaly_Not_Made_By_Me/Popup.md");
+            const text = await res.text();
+            contentDiv.innerText = text;
+        } catch (e) { contentDiv.innerText = "Error loading Readme."; }
+    }
+
+    async function fetchNeverReadme() {
+        const contentDiv = document.getElementById('never-readme-content');
+        try {
+            const res = await fetch("https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/refs/heads/main/Public_Domain_Thing/Thing_I_NEVER_made/Popup.md");
             const text = await res.text();
             contentDiv.innerText = text;
         } catch (e) { contentDiv.innerText = "Error loading Readme."; }
@@ -374,15 +501,18 @@
         const popup = document.getElementById('cc0-popup');
         const aiBtn = document.getElementById('aiToggleBtn');
         const pdBtn = document.getElementById('pdToggleBtn');
+        const neverBtn = document.getElementById('neverToggleBtn');
 
         if(currentMode === 'files') {
             popup.style.display = 'none';
             aiBtn.style.display = 'none';
             pdBtn.style.display = 'none';
+            neverBtn.style.display = 'none';
         } else {
             popup.style.display = 'block';
             aiBtn.style.display = 'block';
             pdBtn.style.display = 'block';
+            neverBtn.style.display = 'block';
         }
 
         try {
@@ -411,7 +541,11 @@
                 const editedFolderPath = "Public_Domain_Thing/Thing_That_Originaly_Not_Made_By_Me/Audios_And_Images_And_Other/";
                 let itemsWebsiteEdited = dataWebsite.tree.filter(i => i.type === 'blob' && i.path.startsWith(editedFolderPath)).map(i => ({ ...i, repoSource: 'website_cc0' }));
 
-                items = [...itemsArtLibre, ...itemsWebsiteCC0, ...itemsWebsiteEdited];
+                // Fetch from Stormwindsky-Website repo (Thing I NEVER made Content)
+                const neverFolderPath = "Public_Domain_Thing/Thing_I_NEVER_made/";
+                let itemsWebsiteNever = dataWebsite.tree.filter(i => i.type === 'blob' && i.path.startsWith(neverFolderPath)).map(i => ({ ...i, repoSource: 'website_cc0' }));
+
+                items = [...itemsArtLibre, ...itemsWebsiteCC0, ...itemsWebsiteEdited, ...itemsWebsiteNever];
 
                 if(currentMode === 'images') items = items.filter(i => i.path.match(/\.(jpg|jpeg|png|gif|svg|JPG)$/i));
                 else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
@@ -422,6 +556,9 @@
                 }
                 if (!showPD) {
                     items = items.filter(i => !i.path.includes('Thing_That_Originaly_Not_Made_By_Me') && !i.path.includes('Public Domain Edit or Based i made'));
+                }
+                if (!showNever) {
+                    items = items.filter(i => !i.path.includes('Public_Domain_Thing/Thing_I_NEVER_made/'));
                 }
             }
 
@@ -506,11 +643,37 @@
                 }
             }
 
+            // Subfolder badges for "Thing_I_NEVER_made" assets
+            const neverFolderPath = "Public_Domain_Thing/Thing_I_NEVER_made/";
+            if (item.path.startsWith(neverFolderPath)) {
+                const relativePath = item.path.substring(neverFolderPath.length);
+                const pathParts = relativePath.split('/');
+                
+                if (pathParts.length > 1) {
+                    if (pathParts[0] === "Video") {
+                        if (pathParts.length > 2) {
+                            content += `<div class="folder-badge">${pathParts[1]}</div>`;
+                        } else {
+                            content += `<div class="folder-badge">Video</div>`;
+                        }
+                    } else {
+                        content += `<div class="folder-badge">${pathParts[0]}</div>`;
+                    }
+                }
+            }
+
             if(isAI) {
                 content += `<div class="ai-badge">🤖</div>`;
             }
 
-            if(currentMode === 'images') content = `<img src="${url}" class="media-preview">` + content;
+            // Add 3D Skin Render button if image path belongs to a skin folder
+            const isSkin = currentMode === 'images' && item.path.toLowerCase().includes('skin');
+            let skinBtnHtml = "";
+            if (isSkin) {
+                skinBtnHtml = `<div><button class="skin-3d-btn" onclick="openSkinModal('${url}')">View Skin on 3D Render</button></div>`;
+            }
+
+            if(currentMode === 'images') content = `<img src="${url}" class="media-preview">` + content + skinBtnHtml;
             if(currentMode === 'audios') content += `<audio controls style="width:100%"><source src="${url}"></audio>`;
             if(currentMode === 'videos') content = `<video controls class="media-preview"><source src="${url}"></video>` + content;
 
