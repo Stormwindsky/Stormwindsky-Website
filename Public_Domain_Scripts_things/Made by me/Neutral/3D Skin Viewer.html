@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Minecraft Skin Viewer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #viewer-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
+        }
+
+        .panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .url-input-container {
+            top: 20px;
+        }
+
+        .visibility-container {
+            left: 20px;
+            top: 80px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .visibility-container h4 {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .visibility-container label {
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .credits-container {
+            right: 20px;
+            top: 20px;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .credits-card {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            font-size: 13px;
+            width: 220px;
+        }
+
+        .credits-card h4 {
+            font-size: 14px;
+            color: #4CAF50;
+            border-bottom: 1px solid #444;
+            padding-bottom: 4px;
+        }
+
+        .credits-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .credits-card li {
+            margin: 6px 0;
+        }
+
+        .credits-card a {
+            color: #64B5F6;
+            text-decoration: none;
+        }
+
+        .credits-card a:hover {
+            text-decoration: underline;
+        }
+
+        .controls {
+            bottom: 20px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button.btn-secondary {
+            background-color: #555;
+        }
+
+        button.btn-secondary:hover {
+            background-color: #666;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #222;
+            color: #fff;
+            width: 250px;
+        }
+    </style>
+
+    <!-- Load skinview3d bundle -->
+    <script src="https://bs-community.github.io/skinview3d/js/skinview3d.bundle.js"></script>
+</head>
+<body>
+
+    <div id="viewer-container">
+        <!-- URL Input Controls -->
+        <div class="panel url-input-container">
+            <input type="text" id="skin-url-input" placeholder="Paste Minecraft Skin URL..." />
+            <button id="load-btn">Load Skin</button>
+        </div>
+
+        <!-- Credits Panel -->
+        <div class="panel credits-container">
+            <button id="toggle-credits-btn" class="btn-secondary">Credits</button>
+            <div id="credits-card" class="credits-card">
+                <h4>Open Source Credits</h4>
+                <ul>
+                    <li>
+                        <strong>skinview3d</strong><br />
+                        3D Render Engine<br />
+                        <a href="https://github.com/bs-community/skinview3d" target="_blank" rel="noopener">GitHub Project (MIT)</a>
+                    </li>
+                    <li>
+                        <strong>Three.js</strong><br />
+                        WebGL Framework<br />
+                        <a href="https://threejs.org/" target="_blank" rel="noopener">threejs.org (MIT)</a>
+                    </li>
+                </ul>
+                <p style="font-size: 11px; color: #aaa; margin-top: 4px;">Application code licensed under MIT-0.</p>
+            </div>
+        </div>
+
+        <!-- Visibility Toggle Controls -->
+        <div class="panel visibility-container">
+            <h4>Body Parts Visibility</h4>
+            <label><input type="checkbox" id="toggle-head" checked> Head</label>
+            <label><input type="checkbox" id="toggle-body" checked> Torso</label>
+            <label><input type="checkbox" id="toggle-leftArm" checked> Left Arm</label>
+            <label><input type="checkbox" id="toggle-rightArm" checked> Right Arm</label>
+            <label><input type="checkbox" id="toggle-leftLeg" checked> Left Leg</label>
+            <label><input type="checkbox" id="toggle-rightLeg" checked> Right Leg</label>
+        </div>
+
+        <!-- Canvas Container -->
+        <canvas id="skin_container"></canvas>
+
+        <!-- Animation Controls -->
+        <div class="panel controls">
+            <button id="btn-walk">Walk</button>
+            <button id="btn-run">Run</button>
+            <button id="btn-rotate">Auto Rotate</button>
+            <button id="btn-pause">Pause</button>
+        </div>
+    </div>
+
+    <script>
+        // Default fallback skin
+        const DEFAULT_SKIN = "https://textures.minecraft.net/texture/1a424b9b608f3389738d672823078e8f61db3e44755a53e3095066318c48a731";
+
+        // Extract skin URL from query parameter
+        function getSkinUrlFromQuery() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('skin') || DEFAULT_SKIN;
+        }
+
+        // Initialize skinview3d viewer
+        const skinUrl = getSkinUrlFromQuery();
+        const skinViewer = new skinview3d.SkinViewer({
+            canvas: document.getElementById("skin_container"),
+            width: window.innerWidth,
+            height: window.innerHeight,
+            skin: skinUrl
+        });
+
+        // Camera setup
+        skinViewer.camera.position.set(0, 10, 40);
+        skinViewer.fov = 70;
+        skinViewer.zoom = 0.9;
+
+        // Resize handler
+        window.addEventListener("resize", () => {
+            skinViewer.width = window.innerWidth;
+            skinViewer.height = window.innerHeight;
+        });
+
+        // Custom skin URL input handler
+        const inputField = document.getElementById("skin-url-input");
+        inputField.value = skinUrl !== DEFAULT_SKIN ? skinUrl : "";
+
+        document.getElementById("load-btn").addEventListener("click", () => {
+            const url = inputField.value.trim();
+            if (url) {
+                skinViewer.loadSkin(url);
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('skin', url);
+                window.history.pushState({}, '', newUrl);
+            }
+        });
+
+        // -------------------------------------------------------------
+        // CREDITS TOGGLE HANDLER
+        // -------------------------------------------------------------
+        const creditsBtn = document.getElementById("toggle-credits-btn");
+        const creditsCard = document.getElementById("credits-card");
+
+        creditsBtn.addEventListener("click", () => {
+            const isDisplayed = creditsCard.style.display === "flex";
+            creditsCard.style.display = isDisplayed ? "none" : "flex";
+        });
+
+        // -------------------------------------------------------------
+        // ANIMATION CONTROLS
+        // -------------------------------------------------------------
+        const walkAnim = new skinview3d.WalkingAnimation();
+        const runAnim = new skinview3d.RunningAnimation();
+        
+        walkAnim.speed = 0.6;
+        runAnim.speed = 0.8;
+
+        document.getElementById("btn-walk").addEventListener("click", () => {
+            skinViewer.animation = walkAnim;
+        });
+
+        document.getElementById("btn-run").addEventListener("click", () => {
+            skinViewer.animation = runAnim;
+        });
+
+        document.getElementById("btn-rotate").addEventListener("click", () => {
+            skinViewer.autoRotate = !skinViewer.autoRotate;
+        });
+
+        document.getElementById("btn-pause").addEventListener("click", () => {
+            skinViewer.animation = null;
+            skinViewer.autoRotate = false;
+        });
+
+        // -------------------------------------------------------------
+        // BODY PART VISIBILITY TOGGLES
+        // -------------------------------------------------------------
+        const partMap = {
+            "toggle-head": "head",
+            "toggle-body": "body",
+            "toggle-leftArm": "leftArm",
+            "toggle-rightArm": "rightArm",
+            "toggle-leftLeg": "leftLeg",
+            "toggle-rightLeg": "rightLeg"
+        };
+
+        Object.keys(partMap).forEach((id) => {
+            const checkbox = document.getElementById(id);
+            const partName = partMap[id];
+
+            checkbox.addEventListener("change", (e) => {
+                const isVisible = e.target.checked;
+                if (skinViewer.playerObject && skinViewer.playerObject.skin[partName]) {
+                    skinViewer.playerObject.skin[partName].visible = isVisible;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
