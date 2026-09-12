@@ -666,12 +666,13 @@
                 content += `<div class="ai-badge">🤖</div>`;
             }
 
-            // Add 3D Skin Render button if image path belongs to a skin folder
-            const isSkin = currentMode === 'images' && item.path.toLowerCase().includes('skin');
-            let skinBtnHtml = "";
-            if (isSkin) {
-                skinBtnHtml = `<div><button class="skin-3d-btn" onclick="openSkinModal('${url}')">View Skin on 3D Render</button></div>`;
-            }
+            // Condition Check: Must be PNG image inside a 'skin' directory
+            const isPng = item.path.toLowerCase().endsWith('.png');
+            const isSkinFolder = item.path.toLowerCase().includes('skin');
+            const isValidSkinAsset = currentMode === 'images' && isPng && isSkinFolder;
+
+            let skinBtnContainerId = `skin-btn-container-${Math.random().toString(36).substr(2, 9)}`;
+            let skinBtnHtml = isValidSkinAsset ? `<div id="${skinBtnContainerId}"></div>` : "";
 
             if(currentMode === 'images') content = `<img src="${url}" class="media-preview">` + content + skinBtnHtml;
             if(currentMode === 'audios') content += `<audio controls style="width:100%"><source src="${url}"></audio>`;
@@ -679,6 +680,23 @@
 
             card.innerHTML = content + `</div><a href="${url}" target="_blank" style="color:var(--blue-main); font-weight:bold; margin-top:15px; text-decoration:none;">${openText}</a>`;
             grid.appendChild(card);
+
+            // Check dimensions: Accepts either 64x64 or 64x32
+            if (isValidSkinAsset) {
+                const img = new Image();
+                img.onload = function() {
+                    const is64x64 = img.naturalWidth === 64 && img.naturalHeight === 64;
+                    const is64x32 = img.naturalWidth === 64 && img.naturalHeight === 32;
+                    
+                    if (is64x64 || is64x32) {
+                        const container = document.getElementById(skinBtnContainerId);
+                        if (container) {
+                            container.innerHTML = `<button class="skin-3d-btn" onclick="openSkinModal('${url}')">View Skin on 3D Render</button>`;
+                        }
+                    }
+                };
+                img.src = url;
+            }
         });
     }
 
