@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>.NBT Viewer Online</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .viewer-card {
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      width: 480px;
+      background: #1e1e1e;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .viewer-card h1 {
+      font-size: 1.4em;
+      margin-top: 0;
+      margin-bottom: 15px;
+      text-align: center;
+      color: #4caf50;
+    }
+    .viewport-container {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
+    #webgl-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .drop-zone {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      border: 2px dashed #4caf50;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .viewport-container.drag-over .drop-zone {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #aaa;
+      word-break: break-all;
+    }
+    .controls-group {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      font-size: 0.9em;
+      box-sizing: border-box;
+    }
+    .btn-download {
+      background-color: #2e7d32;
+      color: #ffffff;
+    }
+    .btn-download:hover {
+      background-color: #388e3c;
+    }
+    .btn-upload {
+      background-color: #1976d2;
+      color: #ffffff;
+    }
+    .btn-upload:hover {
+      background-color: #2196f3;
+    }
+    #file-input {
+      display: none;
+    }
+  </style>
+
+  <!-- Load gl-matrix and Deepslate global UMD scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/gl-matrix@3.4.3/gl-matrix-min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/deepslate@0.13.0/dist/deepslate.javascript.js"></script>
+</head>
+<body>
+
+<div class="viewer-card">
+  <h1>.NBT Viewer Online</h1>
+  
+  <div class="viewport-container" id="drop-container">
+    <canvas id="webgl-canvas"></canvas>
+    
+    <div class="drop-zone">
+      <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">Drop .NBT file here</p>
+      <p style="font-size: 0.85em; color: #ccc;">Release to render local structure</p>
+    </div>
+  </div>
+
+  <div id="status" class="status">Ready. Select or drag a local .NBT file.</div>
+  
+  <div class="controls-group">
+    <button class="btn btn-upload" id="upload-btn">📂 Open Local .NBT</button>
+    <input type="file" id="file-input" accept=".nbt">
+
+    <a id="download-link" href="#" download class="btn btn-download" style="display: none;">
+      📥 Download .NBT
+    </a>
+  </div>
+</div>
+
+<script>
+  let renderer = null;
+  let resources = null;
+  let gl = null;
+  let viewMatrix = null;
+  let animationFrameId = null;
+
+  const statusEl = document.getElementById('status');
+  const downloadBtn = document.getElementById('download-link');
+  const fileInput = document.getElementById('file-input');
+  const uploadBtn = document.getElementById('upload-btn');
+  const dropContainer = document.getElementById('drop-container');
+  const canvas = document.getElementById('webgl-canvas');
+
+  async function initApp() {
+    gl = canvas.getContext('webgl');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const texturesUrl = urlParams.get('textures');
+    const nbtUrl = urlParams.get('nbt');
+
+    if (typeof deepslate === 'undefined') {
+      statusEl.textContent = 'Error: Deepslate library failed to load.';
+      statusEl.style.color = '#ff5252';
+      return;
+    }
+
+    resources = new deepslate.Resources();
+
+    viewMatrix = glMatrix.mat4.create();
+    glMatrix.mat4.translate(viewMatrix, viewMatrix, [0, 0, -15]);
+    glMatrix.mat4.rotateX(viewMatrix, viewMatrix, 0.5);
+    glMatrix.mat4.rotateY(viewMatrix, viewMatrix, 0.8);
+
+    if (texturesUrl) {
+      try {
+        statusEl.textContent = 'Loading custom CC0 textures...';
+        await resources.loadFromZip(texturesUrl);
+        statusEl.textContent = 'Textures loaded. Ready for .NBT file.';
+      } catch (err) {
+        console.warn('Could not load texture zip:', err);
+      }
+    }
+
+    if (nbtUrl) {
+      downloadBtn.href = nbtUrl;
+      downloadBtn.style.display = 'block';
+      await loadNbtFromUrl(nbtUrl);
+    }
+  }
+
+  function renderNbtBuffer(arrayBuffer, sourceName = 'File') {
+    try {
+      statusEl.textContent = `Parsing ${sourceName}...`;
+      statusEl.style.color = '#aaa';
+
+      const nbt = deepslate.NbtFile.read(new Uint8Array(arrayBuffer));
+      const structure = deepslate.Structure.fromNbt(nbt.root);
+
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+      renderer = new deepslate.StructureRenderer(gl, structure, resources);
+      statusEl.textContent = `Rendering: ${sourceName} (CC0 1.0 Public Domain)`;
+
+      function render() {
+        glMatrix.mat4.rotateY(viewMatrix, viewMatrix, 0.005);
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.enable(gl.DEPTH_TEST);
+        
+        renderer.drawStructure(viewMatrix);
+        animationFrameId = requestAnimationFrame(render);
+      }
+      render();
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = `Error parsing .NBT file: ${err.message}`;
+      statusEl.style.color = '#ff5252';
+    }
+  }
+
+  async function loadNbtFromUrl(url) {
+    try {
+      statusEl.textContent = 'Fetching remote .NBT file...';
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+      const arrayBuffer = await response.arrayBuffer();
+      renderNbtBuffer(arrayBuffer, 'Remote URL');
+    } catch (err) {
+      statusEl.textContent = `Error loading URL: ${err.message}`;
+      statusEl.style.color = '#ff5252';
+    }
+  }
+
+  function handleFile(file) {
+    if (!file) return;
+    
+    statusEl.textContent = `Reading ${file.name}...`;
+    statusEl.style.color = '#aaa';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      renderNbtBuffer(e.target.result, file.name);
+      downloadBtn.style.display = 'none';
+    };
+    reader.onerror = () => {
+      statusEl.textContent = 'Error reading local file.';
+      statusEl.style.color = '#ff5252';
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  uploadBtn.addEventListener('click', () => fileInput.click());
+  
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropContainer.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropContainer.classList.add('drag-over');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropContainer.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropContainer.classList.remove('drag-over');
+    }, false);
+  });
+
+  dropContainer.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    if (dt.files && dt.files.length > 0) {
+      handleFile(dt.files[0]);
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>
