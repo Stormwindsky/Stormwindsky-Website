@@ -651,11 +651,12 @@
 
             const isNbt = item.path.toLowerCase().endsWith('.nbt');
             let nbtBtnHtml = isNbt ? `<button class="action-btn" onclick="openNbtModal('${nbtRawUrl}')">View NBT 3D Model</button>` : '';
+            let downloadBtnHtml = currentMode === '3dmodels' ? `<a href="${url}" download class="action-btn" style="background:#28a745;">Download</a>` : '';
 
             content += `</div>
             <div class="card-actions">
                 <a href="${url}" target="_blank" class="action-btn">Open Asset</a>
-                <a href="${url}" download class="action-btn" style="background:#28a745;">Download</a>
+                ${downloadBtnHtml}
                 ${nbtBtnHtml}
             </div>`;
 
