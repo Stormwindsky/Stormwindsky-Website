@@ -585,6 +585,16 @@
 
   const engine = new Engine3D(canvas);
 
+  function transformToCORSUrl(url) {
+    if (url.includes('github.com') || url.includes('raw.githubusercontent.com')) {
+      return url
+        .replace(/^https?:\/\/(raw\.)?github(usercontent)?\.com\//, 'https://cdn.jsdelivr.net/gh/')
+        .replace(/\/raw\/refs\/heads\//, '@')
+        .replace(/\/raw\//, '@');
+    }
+    return url;
+  }
+
   async function processBuffer(arrayBuffer, sourceName) {
     try {
       statusEl.textContent = `Processing ${sourceName}...`;
@@ -615,7 +625,9 @@
       statusEl.textContent = `Fetching file from URL...`;
       statusEl.style.color = '#aaa';
 
-      const response = await fetch(targetUrl);
+      const corsUrl = transformToCORSUrl(targetUrl);
+
+      const response = await fetch(corsUrl);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
