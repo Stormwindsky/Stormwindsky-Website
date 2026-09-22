@@ -3,28 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>.NBT Viewer Online</title>
+  <title>3D .NBT Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #121212;
-      color: #ffffff;
+      color: #e0e0e0;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
     }
     .viewer-card {
       border: 1px solid #333;
       border-radius: 12px;
       padding: 20px;
-      width: 480px;
+      width: 100%;
+      max-width: 900px;
       background: #1e1e1e;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
-    .viewer-card h1 {
-      font-size: 1.4em;
+    h1 {
+      font-size: 1.5em;
       margin-top: 0;
       margin-bottom: 15px;
       text-align: center;
@@ -33,15 +36,21 @@
     .viewport-container {
       position: relative;
       width: 100%;
-      height: 320px;
+      height: 450px;
       border-radius: 8px;
       overflow: hidden;
-      background: #000;
+      background: #050505;
+      border: 1px solid #333;
+      margin-bottom: 15px;
     }
     #webgl-canvas {
       width: 100%;
       height: 100%;
       display: block;
+      cursor: grab;
+    }
+    #webgl-canvas:active {
+      cursor: grabbing;
     }
     .drop-zone {
       position: absolute;
@@ -49,7 +58,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(18, 18, 18, 0.85);
       border: 2px dashed #4caf50;
       box-sizing: border-box;
       display: flex;
@@ -57,13 +66,14 @@
       justify-content: center;
       align-items: center;
       color: #ffffff;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .viewport-container.loaded .drop-zone {
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-    .viewport-container.drag-over .drop-zone {
-      opacity: 1;
-      pointer-events: auto;
     }
     .status {
       margin-top: 10px;
@@ -72,183 +82,607 @@
       word-break: break-all;
     }
     .controls-group {
-      margin-top: 15px;
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .url-group {
+      margin-top: 10px;
       display: flex;
       gap: 10px;
     }
-    .btn {
+    .url-input {
       flex: 1;
-      text-align: center;
-      padding: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #0d0d0d;
+      color: #fff;
+      font-size: 0.9em;
+      box-sizing: border-box;
+    }
+    .btn {
+      padding: 12px 20px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
       border: none;
-      text-decoration: none;
       font-size: 0.9em;
       box-sizing: border-box;
-    }
-    .btn-download {
-      background-color: #2e7d32;
-      color: #ffffff;
-    }
-    .btn-download:hover {
-      background-color: #388e3c;
-    }
-    .btn-upload {
       background-color: #1976d2;
       color: #ffffff;
     }
-    .btn-upload:hover {
+    .btn:hover {
       background-color: #2196f3;
+    }
+    .btn-file {
+      width: 100%;
     }
     #file-input {
       display: none;
+    }
+    #output-container {
+      margin-top: 15px;
+      background: #0d0d0d;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 15px;
+      max-height: 200px;
+      overflow: auto;
+    }
+    pre {
+      margin: 0;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.85em;
+      color: #81c784;
+      white-space: pre-wrap;
+      word-break: break-all;
     }
   </style>
 </head>
 <body>
 
 <div class="viewer-card">
-  <h1>.NBT Viewer Online</h1>
+  <h1>3D .NBT Viewer</h1>
   
   <div class="viewport-container" id="drop-container">
     <canvas id="webgl-canvas"></canvas>
     
-    <div class="drop-zone">
-      <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">Drop .NBT file here</p>
-      <p style="font-size: 0.85em; color: #ccc;">Release to render local structure</p>
+    <div class="drop-zone" id="drop-zone">
+      <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">Drag & Drop a .NBT file here</p>
+      <p style="font-size: 0.85em; color: #ccc;">or click to browse local files</p>
     </div>
   </div>
 
-  <div id="status" class="status">Initializing engine...</div>
+  <div id="status" class="status">Waiting for a .NBT file...</div>
   
   <div class="controls-group">
-    <button class="btn btn-upload" id="upload-btn">📂 Open Local .NBT</button>
-    <input type="file" id="file-input" accept=".nbt">
+    <button class="btn btn-file" id="upload-btn">📂 Open Local .NBT File</button>
+    <input type="file" id="file-input" accept=".nbt,.dat">
+  </div>
 
-    <a id="download-link" href="#" download class="btn btn-download" style="display: none;">
-      📥 Download .NBT
-    </a>
+  <div class="url-group">
+    <input type="url" id="url-input" class="url-input" placeholder="https://example.com/structure.nbt">
+    <button class="btn" id="load-url-btn">🌐 Load from URL</button>
+  </div>
+
+  <div id="output-container" style="display: none;">
+    <pre id="json-output"></pre>
   </div>
 </div>
 
-<script type="module">
-  import * as deepslate from 'https://unpkg.com/deepslate@0.27.1?module';
-  import { mat4 } from 'https://unpkg.com/gl-matrix@3.4.3/esm/index.js';
+<script>
+  class NBTReader {
+    constructor(buffer) {
+      this.view = new DataView(buffer);
+      this.offset = 0;
+    }
 
-  let renderer = null;
-  let resources = null;
-  let gl = null;
-  let viewMatrix = null;
-  let animationFrameId = null;
+    readByte() { return this.view.getInt8(this.offset++); }
+    readShort() { const val = this.view.getInt16(this.offset, false); this.offset += 2; return val; }
+    readInt() { const val = this.view.getInt32(this.offset, false); this.offset += 4; return val; }
+    readLong() {
+      const high = this.view.getInt32(this.offset, false);
+      const low = this.view.getInt32(this.offset + 4, false);
+      this.offset += 8;
+      return (BigInt(high) << 32n) | BigInt(low & 0xffffffff);
+    }
+    readFloat() { const val = this.view.getFloat32(this.offset, false); this.offset += 4; return val; }
+    readDouble() { const val = this.view.getFloat64(this.offset, false); this.offset += 8; return val; }
+
+    readString() {
+      const length = this.view.getUint16(this.offset, false);
+      this.offset += 2;
+      const bytes = new Uint8Array(this.view.buffer, this.offset, length);
+      this.offset += length;
+      return new TextDecoder('utf-8').decode(bytes);
+    }
+
+    readTag(type) {
+      switch (type) {
+        case 0: return null;
+        case 1: return this.readByte();
+        case 2: return this.readShort();
+        case 3: return this.readInt();
+        case 4: return this.readLong().toString();
+        case 5: return this.readFloat();
+        case 6: return this.readDouble();
+        case 7: {
+          const len = this.readInt();
+          const arr = [];
+          for (let i = 0; i < len; i++) arr.push(this.readByte());
+          return arr;
+        }
+        case 8: return this.readString();
+        case 9: {
+          const subType = this.readByte();
+          const len = this.readInt();
+          const list = [];
+          for (let i = 0; i < len; i++) list.push(this.readTag(subType));
+          return list;
+        }
+        case 10: {
+          const compound = {};
+          while (true) {
+            const subType = this.readByte();
+            if (subType === 0) break;
+            const name = this.readString();
+            compound[name] = this.readTag(subType);
+          }
+          return compound;
+        }
+        case 11: {
+          const len = this.readInt();
+          const arr = [];
+          for (let i = 0; i < len; i++) arr.push(this.readInt());
+          return arr;
+        }
+        case 12: {
+          const len = this.readInt();
+          const arr = [];
+          for (let i = 0; i < len; i++) arr.push(this.readLong().toString());
+          return arr;
+        }
+        default:
+          throw new Error('Unknown NBT Tag Type: ' + type);
+      }
+    }
+
+    parse() {
+      const rootType = this.readByte();
+      if (rootType !== 10) throw new Error("Invalid NBT Format");
+      const name = this.readString();
+      return { name, value: this.readTag(10) };
+    }
+  }
+
+  async function decompressGzip(buffer) {
+    const bytes = new Uint8Array(buffer);
+    if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+      if (typeof DecompressionStream !== 'undefined') {
+        const ds = new DecompressionStream('gzip');
+        const writer = ds.writable.getWriter();
+        writer.write(bytes);
+        writer.close();
+        const response = new Response(ds.readable);
+        return await response.arrayBuffer();
+      }
+    }
+    return buffer;
+  }
+
+  const Mat4 = {
+    create: () => new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
+    perspective: (out, fovy, aspect, near, far) => {
+      const f = 1.0 / Math.tan(fovy / 2);
+      const nf = 1 / (near - far);
+      out[0] = f / aspect; out[1] = 0; out[2] = 0; out[3] = 0;
+      out[4] = 0; out[5] = f; out[6] = 0; out[7] = 0;
+      out[8] = 0; out[9] = 0; out[10] = (far + near) * nf; out[11] = -1;
+      out[12] = 0; out[13] = 0; out[14] = (2 * far * near) * nf; out[15] = 0;
+    },
+    multiply: (out, a, b) => {
+      let a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+      let a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+      let a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+      let a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+      let b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+      out[0] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+      out[1] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+      out[2] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+      out[3] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
+      b0 = b[4]; b1 = b[5]; b2 = b[6]; b3 = b[7];
+      out[4] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+      out[5] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+      out[6] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+      out[7] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
+      b0 = b[8]; b1 = b[9]; b2 = b[10]; b3 = b[11];
+      out[8] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+      out[9] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+      out[10] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+      out[11] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
+      b0 = b[12]; b1 = b[13]; b2 = b[14]; b3 = b[15];
+      out[12] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+      out[13] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+      out[14] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+      out[15] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
+    }
+  };
+
+  function getBlockColor(name) {
+    if (!name) return [0.7, 0.7, 0.7];
+    const n = name.toLowerCase();
+    if (n.includes('stone') || n.includes('cobble')) return [0.5, 0.5, 0.5];
+    if (n.includes('dirt') || n.includes('path')) return [0.5, 0.35, 0.2];
+    if (n.includes('grass')) return [0.35, 0.65, 0.2];
+    if (n.includes('wood') || n.includes('log') || n.includes('plank')) return [0.6, 0.4, 0.2];
+    if (n.includes('leaf') || n.includes('leaves')) return [0.1, 0.5, 0.1];
+    if (n.includes('water')) return [0.1, 0.3, 0.8];
+    if (n.includes('sand')) return [0.85, 0.8, 0.5];
+    if (n.includes('brick')) return [0.6, 0.25, 0.2];
+    if (n.includes('glass')) return [0.8, 0.9, 1.0];
+    if (n.includes('iron')) return [0.8, 0.8, 0.8];
+    if (n.includes('gold')) return [0.9, 0.8, 0.2];
+    if (n.includes('diamond')) return [0.3, 0.8, 0.8];
+    
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return [
+      Math.abs((hash & 0xFF0000) >> 16) / 255 * 0.6 + 0.3,
+      Math.abs((hash & 0x00FF00) >> 8) / 255 * 0.6 + 0.3,
+      Math.abs(hash & 0x0000FF) / 255 * 0.6 + 0.3
+    ];
+  }
+
+  const vsSource = `
+    attribute vec3 aPosition;
+    attribute vec3 aNormal;
+    attribute vec3 aColor;
+
+    uniform mat4 uMVP;
+    varying vec3 vColor;
+    varying vec3 vNormal;
+
+    void main() {
+      gl_Position = uMVP * vec4(aPosition, 1.0);
+      vColor = aColor;
+      vNormal = aNormal;
+    }
+  `;
+
+  const fsSource = `
+    precision mediump float;
+    varying vec3 vColor;
+    varying vec3 vNormal;
+
+    void main() {
+      vec3 lightDir = normalize(vec3(0.4, 0.8, 0.6));
+      float diff = max(dot(vNormal, lightDir), 0.3);
+      gl_FragColor = vec4(vColor * diff, 1.0);
+    }
+  `;
+
+  class Engine3D {
+    constructor(canvas) {
+      this.canvas = canvas;
+      this.gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      this.numIndices = 0;
+      this.rotX = 0.5;
+      this.rotY = 0.8;
+      this.distance = 20;
+      this.center = [0, 0, 0];
+      this.isDragging = false;
+      this.lastMouse = { x: 0, y: 0 };
+
+      if (this.gl) this.initGL();
+      this.setupInteraction();
+    }
+
+    initGL() {
+      const gl = this.gl;
+      const vs = gl.createShader(gl.VERTEX_SHADER);
+      gl.shaderSource(vs, vsSource);
+      gl.compileShader(vs);
+
+      const fs = gl.createShader(gl.FRAGMENT_SHADER);
+      gl.shaderSource(fs, fsSource);
+      gl.compileShader(fs);
+
+      this.program = gl.createProgram();
+      gl.attachShader(this.program, vs);
+      gl.attachShader(this.program, fs);
+      gl.linkProgram(this.program);
+
+      this.locations = {
+        aPosition: gl.getAttribLocation(this.program, 'aPosition'),
+        aNormal: gl.getAttribLocation(this.program, 'aNormal'),
+        aColor: gl.getAttribLocation(this.program, 'aColor'),
+        uMVP: gl.getUniformLocation(this.program, 'uMVP')
+      };
+
+      this.vbo = gl.createBuffer();
+      this.ibo = gl.createBuffer();
+    }
+
+    setupInteraction() {
+      this.canvas.addEventListener('mousedown', (e) => {
+        this.isDragging = true;
+        this.lastMouse = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!this.isDragging) return;
+        const dx = e.clientX - this.lastMouse.x;
+        const dy = e.clientY - this.lastMouse.y;
+        this.rotY += dx * 0.01;
+        this.rotX += dy * 0.01;
+        this.lastMouse = { x: e.clientX, y: e.clientY };
+        this.render();
+      });
+
+      window.addEventListener('mouseup', () => this.isDragging = false);
+
+      this.canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        this.distance += e.deltaY * 0.05;
+        this.distance = Math.max(2, Math.min(500, this.distance));
+        this.render();
+      });
+    }
+
+    buildMeshFromNbt(nbtValue) {
+      if (!this.gl) return;
+
+      let blocks = nbtValue.blocks || [];
+      let palette = nbtValue.palette || [];
+      let size = nbtValue.size || [1, 1, 1];
+
+      this.center = [size[0] / 2, size[1] / 2, size[2] / 2];
+      this.distance = Math.max(size[0], size[1], size[2]) * 2.5;
+
+      const positions = [];
+      const normals = [];
+      const colors = [];
+      const indices = [];
+      let vertexCount = 0;
+
+      const cubeFaces = [
+        { normal: [0, 0, 1], verts: [[0,0,1], [1,0,1], [1,1,1], [0,1,1]] },
+        { normal: [0, 0,-1], verts: [[1,0,0], [0,0,0], [0,1,0], [1,1,0]] },
+        { normal: [0, 1, 0], verts: [[0,1,1], [1,1,1], [1,1,0], [0,1,0]] },
+        { normal: [0,-1, 0], verts: [[0,0,0], [1,0,0], [1,0,1], [0,0,1]] },
+        { normal: [1, 0, 0], verts: [[1,0,1], [1,0,0], [1,1,0], [1,1,1]] },
+        { normal: [-1,0, 0], verts: [[0,0,0], [0,0,1], [0,1,1], [0,1,0]] }
+      ];
+
+      for (const b of blocks) {
+        const pos = b.pos;
+        if (!pos) continue;
+
+        let blockName = "stone";
+        const stateIdx = b.state !== undefined ? b.state : b.state;
+        if (palette[stateIdx]) {
+          blockName = palette[stateIdx].Name || "stone";
+        }
+
+        if (blockName.includes('air')) continue;
+
+        const color = getBlockColor(blockName);
+
+        for (const face of cubeFaces) {
+          for (const v of face.verts) {
+            positions.push(pos[0] + v[0], pos[1] + v[1], pos[2] + v[2]);
+            normals.push(...face.normal);
+            colors.push(...color);
+          }
+          indices.push(
+            vertexCount, vertexCount + 1, vertexCount + 2,
+            vertexCount, vertexCount + 2, vertexCount + 3
+          );
+          vertexCount += 4;
+        }
+      }
+
+      const gl = this.gl;
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+      
+      const vertexData = new Float32Array(positions.length + normals.length + colors.length);
+      let offset = 0;
+      for (let i = 0; i < positions.length / 3; i++) {
+        vertexData[offset++] = positions[i*3];
+        vertexData[offset++] = positions[i*3+1];
+        vertexData[offset++] = positions[i*3+2];
+        vertexData[offset++] = normals[i*3];
+        vertexData[offset++] = normals[i*3+1];
+        vertexData[offset++] = normals[i*3+2];
+        vertexData[offset++] = colors[i*3];
+        vertexData[offset++] = colors[i*3+1];
+        vertexData[offset++] = colors[i*3+2];
+      }
+
+      gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+      this.numIndices = indices.length;
+      this.render();
+    }
+
+    render() {
+      const gl = this.gl;
+      if (!gl || this.numIndices === 0) return;
+
+      const displayWidth = this.canvas.clientWidth;
+      const displayHeight = this.canvas.clientHeight;
+
+      if (this.canvas.width !== displayWidth || this.canvas.height !== displayHeight) {
+        this.canvas.width = displayWidth;
+        this.canvas.height = displayHeight;
+      }
+
+      gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+      gl.clearColor(0.08, 0.08, 0.08, 1.0);
+      gl.enable(gl.DEPTH_TEST);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      gl.useProgram(this.program);
+
+      const proj = Mat4.create();
+      Mat4.perspective(proj, Math.PI / 4, this.canvas.width / this.canvas.height, 0.1, 1000.0);
+
+      const view = Mat4.create();
+      view[14] = -this.distance;
+      
+      const cosX = Math.cos(this.rotX), sinX = Math.sin(this.rotX);
+      const cosY = Math.cos(this.rotY), sinY = Math.sin(this.rotY);
+
+      const rotMat = new Float32Array([
+        cosY, sinX * sinY, -cosX * sinY, 0,
+        0, cosX, sinX, 0,
+        sinY, -sinX * cosY, cosX * cosY, 0,
+        0, 0, 0, 1
+      ]);
+
+      const mvp = Mat4.create();
+      Mat4.multiply(mvp, proj, view);
+      Mat4.multiply(mvp, mvp, rotMat);
+
+      const transMat = Mat4.create();
+      transMat[12] = -this.center[0];
+      transMat[13] = -this.center[1];
+      transMat[14] = -this.center[2];
+      Mat4.multiply(mvp, mvp, transMat);
+
+      gl.uniformMatrix4fv(this.locations.uMVP, false, mvp);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+      const stride = 9 * 4;
+      gl.vertexAttribPointer(this.locations.aPosition, 3, gl.FLOAT, false, stride, 0);
+      gl.vertexAttribPointer(this.locations.aNormal, 3, gl.FLOAT, false, stride, 3 * 4);
+      gl.vertexAttribPointer(this.locations.aColor, 3, gl.FLOAT, false, stride, 6 * 4);
+
+      gl.enableVertexAttribArray(this.locations.aPosition);
+      gl.enableVertexAttribArray(this.locations.aNormal);
+      gl.enableVertexAttribArray(this.locations.aColor);
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
+      gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
+    }
+  }
 
   const statusEl = document.getElementById('status');
-  const downloadBtn = document.getElementById('download-link');
   const fileInput = document.getElementById('file-input');
   const uploadBtn = document.getElementById('upload-btn');
   const dropContainer = document.getElementById('drop-container');
+  const dropZone = document.getElementById('drop-zone');
+  const outputContainer = document.getElementById('output-container');
+  const jsonOutput = document.getElementById('json-output');
   const canvas = document.getElementById('webgl-canvas');
+  const urlInput = document.getElementById('url-input');
+  const loadUrlBtn = document.getElementById('load-url-btn');
 
-  async function initApp() {
-    gl = canvas.getContext('webgl');
+  const engine = new Engine3D(canvas);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const texturesUrl = urlParams.get('textures');
-    const nbtUrl = urlParams.get('nbt');
-
-    resources = new deepslate.Resources();
-
-    viewMatrix = mat4.create();
-    mat4.translate(viewMatrix, viewMatrix, [0, 0, -15]);
-    mat4.rotateX(viewMatrix, viewMatrix, 0.5);
-    mat4.rotateY(viewMatrix, viewMatrix, 0.8);
-
-    if (texturesUrl) {
-      try {
-        statusEl.textContent = 'Loading custom CC0 textures...';
-        await resources.loadFromZip(texturesUrl);
-        statusEl.textContent = 'Textures loaded. Ready for .NBT file.';
-      } catch (err) {
-        console.warn('Could not load texture zip:', err);
-      }
-    } else {
-      statusEl.textContent = 'Ready. Select or drag a local .NBT file.';
-    }
-
-    if (nbtUrl) {
-      downloadBtn.href = nbtUrl;
-      downloadBtn.style.display = 'block';
-      await loadNbtFromUrl(nbtUrl);
-    }
-  }
-
-  function renderNbtBuffer(arrayBuffer, sourceName = 'File') {
+  async function processBuffer(arrayBuffer, sourceName) {
     try {
-      statusEl.textContent = `Parsing ${sourceName}...`;
+      statusEl.textContent = `Processing ${sourceName}...`;
       statusEl.style.color = '#aaa';
+      outputContainer.style.display = 'none';
 
-      const nbt = deepslate.NbtFile.read(new Uint8Array(arrayBuffer));
-      const structure = deepslate.Structure.fromNbt(nbt.root);
+      let decompressedBuffer = await decompressGzip(arrayBuffer);
+      const parser = new NBTReader(decompressedBuffer);
+      const parsedData = parser.parse();
 
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      jsonOutput.textContent = JSON.stringify(parsedData, null, 2);
+      outputContainer.style.display = 'block';
 
-      renderer = new deepslate.StructureRenderer(gl, structure, resources);
-      statusEl.textContent = `Rendering: ${sourceName} (CC0 1.0 Public Domain)`;
+      engine.buildMeshFromNbt(parsedData.value);
+      dropContainer.classList.add('loaded');
 
-      function render() {
-        mat4.rotateY(viewMatrix, viewMatrix, 0.005);
-        gl.clearColor(0, 0, 0, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.enable(gl.DEPTH_TEST);
-        
-        renderer.drawStructure(viewMatrix);
-        animationFrameId = requestAnimationFrame(render);
-      }
-      render();
+      statusEl.textContent = `Loaded "${sourceName}" successfully! 3D Model ready.`;
+      statusEl.style.color = '#81c784';
     } catch (err) {
       console.error(err);
-      statusEl.textContent = `Error parsing .NBT file: ${err.message}`;
+      statusEl.textContent = `Error: ${err.message}`;
       statusEl.style.color = '#ff5252';
     }
   }
 
-  async function loadNbtFromUrl(url) {
+  async function fetchAndLoadUrl(targetUrl) {
     try {
-      statusEl.textContent = 'Fetching remote .NBT file...';
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-      const arrayBuffer = await response.arrayBuffer();
-      renderNbtBuffer(arrayBuffer, 'Remote URL');
+      statusEl.textContent = `Fetching file from URL...`;
+      statusEl.style.color = '#aaa';
+
+      const response = await fetch(targetUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const buffer = await response.arrayBuffer();
+      const fileName = targetUrl.split('/').pop() || 'URL File';
+      processBuffer(buffer, fileName);
     } catch (err) {
-      statusEl.textContent = `Error loading URL: ${err.message}`;
+      console.error(err);
+      statusEl.textContent = `Fetch error: ${err.message} (Check CORS policy if loading from another domain)`;
       statusEl.style.color = '#ff5252';
     }
   }
 
-  function handleFile(file) {
+  async function handleFile(file) {
     if (!file) return;
-    
-    statusEl.textContent = `Reading ${file.name}...`;
-    statusEl.style.color = '#aaa';
-
     const reader = new FileReader();
-    reader.onload = (e) => {
-      renderNbtBuffer(e.target.result, file.name);
-      downloadBtn.style.display = 'none';
-    };
+    reader.onload = (e) => processBuffer(e.target.result, file.name);
     reader.onerror = () => {
-      statusEl.textContent = 'Error reading local file.';
+      statusEl.textContent = 'Error reading the file.';
       statusEl.style.color = '#ff5252';
     };
     reader.readAsArrayBuffer(file);
   }
 
-  uploadBtn.addEventListener('click', () => fileInput.click());
-  
+  async function handleUrlLoad() {
+    const url = urlInput.value.trim();
+    if (!url) {
+      statusEl.textContent = 'Please enter a valid URL.';
+      statusEl.style.color = '#ff5252';
+      return;
+    }
+    fetchAndLoadUrl(url);
+  }
+
+  // Check URL query parameter on page load (?url=...)
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fileUrl = urlParams.get('url');
+
+    if (fileUrl) {
+      urlInput.value = fileUrl;
+      fetchAndLoadUrl(fileUrl);
+    }
+  });
+
+  uploadBtn.addEventListener('click', () => {
+    fileInput.value = '';
+    fileInput.click();
+  });
+
+  dropZone.addEventListener('click', () => {
+    fileInput.value = '';
+    fileInput.click();
+  });
+
   fileInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files.length > 0) {
       handleFile(e.target.files[0]);
+    }
+  });
+
+  loadUrlBtn.addEventListener('click', handleUrlLoad);
+
+  urlInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      handleUrlLoad();
     }
   });
 
@@ -274,8 +708,6 @@
       handleFile(dt.files[0]);
     }
   });
-
-  initApp();
 </script>
 
 </body>
