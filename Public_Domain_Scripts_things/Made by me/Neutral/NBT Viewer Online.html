@@ -134,8 +134,8 @@
 </div>
 
 <script type="module">
-  import { NbtFile, Structure, StructureRenderer, Resources } from 'https://esm.sh/deepslate';
-  import { mat4 } from 'https://esm.sh/gl-matrix';
+  import * as deepslate from 'https://unpkg.com/deepslate@0.27.1?module';
+  import { mat4 } from 'https://unpkg.com/gl-matrix@3.4.3/esm/index.js';
 
   let renderer = null;
   let resources = null;
@@ -157,7 +157,7 @@
     const texturesUrl = urlParams.get('textures');
     const nbtUrl = urlParams.get('nbt');
 
-    resources = new Resources();
+    resources = new deepslate.Resources();
 
     viewMatrix = mat4.create();
     mat4.translate(viewMatrix, viewMatrix, [0, 0, -15]);
@@ -188,12 +188,12 @@
       statusEl.textContent = `Parsing ${sourceName}...`;
       statusEl.style.color = '#aaa';
 
-      const nbt = NbtFile.read(new Uint8Array(arrayBuffer));
-      const structure = Structure.fromNbt(nbt.root);
+      const nbt = deepslate.NbtFile.read(new Uint8Array(arrayBuffer));
+      const structure = deepslate.Structure.fromNbt(nbt.root);
 
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
-      renderer = new StructureRenderer(gl, structure, resources);
+      renderer = new deepslate.StructureRenderer(gl, structure, resources);
       statusEl.textContent = `Rendering: ${sourceName} (CC0 1.0 Public Domain)`;
 
       function render() {
