@@ -1,0 +1,177 @@
+================================================================================
+THE VOID SIGNAL / LA STATIQUE VIVANTE (VERSION 3 - FINAL)
+Concept & Worldbuilding Bible (CC0 1.0 Universal / Public Domain Dedicated)
+================================================================================
+
+[ENGLISH VERSION]
+
+--------------------------------------------------------------------------------
+1. OVERVIEW & LICENSING
+--------------------------------------------------------------------------------
+Name of Concept: The Void Signal (also known as "The Living Noise" or "Static")
+License: CC0 1.0 Universal (Public Domain Dedication)
+
+To the extent possible under law, the creator has waived all copyright and 
+related or neighboring rights to "The Void Signal" concept, mechanics, and design 
+framework. Anyone is free to copy, modify, distribute, perform, or display this 
+work, even for commercial purposes, all without asking permission.
+
+--------------------------------------------------------------------------------
+2. CORE CONCEPT & THREAT
+--------------------------------------------------------------------------------
+"The Void Signal" is an omnipresent apocalyptic phenomenon driven by a single 
+overriding force: absolute expansion and total assimilation. It does not target 
+or get drawn to existing electronic signals or background static; instead, it 
+relentlessly spreads everywhere, seeking to dominate, convert, and control all 
+matter, environments, and living beings in its path.
+
+--------------------------------------------------------------------------------
+3. ENVIRONMENTAL PROPAGATION: THE CRIMSON NOISE WAVE
+--------------------------------------------------------------------------------
+- Spreading Mass & Absolute Expansion:
+  The Signal manifests environment-wise as a creeping, suffocating mass of 
+  vibrant red living static. It expands relentlessly across all physical surfaces, 
+  structures, and landscapes without restriction, striving to swallow everything.
+  
+- Luminance & Immunity to Darkness:
+  This crimson static wave is completely unaffected by ambient darkness or shadow. 
+  Even in complete pitch-black environments, the intense red static remains 
+  vividly illuminated and clearly visible, emitting a menacing aura.
+  
+- Visual Structure:
+  Where traditional static toggles between white and black, this anomaly replaces 
+  the bright white pixels/snow with intense crimson red, while keeping the dark 
+  pixels pitch black, creating a high-contrast, pulsating field of red interference.
+
+--------------------------------------------------------------------------------
+4. INFECTED ENTITIES MECHANICS & VISUAL DESIGN (V3)
+--------------------------------------------------------------------------------
+- Color Preservation & Overlay:
+  Infected individuals retain their original iconic colors across their body, 
+  clothing, hair, and face. However, a continuous, animated layer of active 
+  analog TV static ripples across their entire surface, affecting skin, eyes, 
+  clothing, and accessories simultaneously.
+
+- Physical Distortion & Limb Mutation:
+  The Signal degrades the physical integrity of infected entities:
+  - Limbs can unnaturally stretch, elongate, twist, or deform.
+  - Bodies undergo fluid, terrifying transformations and physical shifts while 
+    maintaining the animated static distortion.
+
+- Active Infection Mode (Glowing Eyes):
+  When fully active and aggressive, the infected reveal pure, glowing white eyes 
+  that cut sharply through the static layer of their faces.
+
+- Voice & Vocal Traps (Distortion & Luring):
+  - Standard / Aggressive State: When not trying to hide, the voice of an infected 
+    entity becomes severely glitched, corrupted, distorted, and broken, reflecting 
+    the chaotic corruption of their reality.
+  - Trap / Camouflage Mode: To lure unsuspecting survivors, infected entities 
+    can temporarily project their original, perfectly natural human voice. During 
+    this deceptive state, the static effect across their body and clothes dims 
+    and becomes far less visible, though it never truly disappears.
+
+--------------------------------------------------------------------------------
+5. TRANSMISSION & PRESENCE
+--------------------------------------------------------------------------------
+- Spreads through physical contact with infected entities or the creeping crimson wave, 
+  consuming matter indiscriminately.
+- Accompanied by loud audio buzzing, white noise humming, and low-frequency 
+  interference that disrupts electronics nearby.
+
+--------------------------------------------------------------------------------
+6. SCOPE & VERSATILITY
+--------------------------------------------------------------------------------
+This concept is media-agnostic. It applies seamlessly to:
+- Real-World Live Action (Realism/Horror)
+- 2D and 3D Animation
+- Video Games and Interactive Fiction
+- Digital Literature, Analog Horror, and Found Footage
+
+================================================================================
+[VERSION FRANÇAISE]
+
+--------------------------------------------------------------------------------
+1. PRÉSENTATION & LICENCE
+--------------------------------------------------------------------------------
+Nom du concept : Le Signal Nul (aussi appelé "La Statique Vivante" ou "La Statique")
+Licence : CC0 1.0 Universel (Transfert dans le Domaine Public)
+
+Dans la mesure possible accordée par la loi, l'auteur a renoncé à tous les droits 
+d'auteur et droits connexes sur le concept, les mécaniques et le design de 
+"Le Signal Nul". Toute personne est libre de copier, modifier, distribuer, 
+exécuter ou afficher cette œuvre, même à des fins commerciales, sans aucune 
+demande d'autorisation.
+
+--------------------------------------------------------------------------------
+2. CONCEPT CENTRAL & MENACE
+--------------------------------------------------------------------------------
+"Le Signal Nul" est un phénomène apocalyptique omniprésent poussé par une seule 
+volonté : l'expansion absolue et l'assimilation totale. Il n'est pas attiré par 
+les réseaux, l'électricité ou les sources de statique existantes ; il se propage 
+simplement partout, sans arrêt, cherchant à tout contrôler, tout recouvrir et 
+tout infecter sur son passage.
+
+--------------------------------------------------------------------------------
+3. PROPAGATION DANS L'ENVIRONNEMENT : LA VAGUE DE STATIQUE ROUGE
+--------------------------------------------------------------------------------
+- Expansion totale & Masse envahissante :
+  Dans l'environnement, le Signal se manifeste sous la forme d'une masse rampante 
+  et étouffante de statique vivante d'un rouge éclatant. Il s'étend sans aucune 
+  limite sur toutes les surfaces, décors et architectures pour tout dominer.
+  
+- Luminosité & Insensibilité à l'obscurité :
+  Cette masse de statique rouge n'est absolument pas affectée par la noirceur ou 
+  les ombres. Même dans le noir le plus complet, le rouge reste parfaitement 
+  lumineux, éclatant et nettement visible.
+  
+- Structure visuelle :
+  Là où la statique classique alterne entre le blanc et le noir, cette anomalie 
+  remplace les éléments blancs par un rouge intense, tout en conservant le noir, 
+  créant un champ de parasites rouges pulsants à fort contraste.
+
+--------------------------------------------------------------------------------
+4. MÉCANIQUES DES INFECTÉS & VISUEL (V3)
+--------------------------------------------------------------------------------
+- Conservation des couleurs & Superposition :
+  Les personnes infectées conservent intégralement leurs couleurs d'origine sur 
+  l'ensemble de leur corps, leurs vêtements, leurs cheveux et leur visage. 
+  Cependant, un effet de statique télévisuelle animée grésille en permanence 
+  par-dessus l'ensemble de leur être.
+
+- Déformation physique & Élongation des membres :
+  Le Signal altère la structure physique des infectés :
+  - Leurs membres peuvent se déformer, s'allonger ou se tordre de manière 
+    totalement innaturelle.
+  - Leurs corps subissent des mutations fluides et terrifiantes tout en gardant 
+    l'effet de statique animée.
+
+- Mode Infecté Actif (Yeux blancs brillants) :
+  Lorsqu'ils sont en mode d'attaque ou de traque active, leurs yeux deviennent 
+  entièrement blancs et brillants, perçant à travers la statique de leur visage.
+
+- Voix & Mode Piège (Corrompue vs Camouflage) :
+  - État standard / agressif : Lorsqu'ils ne cherchent pas à se cacher, la voix 
+    des infectés est profondément glitchée, corrompue, altérée et brisée.
+  - Mode Piège / Camouflage : Pour tendre un piège aux survivants, les infectés 
+    peuvent imiter leur ancienne voix humaine perfectly normale. Pendant ce 
+    temps, l'effet de statique sur leur corps et leurs vêtements devient beaucoup 
+    moins visible et plus subtil, bien qu'il ne disparaisse jamais complètement.
+
+--------------------------------------------------------------------------------
+5. TRANSMISSION & EFFETS
+--------------------------------------------------------------------------------
+- Se propage par contact physique avec les infectés ou la vague de statique rouge, 
+  assimilant la matière sans distinction.
+- S'accompagne d'un bourdonnement sonore continu, d'un souffle de bruit blanc 
+  et d'interférences provoquant des pannes électroniques.
+
+--------------------------------------------------------------------------------
+6. PORTÉE DU CONCEPT
+--------------------------------------------------------------------------------
+Ce concept est universel et s'adapte à tous les supports :
+- Prise de vue réelle / Horreur réaliste
+- Animation 2D et 3D
+- Jeux vidéo et fiction interactive
+- Horreur analogique, Found Footage et littérature numérique
+================================================================================
