@@ -551,12 +551,16 @@
             const isAI = item.path.includes('AI Creations');
             
             let url = "";
+            let nbtRawUrl = "";
+
             if (item.repoSource === 'website_files') {
                 url = `https://stormwindsky.com/${item.path}`;
             } else if (item.repoSource === 'website_cc0') {
                 url = RAW_BASE_WEBSITE + encodeURI(item.path);
+                nbtRawUrl = `https://github.com/Stormwindsky/Stormwindsky-Website/raw/refs/heads/main/${encodeURI(item.path)}`;
             } else {
                 url = RAW_BASE_ARTLIBRE + encodeURI(item.path);
+                nbtRawUrl = `https://github.com/Stormwindsky/ArtLibre/raw/refs/heads/main/${encodeURI(item.path)}`;
             }
             
             let content = `<div><small style="opacity:0.5">${currentMode.toUpperCase()}</small><h3>${item.path.split('/').pop()}</h3>`;
@@ -646,15 +650,12 @@
             if(currentMode === 'videos') content = `<video controls class="media-preview"><source src="${url}"></video>` + content;
 
             const isNbt = item.path.toLowerCase().endsWith('.nbt');
-            let nbtBtnHtml = isNbt ? `<button class="action-btn" onclick="openNbtModal('${url}')">View NBT 3D Model</button>` : '';
-
-            // Seule la catégorie 3D Models affichera le bouton Download
-            let downloadBtnHtml = currentMode === '3dmodels' ? `<a href="${url}" download class="action-btn" style="background:#28a745;">Download</a>` : '';
+            let nbtBtnHtml = isNbt ? `<button class="action-btn" onclick="openNbtModal('${nbtRawUrl}')">View NBT 3D Model</button>` : '';
 
             content += `</div>
             <div class="card-actions">
                 <a href="${url}" target="_blank" class="action-btn">Open Asset</a>
-                ${downloadBtnHtml}
+                <a href="${url}" download class="action-btn" style="background:#28a745;">Download</a>
                 ${nbtBtnHtml}
             </div>`;
 
