@@ -106,10 +106,6 @@
       display: none;
     }
   </style>
-
-  <!-- Load gl-matrix and Deepslate global UMD scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/gl-matrix@3.4.3/gl-matrix-min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/deepslate@0.13.0/dist/deepslate.javascript.js"></script>
 </head>
 <body>
 
@@ -125,7 +121,7 @@
     </div>
   </div>
 
-  <div id="status" class="status">Ready. Select or drag a local .NBT file.</div>
+  <div id="status" class="status">Initializing engine...</div>
   
   <div class="controls-group">
     <button class="btn btn-upload" id="upload-btn">📂 Open Local .NBT</button>
@@ -137,7 +133,10 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+  import { NbtFile, Structure, StructureRenderer, Resources } from 'https://esm.sh/deepslate';
+  import { mat4 } from 'https://esm.sh/gl-matrix';
+
   let renderer = null;
   let resources = null;
   let gl = null;
@@ -158,18 +157,12 @@
     const texturesUrl = urlParams.get('textures');
     const nbtUrl = urlParams.get('nbt');
 
-    if (typeof deepslate === 'undefined') {
-      statusEl.textContent = 'Error: Deepslate library failed to load.';
-      statusEl.style.color = '#ff5252';
-      return;
-    }
+    resources = new Resources();
 
-    resources = new deepslate.Resources();
-
-    viewMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.translate(viewMatrix, viewMatrix, [0, 0, -15]);
-    glMatrix.mat4.rotateX(viewMatrix, viewMatrix, 0.5);
-    glMatrix.mat4.rotateY(viewMatrix, viewMatrix, 0.8);
+    viewMatrix = mat4.create();
+    mat4.translate(viewMatrix, viewMatrix, [0, 0, -15]);
+    mat4.rotateX(viewMatrix, viewMatrix, 0.5);
+    mat4.rotateY(viewMatrix, viewMatrix, 0.8);
 
     if (texturesUrl) {
       try {
@@ -179,6 +172,8 @@
       } catch (err) {
         console.warn('Could not load texture zip:', err);
       }
+    } else {
+      statusEl.textContent = 'Ready. Select or drag a local .NBT file.';
     }
 
     if (nbtUrl) {
@@ -193,16 +188,16 @@
       statusEl.textContent = `Parsing ${sourceName}...`;
       statusEl.style.color = '#aaa';
 
-      const nbt = deepslate.NbtFile.read(new Uint8Array(arrayBuffer));
-      const structure = deepslate.Structure.fromNbt(nbt.root);
+      const nbt = NbtFile.read(new Uint8Array(arrayBuffer));
+      const structure = Structure.fromNbt(nbt.root);
 
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
-      renderer = new deepslate.StructureRenderer(gl, structure, resources);
+      renderer = new StructureRenderer(gl, structure, resources);
       statusEl.textContent = `Rendering: ${sourceName} (CC0 1.0 Public Domain)`;
 
       function render() {
-        glMatrix.mat4.rotateY(viewMatrix, viewMatrix, 0.005);
+        mat4.rotateY(viewMatrix, viewMatrix, 0.005);
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.DEPTH_TEST);
@@ -280,7 +275,7 @@
     }
   });
 
-  window.addEventListener('DOMContentLoaded', initApp);
+  initApp();
 </script>
 
 </body>
