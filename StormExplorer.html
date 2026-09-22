@@ -146,7 +146,7 @@
             margin-bottom: 5px;
         }
 
-        .skin-3d-btn {
+        .skin-3d-btn, .action-btn {
             background: var(--blue-main);
             color: white;
             border: none;
@@ -157,10 +157,19 @@
             margin-top: 10px;
             display: inline-block;
             transition: 0.2s;
+            text-decoration: none;
+            text-align: center;
         }
 
-        .skin-3d-btn:hover {
+        .skin-3d-btn:hover, .action-btn:hover {
             opacity: 0.9;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
         }
 
         footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
@@ -187,7 +196,7 @@
         .cc0-close, .ai-close, .pd-close, .never-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
         .ai-close, .pd-close, .never-close { color: red; font-size: 1.5rem; line-height: 1; }
 
-        /* 3D Skin Viewer Modal Popup */
+        /* 3D Skin & Model Viewer Modal Popup */
         #skin-modal-overlay {
             display: none;
             position: fixed;
@@ -243,26 +252,26 @@
 
 <div id="cc0-popup">
     <span class="cc0-close" onclick="closePopup()">&times;</span>
-    <p id="cc0-text" data-i18n="cc0_text">All assets in this category are under CC0 1.0 Universal License.</p>
+    <p id="cc0-text">All assets in this category are under CC0 1.0 Universal License.</p>
     <a id="cc0-link" href="https://github.com/Stormwindsky/OeuvreLibre" target="_blank" style="color:var(--blue-main); font-weight:bold;">GitHub License</a>
 </div>
 
 <div id="ai-readme-popup">
     <span class="ai-close" onclick="closeAiPopup()">X</span>
-    <div id="ai-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;" data-i18n="loading">Loading...</div>
+    <div id="ai-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
 </div>
 
 <div id="pd-readme-popup">
     <span class="pd-close" onclick="closePdPopup()">X</span>
-    <div id="pd-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;" data-i18n="loading">Loading...</div>
+    <div id="pd-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
 </div>
 
 <div id="never-readme-popup">
     <span class="never-close" onclick="closeNeverPopup()">X</span>
-    <div id="never-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;" data-i18n="loading">Loading...</div>
+    <div id="never-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
 </div>
 
-<!-- 3D Skin Viewer Modal Popup -->
+<!-- 3D Skin & Model Viewer Modal Popup -->
 <div id="skin-modal-overlay">
     <div class="skin-modal-container">
         <button class="skin-modal-close" onclick="closeSkinModal()">X</button>
@@ -272,19 +281,12 @@
 
 <div class="container">
     <header>
-        <h2 id="txt-site-title" style="margin:0" data-i18n="collection_site_title">StormExplorer</h2>
+        <h2 id="txt-site-title" style="margin:0">StormExplorer</h2>
         <div class="nav-controls">
-            <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()" data-i18n="ai_btn">Show AI Creations</button>
-            <button id="pdToggleBtn" class="pd-toggle-btn inactive" onclick="togglePD()" data-i18n="pd_btn">Thing not really made by me but i edited</button>
-            <button id="neverToggleBtn" class="never-toggle-btn inactive" onclick="toggleNever()" data-i18n="never_btn">Thing I NEVER made</button>
-            
-            <select id="langSelect" onchange="changeLanguage(this.value)">
-                <option value="en">English</option>
-                <option value="fr-FR">Français (FR)</option>
-                <option value="fr-CA">Français (QC)</option>
-                <option value="es-ES">Español</option>
-            </select>
-            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+            <button id="aiToggleBtn" class="ai-toggle-btn inactive" onclick="toggleAI()">Show AI Creations</button>
+            <button id="pdToggleBtn" class="pd-toggle-btn inactive" onclick="togglePD()">Things not really made by me but I edited</button>
+            <button id="neverToggleBtn" class="never-toggle-btn inactive" onclick="toggleNever()">Things I NEVER made</button>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
         </div>
     </header>
 
@@ -296,22 +298,21 @@
     </section>
 
     <div class="tabs">
-        <div class="tab active" data-mode="files" id="tab-files" data-i18n="tab_files">Files</div>
-        <div class="tab" data-mode="images" id="tab-images" data-i18n="tab_images">Images</div>
-        <div class="tab" data-mode="audios" id="tab-audios" data-i18n="tab_audios">Audios</div>
-        <div class="tab" data-mode="videos" id="tab-videos" data-i18n="tab_videos">Videos</div>
+        <div class="tab active" data-mode="files" id="tab-files">Files</div>
+        <div class="tab" data-mode="images" id="tab-images">Images</div>
+        <div class="tab" data-mode="audios" id="tab-audios">Audios</div>
+        <div class="tab" data-mode="videos" id="tab-videos">Videos</div>
+        <div class="tab" data-mode="3dmodels" id="tab-3dmodels">3D Models</div>
     </div>
 
     <div id="results-grid"></div>
 
     <footer>
-        <p id="txt-footer" data-i18n="collection_footer">Data from Stormwindsky GitHub API</p>
+        <p id="txt-footer">Data from Stormwindsky GitHub API</p>
     </footer>
 </div>
 
 <script>
-    const defaultLang = 'en';
-    let currentTranslations = {}; 
     let currentMode = 'files';
     let showAI = false;
     let showPD = false;
@@ -319,45 +320,6 @@
 
     const RAW_BASE_ARTLIBRE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
     const RAW_BASE_WEBSITE = "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/";
-
-    // Load language JSON dynamically
-    async function loadLanguage(lang) {
-        try {
-            const response = await fetch(`./lang/${lang}.json`);
-            if (!response.ok) throw new Error('Could not load translation file');
-            
-            currentTranslations = await response.json();
-            
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (currentTranslations[key]) {
-                    element.textContent = currentTranslations[key];
-                }
-            });
-
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput && currentTranslations['search_placeholder']) {
-                searchInput.placeholder = currentTranslations['search_placeholder'];
-            }
-
-            localStorage.setItem('preferredLang', lang);
-            document.getElementById('langSelect').value = lang;
-            document.documentElement.lang = lang;
-
-            updateThemeButtonText();
-            fetchData(document.getElementById('searchInput').value);
-
-        } catch (error) {
-            console.error(`Error loading language (${lang}), falling back to ${defaultLang}:`, error);
-            if (lang !== defaultLang) {
-                loadLanguage(defaultLang);
-            }
-        }
-    }
-
-    function changeLanguage(lang) {
-        loadLanguage(lang);
-    }
 
     function updateURL() {
         const query = document.getElementById('searchInput').value;
@@ -389,6 +351,14 @@
         const iframe = document.getElementById('skinModalIframe');
         const encodedSkinUrl = encodeURIComponent(skinUrl);
         iframe.src = `https://www.stormwindsky.com/Public_Domain_Scripts_things/Made%20by%20me/Neutral/3D%20Skin%20Viewer.html?skin=${encodedSkinUrl}`;
+        modal.style.display = 'flex';
+    }
+
+    function openNbtModal(nbtUrl) {
+        const modal = document.getElementById('skin-modal-overlay');
+        const iframe = document.getElementById('skinModalIframe');
+        const encodedNbtUrl = encodeURIComponent(nbtUrl);
+        iframe.src = `https://www.stormwindsky.com/Public_Domain_Scripts_things/Made%20by%20me/Neutral/NBT%20Viewer%20Online.html?url=${encodedNbtUrl}`;
         modal.style.display = 'flex';
     }
 
@@ -487,16 +457,15 @@
         const btn = document.getElementById('themeBtn');
         
         if (theme === 'dark') {
-            btn.innerText = currentTranslations['theme_dark'] || '☀️ Light Mode';
+            btn.innerText = '☀️ Light Mode';
         } else {
-            btn.innerText = currentTranslations['theme_light'] || '🌙 Dark Mode';
+            btn.innerText = '🌙 Dark Mode';
         }
     }
 
     async function fetchData(query = '') {
         const grid = document.getElementById('results-grid');
-        const loadingText = currentTranslations['loading'] || 'Loading...';
-        grid.innerHTML = `<p>${loadingText}</p>`;
+        grid.innerHTML = `<p>Loading...</p>`;
         
         const popup = document.getElementById('cc0-popup');
         const aiBtn = document.getElementById('aiToggleBtn');
@@ -550,6 +519,7 @@
                 if(currentMode === 'images') items = items.filter(i => i.path.match(/\.(jpg|jpeg|png|gif|svg|JPG)$/i));
                 else if(currentMode === 'audios') items = items.filter(i => i.path.match(/\.(mp3|wav|ogg)$/i));
                 else if(currentMode === 'videos') items = items.filter(i => i.path.match(/\.(mp4|webm)$/i));
+                else if(currentMode === '3dmodels') items = items.filter(i => i.path.match(/\.(nbt|obj|gltf|glb|stl|fbx)$/i));
 
                 if (!showAI) {
                     items = items.filter(i => !i.path.includes('AI Creations'));
@@ -567,8 +537,7 @@
             renderGrid(items);
             updateURL();
         } catch(e) { 
-            const errorText = currentTranslations['error_loading'] || 'Error loading data.';
-            grid.innerHTML = `<p>${errorText}</p>`; 
+            grid.innerHTML = `<p>Error loading data.</p>`; 
         }
     }
 
@@ -576,8 +545,6 @@
         const grid = document.getElementById('results-grid');
         grid.innerHTML = '';
         
-        const openText = currentTranslations['open_asset'] || 'Open Asset';
-
         items.forEach(item => {
             const card = document.createElement('div');
             card.className = 'bento-card';
@@ -678,7 +645,20 @@
             if(currentMode === 'audios') content += `<audio controls style="width:100%"><source src="${url}"></audio>`;
             if(currentMode === 'videos') content = `<video controls class="media-preview"><source src="${url}"></video>` + content;
 
-            card.innerHTML = content + `</div><a href="${url}" target="_blank" style="color:var(--blue-main); font-weight:bold; margin-top:15px; text-decoration:none;">${openText}</a>`;
+            const isNbt = item.path.toLowerCase().endsWith('.nbt');
+            let nbtBtnHtml = isNbt ? `<button class="action-btn" onclick="openNbtModal('${url}')">View NBT 3D Model</button>` : '';
+
+            // Seule la catégorie 3D Models affichera le bouton Download
+            let downloadBtnHtml = currentMode === '3dmodels' ? `<a href="${url}" download class="action-btn" style="background:#28a745;">Download</a>` : '';
+
+            content += `</div>
+            <div class="card-actions">
+                <a href="${url}" target="_blank" class="action-btn">Open Asset</a>
+                ${downloadBtnHtml}
+                ${nbtBtnHtml}
+            </div>`;
+
+            card.innerHTML = content;
             grid.appendChild(card);
 
             // Check dimensions: Accepts either 64x64 or 64x32
@@ -718,9 +698,8 @@
         const queryParam = urlParams.get('q');
         
         const savedTheme = localStorage.getItem('theme') || 'light';
-        const savedLang = localStorage.getItem('preferredLang') || defaultLang;
-        
         document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeButtonText();
 
         if(modeParam) {
             currentMode = modeParam;
@@ -733,7 +712,7 @@
             document.getElementById('searchInput').value = queryParam;
         }
 
-        loadLanguage(savedLang);
+        fetchData(document.getElementById('searchInput').value);
     };
 </script>
 
