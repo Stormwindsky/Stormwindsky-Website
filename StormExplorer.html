@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StormExplorer | Collection</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        /* --- BENTO UI SYSTEM --- */
         :root {
             --bg-body: #f0f0f0;
             --card-white: #ffffff;
@@ -175,7 +175,7 @@
         footer { margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
 
         /* Popups Styling */
-        #cc0-popup, #ai-readme-popup, #pd-readme-popup, #never-readme-popup {
+        #cc0-popup, #ai-readme-popup, #pd-readme-popup, #never-readme-popup, #custommap-readme-popup {
             display: none;
             position: fixed;
             bottom: 20px;
@@ -190,11 +190,11 @@
             animation: slideIn 0.5s ease-out;
         }
 
-        #ai-readme-popup, #pd-readme-popup, #never-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
+        #ai-readme-popup, #pd-readme-popup, #never-readme-popup, #custommap-readme-popup { border-color: var(--ai-blue); max-height: 400px; overflow-y: auto; }
 
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        .cc0-close, .ai-close, .pd-close, .never-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
-        .ai-close, .pd-close, .never-close { color: red; font-size: 1.5rem; line-height: 1; }
+        .cc0-close, .ai-close, .pd-close, .never-close, .custommap-close { float: right; cursor: pointer; color: var(--text-dim); font-weight: bold; }
+        .ai-close, .pd-close, .never-close, .custommap-close { color: red; font-size: 1.5rem; line-height: 1; }
 
         /* 3D Skin & Model Viewer Modal Popup */
         #skin-modal-overlay {
@@ -271,6 +271,11 @@
     <div id="never-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
 </div>
 
+<div id="custommap-readme-popup">
+    <span class="custommap-close" onclick="closeCustomMapReadme()">X</span>
+    <div id="custommap-readme-content" style="font-size: 0.9rem; white-space: pre-wrap; margin-top: 10px;">Loading...</div>
+</div>
+
 <!-- 3D Skin & Model Viewer Modal Popup -->
 <div id="skin-modal-overlay">
     <div class="skin-modal-container">
@@ -303,6 +308,7 @@
         <div class="tab" data-mode="audios" id="tab-audios">Audios</div>
         <div class="tab" data-mode="videos" id="tab-videos">Videos</div>
         <div class="tab" data-mode="3dmodels" id="tab-3dmodels">3D Models</div>
+        <div class="tab" data-mode="custommaps" id="tab-custommaps">Custom Maps</div>
     </div>
 
     <div id="results-grid"></div>
@@ -317,9 +323,11 @@
     let showAI = false;
     let showPD = false;
     let showNever = false;
+    let customMapsData = [];
 
     const RAW_BASE_ARTLIBRE = "https://raw.githubusercontent.com/Stormwindsky/ArtLibre/main/";
     const RAW_BASE_WEBSITE = "https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/";
+    const CUSTOM_MAPS_ROOT = "Public_Domain_Thing/Made_By_Me/Audios_And_Images_And_Other/Custom Maps/";
 
     function updateURL() {
         const query = document.getElementById('searchInput').value;
@@ -346,6 +354,10 @@
         document.getElementById('never-readme-popup').style.display = 'none';
     }
 
+    function closeCustomMapReadme() {
+        document.getElementById('custommap-readme-popup').style.display = 'none';
+    }
+
     function openSkinModal(skinUrl) {
         const modal = document.getElementById('skin-modal-overlay');
         const iframe = document.getElementById('skinModalIframe');
@@ -367,6 +379,60 @@
         const iframe = document.getElementById('skinModalIframe');
         iframe.src = "";
         modal.style.display = 'none';
+    }
+
+    async function openCustomMapReadme(idx) {
+        const map = customMapsData[idx];
+        if (!map) return;
+        const popup = document.getElementById('custommap-readme-popup');
+        const contentDiv = document.getElementById('custommap-readme-content');
+        popup.style.display = 'block';
+        contentDiv.innerText = 'Loading...';
+        try {
+            const res = await fetch(RAW_BASE_WEBSITE + encodeURI(map.readme));
+            const text = await res.text();
+            contentDiv.innerText = text;
+        } catch (e) {
+            contentDiv.innerText = "Error loading Readme.";
+        }
+    }
+
+    async function downloadCustomMap(idx, btn) {
+        const map = customMapsData[idx];
+        if (!map) return;
+        const folderName = map.folder.split('/').pop();
+        const originalText = btn.innerText;
+        try {
+            btn.disabled = true;
+            const zip = new JSZip();
+            const root = zip.folder(folderName);
+            for (let i = 0; i < map.files.length; i++) {
+                const f = map.files[i];
+                btn.innerText = `Zipping ${i + 1}/${map.files.length}...`;
+                const rel = f.path.substring(map.folder.length + 1);
+                try {
+                    const res = await fetch(RAW_BASE_WEBSITE + encodeURI(f.path));
+                    if (!res.ok) continue;
+                    const blob = await res.blob();
+                    root.file(rel, blob);
+                } catch (innerErr) { /* skip file on error */ }
+            }
+            btn.innerText = 'Generating zip...';
+            const content = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(content);
+            a.download = folderName + '.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+            btn.innerText = originalText;
+        } catch (e) {
+            alert('Error creating zip: ' + e.message);
+            btn.innerText = originalText;
+        } finally {
+            btn.disabled = false;
+        }
     }
 
     async function toggleAI() {
@@ -472,7 +538,7 @@
         const pdBtn = document.getElementById('pdToggleBtn');
         const neverBtn = document.getElementById('neverToggleBtn');
 
-        if(currentMode === 'files') {
+        if(currentMode === 'files' || currentMode === 'custommaps') {
             popup.style.display = 'none';
             aiBtn.style.display = 'none';
             pdBtn.style.display = 'none';
@@ -492,6 +558,27 @@
                 const res = await fetch(api);
                 const data = await res.json();
                 items = data.tree.filter(i => i.type === 'blob' && i.path.endsWith('.html')).map(i => ({ ...i, repoSource: 'website_files' }));
+            } else if (currentMode === 'custommaps') {
+                const apiWebsite = "https://api.github.com/repos/Stormwindsky/Stormwindsky-Website/git/trees/main?recursive=1";
+                const resWebsite = await fetch(apiWebsite);
+                const dataWebsite = await resWebsite.json();
+                const allFiles = dataWebsite.tree.filter(i => i.type === 'blob' && i.path.startsWith(CUSTOM_MAPS_ROOT));
+                const readmes = allFiles.filter(f => f.path.toLowerCase().endsWith('/readme.md'));
+                let maps = readmes.map(r => {
+                    const folder = r.path.substring(0, r.path.lastIndexOf('/'));
+                    const files = allFiles.filter(f => f.path.startsWith(folder + '/'));
+                    return { folder: folder, readme: r.path, files: files };
+                });
+
+                if (query) {
+                    const q = query.toLowerCase();
+                    maps = maps.filter(m => m.folder.toLowerCase().includes(q));
+                }
+
+                customMapsData = maps;
+                renderCustomMaps(maps);
+                updateURL();
+                return;
             } else {
                 // Fetch from ArtLibre repo
                 const apiArtLibre = "https://api.github.com/repos/Stormwindsky/ArtLibre/git/trees/main?recursive=1";
@@ -539,6 +626,45 @@
         } catch(e) { 
             grid.innerHTML = `<p>Error loading data.</p>`; 
         }
+    }
+
+    function renderCustomMaps(maps) {
+        const grid = document.getElementById('results-grid');
+        grid.innerHTML = '';
+
+        if (maps.length === 0) {
+            grid.innerHTML = '<p>No custom maps found.</p>';
+            return;
+        }
+
+        maps.forEach((map, idx) => {
+            const card = document.createElement('div');
+            card.className = 'bento-card';
+            const folderName = map.folder.split('/').pop();
+
+            let badgeHtml = '';
+            if (map.folder.startsWith(CUSTOM_MAPS_ROOT)) {
+                const rel = map.folder.substring(CUSTOM_MAPS_ROOT.length);
+                const parts = rel.split('/');
+                if (parts.length > 1) {
+                    badgeHtml = `<div class="folder-badge">${parts[0]}</div>`;
+                }
+            }
+
+            card.innerHTML = `
+                <div>
+                    <small style="opacity:0.5">CUSTOM MAP</small>
+                    <h3>${folderName}</h3>
+                    ${badgeHtml}
+                    <p style="opacity:0.7; font-size:0.85rem; margin-top:8px;">${map.files.length} file(s)</p>
+                </div>
+                <div class="card-actions">
+                    <button class="action-btn" onclick="openCustomMapReadme(${idx})">Read me</button>
+                    <button class="action-btn" id="dl-btn-${idx}" onclick="downloadCustomMap(${idx}, this)" style="background:#28a745;">Download</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
     }
 
     function renderGrid(items) {
