@@ -11,10 +11,9 @@
             --text-dark: #1d1d1f;
             --text-dim: #86868b;
             --accent: #007aff;
-            
-            /* Game Boy Palette */
-            --gb-transparent: #8bac0f;
-            --gb-light: #9bbc0f;
+
+            --gb-transparent: #65ff00;
+            --gb-light: #8bac0f;
             --gb-dark: #306230;
             --gb-black: #0f380f;
         }
@@ -81,6 +80,10 @@
             border: 2px solid var(--text-dark);
             width: 400px;
             height: 400px;
+            background-size: 16px 16px;
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
         }
 
         .pixel {
@@ -109,11 +112,23 @@
             border-radius: 10px;
             border: 3px solid transparent;
             cursor: pointer;
+            position: relative;
         }
 
         .color-btn.active {
             border-color: var(--accent);
             transform: scale(1.05);
+        }
+
+        .color-btn[data-color="#65ff00"]::after {
+            content: 'TRANS';
+            position: absolute;
+            font-size: 9px;
+            font-weight: bold;
+            color: #000;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .preview-box {
@@ -125,9 +140,12 @@
 
         #preview-canvas {
             image-rendering: pixelated;
-            background: var(--gb-transparent);
             border: 1px solid var(--text-dim);
             margin-top: 10px;
+            background-color: #ffffff;
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
         }
 
         .btn-main {
@@ -135,6 +153,17 @@
             color: white;
             border: none;
             padding: 12px;
+        }
+
+        .size-select {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--text-dim);
+            background: var(--card-bg);
+            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         footer { 
@@ -166,15 +195,23 @@
             <div class="palette">
                 <div class="color-btn active" style="background: var(--gb-black);" data-color="#0f380f"></div>
                 <div class="color-btn" style="background: var(--gb-dark);" data-color="#306230"></div>
-                <div class="color-btn" style="background: var(--gb-light);" data-color="#9bbc0f"></div>
-                <div class="color-btn" style="background: var(--gb-transparent);" data-color="#8bac0f"></div>
+                <div class="color-btn" style="background: var(--gb-light);" data-color="#8bac0f"></div>
+                <div class="color-btn" style="background: var(--gb-transparent);" data-color="#65ff00" title="Transparent for GB Studio"></div>
             </div>
 
-            <button class="btn-main" onclick="exportPNG()" id="btn-export">Export PNG</button>
-            <button class="theme-toggle" onclick="clearGrid()" id="btn-clear">Clear Grid</button>
+            <label for="sizeSelect" style="font-weight:600; font-size:0.9rem;">Export size:</label>
+            <select id="sizeSelect" class="size-select">
+                <option value="1">16×16 (1x)</option>
+                <option value="4" selected>64×64 (4x)</option>
+                <option value="8">128×128 (8x)</option>
+                <option value="16">256×256 (16x)</option>
+            </select>
+
+            <button class="btn-main" onclick="exportPNG()" id="btn-export">Export PNG (with transparency)</button>
+            <button class="theme-toggle" onclick="clearGrid()" id="btn-clear">Reset</button>
 
             <div class="preview-box">
-                <span id="txt-preview">Preview (16x16)</span><br>
+                <span id="txt-preview">Preview the Sprite (16x16)</span><br>
                 <canvas id="preview-canvas" width="16" height="16"></canvas>
             </div>
         </div>
@@ -182,32 +219,13 @@
 
     <footer id="txt-footer">
         <strong>MIT No Attribution</strong><br><br>
-        Copyright 2026 Stormwindsky<br><br>
-        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so.<br><br>
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+        Copyright 2026 Stormwindsky
     </footer>
 
     <script>
-        /*
-          MIT No Attribution
+        const GB_TRANSPARENT_COLOR = '#65ff00';
+        const GRID_SIZE = 16;
 
-          Copyright 2026 Stormwindsky
-
-          Permission is hereby granted, free of charge, to any person obtaining a copy of this
-          software and associated documentation files (the "Software"), to deal in the Software
-          without restriction, including without limitation the rights to use, copy, modify,
-          merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
-          permit persons to whom the Software is furnished to do so.
-
-          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-          INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-          PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-          HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-          OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-          SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-        */
-
-        // --- THEME MANAGEMENT ---
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -221,7 +239,6 @@
             document.getElementById('themeBtn').innerText = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
         }
 
-        // --- EDITOR LOGIC ---
         const grid = document.getElementById('grid');
         const previewCanvas = document.getElementById('preview-canvas');
         const ctx = previewCanvas.getContext('2d');
@@ -229,48 +246,94 @@
         let isDrawing = false;
 
         function initGrid() {
-            for (let i = 0; i < 256; i++) {
+            grid.innerHTML = '';
+            for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
                 const pixel = document.createElement('div');
                 pixel.classList.add('pixel');
-                pixel.addEventListener('mousedown', () => { isDrawing = true; paint(pixel); });
-                pixel.addEventListener('mouseover', () => { if(isDrawing) paint(pixel); });
+                pixel.dataset.color = GB_TRANSPARENT_COLOR;
+                pixel.style.backgroundColor = GB_TRANSPARENT_COLOR;
+                
+                pixel.addEventListener('mousedown', (e) => { 
+                    e.preventDefault();
+                    isDrawing = true; 
+                    paint(pixel); 
+                });
+                pixel.addEventListener('mouseover', () => { 
+                    if(isDrawing) paint(pixel); 
+                });
                 grid.appendChild(pixel);
             }
         }
 
         function paint(el) {
+            el.dataset.color = currentColor;
             el.style.backgroundColor = currentColor;
             updatePreview();
         }
 
         function updatePreview() {
+            ctx.clearRect(0, 0, GRID_SIZE, GRID_SIZE);
             const pixels = document.querySelectorAll('.pixel');
+            
             pixels.forEach((p, i) => {
-                const x = i % 16;
-                const y = Math.floor(i / 16);
-                ctx.fillStyle = p.style.backgroundColor || '#8bac0f';
-                ctx.fillRect(x, y, 1, 1);
+                const x = i % GRID_SIZE;
+                const y = Math.floor(i / GRID_SIZE);
+                const color = p.dataset.color || GB_TRANSPARENT_COLOR;
+
+                if (color === GB_TRANSPARENT_COLOR) {
+                    ctx.fillStyle = '#65ff00';
+                    ctx.fillRect(x, y, 1, 1);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, 1, 1);
+                }
             });
         }
 
         function clearGrid() {
-            document.querySelectorAll('.pixel').forEach(p => p.style.backgroundColor = 'var(--gb-transparent)');
+            document.querySelectorAll('.pixel').forEach(p => {
+                p.dataset.color = GB_TRANSPARENT_COLOR;
+                p.style.backgroundColor = GB_TRANSPARENT_COLOR;
+            });
             updatePreview();
         }
 
         function exportPNG() {
+            const scale = parseInt(document.getElementById('sizeSelect').value, 10) || 1;
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = GRID_SIZE * scale;
+            exportCanvas.height = GRID_SIZE * scale;
+            const ectx = exportCanvas.getContext('2d');
+
+            ectx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
+
+            const pixels = document.querySelectorAll('.pixel');
+            pixels.forEach((p, i) => {
+                const x = i % GRID_SIZE;
+                const y = Math.floor(i / GRID_SIZE);
+                const color = p.dataset.color || GB_TRANSPARENT_COLOR;
+
+                // Si c'est la couleur "transparente", on ne dessine RIEN -> alpha = 0
+                if (color === GB_TRANSPARENT_COLOR) {
+                    return;
+                }
+
+                ectx.fillStyle = color;
+                ectx.fillRect(x * scale, y * scale, scale, scale);
+            });
+
             const link = document.createElement('a');
-            link.download = 'gb-sprite.png';
-            link.href = previewCanvas.toDataURL();
+            link.download = 'sprite_gbstudio_' + exportCanvas.width + 'x' + exportCanvas.height + '.png';
+            link.href = exportCanvas.toDataURL('image/png');
             link.click();
         }
 
-        // --- INITIALIZATION ---
         window.addEventListener('mouseup', () => isDrawing = false);
 
         document.querySelectorAll('.color-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelector('.color-btn.active').classList.remove('active');
+                const activeBtn = document.querySelector('.color-btn.active');
+                if(activeBtn) activeBtn.classList.remove('active');
                 btn.classList.add('active');
                 currentColor = btn.getAttribute('data-color');
             });
