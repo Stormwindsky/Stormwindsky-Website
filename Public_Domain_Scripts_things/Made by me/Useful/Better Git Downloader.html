@@ -6,7 +6,6 @@
 </head>
 <body>
 <script>
-(async () => {
   const params = new URLSearchParams(window.location.search);
   
   const owner = params.get('owner') || 'octocat';
@@ -14,27 +13,14 @@
   const ref = params.get('ref') || 'main';
   const ext = params.get('ext') || 'zip';
 
-  const githubUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/${ref}.zip`;
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(githubUrl)}`;
+  const githubUrl = `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${ref}`;
 
-  try {
-    const response = await fetch(proxyUrl);
-    if (!response.ok) throw new Error('Download failed');
-    
-    const blob = await response.blob();
-    const downloadUrl = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = `${repo}-${ref}.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(downloadUrl);
-  } catch (err) {
-    window.location.replace(githubUrl);
-  }
-})();
+  const a = document.createElement('a');
+  a.href = githubUrl;
+  a.download = `${repo}-${ref}.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 </script>
 </body>
 </html>
