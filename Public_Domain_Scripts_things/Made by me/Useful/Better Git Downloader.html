@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+</head>
+<body>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  
+  const owner = params.get('owner') || 'octocat';
+  const repo = params.get('repo') || 'Hello-World';
+  const ref = params.get('ref') || 'main';
+
+  const githubUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/${ref}.zip`;
+  
+  window.location.replace(githubUrl);
+</script>
+</body>
+</html>
