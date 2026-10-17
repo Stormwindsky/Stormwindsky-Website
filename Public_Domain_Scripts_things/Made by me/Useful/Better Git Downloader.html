@@ -6,15 +6,35 @@
 </head>
 <body>
 <script>
+(async () => {
   const params = new URLSearchParams(window.location.search);
   
   const owner = params.get('owner') || 'octocat';
   const repo = params.get('repo') || 'Hello-World';
   const ref = params.get('ref') || 'main';
+  const ext = params.get('ext') || 'zip';
 
   const githubUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/${ref}.zip`;
-  
-  window.location.replace(githubUrl);
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(githubUrl)}`;
+
+  try {
+    const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error('Download failed');
+    
+    const blob = await response.blob();
+    const downloadUrl = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = `${repo}-${ref}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(downloadUrl);
+  } catch (err) {
+    window.location.replace(githubUrl);
+  }
+})();
 </script>
 </body>
 </html>
