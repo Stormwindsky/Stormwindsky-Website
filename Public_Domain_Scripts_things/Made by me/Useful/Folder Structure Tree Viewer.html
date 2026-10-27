@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Folder Structure Tree Viewer</title>
+    <!-- JSZip library for parsing .zip and .sb3 files in the browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         /* --- CSS STYLES --- */
         :root {
@@ -59,6 +61,29 @@
             background-color: #e9f5ff;
             border-color: var(--success-color);
             color: var(--primary-color);
+        }
+
+        /* --- Controls Area --- */
+        .controls-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .controls-container label {
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #343a40;
+        }
+
+        .controls-container input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95em;
+            box-sizing: border-box;
         }
 
         /* --- Results Area --- */
@@ -117,7 +142,6 @@
             transform: scale(0.98);
         }
 
-        /* SVG Icon for Copy (Clipboard) */
         .copy-button svg {
             fill: white;
             width: 16px;
@@ -153,8 +177,13 @@
         <h1>Folder Structure Tree Viewer</h1>
 
         <div id="drop-zone">
-            <p><strong>Drag and drop a folder here</strong> to see its structure.</p>
-            <p><em>(Note: This works best on Chromium-based browsers like Chrome/Edge and only accesses file/folder names, not content.)</em></p>
+            <p><strong>Drag and drop a folder, .zip, or .sb3 file here</strong> to see its structure.</p>
+            <p><em>(Note: .sb3 files are Scratch 3.0 project archives treated as zip files.)</em></p>
+        </div>
+
+        <div class="controls-container">
+            <label for="exclude-input">Exclude Subdirectories (comma-separated):</label>
+            <input type="text" id="exclude-input" placeholder="e.g., node_modules, .git, temp">
         </div>
 
         <div id="results-container">
@@ -167,7 +196,7 @@
                     Copy Tree
                 </button>
             </div>
-            <pre id="tree-output">Drop a folder to generate the tree structure...</pre>
+            <pre id="tree-output">Drop a folder, .zip, or .sb3 file to generate the tree structure...</pre>
             <div id="status-message"></div>
         </div>
 
@@ -180,39 +209,21 @@
     </div>
 
     <script>
-        /*
-          MIT No Attribution
-
-          Copyright 2026 Stormwindsky
-
-          Permission is hereby granted, free of charge, to any person obtaining a copy of this
-          software and associated documentation files (the "Software"), to deal in the Software
-          without restriction, including without limitation the rights to use, copy, modify,
-          merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
-          permit persons to whom the Software is furnished to do so.
-
-          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-          INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-          PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-          HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-          OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-          SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-        */
-
-        // --- JAVASCRIPT LOGIC ---
         const dropZone = document.getElementById('drop-zone');
         const resultsContainer = document.getElementById('results-container');
         const treeOutput = document.getElementById('tree-output');
         const copyButton = document.getElementById('copy-button');
         const statusMessage = document.getElementById('status-message');
+        const excludeInput = document.getElementById('exclude-input');
+
+        let rawTreeData = null;
 
         // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false); // Prevent drop on entire page
+            document.body.addEventListener(eventName, preventDefaults, false);
         });
 
-        // Highlight drop zone when item is dragged over it
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
         });
@@ -221,8 +232,13 @@
             dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
         });
 
-        // Handle dropped files
         dropZone.addEventListener('drop', handleDrop, false);
+
+        excludeInput.addEventListener('input', () => {
+            if (rawTreeData) {
+                renderCurrentTree();
+            }
+        });
 
         function preventDefaults(e) {
             e.preventDefault();
@@ -232,40 +248,102 @@
         async function handleDrop(e) {
             const dt = e.dataTransfer;
             const items = dt.items;
+            const files = dt.files;
             
-            // Clear previous results and status
-            treeOutput.textContent = 'Generating tree structure...';
+            treeOutput.textContent = 'Processing files...';
             statusMessage.textContent = '';
             resultsContainer.style.display = 'block';
 
-            // Check if items were dropped
-            if (items.length === 0) {
+            if ((!items || items.length === 0) && (!files || files.length === 0)) {
                 treeOutput.textContent = 'No items dropped.';
                 return;
             }
 
-            // Check if the first item is a directory
-            const entry = items[0].webkitGetAsEntry();
-
-            if (!entry || !entry.isDirectory) {
-                treeOutput.textContent = 'Please drop a single directory (folder).';
-                return;
+            // Check single archive file drop (.zip or .sb3)
+            if (files && files.length === 1) {
+                const file = files[0];
+                const fileName = file.name.toLowerCase();
+                if (fileName.endsWith('.zip') || fileName.endsWith('.sb3')) {
+                    try {
+                        const zip = await JSZip.loadAsync(file);
+                        rawTreeData = buildTreeFromZip(file.name, zip);
+                        renderCurrentTree();
+                        setStatus('Archive structure generated successfully.', true);
+                        return;
+                    } catch (err) {
+                        console.error(err);
+                        treeOutput.textContent = 'Error parsing archive file.';
+                        setStatus('Failed to read archive file.', false);
+                        return;
+                    }
+                }
             }
 
-            const rootName = entry.name || '.';
-            const tree = await getTreeStructure(entry);
-            const formattedTree = formatTree(rootName, tree);
-            
-            treeOutput.textContent = formattedTree;
-            statusMessage.textContent = 'Tree structure generated successfully.';
-            statusMessage.style.backgroundColor = '#d4edda'; // light green
-            statusMessage.style.color = '#155724'; // dark green
+            // Folder drop check
+            const entry = items[0].webkitGetAsEntry ? items[0].webkitGetAsEntry() : null;
+
+            if (entry && entry.isDirectory) {
+                const rootName = entry.name || '.';
+                const tree = await getTreeStructure(entry);
+                rawTreeData = { rootName, tree };
+                renderCurrentTree();
+                setStatus('Tree structure generated successfully.', true);
+            } else {
+                treeOutput.textContent = 'Please drop a directory folder, or a .zip / .sb3 file.';
+                setStatus('Invalid item dropped.', false);
+            }
+        }
+
+        function setStatus(message, isSuccess) {
+            statusMessage.textContent = message;
+            statusMessage.style.backgroundColor = isSuccess ? '#d4edda' : '#f8d7da';
+            statusMessage.style.color = isSuccess ? '#155724' : '#721c24';
         }
 
         /**
-         * Recursively reads the directory structure.
-         * @param {FileSystemDirectoryEntry} entry - The directory entry.
-         * @returns {Promise<Object>} The structured object {dirs: [], files: []}.
+         * Converts JSZip contents into internal tree structure format
+         */
+        function buildTreeFromZip(rootName, zip) {
+            const root = { dirs: [], files: [] };
+
+            function getOrCreateDir(pathParts, currentDir) {
+                if (pathParts.length === 0) return currentDir;
+                const dirName = pathParts[0];
+                let existing = currentDir.dirs.find(d => d.name === dirName);
+                if (!existing) {
+                    existing = { name: dirName, content: { dirs: [], files: [] } };
+                    currentDir.dirs.push(existing);
+                }
+                return getOrCreateDir(pathParts.slice(1), existing.content);
+            }
+
+            zip.forEach((relativePath, zipEntry) => {
+                const parts = relativePath.split('/').filter(p => p.length > 0);
+                if (parts.length === 0) return;
+
+                if (zipEntry.dir) {
+                    getOrCreateDir(parts, root);
+                } else {
+                    const fileName = parts.pop();
+                    const targetDir = getOrCreateDir(parts, root);
+                    if (!targetDir.files.includes(fileName)) {
+                        targetDir.files.push(fileName);
+                    }
+                }
+            });
+
+            function sortTree(node) {
+                node.dirs.sort((a, b) => a.name.localeCompare(b.name));
+                node.files.sort((a, b) => a.localeCompare(b));
+                node.dirs.forEach(d => sortTree(d.content));
+            }
+            sortTree(root);
+
+            return { rootName, tree: root };
+        }
+
+        /**
+         * Recursively reads directory entry structure
          */
         function getTreeStructure(entry) {
             return new Promise(resolve => {
@@ -275,7 +353,6 @@
                 const readEntries = () => {
                     reader.readEntries(entries => {
                         if (entries.length) {
-                            // Sort for consistent output (dirs first, then alphabetically)
                             entries.sort((a, b) => {
                                 if (a.isDirectory === b.isDirectory) {
                                     return a.name.localeCompare(b.name);
@@ -296,24 +373,47 @@
                                 }
                             });
                             
-                            Promise.all(promises).then(readEntries); // Read next batch
+                            Promise.all(promises).then(readEntries);
                         } else {
-                            resolve(structure); // All entries read
+                            resolve(structure);
                         }
-                    }, () => {
-                        // Error reading entries
-                        resolve(structure);
-                    });
+                    }, () => resolve(structure));
                 };
                 readEntries();
             });
         }
 
+        function getExcludedList() {
+            return excludeInput.value
+                .split(',')
+                .map(s => s.trim().toLowerCase())
+                .filter(s => s.length > 0);
+        }
+
+        function filterTree(structure, excludedList) {
+            const filteredDirs = structure.dirs
+                .filter(d => !excludedList.includes(d.name.toLowerCase()))
+                .map(d => ({
+                    name: d.name,
+                    content: filterTree(d.content, excludedList)
+                }));
+
+            return {
+                dirs: filteredDirs,
+                files: [...structure.files]
+            };
+        }
+
+        function renderCurrentTree() {
+            if (!rawTreeData) return;
+            const excludedList = getExcludedList();
+            const filteredTree = filterTree(rawTreeData.tree, excludedList);
+            const formattedTree = formatTree(rawTreeData.rootName, filteredTree);
+            treeOutput.textContent = formattedTree;
+        }
+
         /**
-         * Formats the structure object into the 'tree' text format.
-         * @param {string} rootName - The name of the root directory.
-         * @param {Object} structure - The structured object.
-         * @returns {string} The formatted tree string.
+         * Formats tree object into ASCII tree syntax
          */
         function formatTree(rootName, structure) {
             let treeLines = [rootName];
@@ -330,7 +430,6 @@
                     treeLines.push(linePrefix + item.name);
 
                     if (!item.isFile) {
-                        // It's a directory
                         dirCount++;
                         const nextPrefix = prefix + (isLast ? '    ' : '│   ');
                         recurse(item.content, nextPrefix);
@@ -354,23 +453,17 @@
         copyButton.addEventListener('click', async () => {
             const textToCopy = treeOutput.textContent;
 
-            if (textToCopy.includes('Drop a folder') || textToCopy.includes('Please drop a single directory')) {
-                statusMessage.textContent = 'No valid tree to copy.';
-                statusMessage.style.backgroundColor = '#f8d7da'; // light red
-                statusMessage.style.color = '#721c24'; // dark red
+            if (textToCopy.includes('Drop a folder') || textToCopy.includes('Please drop')) {
+                setStatus('No valid tree to copy.', false);
                 return;
             }
 
             try {
                 await navigator.clipboard.writeText(textToCopy);
-                statusMessage.textContent = 'Copied to clipboard!';
-                statusMessage.style.backgroundColor = '#d4edda'; // light green
-                statusMessage.style.color = '#155724'; // dark green
+                setStatus('Copied to clipboard!', true);
             } catch (err) {
                 console.error('Failed to copy text: ', err);
-                statusMessage.textContent = 'Failed to copy text. Please copy manually.';
-                statusMessage.style.backgroundColor = '#fff3cd'; // light yellow
-                statusMessage.style.color = '#856404'; // dark yellow
+                setStatus('Failed to copy text. Please copy manually.', false);
             }
 
             setTimeout(() => {
