@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mascot Design Contest - Linux Community on Game Jolt</title>
+    <style>
+        :root {
+            --bg-color: #1a1a24;
+            --card-bg: #252634;
+            --accent-color: #2bb673;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --warning-color: #ff9800;
+            --danger-color: #ff5252;
+            --border-color: #383a4e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2b1b4d, #1a1a24);
+            border-bottom: 2px solid var(--accent-color);
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .lang-switch-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .lang-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1.2rem;
+            margin: 0 0.3rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover, .lang-btn.active {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border-color: var(--accent-color);
+        }
+
+        container {
+            display: block;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem 1.5rem;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        ul {
+            padding-left: 1.2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box {
+            background-color: rgba(43, 182, 115, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .disclaimer-box {
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.95rem;
+        }
+
+        .restriction-box {
+            background-color: rgba(255, 82, 82, 0.1);
+            border-left: 4px solid var(--danger-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .lang-section {
+            display: none;
+        }
+
+        .lang-section.active-content {
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        code {
+            background-color: #15151e;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: #e6db74;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Mascot Creation Contest</h1>
+        <div class="subtitle">Game Jolt Linux Community</div>
+    </header>
+
+    <div class="lang-switch-container">
+        <button class="lang-btn active" onclick="switchLanguage('en', event)">English Version</button>
+        <button class="lang-btn" onclick="switchLanguage('fr', event)">Version Française</button>
+    </div>
+
+    <container>
+        <!-- ================= ENGLISH VERSION ================= -->
+        <div id="lang-en" class="lang-section active-content">
+            
+            <section>
+                <h2>1. What is a Miacis? (The Animal Behind the Mascot)</h2>
+                <p>
+                    For our official community mascot, Stormwindsky selected an extraordinary prehistoric creature: the <strong>Miacis</strong>!
+                </p>
+                <p>
+                    The <em>Miacis</em> is an extinct genus of small, tree-dwelling mammals that lived during the Eocene epoch (about 50 to 60 million years ago). What makes the Miacis so special is that it is widely considered an ancestral carnivoran—<strong>a common ancestor connecting both cats (feliforms) and dogs (caniforms)</strong>.
+                </p>
+                <div class="highlight-box">
+                    <strong>Did you know?</strong> Cats and dogs actually share a common lineage! The Miacis represents that ancient root, making it a perfect symbol of unification, adaptability, and evolution for our Linux community.
+                </div>
+            </section>
+
+            <section>
+                <h2>2. Mascot Requirements</h2>
+                <ul>
+                    <li><strong>Animal:</strong> Must strictly be a <strong>Miacis</strong>.</li>
+                    <li><strong>Gender:</strong> Female.</li>
+                    <li><strong>Pose:</strong> Sitting position, directly inspired by the iconic classic pose of <strong>Tux</strong> (the Linux penguin).</li>
+                    <li><strong>Expression/Vibe:</strong> Happy, friendly, and welcoming smile.</li>
+                    <li><strong>Art Style:</strong> Any style is accepted (vector, 3D, hand-drawn, digital painting, etc.) <strong>EXCEPT Pixel Art</strong>.</li>
+                    <li><strong>No Generative AI:</strong> The use of Generative AI tools (AI art generators) is <strong>STRICTLY FORBIDDEN</strong>. Submissions must be created by human artists.</li>
+                    <li><strong>File Formats:</strong> Accepted formats are <code>.png</code> and <code>.svg</code>. (You can provide both, or just <code>.png</code> if that is easier for you!).</li>
+                </ul>
+
+                <div class="restriction-box">
+                    <strong>Restrictions:</strong> Pixel Art and Generative AI (AI-generated art) are <strong>NOT allowed</strong> for this contest. Please create your artwork using standard digital or traditional art techniques.
+                </div>
+            </section>
+
+            <section>
+                <h2>3. Allowed Creative Commons Licenses</h2>
+                <p>Only submissions under the following open licenses will be accepted:</p>
+                <ul>
+                    <li><strong>CC BY 4.0 (Attribution 4.0 International):</strong> <em>(Recommended)</em> Allows everyone to share and adapt the work for any purpose, as long as appropriate credit is given to you as the creator.</li>
+                    <li><strong>CC0 1.0 (Public Domain Dedication):</strong> Waives all copyright rights globally.</li>
+                    <li><strong>Both CC0 and CC BY 4.0 combined.</strong></li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>4. Naming Rules & Restrictions</h2>
+                <div class="highlight-box">
+                    <p><strong>Name Guidelines:</strong></p>
+                    <ul>
+                        <li>Do <strong>NOT</strong> name the mascot anything similar to <em>Tux</em>.</li>
+                        <li>Do <strong>NOT</strong> include the word <em>Linux</em> in the name.</li>
+                        <li>For legal reasons, do <strong>NOT</strong> use the word <em>Jolt</em> or similar variations in the mascot's name.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="disclaimer-box">
+                <h2>Legal Disclaimer</h2>
+                <p>
+                    This mascot design contest is an independent initiative organized strictly by and for the Linux Community on Game Jolt. 
+                    <strong>This contest is NOT affiliated with, sponsored by, endorsed by, or associated with Game Jolt Inc. or the Linux Foundation.</strong>
+                </p>
+            </section>
+        </div>
+
+        <!-- ================= VERSION FRANÇAISE ================= -->
+        <div id="lang-fr" class="lang-section">
+            
+            <section>
+                <h2>1. C'est quoi un Miacis ? (L'animal derrière la mascotte)</h2>
+                <p>
+                    Pour la mascotte officielle de notre communauté, Stormwindsky a choisi une créature préhistorique extraordinaire : le <strong>Miacis</strong> !
+                </p>
+                <p>
+                    Le <em>Miacis</em> est un genre éteint de petits mammifères arboricoles qui vivaient à l'époque de l'Éocène (il y a environ 50 à 60 millions d'années). Ce qui rend le Miacis si spécial, c'est qu'il est largement considéré comme un carnivore ancestral — <strong>un ancêtre commun qui relie à la fois les chats (féliformes) et les chiens (caniformes)</strong> !
+                </p>
+                <div class="highlight-box">
+                    <strong>Le saviez-vous ?</strong> Les chats et les chiens partagent bel et bien une lignée commune ! Le Miacis représente cette racine ancienne, ce qui en fait un symbole parfait d'unification, d'adaptabilité et d'évolution pour notre communauté Linux.
+                </div>
+            </section>
+
+            <section>
+                <h2>2. Consignes pour la Mascotte</h2>
+                <ul>
+                    <li><strong>Animal :</strong> Doit obligatoirement être un <strong>Miacis</strong>.</li>
+                    <li><strong>Genre :</strong> Féminin.</li>
+                    <li><strong>Posture :</strong> Position assise, directement inspirée de la célèbre posture classique de <strong>Tux</strong> (le manchot de Linux).</li>
+                    <li><strong>Expression / Ambiance :</strong> Un grand sourire joyeux et amical (happy & friendly).</li>
+                    <li><strong>Style artistique :</strong> Tous les styles sont acceptés (vectoriel, 3D, dessin fait main, peinture numérique, etc.) <strong>SAUF le Pixel Art</strong>.</li>
+                    <li><strong>Pas d'IA générative :</strong> L'utilisation de l'intelligence artificielle générative (générateurs d'images par IA) est <strong>STRICTEMENT INTERDITE</strong>. Les participations doivent être entièrement créées par des artistes humains.</li>
+                    <li><strong>Formats de fichier autorisés :</strong> Les seuls formats acceptés sont le <code>.png</code> et le <code>.svg</code>. (Vous pouvez fournir les deux, ou uniquement le <code>.png</code> si c'est plus simple pour vous).</li>
+                </ul>
+
+                <div class="restriction-box">
+                    <strong>Restrictions :</strong> Le Pixel Art et l'IA générative (images générées par IA) sont <strong>STRICTEMENT INTERDITS</strong> pour ce concours. Veuillez créer votre œuvre en utilisant des techniques artistiques numériques ou traditionnelles.
+                </div>
+            </section>
+
+            <section>
+                <h2>3. Licences Creative Commons Autorisées</h2>
+                <p>Seules les participations sous les licences libres suivantes seront acceptées :</p>
+                <ul>
+                    <li><strong>CC BY 4.0 (Attribution 4.0 International) :</strong> <em>(Recommandée)</em> Permet à tout le monde de partager et d'adapter l'œuvre, y compris à des fins commerciales, à condition de vous créditer en tant qu'auteur original.</li>
+                    <li><strong>CC0 1.0 (Domaine Public) :</strong> Renonce à tous les droits d'auteur dans le monde entier.</li>
+                    <li><strong>Une combinaison des deux (CC0 et CC BY 4.0).</strong></li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>4. Règles de Nommage et Restrictions</h2>
+                <div class="highlight-box">
+                    <p><strong>Directives pour le nom :</strong></p>
+                    <ul>
+                        <li>Ne <strong>PAS</strong> donner un nom similaire à <em>Tux</em>.</li>
+                        <li>Ne <strong>PAS</strong> inclure le mot <em>Linux</em> dans me nom.</li>
+                        <li>Pour des raisons légales, ne <strong>PAS</strong> utiliser le mot <em>Jolt</em> (ni de dérivé similaire) dans le nom de la mascotte.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="disclaimer-box">
+                <h2>Avertissement Légal</h2>
+                <p>
+                    Ce concours de création de mascotte est une initiative indépendante organisée strictly par et pour la communauté Linux de Game Jolt. 
+                    <strong>Ce concours n'est PAS affilié, sponsorisé, approuvé ou associé à Game Jolt Inc. ni à la Linux Foundation.</strong>
+                </p>
+            </section>
+        </div>
+    </container>
+
+    <footer>
+        <p>This web page is open source under the <strong>MIT-0 License</strong> (No Attribution Required).</p>
+        <p>Community Linux @ Game Jolt</p>
+    </footer>
+
+    <script>
+        function switchLanguage(lang, e) {
+            // Hide all language sections
+            const sections = document.querySelectorAll('.lang-section');
+            sections.forEach(sec => sec.classList.remove('active-content'));
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('.lang-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected language section
+            const targetSection = document.getElementById('lang-' + lang);
+            if (targetSection) {
+                targetSection.classList.add('active-content');
+            }
+
+            // Activate current button
+            if (e && e.currentTarget) {
+                e.currentTarget.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
