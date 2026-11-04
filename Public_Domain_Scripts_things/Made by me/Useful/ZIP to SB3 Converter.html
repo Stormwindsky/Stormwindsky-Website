@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZIP to SB3 Converter</title>
+    <!-- JSZip library to read ZIP contents in the browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .status {
+            font-size: 0.95rem;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+        .spinner {
+            border: 3px solid #2a2a2a;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #ef4444;
+        }
+        .success {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>ZIP to SB3 Converter</h1>
+        <div id="loader" class="spinner"></div>
+        <p id="status-text" class="status">Initializing process...</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusText = document.getElementById('status-text');
+            const loader = document.getElementById('loader');
+
+            // Get target URL from location search (query parameters)
+            const rawQuery = window.location.search;
+            
+            // Extract target URL (handles ?=URL or ?URL)
+            let targetUrl = '';
+            if (rawQuery.startsWith('?=')) {
+                targetUrl = rawQuery.substring(2);
+            } else if (rawQuery.startsWith('?')) {
+                targetUrl = rawQuery.substring(1);
+            }
+
+            if (!targetUrl) {
+                loader.style.display = 'none';
+                statusText.textContent = 'Error: No URL provided in the parameter.';
+                statusText.classList.add('error');
+                return;
+            }
+
+            // Ensure the provided URL ends with .zip (case-insensitive check for extension)
+            if (!targetUrl.toLowerCase().endsWith('.zip')) {
+                loader.style.display = 'none';
+                statusText.textContent = 'Error: The provided URL does not end with .zip';
+                statusText.classList.add('error');
+                return;
+            }
+
+            statusText.textContent = 'Fetching ZIP file...';
+
+            fetch(targetUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    statusText.textContent = 'Validating package contents...';
+                    return JSZip.loadAsync(buffer);
+                })
+                .then(zip => {
+                    // Check strict match for project.json anywhere in the zip
+                    let hasExactProjectJson = false;
+                    
+                    zip.forEach((relativePath, zipEntry) => {
+                        const filename = relativePath.split('/').pop();
+                        // Strict check: must match 'project.json' exactly (case-sensitive, no plural 'projects')
+                        if (filename === 'project.json') {
+                            hasExactProjectJson = true;
+                        }
+                    });
+
+                    if (!hasExactProjectJson) {
+                        throw new Error('Validation failed: Missing required "project.json" file.');
+                    }
+
+                    statusText.textContent = 'Conversion successful! Starting download...';
+
+                    // Re-generate ZIP blob (or use array buffer) for download
+                    return zip.generateAsync({ type: 'blob' });
+                })
+                .then(blob => {
+                    // Determine new filename (.zip replaced with .sb3)
+                    const originalName = targetUrl.substring(targetUrl.lastIndexOf('/') + 1);
+                    const newFileName = originalName.replace(/\.zip$/i, '.sb3');
+
+                    // Trigger automatic browser download
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = newFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(downloadUrl);
+
+                    loader.style.display = 'none';
+                    statusText.textContent = `Downloaded: ${newFileName}`;
+                    statusText.classList.add('success');
+                })
+                .catch(err => {
+                    loader.style.display = 'none';
+                    statusText.textContent = `Error: ${err.message}`;
+                    statusText.classList.add('error');
+                });
+        });
+    </script>
+</body>
+</html>
