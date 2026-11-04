@@ -1,189 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZIP to SB3 Converter</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #121212;
-    color: #e0e0e0;
-    font-family: system-ui, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-  }
-  .card {
-    background: #1e1e1e;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.5);
-    max-width: 520px;
-    width: 100%;
-    text-align: center;
-  }
-  h1 {
-    font-size: 1.25rem;
-    margin-bottom: 20px;
-    font-weight: 500;
-  }
-  .status {
-    font-size: .95rem;
-    color: #a0a0a0;
-    margin-bottom: 20px;
-    word-break: break-all;
-  }
-  .spinner {
-    border: 3px solid #2a2a2a;
-    border-top: 3px solid #3b82f6;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  .error { color: #ef4444; }
-  .success { color: #10b981; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZIP to SB3 Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { font-size: 1.25rem; margin-bottom: 20px; font-weight: 500; }
+        .status { font-size: 0.95rem; color: #a0a0a0; margin-bottom: 20px; word-break: break-all; }
+        .spinner {
+            border: 3px solid #2a2a2a;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .error { color: #ef4444; }
+        .success { color: #10b981; }
+        .btn {
+            display: none;
+            background-color: #3b82f6;
+            color: #fff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover { background-color: #2563eb; }
+    </style>
 </head>
 <body>
 
-<div class="card">
-  <h1>ZIP to SB3 Converter</h1>
-  <div id="loader" class="spinner"></div>
-  <p id="status-text" class="status">Initializing...</p>
-</div>
+    <div class="card">
+        <h1>ZIP to SB3 Converter</h1>
+        <div id="loader" class="spinner"></div>
+        <p id="status-text" class="status">Initializing process...</p>
+        <a id="download-btn" class="btn">Download .sb3</a>
+    </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  const statusText = document.getElementById('status-text');
-  const loader = document.getElementById('loader');
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusText = document.getElementById('status-text');
+            const loader = document.getElementById('loader');
+            const downloadBtn = document.getElementById('download-btn');
 
-  function fail(message) {
-    loader.style.display = 'none';
-    statusText.textContent = 'Error: ' + message;
-    statusText.classList.add('error');
-  }
+            const setStatus = (t) => { statusText.textContent = t; };
+            const showError = (m) => {
+                loader.style.display = 'none';
+                setStatus('Error: ' + m);
+                statusText.classList.add('error');
+            };
 
-  // Get the URL parameter: ?=URL or ?url=URL
-  let targetUrl = '';
-  const search = location.search;
+            // ---------- Read URL from ?=URL or ?URL ----------
+            const rawQuery = window.location.search;
+            let targetUrl = '';
+            if (rawQuery.startsWith('?=')) targetUrl = rawQuery.substring(2);
+            else if (rawQuery.startsWith('?')) targetUrl = rawQuery.substring(1);
 
-  if (search.startsWith('?=')) {
-    targetUrl = search.slice(2);
-  } else {
-    const params = new URLSearchParams(search);
-    targetUrl = params.get('url') || params.get('') || '';
-  }
+            if (!targetUrl) { showError('No URL provided in the parameter.'); return; }
 
-  try {
-    targetUrl = decodeURIComponent(targetUrl);
-  } catch (_) {}
+            try { targetUrl = decodeURIComponent(targetUrl); } catch (e) {}
+            targetUrl = targetUrl.trim();
 
-  targetUrl = targetUrl.trim();
+            let u;
+            try { u = new URL(targetUrl); } catch (e) { showError('The provided URL is not valid.'); return; }
 
-  if (!targetUrl) {
-    return fail('No URL provided. Use ?=https://example.com/file.zip');
-  }
+            // ---------- Detect GitHub repository ZIPs ----------
+            // github.com/o/r/archive/[refs/heads|refs/tags/]REF.zip
+            // codeload.github.com/o/r/zip/[refs/heads|refs/tags/]REF
+            let repoInfo = null;
+            let m = u.href.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/archive\/(?:refs\/(?:heads|tags)\/)?(.+?)\.zip(?:[?#].*)?$/i);
+            if (!m) m = u.href.match(/^https?:\/\/codeload\.github\.com\/([^/]+)\/([^/]+)\/(?:zip|legacy\.zip)\/(?:refs\/(?:heads|tags)\/)?([^?#]+)/i);
+            if (m) repoInfo = { owner: m[1], repo: m[2], ref: decodeURIComponent(m[3]) };
 
-  let parsed;
-  try {
-    parsed = new URL(targetUrl);
-  } catch (_) {
-    return fail('Invalid URL.');
-  }
+            // Convert github.com blob/raw links to raw.githubusercontent.com (has CORS)
+            let fileUrl = u.href;
+            const fm = u.href.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/i);
+            if (fm) fileUrl = 'https://raw.githubusercontent.com/' + fm[1] + '/' + fm[2] + '/' + fm[3];
 
-  if (!['http:', 'https:'].includes(parsed.protocol)) {
-    return fail('Only http/https URLs are accepted.');
-  }
+            if (!repoInfo && !/\.zip$/i.test(new URL(fileUrl).pathname)) {
+                showError('The provided URL does not end with .zip');
+                return;
+            }
 
-  if (!parsed.pathname.toLowerCase().endsWith('.zip')) {
-    return fail('The URL must point to a .zip file.');
-  }
+            // ---------- Helpers ----------
+            async function fetchWithTimeout(url, ms, options) {
+                const c = new AbortController();
+                const t = setTimeout(() => c.abort(), ms);
+                try { return await fetch(url, Object.assign({}, options, { signal: c.signal })); }
+                finally { clearTimeout(t); }
+            }
 
-  const proxies = [
-    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
-    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
-  ];
+            const isZip = (buf) => {
+                const h = new Uint8Array(buf.slice(0, 2));
+                return h[0] === 0x50 && h[1] === 0x4B;
+            };
 
-  statusText.textContent = 'Downloading ZIP...';
+            // Download a single ZIP file: direct first, then fallback proxies
+            async function fetchZipBuffer(url) {
+                const enc = encodeURIComponent(url);
+                const sources = [
+                    { name: 'direct', url: url },
+                    { name: 'proxy 1', url: 'https://corsproxy.io/?url=' + enc },
+                    { name: 'proxy 2', url: 'https://api.codetabs.com/v1/proxy/?quest=' + enc },
+                    { name: 'proxy 3', url: 'https://api.allorigins.win/raw?url=' + enc }
+                ];
+                for (const s of sources) {
+                    setStatus('Fetching ZIP file (' + s.name + ')...');
+                    try {
+                        const r = await fetchWithTimeout(s.url, 20000);
+                        if (!r.ok) continue;
+                        const buf = await r.arrayBuffer();
+                        if (isZip(buf)) return buf;
+                    } catch (e) {}
+                }
+                throw new Error('Could not download the ZIP file. Make sure the link is public.');
+            }
 
-  let buffer = null;
-  let lastError = null;
+            // Build a ZIP in the browser from a GitHub repository (GitHub API + raw files, no proxy)
+            async function buildRepoZip(info) {
+                setStatus('Reading repository file list...');
+                const api = 'https://api.github.com/repos/' + info.owner + '/' + info.repo +
+                            '/git/trees/' + encodeURIComponent(info.ref) + '?recursive=1';
+                const r = await fetchWithTimeout(api, 20000);
+                if (r.status === 403) throw new Error('GitHub API rate limit reached. Try again later.');
+                if (!r.ok) throw new Error('Repository or branch not found (HTTP ' + r.status + ').');
+                const data = await r.json();
 
-  for (const makeProxy of proxies) {
-    try {
-      const response = await fetch(makeProxy(targetUrl), { cache: 'no-store' });
+                const files = data.tree.filter(x => x.type === 'blob');
+                let best = null;
+                for (const f of files) {
+                    if (f.path.split('/').pop() === 'project.json') {
+                        if (best === null || f.path.length < best.length) best = f.path;
+                    }
+                }
+                if (best === null) throw new Error('Validation failed: Missing required "project.json" file.');
 
-      if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
-      }
+                const prefix = best.substring(0, best.length - 'project.json'.length);
+                const wanted = files.filter(f => f.path.startsWith(prefix));
+                const zip = new JSZip();
+                let done = 0;
+                let index = 0;
 
-      const arrayBuffer = await response.arrayBuffer();
+                async function worker() {
+                    while (index < wanted.length) {
+                        const f = wanted[index++];
+                        const path = f.path.split('/').map(encodeURIComponent).join('/');
+                        const url = 'https://raw.githubusercontent.com/' + info.owner + '/' + info.repo +
+                                    '/' + encodeURIComponent(info.ref) + '/' + path;
+                        const res = await fetchWithTimeout(url, 30000);
+                        if (!res.ok) throw new Error('Could not download "' + f.path + '".');
+                        zip.file(f.path, await res.arrayBuffer());
+                        done++;
+                        setStatus('Downloading files... ' + done + '/' + wanted.length);
+                    }
+                }
+                await Promise.all(Array.from({ length: 6 }, worker));
+                return zip;
+            }
 
-      if (arrayBuffer.byteLength < 100) {
-        throw new Error('Response too small');
-      }
+            // ---------- Main ----------
+            try {
+                let zip;
+                if (repoInfo) {
+                    zip = await buildRepoZip(repoInfo);
+                } else {
+                    const buffer = await fetchZipBuffer(fileUrl);
+                    setStatus('Validating package contents...');
+                    zip = await JSZip.loadAsync(buffer);
+                }
 
-      // Verify that the response is a valid ZIP
-      await JSZip.loadAsync(arrayBuffer);
-      buffer = arrayBuffer;
-      break;
-    } catch (error) {
-      lastError = error;
-    }
-  }
+                // Find project.json (ignore macOS junk)
+                let projectPath = null;
+                zip.forEach((p, entry) => {
+                    if (entry.dir || p.startsWith('__MACOSX/')) return;
+                    if (p.split('/').pop() === 'project.json') {
+                        if (projectPath === null || p.length < projectPath.length) projectPath = p;
+                    }
+                });
+                if (projectPath === null) throw new Error('Validation failed: Missing required "project.json" file.');
 
-  if (!buffer) {
-    return fail(
-      'Unable to retrieve a valid ZIP. Last error: ' +
-      (lastError ? lastError.message : 'Unknown error')
-    );
-  }
+                // Scratch needs project.json at the archive root
+                const prefix = projectPath.substring(0, projectPath.length - 'project.json'.length);
+                const outZip = new JSZip();
+                const tasks = [];
+                zip.forEach((p, entry) => {
+                    if (entry.dir || p.startsWith('__MACOSX/')) return;
+                    if (prefix && !p.startsWith(prefix)) return;
+                    tasks.push(entry.async('uint8array').then(d => outZip.file(p.substring(prefix.length), d)));
+                });
+                await Promise.all(tasks);
 
-  statusText.textContent = 'Validating Scratch project...';
+                setStatus('Building .sb3 file...');
+                const blob = await outZip.generateAsync({
+                    type: 'blob',
+                    mimeType: 'application/octet-stream',
+                    compression: 'DEFLATE'
+                });
 
-  const zip = await JSZip.loadAsync(buffer);
+                // File name
+                let name;
+                if (repoInfo) {
+                    name = repoInfo.repo + '.sb3';
+                } else {
+                    name = new URL(fileUrl).pathname.split('/').pop();
+                    try { name = decodeURIComponent(name); } catch (e) {}
+                    name = name.replace(/\.zip$/i, '.sb3');
+                }
 
-  // Scratch expects project.json at the root of the ZIP
-  if (!zip.file('project.json')) {
-    return fail(
-      'The ZIP does not contain "project.json" at its root. This is not a valid Scratch project.'
-    );
-  }
+                const downloadUrl = URL.createObjectURL(blob);
 
-  statusText.textContent = 'Creating SB3...';
+                downloadBtn.href = downloadUrl;
+                downloadBtn.download = name;
+                downloadBtn.style.display = 'inline-block';
 
-  const blob = await zip.generateAsync({
-    type: 'blob',
-    mimeType: 'application/octet-stream'
-  });
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
 
-  const originalName = parsed.pathname.split('/').pop() || 'project.zip';
-  const newFileName = originalName.replace(/\.zip$/i, '.sb3');
+                loader.style.display = 'none';
+                setStatus('Conversion successful: ' + name);
+                statusText.classList.add('success');
 
-  const downloadUrl = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = downloadUrl;
-  link.download = newFileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(downloadUrl);
-
-  loader.style.display = 'none';
-  statusText.textContent = 'Downloaded: ' + newFileName;
-  statusText.classList.add('success');
-});
-</script>
-
+            } catch (err) {
+                showError(err.message);
+            }
+        });
+    </script>
 </body>
 </html>
