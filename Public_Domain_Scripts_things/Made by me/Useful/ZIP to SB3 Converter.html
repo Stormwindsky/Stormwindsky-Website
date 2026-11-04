@@ -99,10 +99,10 @@
                 return;
             }
 
-            statusText.textContent = 'Fetching ZIP file via CORS proxy...';
+            statusText.textContent = 'Fetching ZIP file...';
 
-            // Use corsproxy.io to bypass GitHub's CORS restrictions
-            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+            // Using AllOrigins raw endpoint to securely fetch binary data without 403 blocks
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
 
             fetch(proxyUrl)
                 .then(response => {
