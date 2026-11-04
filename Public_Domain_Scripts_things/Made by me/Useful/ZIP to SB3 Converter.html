@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZIP to SB3 Converter</title>
-    <!-- JSZip library to read ZIP contents in the browser -->
+    <!-- JSZip library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
@@ -76,11 +76,9 @@
             const statusText = document.getElementById('status-text');
             const loader = document.getElementById('loader');
 
-            // Get target URL from location search (query parameters)
             const rawQuery = window.location.search;
-            
-            // Extract target URL (handles ?=URL or ?URL)
             let targetUrl = '';
+            
             if (rawQuery.startsWith('?=')) {
                 targetUrl = rawQuery.substring(2);
             } else if (rawQuery.startsWith('?')) {
@@ -94,7 +92,6 @@
                 return;
             }
 
-            // Ensure the provided URL ends with .zip (case-insensitive check for extension)
             if (!targetUrl.toLowerCase().endsWith('.zip')) {
                 loader.style.display = 'none';
                 statusText.textContent = 'Error: The provided URL does not end with .zip';
@@ -102,9 +99,12 @@
                 return;
             }
 
-            statusText.textContent = 'Fetching ZIP file...';
+            statusText.textContent = 'Fetching ZIP file via CORS proxy...';
 
-            fetch(targetUrl)
+            // Use corsproxy.io to bypass GitHub's CORS restrictions
+            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+
+            fetch(proxyUrl)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -116,12 +116,10 @@
                     return JSZip.loadAsync(buffer);
                 })
                 .then(zip => {
-                    // Check strict match for project.json anywhere in the zip
                     let hasExactProjectJson = false;
                     
                     zip.forEach((relativePath, zipEntry) => {
                         const filename = relativePath.split('/').pop();
-                        // Strict check: must match 'project.json' exactly (case-sensitive, no plural 'projects')
                         if (filename === 'project.json') {
                             hasExactProjectJson = true;
                         }
@@ -132,16 +130,12 @@
                     }
 
                     statusText.textContent = 'Conversion successful! Starting download...';
-
-                    // Re-generate ZIP blob (or use array buffer) for download
                     return zip.generateAsync({ type: 'blob' });
                 })
                 .then(blob => {
-                    // Determine new filename (.zip replaced with .sb3)
                     const originalName = targetUrl.substring(targetUrl.lastIndexOf('/') + 1);
                     const newFileName = originalName.replace(/\.zip$/i, '.sb3');
 
-                    // Trigger automatic browser download
                     const downloadUrl = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = downloadUrl;
