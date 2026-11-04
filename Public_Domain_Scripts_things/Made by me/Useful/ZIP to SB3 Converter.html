@@ -1,160 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZIP to SB3 Converter</title>
-    <!-- JSZip library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #121212;
-            color: #e0e0e0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .card {
-            background-color: #1e1e1e;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-        }
-        h1 {
-            font-size: 1.25rem;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-        .status {
-            font-size: 0.95rem;
-            color: #a0a0a0;
-            margin-bottom: 20px;
-            word-break: break-all;
-        }
-        .spinner {
-            border: 3px solid #2a2a2a;
-            border-top: 3px solid #3b82f6;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .error {
-            color: #ef4444;
-        }
-        .success {
-            color: #10b981;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZIP to SB3 Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #121212;
+    color: #e0e0e0;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .card {
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.5);
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+  }
+  h1 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  .status {
+    font-size: .95rem;
+    color: #a0a0a0;
+    margin-bottom: 20px;
+    word-break: break-all;
+  }
+  .spinner {
+    border: 3px solid #2a2a2a;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .error { color: #ef4444; }
+  .success { color: #10b981; }
+</style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>ZIP to SB3 Converter</h1>
-        <div id="loader" class="spinner"></div>
-        <p id="status-text" class="status">Initializing process...</p>
-    </div>
+<div class="card">
+  <h1>ZIP to SB3 Converter</h1>
+  <div id="loader" class="spinner"></div>
+  <p id="status-text" class="status">Initializing...</p>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const statusText = document.getElementById('status-text');
-            const loader = document.getElementById('loader');
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const statusText = document.getElementById('status-text');
+  const loader = document.getElementById('loader');
 
-            const rawQuery = window.location.search;
-            let targetUrl = '';
-            
-            if (rawQuery.startsWith('?=')) {
-                targetUrl = rawQuery.substring(2);
-            } else if (rawQuery.startsWith('?')) {
-                targetUrl = rawQuery.substring(1);
-            }
+  function fail(message) {
+    loader.style.display = 'none';
+    statusText.textContent = 'Error: ' + message;
+    statusText.classList.add('error');
+  }
 
-            if (!targetUrl) {
-                loader.style.display = 'none';
-                statusText.textContent = 'Error: No URL provided in the parameter.';
-                statusText.classList.add('error');
-                return;
-            }
+  // Get the URL parameter: ?=URL or ?url=URL
+  let targetUrl = '';
+  const search = location.search;
 
-            if (!targetUrl.toLowerCase().endsWith('.zip')) {
-                loader.style.display = 'none';
-                statusText.textContent = 'Error: The provided URL does not end with .zip';
-                statusText.classList.add('error');
-                return;
-            }
+  if (search.startsWith('?=')) {
+    targetUrl = search.slice(2);
+  } else {
+    const params = new URLSearchParams(search);
+    targetUrl = params.get('url') || params.get('') || '';
+  }
 
-            statusText.textContent = 'Fetching ZIP file...';
+  try {
+    targetUrl = decodeURIComponent(targetUrl);
+  } catch (_) {}
 
-            // Using AllOrigins raw endpoint to securely fetch binary data without 403 blocks
-            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
+  targetUrl = targetUrl.trim();
 
-            fetch(proxyUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.arrayBuffer();
-                })
-                .then(buffer => {
-                    statusText.textContent = 'Validating package contents...';
-                    return JSZip.loadAsync(buffer);
-                })
-                .then(zip => {
-                    let hasExactProjectJson = false;
-                    
-                    zip.forEach((relativePath, zipEntry) => {
-                        const filename = relativePath.split('/').pop();
-                        if (filename === 'project.json') {
-                            hasExactProjectJson = true;
-                        }
-                    });
+  if (!targetUrl) {
+    return fail('No URL provided. Use ?=https://example.com/file.zip');
+  }
 
-                    if (!hasExactProjectJson) {
-                        throw new Error('Validation failed: Missing required "project.json" file.');
-                    }
+  let parsed;
+  try {
+    parsed = new URL(targetUrl);
+  } catch (_) {
+    return fail('Invalid URL.');
+  }
 
-                    statusText.textContent = 'Conversion successful! Starting download...';
-                    return zip.generateAsync({ type: 'blob' });
-                })
-                .then(blob => {
-                    const originalName = targetUrl.substring(targetUrl.lastIndexOf('/') + 1);
-                    const newFileName = originalName.replace(/\.zip$/i, '.sb3');
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    return fail('Only http/https URLs are accepted.');
+  }
 
-                    const downloadUrl = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = downloadUrl;
-                    a.download = newFileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(downloadUrl);
+  if (!parsed.pathname.toLowerCase().endsWith('.zip')) {
+    return fail('The URL must point to a .zip file.');
+  }
 
-                    loader.style.display = 'none';
-                    statusText.textContent = `Downloaded: ${newFileName}`;
-                    statusText.classList.add('success');
-                })
-                .catch(err => {
-                    loader.style.display = 'none';
-                    statusText.textContent = `Error: ${err.message}`;
-                    statusText.classList.add('error');
-                });
-        });
-    </script>
+  const proxies = [
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
+  ];
+
+  statusText.textContent = 'Downloading ZIP...';
+
+  let buffer = null;
+  let lastError = null;
+
+  for (const makeProxy of proxies) {
+    try {
+      const response = await fetch(makeProxy(targetUrl), { cache: 'no-store' });
+
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+
+      if (arrayBuffer.byteLength < 100) {
+        throw new Error('Response too small');
+      }
+
+      // Verify that the response is a valid ZIP
+      await JSZip.loadAsync(arrayBuffer);
+      buffer = arrayBuffer;
+      break;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (!buffer) {
+    return fail(
+      'Unable to retrieve a valid ZIP. Last error: ' +
+      (lastError ? lastError.message : 'Unknown error')
+    );
+  }
+
+  statusText.textContent = 'Validating Scratch project...';
+
+  const zip = await JSZip.loadAsync(buffer);
+
+  // Scratch expects project.json at the root of the ZIP
+  if (!zip.file('project.json')) {
+    return fail(
+      'The ZIP does not contain "project.json" at its root. This is not a valid Scratch project.'
+    );
+  }
+
+  statusText.textContent = 'Creating SB3...';
+
+  const blob = await zip.generateAsync({
+    type: 'blob',
+    mimeType: 'application/octet-stream'
+  });
+
+  const originalName = parsed.pathname.split('/').pop() || 'project.zip';
+  const newFileName = originalName.replace(/\.zip$/i, '.sb3');
+
+  const downloadUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = downloadUrl;
+  link.download = newFileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(downloadUrl);
+
+  loader.style.display = 'none';
+  statusText.textContent = 'Downloaded: ' + newFileName;
+  statusText.classList.add('success');
+});
+</script>
+
 </body>
 </html>
