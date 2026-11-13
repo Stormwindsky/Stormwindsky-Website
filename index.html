@@ -67,11 +67,15 @@
             display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
         }
 
-        select, .theme-toggle {
+        .theme-toggle {
             padding: 8px 15px; border-radius: 12px; border: 1px solid var(--text-dim);
             background: var(--card-white); color: var(--text-dark); cursor: pointer;
             font-family: inherit;
             font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--blue-main);
         }
 
         .bento-grid {
@@ -108,10 +112,11 @@
             border-radius: 10px; font-size: 0.75rem; display: inline-block; margin-bottom: 15px;
         }
 
-        .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .btn {
             padding: 10px 20px; border-radius: 12px; text-decoration: none;
             font-weight: 600; font-size: 0.85rem; background: var(--blue-main); color: white;
+            border: none; cursor: pointer; font-family: inherit;
         }
 
         .link-item {
@@ -120,6 +125,84 @@
         }
 
         footer { grid-column: span 4; text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-dim); }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            position: relative;
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 20px;
+            max-width: 95vw;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+
+        .modal-box.iframe-box {
+            width: 1000px;
+            height: 85vh;
+            padding-top: 50px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #ff3b30;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        .modal-close:hover {
+            transform: scale(1.08);
+            background: #d70015;
+        }
+
+        .modal-img {
+            max-width: 100%;
+            max-height: 82vh;
+            border-radius: 14px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 14px;
+            background: #ffffff;
+        }
 
         @media (max-width: 850px) {
             .bento-grid { grid-template-columns: repeat(2, 1fr); }
@@ -142,36 +225,31 @@
     </noscript>
 
     <div class="controls">
-        <select id="langSelect" onchange="changeLanguage(this.value)">
-            <option value="en">English</option>
-            <option value="fr-FR">Français (France)</option>
-            <option value="fr-CA">Français (Québec)</option>
-            <option value="es-ES">Español (España)</option>
-            <option value="es-AM">Español (América)</option>
-        </select>
         <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+        <button class="theme-toggle" onclick="openModal('aboutModal')">👤 About Me</button>
+        <button class="theme-toggle" onclick="openModal('listsModal')">📋 Lists of Lists</button>
     </div>
 
     <div class="bento-grid">
         <div class="card dark-card col-2">
             <div>
                 <h1>Stormwindsky</h1>
-                <span class="tag" data-i18n="tag">Available for Projects</span>
-                <p data-i18n="bio">Digital archivist and creator interested in history and indie gaming.</p>
+                <span class="tag">Available for Projects</span>
+                <p>Digital archivist and creator interested in history and indie gaming.</p>
             </div>
             <div class="btn-container">
-                <a href="#" class="btn" id="btn-profile" data-i18n="btn_profile">View Profile</a>
+                <a href="#" class="btn" id="btn-profile">View Profile</a>
                 <a href="https://polytoria.com/u/Stormwindsky" class="btn" style="background:rgba(255,255,255,0.1)">Polytoria</a>
             </div>
         </div>
 
         <div class="card blue col-2">
-            <h2 data-i18n="pres_title">Digital Preservation</h2>
-            <p data-i18n="pres_desc">fan of Open Source & fan of Wayback Machine and Lost Media Wiki.</p>
+            <h2>Digital Preservation</h2>
+            <p>fan of Open Source & fan of Wayback Machine and Lost Media Wiki.</p>
         </div>
 
         <div class="card blue row-2">
-            <h2 data-i18n="social_title">Find Me Online</h2>
+            <h2>Find Me Online</h2>
             <div style="margin-top: 20px;">
                 <a href="https://bsky.app/profile/stormwindsky.bsky.social" class="link-item">🦋 Bluesky</a>
                 <a href="https://mastodon.social/@Stormwindsky" class="link-item">🐘 Mastodon</a>
@@ -186,66 +264,47 @@
         </div>
 
         <div class="card white">
-            <h2 data-i18n="name_title">The Name</h2>
-            <p data-i18n="name_desc">Originating from Animal Jam via my mom, it became my unique identity.</p>
+            <h2>The Name</h2>
+            <p>Originating from Animal Jam via my mom, it became my unique identity.</p>
         </div>
 
         <a href="./StormExplorer.html" class="card white">
-            <h2 data-i18n="coll_title">🌐 Navigator</h2>
-            <p data-i18n="coll_desc">Access the digital collection and experimental tools.</p>
+            <h2>🌐 Navigator</h2>
+            <p>Access the digital collection and experimental tools.</p>
         </a>
 
         <div class="card sky">
             <h2>Compatibility with NetSurf & the 3DS port coming soon</h2>
-            <p data-i18n="placeholder4nowlololol</p>
+            <p>placeholder4nowlololol</p>
         </div>
 
         <div class="card white">
-            <h2 data-i18n="site_title">About Stormwindsky.uk</h2>
-            <p data-i18n="site_desc">I also have a website called Stormwindsky.uk</p>
+            <h2>About Stormwindsky.uk</h2>
+            <p>I also have a website called Stormwindsky.uk</p>
         </div>
 
-        <footer id="txt-footer" data-i18n="footer">
+        <footer id="txt-footer">
             © 2026 Stormwindsky | MIT License | Built with Passion & Autism Pride
         </footer>
     </div>
 
+    <!-- About Me Image Modal -->
+    <div id="aboutModal" class="modal-overlay" onclick="closeOnOverlay(event, 'aboutModal')">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal('aboutModal')" aria-label="Close">X</button>
+            <img src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Public_Domain_Thing/Made_By_Me/Audios_And_Images_And_Other/Image/2026/other/About%20me%20-%202026%20-%20Late.png" alt="About Me" class="modal-img">
+        </div>
+    </div>
+
+    <!-- Lists of Lists Iframe Modal -->
+    <div id="listsModal" class="modal-overlay" onclick="closeOnOverlay(event, 'listsModal')">
+        <div class="modal-box iframe-box">
+            <button class="modal-close" onclick="closeModal('listsModal')" aria-label="Close">X</button>
+            <iframe src="https://www.stormwindsky.com/Public_Domain_Scripts_things/Made%20by%20me/Useful/Lists%20of%20Lists%20I%20Have%20Created.html" title="Lists of Lists I Have Created" class="modal-iframe"></iframe>
+        </div>
+    </div>
+
     <script>
-        const defaultLang = 'en';
-        let currentTranslations = {};
-
-        async function loadLanguage(lang) {
-            try {
-                const response = await fetch(`./lang/${lang}.json`);
-                if (!response.ok) throw new Error('Could not load translation file');
-                
-                currentTranslations = await response.json();
-                
-                document.querySelectorAll('[data-i18n]').forEach(element => {
-                    const key = element.getAttribute('data-i18n');
-                    if (currentTranslations[key]) {
-                        element.textContent = currentTranslations[key];
-                    }
-                });
-
-                localStorage.setItem('preferredLang', lang);
-                document.getElementById('langSelect').value = lang;
-                document.documentElement.lang = lang;
-
-                updateThemeButtonText();
-
-            } catch (error) {
-                console.error(`Error loading language (${lang}), falling back to ${defaultLang}:`, error);
-                if (lang !== defaultLang) {
-                    loadLanguage(defaultLang);
-                }
-            }
-        }
-
-        function changeLanguage(lang) {
-            loadLanguage(lang);
-        }
-
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -257,20 +316,34 @@
         function updateThemeButtonText() {
             const theme = localStorage.getItem('theme') || 'light';
             const btn = document.getElementById('themeBtn');
-            
-            if (theme === 'dark') {
-                btn.innerText = currentTranslations['theme_dark'] || '☀️ Light Mode';
-            } else {
-                btn.innerText = currentTranslations['theme_light'] || '🌙 Dark Mode';
+            btn.innerText = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function closeOnOverlay(event, modalId) {
+            if (event.target.id === modalId) {
+                closeModal(modalId);
             }
         }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeModal('aboutModal');
+                closeModal('listsModal');
+            }
+        });
 
         window.onload = () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            const savedLang = localStorage.getItem('preferredLang') || defaultLang;
-            loadLanguage(savedLang);
+            updateThemeButtonText();
         };
     </script>
 </body>
