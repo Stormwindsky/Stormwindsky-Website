@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lofi Chill Radio — Beats to Relax & Study To</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom animations and glassmorphism refinements */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f111a;
+            user-select: none;
+        }
+
+        /* Static full-screen background image */
+        .bg-artwork {
+            background-image: url('https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Public_Domain_Thing/Thing_That_Originaly_Not_Made_By_Me/Audios_And_Images_And_Other/Mixed%20(not%20the%20name%20of%20user)/6/Sleepy.png');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        /* Subtle warm vignette overlay */
+        .vignette-overlay {
+            background: radial-gradient(circle at center, rgba(15, 17, 26, 0.08) 0%, rgba(10, 11, 18, 0.55) 100%);
+        }
+
+        /* Custom range slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -4px;
+            background-color: #fcd34d;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(252, 211, 77, 0.6);
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+
+        input[type="range"]::-moz-range-track {
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            background-color: #fcd34d;
+            border: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(252, 211, 77, 0.6);
+        }
+
+        /* Equalizer bar animation */
+        @keyframes eq-bounce {
+            0%, 100% { height: 25%; }
+            50% { height: 100%; }
+        }
+
+        .eq-bar {
+            animation: eq-bounce 1.2s ease-in-out infinite;
+        }
+        .eq-bar:nth-child(1) { animation-delay: 0.0s; }
+        .eq-bar:nth-child(2) { animation-delay: 0.3s; }
+        .eq-bar:nth-child(3) { animation-delay: 0.15s; }
+        .eq-bar:nth-child(4) { animation-delay: 0.45s; }
+
+        .paused-eq .eq-bar {
+            animation-play-state: paused;
+            height: 25% !important;
+            transition: height 0.3s ease;
+        }
+
+        /* Smooth fade transitions */
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="font-sans text-stone-100 antialiased relative w-screen h-screen">
+
+    <!-- Static Full-Screen Artwork -->
+    <div id="bg-layer" class="bg-artwork fixed inset-0 w-full h-full z-0"></div>
+
+    <!-- Subtle Vignette Overlay -->
+    <div class="vignette-overlay fixed inset-0 w-full h-full z-10 pointer-events-none"></div>
+
+    <!-- Main Audio Element (Seamless Loop) -->
+    <audio id="lofi-audio" loop preload="auto" crossorigin="anonymous">
+        <source src="https://raw.githubusercontent.com/Stormwindsky/Stormwindsky-Website/main/Public_Domain_Thing/Thing_That_Originaly_Not_Made_By_Me/Audios_And_Images_And_Other/Freesound/Seth_Makes_Sounds/lofi%20loop.wav" type="audio/wav">
+    </audio>
+
+    <!-- Initial "Click to Tune In" Overlay -->
+    <div id="welcome-overlay" class="fixed inset-0 z-40 flex flex-col items-center justify-center bg-black/45 backdrop-blur-[3px] transition-opacity duration-700 cursor-pointer p-4">
+        <div class="bg-stone-900/75 border border-white/15 rounded-3xl px-8 py-7 text-center max-w-sm shadow-2xl transform transition-transform duration-300 hover:scale-105">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-amber-400/20 border border-amber-300/40 flex items-center justify-center text-amber-300">
+                <!-- Headphones / Play Icon -->
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+            </div>
+            <h1 class="text-lg font-semibold tracking-wide text-stone-100 mb-1">Lofi Chill Radio</h1>
+            <p class="text-xs text-stone-300/90 mb-5 leading-relaxed">Put on your headphones, take a deep breath, and unwind.</p>
+            <button id="tune-in-btn" class="w-full py-3 px-6 rounded-2xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-semibold text-sm tracking-wide shadow-lg shadow-amber-500/20 transition-all duration-200 flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>Click to Tune In</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Top-Left Live Status Badge & Top-Right Study Timer -->
+    <header class="fixed top-0 left-0 right-0 z-30 p-4 sm:p-6 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
+        
+        <!-- Live Radio Indicator -->
+        <div class="pointer-events-auto bg-stone-950/60 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5 flex items-center gap-3 shadow-lg">
+            <span class="relative flex h-2.5 w-2.5">
+                <span id="live-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75 hidden"></span>
+                <span id="live-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-stone-500 transition-colors duration-300"></span>
+            </span>
+            <span class="text-xs font-mono font-medium tracking-widest uppercase text-stone-200">Lofi Chill</span>
+            <span class="text-stone-600">|</span>
+            <span id="clock-display" class="text-xs font-mono text-stone-300">12:00 PM</span>
+        </div>
+
+        <!-- Compact Pomodoro / Study Timer Widget -->
+        <div class="pointer-events-auto bg-stone-950/60 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5 flex items-center gap-3 shadow-lg">
+            <div class="flex flex-col">
+                <span id="timer-mode-label" class="text-[10px] font-mono uppercase tracking-wider text-amber-300/90">Focus Session</span>
+                <span id="timer-display" class="text-sm font-mono font-medium text-stone-100">25:00</span>
+            </div>
+            <div class="flex items-center gap-1.5 pl-1 border-l border-white/10">
+                <button id="timer-toggle-btn" title="Start / Pause Timer" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-stone-200 transition-colors">
+                    <svg id="timer-play-icon" class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="timer-pause-icon" class="w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button id="timer-reset-btn" title="Reset Timer" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-stone-300 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+                <button id="timer-mode-btn" title="Switch Focus / Break" class="px-2 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-[11px] font-mono text-stone-300 transition-colors">
+                    25/5
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Notification Banner (Replaces alert) -->
+    <div id="toast-notification" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-stone-900/90 backdrop-blur-md border border-amber-400/30 text-amber-200 text-xs font-medium px-4 py-2.5 rounded-2xl shadow-xl opacity-0 pointer-events-none transition-opacity duration-300">
+        Timer session completed! Take a breather.
+    </div>
+
+    <!-- Bottom-Left Minimalist Glassmorphic Player Card -->
+    <main class="fixed bottom-0 left-0 right-0 sm:right-auto z-30 p-4 sm:p-6 pointer-events-none">
+        <div class="pointer-events-auto w-full sm:w-[370px] bg-stone-950/65 backdrop-blur-xl border border-white/15 rounded-3xl p-5 shadow-2xl transition-all duration-300">
+            
+            <!-- Track Info & Animated Equalizer -->
+            <div class="flex items-center justify-between gap-3 mb-4">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <span class="inline-block px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-md bg-amber-400/15 text-amber-300 border border-amber-400/20">
+                            Seamless Loop
+                        </span>
+                        <span id="playback-status" class="text-[11px] text-stone-400">Paused</span>
+                    </div>
+                    <h2 class="text-sm font-semibold text-stone-100 truncate">Midnight Sleepy Loop</h2>
+                    <p class="text-xs text-stone-400 truncate">Seth Makes Sounds • Lofi Beats</p>
+                </div>
+
+                <!-- Equalizer Bars -->
+                <div id="equalizer" class="paused-eq flex items-end gap-1 h-6 px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/5 shrink-0">
+                    <span class="eq-bar w-1 bg-amber-300 rounded-full"></span>
+                    <span class="eq-bar w-1 bg-amber-300 rounded-full"></span>
+                    <span class="eq-bar w-1 bg-amber-300 rounded-full"></span>
+                    <span class="eq-bar w-1 bg-amber-300 rounded-full"></span>
+                </div>
+            </div>
+
+            <!-- Main Playback & Volume Controls -->
+            <div class="flex items-center gap-3.5">
+                <!-- Play / Pause Button -->
+                <button id="play-pause-btn" aria-label="Play or Pause" class="w-11 h-11 rounded-2xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-stone-950 flex items-center justify-center shadow-lg shadow-amber-500/20 transition-all shrink-0">
+                    <svg id="play-icon" class="w-5 h-5 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pause-icon" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+
+                <!-- Mute & Volume Slider -->
+                <div class="flex-1 flex items-center gap-2.5 bg-white/5 border border-white/10 rounded-2xl px-3.5 py-2.5">
+                    <button id="mute-btn" aria-label="Mute or Unmute" class="text-stone-300 hover:text-amber-300 transition-colors shrink-0">
+                        <!-- Volume High Icon -->
+                        <svg id="vol-high-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                        <!-- Volume Muted Icon -->
+                        <svg id="vol-mute-icon" class="w-4 h-4 hidden text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                        </svg>
+                    </button>
+
+                    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="0.75" aria-label="Volume" class="w-full">
+                    <span id="volume-percent" class="text-[11px] font-mono text-stone-300 w-8 text-right shrink-0">75%</span>
+                </div>
+
+                <!-- Hide UI Toggle -->
+                <button id="zen-btn" title="Toggle Clean View" aria-label="Toggle Clean View" class="w-11 h-11 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-stone-300 hover:text-stone-100 flex items-center justify-center transition-all shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Restore UI Floating Pill (Visible only in Clean View) -->
+    <button id="restore-ui-btn" class="fixed bottom-5 left-5 z-30 hidden bg-stone-950/65 backdrop-blur-md border border-white/15 text-stone-200 text-xs font-medium px-4 py-2 rounded-full shadow-lg hover:bg-stone-900/80 transition-all">
+        Show Controls
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const audio = document.getElementById('lofi-audio');
+            const welcomeOverlay = document.getElementById('welcome-overlay');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            const playbackStatus = document.getElementById('playback-status');
+            const equalizer = document.getElementById('equalizer');
+            const livePing = document.getElementById('live-ping');
+            const liveDot = document.getElementById('live-dot');
+
+            const muteBtn = document.getElementById('mute-btn');
+            const volHighIcon = document.getElementById('vol-high-icon');
+            const volMuteIcon = document.getElementById('vol-mute-icon');
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumePercent = document.getElementById('volume-percent');
+
+            const zenBtn = document.getElementById('zen-btn');
+            const restoreUiBtn = document.getElementById('restore-ui-btn');
+            const headerEl = document.querySelector('header');
+            const mainEl = document.querySelector('main');
+
+            // --- State ---
+            let isPlaying = false;
+            let previousVolume = 0.75;
+            audio.volume = previousVolume;
+
+            // --- Audio Playback Controls ---
+            function updatePlaybackUI(playing) {
+                isPlaying = playing;
+                if (playing) {
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                    playbackStatus.textContent = 'Live Streaming';
+                    playbackStatus.classList.replace('text-stone-400', 'text-amber-300');
+                    equalizer.classList.remove('paused-eq');
+                    livePing.classList.remove('hidden');
+                    liveDot.classList.replace('bg-stone-500', 'bg-rose-500');
+                } else {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    playbackStatus.textContent = 'Paused';
+                    playbackStatus.classList.replace('text-amber-300', 'text-stone-400');
+                    equalizer.classList.add('paused-eq');
+                    livePing.classList.add('hidden');
+                    liveDot.classList.replace('bg-rose-500', 'bg-stone-500');
+                }
+            }
+
+            async function startPlayback() {
+                try {
+                    await audio.play();
+                    updatePlaybackUI(true);
+                    welcomeOverlay.classList.add('fade-out');
+                } catch (err) {
+                    console.warn('Playback waiting for user interaction:', err);
+                }
+            }
+
+            function togglePlayback() {
+                if (audio.paused) {
+                    startPlayback();
+                } else {
+                    audio.pause();
+                    updatePlaybackUI(false);
+                }
+            }
+
+            // Dismiss welcome overlay & start music on click
+            welcomeOverlay.addEventListener('click', () => {
+                startPlayback();
+            });
+
+            playPauseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                togglePlayback();
+            });
+
+            // Keyboard shortcut: Spacebar to play/pause
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && document.activeElement.tagName !== 'BUTTON') {
+                    e.preventDefault();
+                    if (!welcomeOverlay.classList.contains('fade-out')) {
+                        startPlayback();
+                    } else {
+                        togglePlayback();
+                    }
+                }
+            });
+
+            // --- Volume & Mute Controls ---
+            function updateVolumeUI(val) {
+                const pct = Math.round(val * 100);
+                volumePercent.textContent = `${pct}%`;
+                volumeSlider.value = val;
+                if (val === 0 || audio.muted) {
+                    volHighIcon.classList.add('hidden');
+                    volMuteIcon.classList.remove('hidden');
+                } else {
+                    volHighIcon.classList.remove('hidden');
+                    volMuteIcon.classList.add('hidden');
+                }
+            }
+
+            volumeSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                audio.muted = false;
+                audio.volume = val;
+                if (val > 0) previousVolume = val;
+                updateVolumeUI(val);
+            });
+
+            muteBtn.addEventListener('click', () => {
+                if (audio.muted || audio.volume === 0) {
+                    audio.muted = false;
+                    audio.volume = previousVolume || 0.75;
+                    updateVolumeUI(audio.volume);
+                } else {
+                    previousVolume = audio.volume;
+                    audio.muted = true;
+                    updateVolumeUI(0);
+                }
+            });
+
+            // --- Clean View Listeners ---
+            zenBtn.addEventListener('click', () => {
+                headerEl.classList.add('hidden');
+                mainEl.classList.add('hidden');
+                restoreUiBtn.classList.remove('hidden');
+            });
+
+            restoreUiBtn.addEventListener('click', () => {
+                headerEl.classList.remove('hidden');
+                mainEl.classList.remove('hidden');
+                restoreUiBtn.classList.add('hidden');
+            });
+
+            // --- Live Clock ---
+            function updateClock() {
+                const now = new Date();
+                const clockDisplay = document.getElementById('clock-display');
+                clockDisplay.textContent = now.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // --- Pomodoro Study Timer ---
+            const timerDisplay = document.getElementById('timer-display');
+            const timerModeLabel = document.getElementById('timer-mode-label');
+            const timerToggleBtn = document.getElementById('timer-toggle-btn');
+            const timerPlayIcon = document.getElementById('timer-play-icon');
+            const timerPauseIcon = document.getElementById('timer-pause-icon');
+            const timerResetBtn = document.getElementById('timer-reset-btn');
+            const timerModeBtn = document.getElementById('timer-mode-btn');
+            const toastEl = document.getElementById('toast-notification');
+
+            let isFocusMode = true;
+            let timerSeconds = 25 * 60;
+            let timerInterval = null;
+            let isTimerRunning = false;
+
+            function formatTime(secs) {
+                const m = Math.floor(secs / 60).toString().padStart(2, '0');
+                const s = (secs % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            }
+
+            function showToast(message) {
+                toastEl.textContent = message;
+                toastEl.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toastEl.classList.add('opacity-0');
+                }, 4000);
+            }
+
+            function updateTimerUI() {
+                timerDisplay.textContent = formatTime(timerSeconds);
+                if (isTimerRunning) {
+                    timerPlayIcon.classList.add('hidden');
+                    timerPauseIcon.classList.remove('hidden');
+                } else {
+                    timerPlayIcon.classList.remove('hidden');
+                    timerPauseIcon.classList.add('hidden');
+                }
+            }
+
+            function toggleTimer() {
+                if (isTimerRunning) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                } else {
+                    isTimerRunning = true;
+                    timerInterval = setInterval(() => {
+                        if (timerSeconds > 0) {
+                            timerSeconds--;
+                            updateTimerUI();
+                        } else {
+                            clearInterval(timerInterval);
+                            isTimerRunning = false;
+                            showToast(isFocusMode ? 'Focus session complete! Time for a 5-minute break.' : 'Break finished! Ready to focus again.');
+                            switchTimerMode();
+                        }
+                    }, 1000);
+                }
+                updateTimerUI();
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                timerSeconds = isFocusMode ? 25 * 60 : 5 * 60;
+                updateTimerUI();
+            }
+
+            function switchTimerMode() {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                isFocusMode = !isFocusMode;
+                timerSeconds = isFocusMode ? 25 * 60 : 5 * 60;
+                timerModeLabel.textContent = isFocusMode ? 'Focus Session' : 'Short Break';
+                timerModeLabel.classList.toggle('text-amber-300/90', isFocusMode);
+                timerModeLabel.classList.toggle('text-emerald-300/90', !isFocusMode);
+                updateTimerUI();
+            }
+
+            timerToggleBtn.addEventListener('click', toggleTimer);
+            timerResetBtn.addEventListener('click', resetTimer);
+            timerModeBtn.addEventListener('click', switchTimerMode);
+        });
+    </script>
+</body>
+</html>
