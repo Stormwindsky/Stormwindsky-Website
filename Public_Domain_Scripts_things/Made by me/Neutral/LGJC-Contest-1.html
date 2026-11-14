@@ -25,6 +25,68 @@
             padding: 0;
         }
 
+        /* ================= POPUP OVERLAY (FACILE À RETIRER) ================= */
+        /* Pour retirer le popup plus tard, supprimez simplement ce bloc CSS et la <div id="pause-popup"> dans le HTML */
+        #pause-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 15, 22, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        #pause-popup-box {
+            background-color: var(--card-bg);
+            border: 2px solid var(--warning-color);
+            border-radius: 12px;
+            max-width: 550px;
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        #pause-popup-box h2 {
+            color: var(--warning-color);
+            border-bottom: none;
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .popup-divider {
+            border: 0;
+            height: 1px;
+            background: var(--border-color);
+            margin: 1.2rem 0;
+        }
+
+        .popup-close-btn {
+            background-color: var(--warning-color);
+            color: #15151e;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: opacity 0.2s ease;
+        }
+
+        .popup-close-btn:hover {
+            opacity: 0.9;
+        }
+        /* ================= FIN DU POPUP OVERLAY ================= */
+
         header {
             background: linear-gradient(135deg, #2b1b4d, #1a1a24);
             border-bottom: 2px solid var(--accent-color);
@@ -105,6 +167,14 @@
             border-radius: 0 4px 4px 0;
         }
 
+        .reward-box {
+            background-color: rgba(43, 182, 115, 0.15);
+            border: 1px solid var(--accent-color);
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
         .disclaimer-box {
             background-color: rgba(255, 152, 0, 0.1);
             border-left: 4px solid var(--warning-color);
@@ -148,6 +218,25 @@
 </head>
 <body>
 
+    <!-- ================= DÉBUT DU POPUP PAUSE (SUPPRIMER CE BLOC POUR L'ENLEVER) ================= -->
+    <div id="pause-popup-overlay">
+        <div id="pause-popup-box">
+            <h2>⏸️ Contest Paused Indefinitely</h2>
+            <p>
+                This mascot creation contest is currently <strong>paused for an unlimited time</strong>. Submissions are temporarily closed until further notice.
+            </p>
+            <hr class="popup-divider">
+            <h2>⏸️ Concours en Pause (Durée Indéterminée)</h2>
+            <p>
+                Ce concours de création de mascotte est actuellement <strong>en pause pour un temps illimité</strong>. Les participations sont temporairement fermées jusqu'à nouvel ordre.
+            </p>
+            <button class="popup-close-btn" onclick="document.getElementById('pause-popup-overlay').style.display='none'">
+                Close / Fermer (View Rules / Voir les règles)
+            </button>
+        </div>
+    </div>
+    <!-- ================= FIN DU POPUP PAUSE ================= -->
+
     <header>
         <h1>Mascot Creation Contest</h1>
         <div class="subtitle">Game Jolt Linux Community</div>
@@ -163,47 +252,53 @@
         <div id="lang-en" class="lang-section active-content">
             
             <section>
-                <h2>1. What is a Miacis? (The Animal Behind the Mascot)</h2>
-                <p>
-                    For our official community mascot, Stormwindsky selected an extraordinary prehistoric creature: the <strong>Miacis</strong>!
-                </p>
-                <p>
-                    The <em>Miacis</em> is an extinct genus of small, tree-dwelling mammals that lived during the Eocene epoch (about 50 to 60 million years ago). What makes the Miacis so special is that it is widely considered an ancestral carnivoran—<strong>a common ancestor connecting both cats (feliforms) and dogs (caniforms)</strong>.
-                </p>
-                <div class="highlight-box">
-                    <strong>Did you know?</strong> Cats and dogs actually share a common lineage! The Miacis represents that ancient root, making it a perfect symbol of unification, adaptability, and evolution for our Linux community.
+                <h2>🏆 Winner Reward & Recognition</h2>
+                <div class="reward-box">
+                    <p>
+                        The winner's artwork will become the <strong>official mascot of the Linux Community on Game Jolt</strong>!
+                    </p>
+                    <ul>
+                        <li>Your name/username will be <strong>permanently added to the official Game Jolt community description</strong> as the official mascot creator.</li>
+                        <li>A <strong>direct download link</strong> for the mascot (and credit to your profile) will be featured in the community description.</li>
+                    </ul>
                 </div>
             </section>
 
             <section>
-                <h2>2. Mascot Requirements</h2>
+                <h2>1. Mascot Design & Creative Freedom</h2>
                 <ul>
-                    <li><strong>Animal:</strong> Must strictly be a <strong>Miacis</strong>.</li>
-                    <li><strong>Gender:</strong> Female.</li>
-                    <li><strong>Pose:</strong> Sitting position, directly inspired by the iconic classic pose of <strong>Tux</strong> (the Linux penguin).</li>
-                    <li><strong>Expression/Vibe:</strong> Happy, friendly, and welcoming smile.</li>
-                    <li><strong>Art Style:</strong> Any style is accepted (vector, 3D, hand-drawn, digital painting, etc.) <strong>EXCEPT Pixel Art</strong>.</li>
-                    <li><strong>No Generative AI:</strong> The use of Generative AI tools (AI art generators) is <strong>STRICTLY FORBIDDEN</strong>. Submissions must be created by human artists.</li>
-                    <li><strong>File Formats:</strong> Accepted formats are <code>.png</code> and <code>.svg</code>. (You can provide both, or just <code>.png</code> if that is easier for you!).</li>
+                    <li><strong>Animal / Creature:</strong> Complete creative freedom! You can choose <strong>any animal or creature</strong> you want, as long as it is <strong>NOT a penguin</strong> (to avoid copying or resembling <em>Tux</em>, the Linux mascot).</li>
+                    <li><strong>Color Palette:</strong> For copyright and trademark reasons, do <strong>NOT</strong> use the official Game Jolt website colors (the signature neon green and black theme).</li>
+                    <li><strong>Expression/Vibe:</strong> Happy, friendly, and welcoming attitude.</li>
+                    <li><strong>Art Style:</strong> Any traditional or digital art style is accepted (vector, 3D, hand-drawn, digital painting, etc.).</li>
+                    <li><strong>Pixel Art Rule:</strong> Pixel Art is accepted <strong>ONLY IF</strong> you also provide a high-resolution, non-pixel art version of the mascot (so it can be cleanly used on banners and logos).</li>
+                    <li><strong>No Generative AI:</strong> The use of Generative AI tools (AI art generators) is <strong>STRICTLY FORBIDDEN</strong>. Submissions must be created 100% by human artists.</li>
+                    <li><strong>File Formats:</strong> Accepted formats are <code>.png</code> (transparent background preferred) and/or <code>.svg</code>.</li>
                 </ul>
 
                 <div class="restriction-box">
-                    <strong>Restrictions:</strong> Pixel Art and Generative AI (AI-generated art) are <strong>NOT allowed</strong> for this contest. Please create your artwork using standard digital or traditional art techniques.
+                    <strong>Important Restrictions:</strong>
+                    <ul>
+                        <li>No penguins (must not be the same animal as Tux).</li>
+                        <li>No Game Jolt official brand colors.</li>
+                        <li>No standalone Pixel Art (must include a non-pixel art version).</li>
+                        <li>No Generative AI (AI-generated art is strictly banned).</li>
+                    </ul>
                 </div>
             </section>
 
             <section>
-                <h2>3. Allowed Creative Commons Licenses</h2>
-                <p>Only submissions under the following open licenses will be accepted:</p>
+                <h2>2. Mandatory Creative Commons Licenses</h2>
+                <p>To allow the community to freely use and share its mascot without legal barriers, submissions <strong>must</strong> be released under one of the following open licenses:</p>
                 <ul>
-                    <li><strong>CC BY 4.0 (Attribution 4.0 International):</strong> <em>(Recommended)</em> Allows everyone to share and adapt the work for any purpose, as long as appropriate credit is given to you as the creator.</li>
+                    <li><strong>CC BY 4.0 (Attribution 4.0 International):</strong> <em>(Recommended)</em> Allows everyone to share and adapt the work for any purpose, provided appropriate credit is given to you as the creator.</li>
                     <li><strong>CC0 1.0 (Public Domain Dedication):</strong> Waives all copyright rights globally.</li>
                     <li><strong>Both CC0 and CC BY 4.0 combined.</strong></li>
                 </ul>
             </section>
 
             <section>
-                <h2>4. Naming Rules & Restrictions</h2>
+                <h2>3. Naming Rules & Restrictions</h2>
                 <div class="highlight-box">
                     <p><strong>Name Guidelines:</strong></p>
                     <ul>
@@ -227,38 +322,44 @@
         <div id="lang-fr" class="lang-section">
             
             <section>
-                <h2>1. C'est quoi un Miacis ? (L'animal derrière la mascotte)</h2>
-                <p>
-                    Pour la mascotte officielle de notre communauté, Stormwindsky a choisi une créature préhistorique extraordinaire : le <strong>Miacis</strong> !
-                </p>
-                <p>
-                    Le <em>Miacis</em> est un genre éteint de petits mammifères arboricoles qui vivaient à l'époque de l'Éocène (il y a environ 50 à 60 millions d'années). Ce qui rend le Miacis si spécial, c'est qu'il est largement considéré comme un carnivore ancestral — <strong>un ancêtre commun qui relie à la fois les chats (féliformes) et les chiens (caniformes)</strong> !
-                </p>
-                <div class="highlight-box">
-                    <strong>Le saviez-vous ?</strong> Les chats et les chiens partagent bel et bien une lignée commune ! Le Miacis représente cette racine ancienne, ce qui en fait un symbole parfait d'unification, d'adaptabilité et d'évolution pour notre communauté Linux.
+                <h2>🏆 Récompense & Reconnaissance du Gagnant</h2>
+                <div class="reward-box">
+                    <p>
+                        L'œuvre gagnante deviendra la <strong>mascotte officielle de la communauté Linux sur Game Jolt</strong> !
+                    </p>
+                    <ul>
+                        <li>Votre nom/pseudo sera <strong>ajouté de façon permanente dans la description officielle du groupe communautaire Linux de Game Jolt</strong> en tant que créateur de la mascotte.</li>
+                        <li>Un <strong>lien direct pour télécharger la mascotte</strong> (ainsi que votre crédit) sera intégré dans la description de la communauté.</li>
+                    </ul>
                 </div>
             </section>
 
             <section>
-                <h2>2. Consignes pour la Mascotte</h2>
+                <h2>1. Consignes & Liberté Créative</h2>
                 <ul>
-                    <li><strong>Animal :</strong> Doit obligatoirement être un <strong>Miacis</strong>.</li>
-                    <li><strong>Genre :</strong> Féminin.</li>
-                    <li><strong>Posture :</strong> Position assise, directement inspirée de la célèbre posture classique de <strong>Tux</strong> (le manchot de Linux).</li>
-                    <li><strong>Expression / Ambiance :</strong> Un grand sourire joyeux et amical (happy & friendly).</li>
-                    <li><strong>Style artistique :</strong> Tous les styles sont acceptés (vectoriel, 3D, dessin fait main, peinture numérique, etc.) <strong>SAUF le Pixel Art</strong>.</li>
-                    <li><strong>Pas d'IA générative :</strong> L'utilisation de l'intelligence artificielle générative (générateurs d'images par IA) est <strong>STRICTEMENT INTERDITE</strong>. Les participations doivent être entièrement créées par des artistes humains.</li>
-                    <li><strong>Formats de fichier autorisés :</strong> Les seuls formats acceptés sont le <code>.png</code> et le <code>.svg</code>. (Vous pouvez fournir les deux, ou uniquement le <code>.png</code> si c'est plus simple pour vous).</li>
+                    <li><strong>Animal / Créature :</strong> Carte blanche totale ! Vous pouvez choisir <strong>n'importe quel animal ou créature</strong>, à condition que ce ne soit <strong>PAS un manchot ou un pingouin</strong> (pour ne pas reprendre le même animal que <em>Tux</em>).</li>
+                    <li><strong>Couleurs :</strong> Pour des raisons de droit d'auteur (copyright), n'utilisez <strong>PAS</strong> les couleurs officielles du site Game Jolt (le vert néon et noir caractéristiques de la plateforme).</li>
+                    <li><strong>Expression / Ambiance :</strong> Une attitude joyeuse, amicale et accueillante.</li>
+                    <li><strong>Style artistique :</strong> Tous les styles traditionnels ou numériques sont acceptés (vectoriel, 3D, dessin fait main, peinture numérique, etc.).</li>
+                    <li><strong>Règle sur le Pixel Art :</strong> Le Pixel Art est accepté <strong>UNIQUEMENT SI</strong> une version haute résolution (non-pixel art) de la mascotte est également fournie avec votre participation.</li>
+                    <li><strong>Pas d'IA générative :</strong> L'utilisation d'outils d'intelligence artificielle générative (générateurs d'images par IA) est <strong>STRICTEMENT INTERDITE</strong>. Les participations doivent être créées à 100 % par des artistes humains.</li>
+                    <li><strong>Formats de fichier autorisés :</strong> Les formats acceptés sont le <code>.png</code> (fond transparent apprécié) et/ou le <code>.svg</code>.</li>
                 </ul>
 
                 <div class="restriction-box">
-                    <strong>Restrictions :</strong> Le Pixel Art et l'IA générative (images générées par IA) sont <strong>STRICTEMENT INTERDITS</strong> pour ce concours. Veuillez créer votre œuvre en utilisant des techniques artistiques numériques ou traditionnelles.
+                    <strong>Restrictions Importantes :</strong>
+                    <ul>
+                        <li>Pas de manchot / pingouin (ne doit pas être l'animal de Tux).</li>
+                        <li>Pas de couleurs officielles du site Game Jolt.</li>
+                        <li>Pas de Pixel Art seul (une version non-pixel art doit être incluse).</li>
+                        <li>Pas d'IA générative (images générées par IA strictement interdites).</li>
+                    </ul>
                 </div>
             </section>
 
             <section>
-                <h2>3. Licences Creative Commons Autorisées</h2>
-                <p>Seules les participations sous les licences libres suivantes seront acceptées :</p>
+                <h2>2. Licences Creative Commons Obligatoires</h2>
+                <p>Pour permettre à la communauté d'utiliser et partager librement sa mascotte sans blocage légal, les participations doivent <strong>obligatoirement</strong> être soumises sous l'une des licences libres suivantes :</p>
                 <ul>
                     <li><strong>CC BY 4.0 (Attribution 4.0 International) :</strong> <em>(Recommandée)</em> Permet à tout le monde de partager et d'adapter l'œuvre, y compris à des fins commerciales, à condition de vous créditer en tant qu'auteur original.</li>
                     <li><strong>CC0 1.0 (Domaine Public) :</strong> Renonce à tous les droits d'auteur dans le monde entier.</li>
@@ -267,12 +368,12 @@
             </section>
 
             <section>
-                <h2>4. Règles de Nommage et Restrictions</h2>
+                <h2>3. Règles de Nommage et Restrictions</h2>
                 <div class="highlight-box">
                     <p><strong>Directives pour le nom :</strong></p>
                     <ul>
                         <li>Ne <strong>PAS</strong> donner un nom similaire à <em>Tux</em>.</li>
-                        <li>Ne <strong>PAS</strong> inclure le mot <em>Linux</em> dans me nom.</li>
+                        <li>Ne <strong>PAS</strong> inclure le mot <em>Linux</em> dans le nom.</li>
                         <li>Pour des raisons légales, ne <strong>PAS</strong> utiliser le mot <em>Jolt</em> (ni de dérivé similaire) dans le nom de la mascotte.</li>
                     </ul>
                 </div>
@@ -281,7 +382,7 @@
             <section class="disclaimer-box">
                 <h2>Avertissement Légal</h2>
                 <p>
-                    Ce concours de création de mascotte est une initiative indépendante organisée strictly par et pour la communauté Linux de Game Jolt. 
+                    Ce concours de création de mascotte est une initiative indépendante organisée strictement par et pour la communauté Linux de Game Jolt. 
                     <strong>Ce concours n'est PAS affilié, sponsorisé, approuvé ou associé à Game Jolt Inc. ni à la Linux Foundation.</strong>
                 </p>
             </section>
